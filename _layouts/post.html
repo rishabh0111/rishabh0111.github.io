@@ -1,0 +1,114 @@
+---
+layout: default
+---
+
+<!-- Post hero -->
+<div class="post-hero {% if page.categories contains 'news' %}news{% endif %}">
+  <div class="post-hero-inner">
+
+    <!-- Breadcrumb -->
+    <p class="post-crumb">
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <span class="sep">/</span>
+      {% if page.categories contains 'news' %}
+        <a href="{{ '/news/' | relative_url }}">News</a>
+        <span class="sep">/</span>
+        <span class="cat-pill news">News Digest</span>
+      {% else %}
+        <a href="{{ '/blogs/' | relative_url }}">Blog</a>
+        <span class="sep">/</span>
+        <span class="cat-pill blog">Blog</span>
+      {% endif %}
+    </p>
+
+    <h1 class="post-title">{{ page.title }}</h1>
+
+    <div class="post-meta">
+      {% if page.author %}<span>{{ page.author }}</span><span class="sep">·</span>{% endif %}
+      <time datetime="{{ page.date | date_to_xmlschema }}">
+        {{ page.date | date: "%B %-d, %Y" }}
+      </time>
+      {% if page.source %}
+        <span class="sep">·</span>
+        <span class="post-source">via {{ page.source }}</span>
+      {% endif %}
+      {% if page.read_time %}
+        <span class="sep">·</span>
+        <span>{{ page.read_time }} min read</span>
+      {% endif %}
+    </div>
+
+    {% if page.excerpt %}
+    <p class="post-excerpt">{{ page.excerpt | strip_html }}</p>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Post body + sidebar -->
+<div class="post-wrap">
+
+  <article class="post-content" id="post-body">
+    {{ content }}
+
+    {% if page.tags and page.tags.size > 0 %}
+    <div class="post-tags" aria-label="Tags">
+      {% for tag in page.tags %}
+      <span class="post-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </article>
+
+  <aside class="post-sidebar" aria-label="Sidebar">
+
+    <!-- TOC — auto-populated by JS in default.html -->
+    <div class="sidebar-card" id="toc-card">
+      <span class="sidebar-label">In this article</span>
+      <ul id="toc-list"></ul>
+    </div>
+
+    <!-- Related posts — same category -->
+    {% assign cat = page.categories | first %}
+    {% assign related = site.posts
+        | where_exp: "p", "p.url != page.url"
+        | where_exp: "p", "p.categories contains cat"
+        | limit: 4 %}
+    {% if related.size > 0 %}
+    <div class="sidebar-card">
+      <span class="sidebar-label">More {{ cat }}</span>
+      <ul class="related-list">
+        {% for post in related %}
+        <li>
+          <a href="{{ post.url | relative_url }}">
+            {{ post.title }}
+            <span>{{ post.date | date: "%b %-d, %Y" }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+  </aside>
+</div>
+
+<!-- Prev / Next navigation -->
+<nav class="post-nav" aria-label="Post navigation">
+  <a class="post-nav-item prev"
+     {% if page.previous %}href="{{ page.previous.url | relative_url }}"
+     {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
+    <span class="post-nav-dir">&larr; Previous</span>
+    <span class="post-nav-title">
+      {% if page.previous %}{{ page.previous.title }}{% else %}&mdash;{% endif %}
+    </span>
+  </a>
+  <a class="post-nav-item next"
+     {% if page.next %}href="{{ page.next.url | relative_url }}"
+     {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
+    <span class="post-nav-dir">Next &rarr;</span>
+    <span class="post-nav-title">
+      {% if page.next %}{{ page.next.title }}{% else %}&mdash;{% endif %}
+    </span>
+  </a>
+</nav>

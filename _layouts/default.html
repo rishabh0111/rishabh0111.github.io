@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+  <meta property="og:title"       content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+  <meta property="og:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+  <meta property="og:type"        content="website">
+  <meta name="twitter:card"       content="summary">
+  {% seo %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+
+  <div class="read-progress" aria-hidden="true">
+    <div class="read-progress-bar" id="progress-bar"></div>
+  </div>
+
+  <header class="site-header">
+    <a class="site-logo" href="{{ '/' | relative_url }}">
+      {{ site.title | default: "Atlas" }}<span>/</span>
+    </a>
+    <nav class="site-nav" aria-label="Site navigation">
+      <a href="{{ '/' | relative_url }}"
+         {% if page.url == '/' %}class="active"{% endif %}>Home</a>
+      <a href="{{ '/blogs/' | relative_url }}"
+         {% if page.url contains '/blogs' %}class="active"{% endif %}>Blog</a>
+      <a href="{{ '/news/' | relative_url }}"
+         {% if page.url contains '/news' %}class="active"{% endif %}>News</a>
+    </nav>
+  </header>
+
+  <main>{{ content }}</main>
+
+  <footer class="site-footer">
+    <p>{{ site.title | default: "Atlas" }} &mdash; {{ 'now' | date: "%Y" }}</p>
+    <div class="footer-palette" aria-hidden="true">
+      <div class="footer-dot" style="background:#F4EFE4;"></div>
+      <div class="footer-dot" style="background:#7A8BAB;"></div>
+      <div class="footer-dot" style="background:#3D5070;"></div>
+      <div class="footer-dot" style="background:#C4856A;"></div>
+      <div class="footer-dot" style="background:#0E1820;"></div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    var bar = document.getElementById('progress-bar');
+    if (!bar) return;
+    window.addEventListener('scroll', function () {
+      var doc = document.documentElement;
+      var s = doc.scrollTop || document.body.scrollTop;
+      var t = doc.scrollHeight - doc.clientHeight;
+      bar.style.width = t > 0 ? (s / t * 100) + '%' : '0%';
+    }, { passive: true });
+
+    var article = document.getElementById('post-body');
+    var tocList = document.getElementById('toc-list');
+    var tocCard = document.getElementById('toc-card');
+    if (!article || !tocList) return;
+    var headings = article.querySelectorAll('h2, h3');
+    if (headings.length < 2) { if (tocCard) tocCard.style.display = 'none'; return; }
+    headings.forEach(function (h, i) {
+      if (!h.id) h.id = 'section-' + i;
+      var li = document.createElement('li');
+      if (h.tagName === 'H3') li.classList.add('toc-h3');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/^§\s*/, '');
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    var links = tocList.querySelectorAll('a');
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          var a = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(function (h) { obs.observe(h); });
+  })();
+  </script>
+
+</body>
+</html>
