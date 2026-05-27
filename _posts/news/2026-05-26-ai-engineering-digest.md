@@ -66,19 +66,19 @@ This is a WorkOS-originated community specification, not an IETF standard. It ha
 
 ## Further reading
 
-https://thenewstack.io/anthropic-mcp-tunnels-sandboxes/
-https://www.infoq.com/news/2026/05/claude-mcp-tunnels/
-https://9to5mac.com/2026/05/19/anthropic-enhances-claude-managed-agents-with-two-new-privacy-and-security-features/
-https://releasebot.io/updates/anthropic
-https://llm-stats.com/blog/research/gemini-3.5-flash-launch
-https://artificialanalysis.ai/models/gemini-3-5-flash
-https://ai.google.dev/gemini-api/docs/pricing
-https://ai.google.dev/gemini-api/docs/changelog
-https://tokencost.app/blog/gemini-2-0-flash-deprecated-migration-cost
-https://www.microsoft.com/en-us/research/articles/webwright-a-terminal-is-all-you-need-for-web-agents/
-https://github.com/microsoft/webwright
-https://www.marktechpost.com/2026/05/24/microsoft-research-releases-webwright-a-terminal-native-web-agent-framework-that-scores-60-1-on-odysseys-up-from-base-gpt-5-4s-33-5/
-https://workos.com/blog/mcp-night-4-recap-auth-md-agentic-registration
-https://www.marktechpost.com/2026/05/25/workos-releases-auth-md-an-open-agent-registration-protocol-built-on-oauth-standards/
-https://apidog.com/blog/google-antigravity-2/
-https://openrouter.ai/google/gemini-3.5-flash
+- [The New Stack — Anthropic MCP tunnels and self-hosted sandboxes](https://thenewstack.io/anthropic-mcp-tunnels-sandboxes/)
+- [InfoQ — Claude MCP tunnels, technical detail](https://www.infoq.com/news/2026/05/claude-mcp-tunnels/)
+- [9to5Mac — Claude Managed Agents feature announcement](https://9to5mac.com/2026/05/19/anthropic-enhances-claude-managed-agents-with-two-new-privacy-and-security-features/)
+- [Anthropic release notes via Releasebot](https://releasebot.io/updates/anthropic)
+- [LLM Stats — Gemini 3.5 Flash launch breakdown](https://llm-stats.com/blog/research/gemini-3.5-flash-launch)
+- [Artificial Analysis — Gemini 3.5 Flash benchmarks and speed](https://artificialanalysis.ai/models/gemini-3-5-flash)
+- [Google — Gemini API official pricing page](https://ai.google.dev/gemini-api/docs/pricing)
+- [Google — Gemini API changelog (deprecation notices)](https://ai.google.dev/gemini-api/docs/changelog)
+- [TokenCost — Gemini 2.0 Flash deprecation cost analysis](https://tokencost.app/blog/gemini-2-0-flash-deprecated-migration-cost)
+- [Microsoft Research — Webwright: A Terminal Is All You Need](https://www.microsoft.com/en-us/research/articles/webwright-a-terminal-is-all-you-need-for-web-agents/)
+- [GitHub — microsoft/webwright](https://github.com/microsoft/webwright)
+- [MarkTechPost — Webwright benchmark writeup](https://www.marktechpost.com/2026/05/24/microsoft-research-releases-webwright-a-terminal-native-web-agent-framework-that-scores-60-1-on-odysseys-up-from-base-gpt-5-4s-33-5/)
+- [WorkOS — MCP Night 4 recap and auth.md announcement](https://workos.com/blog/mcp-night-4-recap-auth-md-agentic-registration)
+- [MarkTechPost — auth.md spec overview](https://www.marktechpost.com/2026/05/25/workos-releases-auth-md-an-open-agent-registration-protocol-built-on-oauth-standards/)
+- [Apidog — Google Antigravity 2.0 and Managed Agents API](https://apidog.com/blog/google-antigravity-2/)
+- [OpenRouter — Gemini 3.5 Flash pricing and specs](https://openrouter.ai/google/gemini-3.5-flash)
