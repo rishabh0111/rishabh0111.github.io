@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Theme: apply saved choice before first paint to avoid a flash.
+       No saved choice (or 'system') → leave data-theme unset so CSS
+       follows prefers-color-scheme. data-theme-choice always reflects
+       the three-way toggle state (light/dark/system) so the control
+       itself never flashes either. -->
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var choice = 'system';
+      try {
+        var t = localStorage.getItem('site-theme');
+        if (t === 'light' || t === 'dark') choice = t;
+      } catch (e) {}
+      root.setAttribute('data-theme-choice', choice);
+      if (choice !== 'system') root.setAttribute('data-theme', choice);
+    })();
+  </script>
+  <!-- The home page sets page.title to the site title; without the guard it
+       would render "Rishabh Sharma · Rishabh Sharma". -->
+  <title>{% if page.title and page.title != site.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+
+  <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
+       title is suppressed, because the em-dash form above is the one we want. -->
+  {% seo title=false %}
+
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
+  <link rel="icon" type="image/x-icon" href="{{ '/assets/img/favicon.ico' | relative_url }}">
+  <link rel="apple-touch-icon" href="{{ '/assets/img/apple-touch-icon.png' | relative_url }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Martian+Mono:wdth,wght@75..112.5,300..600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% if content contains 'sketch-svg' %}
+  <!-- Hand-drawn figures (_includes/sketches) letter their labels in Caveat; only pages that carry one load it. -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+  {% endif %}
+  {% if content contains 'language-mermaid' %}
+  <!-- Only loaded on pages with a mermaid fence, pinned major version 10 for a stable render. -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  {% endif %}
+</head>
+<body>
+
+  <!-- Parallax scene: garden (light) / space (dark). Decorative only. -->
+  <div class="px" aria-hidden="true">
+    <div class="px-layer px-far"  data-depth="0.05"></div>
+    <div class="px-layer px-mid"  data-depth="0.12"></div>
+    <div class="px-layer px-tex"  data-depth="0.07"></div>
+    <div class="px-layer px-near" data-depth="0.20"></div>
+  </div>
+
+  <!-- Reading progress rides the button's ring; see .scroll-top -->
+  <button type="button" class="scroll-top" id="scroll-top" title="Back to top">
+    <svg class="scroll-top-ring" viewBox="0 0 46 46" aria-hidden="true">
+      <circle class="ring-track" cx="23" cy="23" r="21"></circle>
+      <circle class="ring-bar" id="ring-bar" cx="23" cy="23" r="21"></circle>
+    </svg>
+    <svg class="scroll-top-arrow" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19V6M5 13l7-7 7 7"></path>
+    </svg>
+    <span class="sr-only">Back to top</span>
+  </button>
+
+  <header class="site-header">
+    <a class="site-logo" href="{{ '/' | relative_url }}">
+      {{ site.title }}<span>/</span><i class="logo-cur" aria-hidden="true"></i>
+    </a>
+    <div class="header-right">
+      <nav class="site-nav" id="site-nav" aria-label="Site navigation">
+        <a href="{{ '/' | relative_url }}"
+           {% if page.url == '/' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="home" %}</span><span class="nav-lb">Home</span></a>
+        <a href="{{ '/blogs/' | relative_url }}"
+           {% if page.url contains '/blogs' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="article" %}</span><span class="nav-lb">Blog</span></a>
+        {%- comment -%}
+          News is parked: _config.yml excludes news/ and _posts/news/, so
+          the category is empty and the tab stays out until they return.
+        {%- endcomment -%}
+        {% if site.categories.news.size > 0 %}
+        <a href="{{ '/news/' | relative_url }}"
+           {% if page.url contains '/news' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="news" %}</span><span class="nav-lb">News</span></a>
+        {% endif %}
+      </nav>
+
+      <div class="theme-toggle" id="theme-toggle"
+           role="radiogroup" aria-label="Colour theme">
+        <span class="tt-thumb" aria-hidden="true"></span>
+
+        <button type="button" class="tt-opt" data-theme-opt="light"
+                role="radio" aria-checked="false" title="Light theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+          <span class="sr-only">Light</span>
+        </button>
+
+        <button type="button" class="tt-opt" data-theme-opt="system"
+                role="radio" aria-checked="true" title="Follow system theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+            <path d="M8 20h8M12 16v4"></path>
+          </svg>
+          <span class="sr-only">System</span>
+        </button>
+
+        <button type="button" class="tt-opt" data-theme-opt="dark"
+                role="radio" aria-checked="false" title="Dark theme">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+          </svg>
+          <span class="sr-only">Dark</span>
+        </button>
+      </div>
+
+      <!-- Hamburger: only rendered at ≤860px, see RESPONSIVE -->
+      <button type="button" class="nav-toggle" id="nav-toggle"
+              aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-box" aria-hidden="true">
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <main>{{ content }}</main>
+
+  <!-- Image / diagram viewer. Empty until something is opened into it. -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"
+       aria-label="Image viewer" hidden>
+    <button type="button" class="lb-close" data-lb="close" title="Close (Esc)" aria-label="Close viewer">
+      {% include icon.html name="close" %}
+    </button>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <div class="lightbox-content" id="lightbox-content"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>{{ site.title }} · {{ 'now' | date: "%Y" }}</p>
+    <nav class="footer-social" aria-label="Social links">
+      {% for l in site.data.social %}
+      <a href="{{ l.url }}" aria-label="{{ l.label }}" title="{{ l.label }}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>{% include icon.html name=l.icon %}</a>
+      {% endfor %}
+    </nav>
+    <div class="footer-palette" aria-hidden="true">
+      <div class="footer-dot" style="background:#2E3440;"></div>
+      <div class="footer-dot" style="background:#3B4252;"></div>
+      <div class="footer-dot" style="background:#434C5E;"></div>
+      <div class="footer-dot" style="background:#4C566A;"></div>
+      <div class="footer-dot" style="background:#88C0D0;"></div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    // ── Parallax (scroll depth + pointer drift) ────────────────
+    var px = document.querySelector('.px');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (px && !reduce.matches) {
+      // The scene is fixed (locked); content scrolling over it provides the
+      // depth. Layers only drift gently with the pointer for a touch of life.
+      var layers = Array.prototype.slice.call(px.querySelectorAll('.px-layer'));
+      var mx = 0, my = 0, raf = null;
+
+      function render() {
+        raf = null;
+        for (var i = 0; i < layers.length; i++) {
+          var d = parseFloat(layers[i].getAttribute('data-depth')) || 0;
+          var x = mx * d * 55;   // pointer drift (gentle)
+          var y = my * d * 55;
+          layers[i].style.transform =
+            'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+        }
+      }
+      function schedule() { if (!raf) raf = requestAnimationFrame(render); }
+
+      if (window.matchMedia('(pointer:fine)').matches) {
+        window.addEventListener('pointermove', function (e) {
+          mx = (e.clientX / window.innerWidth - 0.5) * 2;
+          my = (e.clientY / window.innerHeight - 0.5) * 2;
+          schedule();
+        }, { passive: true });
+      }
+      render();
+    }
+
+    // ── Theme toggle ───────────────────────────────────────────
+    // A segmented radiogroup: light / system / dark, each directly
+    // selectable, with a sliding thumb marking the current one. All
+    // three are visible at once, so the available choices are legible
+    // without clicking, which a single cycling button cannot show.
+    //
+    // "system" means no localStorage entry and no data-theme attribute,
+    // so the CSS prefers-color-scheme block decides. The control's own
+    // visuals key off data-theme-choice, which is always set (see the
+    // pre-paint script in <head>), so it never flashes on load either.
+    var root = document.documentElement;
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var THEME_ORDER = ['light', 'system', 'dark'];
+    function currentTheme() {
+      var set = root.getAttribute('data-theme');
+      return set ? set : (mq.matches ? 'dark' : 'light');
+    }
+
+    var toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+      var opts = Array.prototype.slice.call(toggle.querySelectorAll('.tt-opt'));
+
+      var currentChoice = function () {
+        return root.getAttribute('data-theme-choice') || 'system';
+      };
+
+      var syncToggle = function () {
+        var choice = currentChoice();
+        opts.forEach(function (b) {
+          var on = b.getAttribute('data-theme-opt') === choice;
+          b.setAttribute('aria-checked', on ? 'true' : 'false');
+          // Roving tabindex: the group is one tab stop, arrows move
+          // within it: the expected behaviour for a radiogroup.
+          b.tabIndex = on ? 0 : -1;
+        });
+      };
+
+      var apply = function (choice, focus) {
+        root.setAttribute('data-theme-choice', choice);
+        if (choice === 'system') {
+          root.removeAttribute('data-theme');
+          try { localStorage.removeItem('site-theme'); } catch (e) {}
+        } else {
+          root.setAttribute('data-theme', choice);
+          try { localStorage.setItem('site-theme', choice); } catch (e) {}
+        }
+        syncToggle();
+        if (focus) {
+          var el = toggle.querySelector('[data-theme-opt="' + choice + '"]');
+          if (el) el.focus();
+        }
+        renderMermaid();
+      };
+
+      syncToggle();
+
+      opts.forEach(function (b) {
+        b.addEventListener('click', function () {
+          apply(b.getAttribute('data-theme-opt'), false);
+        });
+      });
+
+      toggle.addEventListener('keydown', function (e) {
+        var i = THEME_ORDER.indexOf(currentChoice());
+        if (i < 0) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          apply(THEME_ORDER[(i + 1) % THEME_ORDER.length], true);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          apply(THEME_ORDER[(i - 1 + THEME_ORDER.length) % THEME_ORDER.length], true);
+        } else if (e.key === 'Home') {
+          e.preventDefault(); apply(THEME_ORDER[0], true);
+        } else if (e.key === 'End') {
+          e.preventDefault(); apply(THEME_ORDER[THEME_ORDER.length - 1], true);
+        }
+      });
+
+      // On "system" the control doesn't move when the OS flips, but the
+      // page re-themes, so diagrams still need re-rendering.
+      mq.addEventListener('change', function () { renderMermaid(); });
+    }
+
+    // ── Mermaid diagrams ─────────────────────────────────────────
+    // kramdown emits a ```mermaid fence as <pre><code class="language-mermaid">
+    // (rouge doesn't know the "mermaid" lexer, so no highlighter wrapper divs
+    // get added, just the plain pre/code pair, HTML-escaped). .textContent
+    // decodes that escaping for free. We swap each block for a plain
+    // container mermaid can render into, and keep the original source around
+    // so a theme toggle can re-render in the new palette instead of leaving
+    // stale-colored SVGs behind.
+    // A classDef in the diagram source compiles to `#<svg-id> .actor > * { fill: … !important }`.
+    // That selector carries an id, so nothing in style.css can outrank it, so a palette written
+    // into the Markdown is therefore permanently light, whatever the page theme says. The
+    // dark/light switch below only ever reached what classDef left alone (arrows, edge labels,
+    // background), which is why light-mode pastels sat on the dark page unchanged.
+    // So the palette lives here instead: posts name a role, this picks the colors for the
+    // live theme. Roles match the ones the diagrams already use; anything else is left alone.
+    var MERMAID_PALETTE = {
+      light: {
+        actor:   'fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A',
+        gateway: 'fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95',
+        service: 'fill:#D1FAE5,stroke:#059669,color:#065F46',
+        store:   'fill:#CFFAFE,stroke:#0891B2,color:#164E63',
+        flow:    'fill:#F1F5F9,stroke:#475569,color:#1E293B',
+        warn:    'fill:#FEF3C7,stroke:#D97706,color:#92400E',
+        ok:      'fill:#DCFCE7,stroke:#16A34A,color:#14532D',
+        error:   'fill:#FEE2E2,stroke:#DC2626,color:#991B1B'
+      },
+      // Deep fills with a bright stroke and pale text: the same eight hues read as the
+      // same eight roles, without the pastel glare of light chips on a dark field.
+      dark: {
+        actor:   'fill:#1B3050,stroke:#60A5FA,color:#DBEAFE',
+        gateway: 'fill:#2B1D4A,stroke:#A78BFA,color:#EDE9FE',
+        service: 'fill:#123A2E,stroke:#34D399,color:#D1FAE5',
+        store:   'fill:#0E3540,stroke:#22D3EE,color:#CFFAFE',
+        flow:    'fill:#2A3038,stroke:#94A3B8,color:#E2E8F0',
+        warn:    'fill:#42310D,stroke:#FBBF24,color:#FEF3C7',
+        ok:      'fill:#14331F,stroke:#4ADE80,color:#DCFCE7',
+        error:   'fill:#431A1B,stroke:#F87171,color:#FEE2E2'
+      }
+    };
+
+    // classDef only reaches flowchart nodes. A sequence diagram is styled entirely
+    // through themeVariables, so the same eight roles are restated here in the terms
+    // mermaid uses for actors, signals, notes and activation bars; otherwise sequence
+    // diagrams would be the one kind that ignores the palette and renders stock.
+    var MERMAID_SEQUENCE_VARS = {
+      light: {
+        actorBkg: '#DBEAFE', actorBorder: '#2563EB', actorTextColor: '#1E3A8A',
+        actorLineColor: '#94A3B8', signalColor: '#334155', signalTextColor: '#1E293B',
+        labelBoxBkgColor: '#EDE9FE', labelBoxBorderColor: '#7C3AED', labelTextColor: '#4C1D95',
+        loopTextColor: '#4C1D95', noteBkgColor: '#FEF3C7', noteBorderColor: '#D97706',
+        noteTextColor: '#92400E', activationBkgColor: '#D1FAE5', activationBorderColor: '#059669',
+        sequenceNumberColor: '#FFFFFF'
+      },
+      dark: {
+        actorBkg: '#1B3050', actorBorder: '#60A5FA', actorTextColor: '#DBEAFE',
+        actorLineColor: '#64748B', signalColor: '#CBD5E1', signalTextColor: '#E2E8F0',
+        labelBoxBkgColor: '#2B1D4A', labelBoxBorderColor: '#A78BFA', labelTextColor: '#EDE9FE',
+        loopTextColor: '#EDE9FE', noteBkgColor: '#42310D', noteBorderColor: '#FBBF24',
+        noteTextColor: '#FEF3C7', activationBkgColor: '#123A2E', activationBorderColor: '#34D399',
+        sequenceNumberColor: '#0F172A'
+      }
+    };
+
+    // Rewrites `classDef <role> …` to the current theme's colors, leaving roles we
+    // don't know (and every other line) exactly as the author wrote them.
+    function themeClassDefs(src, dark) {
+      var palette = MERMAID_PALETTE[dark ? 'dark' : 'light'];
+      return src.replace(/^(\s*)classDef\s+(\w+)\s+.*$/gm, function (line, indent, role) {
+        if (!palette[role]) return line;
+        return indent + 'classDef ' + role + ' ' + palette[role] + ',stroke-width:2px';
+      });
+    }
+
+    var mermaidBlocks = [];
+    document.querySelectorAll('code.language-mermaid').forEach(function (codeEl) {
+      var pre = codeEl.closest('pre') || codeEl.parentElement;
+      // Some diagrams carry an embedded %%{init: {'theme':'base', 'themeVariables': {...}}}%%
+      // directive (authored once, for a light background). A directive inside the diagram
+      // source overrides whatever theme mermaid.initialize() was given, so those diagrams
+      // ignored the dark/light switch below and rendered dark text on a dark page. Strip it
+      // so every diagram always follows the live page theme instead of a baked-in one.
+      var src = codeEl.textContent.replace(/^%%\{init:.*%%\}?\s*$/gm, '');
+      var holder = document.createElement('div');
+      holder.className = 'mermaid-diagram';
+      pre.replaceWith(holder);
+      mermaidBlocks.push({ el: holder, src: src });
+    });
+
+    var mermaidRenderCount = 0;
+    function doRenderMermaid() {
+      if (!mermaidBlocks.length || typeof mermaid === 'undefined') return;
+      var dark = currentTheme() === 'dark';
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
+        theme: dark ? 'dark' : 'default',
+        themeVariables: MERMAID_SEQUENCE_VARS[dark ? 'dark' : 'light'],
+        fontFamily: '"Martian Mono", monospace'
+      });
+      mermaidBlocks.forEach(function (block) {
+        var id = 'mermaid-diagram-' + (mermaidRenderCount++);
+        block.el.removeAttribute('data-processed');
+        block.el.innerHTML = '';
+        mermaid.render(id, themeClassDefs(block.src, dark)).then(function (result) {
+          block.el.innerHTML = result.svg;
+        }).catch(function (err) {
+          block.el.innerHTML = '';
+          console.error('mermaid render failed:', err);
+        });
+      });
+    }
+    // Mermaid measures node/text boxes against whatever font is active the
+    // instant it runs. If the webfont (Martian Mono) hasn't finished loading yet,
+    // it measures against the fallback and every label clips once the real
+    // font swaps in. document.fonts.ready guarantees the swap already happened.
+    function renderMermaid() {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(doRenderMermaid);
+      } else {
+        doRenderMermaid();
+      }
+    }
+    renderMermaid();
+
+    // ── Mobile nav (hamburger) ─────────────────────────────────
+    var navToggle = document.getElementById('nav-toggle');
+    var siteNav = document.getElementById('site-nav');
+    if (navToggle && siteNav) {
+      var setNav = function (open) {
+        siteNav.classList.toggle('open', open);
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        navToggle.setAttribute('aria-label',
+          open ? 'Close navigation menu' : 'Open navigation menu');
+      };
+
+      navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setNav(navToggle.getAttribute('aria-expanded') !== 'true');
+      });
+
+      // Following a link, tapping outside, or Escape all dismiss it.
+      siteNav.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') setNav(false);
+      });
+      document.addEventListener('click', function (e) {
+        if (siteNav.classList.contains('open') && !siteNav.contains(e.target)) setNav(false);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && siteNav.classList.contains('open')) {
+          setNav(false);
+          navToggle.focus();
+        }
+      });
+
+      // Resizing past the breakpoint must not strand the panel open,
+      // since .open would then apply to the desktop flex row.
+      window.matchMedia('(min-width: 861px)').addEventListener('change', function (ev) {
+        if (ev.matches) setNav(false);
+      });
+    }
+
+    // ── Image / diagram viewer ─────────────────────────────────
+    // Figures in an article are sized for the column, which is fine for
+    // reading and useless for a dense diagram. Clicking one opens it
+    // here, fitted to the screen. The only control is the close button;
+    // everything else is direct: wheel or pinch to zoom, drag to pan,
+    // double-click or double-tap to toggle between a close look and the
+    // fit, and on a touch screen a swipe down from the fit closes it.
+    //
+    // Click handling is delegated rather than bound per element, because
+    // mermaid diagrams are rendered asynchronously (and re-rendered on
+    // every theme switch), so anything bound to them directly would be
+    // attached to a node that no longer exists.
+    var lb = document.getElementById('lightbox');
+    var lbStage = document.getElementById('lightbox-stage');
+    var lbContent = document.getElementById('lightbox-content');
+
+    if (lb && lbStage && lbContent) {
+      var scale = 1, tx = 0, ty = 0, fitScale = 1, lastFocus = null;
+      var natW = 0, natH = 0;            // figure size at scale 1
+      var swipeY = 0;                    // swipe-to-close travel, touch only
+
+      var minScale = function () { return fitScale; };
+      var maxScale = function () { return Math.max(8, fitScale * 6); };
+      var atFit = function () { return scale <= fitScale * 1.01; };
+
+      // Keep the figure on screen. Along an axis where it fits, it stays
+      // centred; where it is bigger than the stage, its edges can't be
+      // pulled in past the stage's edges.
+      var clampPan = function () {
+        var st = lbStage.getBoundingClientRect();
+        var mx = Math.max(0, (natW * scale - st.width) / 2);
+        var my = Math.max(0, (natH * scale - st.height) / 2);
+        tx = Math.max(-mx, Math.min(mx, tx));
+        ty = Math.max(-my, Math.min(my, ty));
+      };
+
+      var draw = function () {
+        // The -50% pair puts the figure's centre on the stage's centre
+        // whatever its size; tx/ty pan from there, and the scale runs
+        // about that same centre.
+        lbContent.style.transform =
+          'translate(-50%, -50%) translate(' + tx + 'px,' + (ty + swipeY) + 'px) ' +
+          'scale(' + scale + ')';
+        // A pull-down fades the scrim, so the figure reads as leaving.
+        lb.style.backgroundColor = swipeY
+          ? 'color-mix(in srgb, var(--bg) ' +
+            Math.round(93 * Math.max(0.2, 1 - Math.abs(swipeY) / 400)) + '%, transparent)'
+          : '';
+        lbContent.classList.toggle('zoomed', !atFit());
+      };
+
+      // Animate only the jumps (double-click, double-tap, snap-back).
+      // Wheel, pinch and drag track the input directly; easing them
+      // would make the figure lag behind the fingers.
+      var animating = false;
+      var settle = function () {
+        animating = true;
+        lbContent.style.transition = 'transform 0.22s cubic-bezier(.2,.7,.3,1)';
+        lb.style.transition = 'background-color 0.22s';
+        clearTimeout(settle.t);
+        settle.t = setTimeout(function () {
+          lbContent.style.transition = '';
+          lb.style.transition = '';
+          animating = false;
+        }, 240);
+      };
+      var still = function () {
+        if (!animating) return;
+        clearTimeout(settle.t);
+        lbContent.style.transition = '';
+        lb.style.transition = '';
+        animating = false;
+      };
+
+      var zoomTo = function (next, ox, oy) {
+        next = Math.min(maxScale(), Math.max(minScale(), next));
+        // Keep whatever sits under the pointer under the pointer: solve
+        // the translate that leaves that point fixed across the change.
+        var rect = lbStage.getBoundingClientRect();
+        var px = (ox === undefined ? rect.width / 2 : ox - rect.left) - rect.width / 2;
+        var py = (oy === undefined ? rect.height / 2 : oy - rect.top) - rect.height / 2;
+        tx = px - (px - tx) * (next / scale);
+        ty = py - (py - ty) * (next / scale);
+        scale = next;
+        clampPan();
+        draw();
+      };
+
+      // Fit the figure to the stage, up as well as down. Opening at 1:1
+      // showed a column-sized diagram in the middle of a full screen,
+      // which is the problem this viewer exists to solve.
+      // The figure's natural size is measured once per opening (and on a
+      // resize), with the transform cleared. Measuring on every fit would
+      // read a figure that is still mid-animation from the last toggle.
+      var measure = function () {
+        var fig = lbContent.firstElementChild;
+        if (!fig) return;
+        still();
+        lbContent.style.transform = '';
+        // Measure the figure, not its wrapper. The wrapper is a grid
+        // item, so anything wider than the stage was reported as exactly
+        // stage-width, which made the fit come out at 1 and let the
+        // figure overflow.
+        var f = fig.getBoundingClientRect();
+        natW = f.width; natH = f.height;
+      };
+
+      var fit = function () {
+        tx = 0; ty = 0; swipeY = 0;
+        if (natW && natH) {
+          // A margin all round, so the figure never touches the close
+          // button or the screen edge.
+          var st = lbStage.getBoundingClientRect();
+          var pad = Math.min(48, st.width * 0.04);
+          scale = Math.max(0.05, Math.min((st.width - 2 * pad) / natW, (st.height - 2 * pad) / natH));
+        }
+        fitScale = scale;
+        draw();
+      };
+
+      // Momentum after a flick. Velocity comes from the last few move
+      // samples, then decays per frame; the pan clamp stops it at the
+      // figure's edge instead of letting it sail off.
+      var glide = null;
+      var stopGlide = function () { if (glide) cancelAnimationFrame(glide); glide = null; };
+      var startGlide = function (vx, vy) {
+        stopGlide();
+        if (atFit() || Math.sqrt(vx * vx + vy * vy) < 0.25) return;   // px per ms
+        var last = performance.now();
+        var step = function (now) {
+          var dt = Math.min(32, now - last); last = now;
+          var bx = tx, by = ty;
+          tx += vx * dt; ty += vy * dt;
+          clampPan();
+          if (tx === bx) vx = 0;          // hit an edge: that axis stops
+          if (ty === by) vy = 0;
+          var decay = Math.pow(0.94, dt / 16);
+          vx *= decay; vy *= decay;
+          draw();
+          glide = Math.abs(vx) + Math.abs(vy) > 0.02 ? requestAnimationFrame(step) : null;
+        };
+        glide = requestAnimationFrame(step);
+      };
+
+      var moved = null, placeholder = null, savedStyle = null;
+
+      var close = function () {
+        stopGlide(); still();
+        // The figure is the article's own node, on loan; put it back
+        // exactly where it was, with the styling it arrived with.
+        if (moved && placeholder && placeholder.parentNode) {
+          if (savedStyle === null) moved.removeAttribute('style');
+          else moved.setAttribute('style', savedStyle);
+          // A theme switch re-renders every mermaid diagram while the
+          // viewer is open, so the slot may already be filled. Putting
+          // the borrowed one back would leave two diagrams there.
+          // Only a mermaid holder is refilled; a sketch's slot is the
+          // fig-wrap, whose zoom button carries an svg icon of its own.
+          var slot = placeholder.parentNode;
+          var refilled = slot.classList.contains('mermaid-diagram') && slot.querySelector('svg');
+          if (!refilled) slot.insertBefore(moved, placeholder);
+          slot.removeChild(placeholder);
+        }
+        moved = null; placeholder = null; savedStyle = null;
+        swipeY = 0; natW = natH = 0;
+        lb.style.backgroundColor = '';
+        lb.hidden = true;
+        lbContent.innerHTML = '';
+        lbContent.style.transform = '';
+        document.body.classList.remove('lb-open');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+        lastFocus = null;
+      };
+
+      var open = function (node) {
+        // Move the original rather than clone it. A mermaid flowchart
+        // carries its own <style> block scoped to the svg's id, and puts
+        // its node labels in <foreignObject> HTML, so a copy lands in a
+        // different styling context with a duplicated id, and comes out
+        // wrong. Moving the node sidesteps the whole question.
+        placeholder = document.createElement('span');
+        placeholder.className = 'lb-placeholder';
+        node.parentNode.insertBefore(placeholder, node);
+        moved = node;
+        savedStyle = node.getAttribute('style');
+
+        lbContent.innerHTML = '';
+        lbContent.appendChild(node);
+
+        // Give it its natural size to be measured at; the stage caps
+        // nothing, so `fit` decides the scale from the real dimensions.
+        node.style.maxWidth = 'none';
+        node.style.maxHeight = 'none';
+        if (node.tagName !== 'IMG') {
+          var vb = node.viewBox && node.viewBox.baseVal;
+          if (vb && vb.width && vb.height) {
+            node.style.width = vb.width + 'px';
+            node.style.height = vb.height + 'px';
+          }
+        }
+
+        lastFocus = document.activeElement;
+        lb.hidden = false;
+        document.body.classList.add('lb-open');
+        natW = natH = 0;
+        requestAnimationFrame(function () { measure(); fit(); });
+        var closeBtn = lb.querySelector('[data-lb="close"]');
+        if (closeBtn) closeBtn.focus({ preventScroll: true });
+      };
+
+      // Only figures inside the article, and never one that is already a
+      // link; following the link is what a reader expects there.
+      document.addEventListener('click', function (e) {
+        var body = e.target.closest && e.target.closest('#post-body');
+        if (!body || lb.contains(e.target)) return;
+        if (e.target.closest('.fig-zoom')) return;   // has its own handler
+        var fig = e.target.closest('img, .mermaid-diagram svg, svg.sketch-svg');
+        if (!fig || fig.closest('a')) return;
+        e.preventDefault();
+        open(fig);
+      });
+
+      // A visible control on each figure. Clicking the artwork works too,
+      // but a diagram is mostly whitespace between boxes: you had to find
+      // a stroke to hit, and nothing said it was clickable at all.
+      var ZOOM_ICON =
+        '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" ' +
+        'aria-hidden="true"><path d="M6.2 1.8H1.8v4.4M9.8 1.8h4.4v4.4' +
+        'M9.8 14.2h4.4V9.8M6.2 14.2H1.8V9.8"/></svg>';
+
+      document.querySelectorAll('#post-body img, #post-body .mermaid-diagram, #post-body svg.sketch-svg')
+        .forEach(function (el) {
+          if (el.tagName === 'IMG' && el.closest('a')) return;
+
+          // The wrapper goes *around* the mermaid holder, not inside it:
+          // a theme switch replaces the holder's innerHTML, which would
+          // take the button with it.
+          var wrap = document.createElement(el.tagName === 'IMG' ? 'span' : 'div');
+          wrap.className = 'fig-wrap';
+          el.parentNode.insertBefore(wrap, el);
+          wrap.appendChild(el);
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'fig-zoom';
+          btn.title = 'Open full size';
+          btn.setAttribute('aria-label', 'Open full size');
+          btn.innerHTML = ZOOM_ICON;
+          wrap.appendChild(btn);
+
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Looked up at click time: for a diagram the svg may not
+            // have been rendered yet when the button was built.
+            var fig = wrap.querySelector('img, svg');
+            if (fig) open(fig);
+          });
+        });
+
+      lb.addEventListener('click', function (e) {
+        if (lb.hidden) return;
+        if (e.target.closest('[data-lb="close"]')) close();
+      });
+
+      // Zoom on the wheel, about the pointer. A mouse wheel arrives in
+      // big notches; a trackpad pinch comes through as a wheel with
+      // ctrlKey set and a delta that tracks the fingers. The step follows
+      // the delta, capped so one notch can't jump the scale. A sideways
+      // or shift-scroll pans instead, which is what a trackpad's
+      // two-finger swipe means once you are zoomed in.
+      lbStage.addEventListener('wheel', function (e) {
+        if (lb.hidden) return;
+        e.preventDefault();
+        stopGlide(); still();
+        var dx = e.deltaX, dy = e.deltaY;
+        if (e.deltaMode === 1) { dx *= 16; dy *= 16; }                 // lines → px
+        else if (e.deltaMode === 2) { dx *= lbStage.clientWidth; dy *= lbStage.clientHeight; }
+        if (!e.ctrlKey && (e.shiftKey || Math.abs(dx) > Math.abs(dy))) {
+          tx -= e.shiftKey && !dx ? dy : dx;
+          if (!e.shiftKey) ty -= dy;
+          clampPan(); draw();
+          return;
+        }
+        var k = e.ctrlKey ? 0.01 : 0.0015;                             // pinch is finer
+        var exp = Math.max(-0.35, Math.min(0.35, -dy * k));
+        zoomTo(scale * Math.exp(exp), e.clientX, e.clientY);
+      }, { passive: false });
+
+      // Safari reports a trackpad pinch through its own gesture events
+      // instead; e.scale is the ratio since gesturestart. iOS fires
+      // these too, on top of the touch pointers handled below, so they
+      // only act when no second finger is being tracked.
+      var gestureBase = 1;
+      lbStage.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+        gestureBase = scale;
+      });
+      lbStage.addEventListener('gesturechange', function (e) {
+        e.preventDefault();
+        if (pts.length >= 2) return;
+        zoomTo(gestureBase * e.scale, e.clientX, e.clientY);
+      });
+      lbStage.addEventListener('gestureend', function (e) { e.preventDefault(); });
+
+      // iOS ignores the body's overflow lock: the page can still
+      // rubber-band (or pinch-zoom) under the viewer. Pointer events
+      // can't cancel that; only the touch event itself can.
+      lb.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+      }, { passive: false });
+      // Firefox starts a native image drag on a mouse pan otherwise.
+      lbStage.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+      // Drag to pan, pinch to zoom. Pointer events cover mouse, pen and
+      // touch alike; every active pointer is tracked, so a second finger
+      // turns the drag into a pinch: the scale follows the distance
+      // between the fingers and the point midway between them stays
+      // under them as they move.
+      var pts = [];                       // active pointers, in press order
+      var lastX = 0, lastY = 0, lastDist = 0;
+      var downX = 0, downY = 0, downOnContent = false;
+      var gestureMoved = false, lastPointerType = 'mouse';
+      var swiping = false;                // one finger, from the fit
+      var samples = [];                   // recent moves, for flick velocity
+
+      var findPt = function (id) {
+        for (var i = 0; i < pts.length; i++) if (pts[i].id === id) return i;
+        return -1;
+      };
+      var pinch = function () {
+        var a = pts[0], b = pts[1];
+        return {
+          x: (a.x + b.x) / 2, y: (a.y + b.y) / 2,
+          d: Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))
+        };
+      };
+
+      lbStage.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        stopGlide(); still();
+        pts.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
+        // Throws for a pointer the browser no longer tracks; the gesture
+        // must still start, so don't let that abort the handler.
+        try { lbStage.setPointerCapture(e.pointerId); } catch (err) {}
+        lastPointerType = e.pointerType;
+        if (pts.length === 1) {
+          lastX = downX = e.clientX; lastY = downY = e.clientY;
+          downOnContent = lbContent.contains(e.target);
+          gestureMoved = false;
+          swiping = e.pointerType === 'touch' && atFit();
+          samples = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }];
+        } else if (pts.length === 2) {
+          var p = pinch();
+          lastX = p.x; lastY = p.y; lastDist = p.d;
+          gestureMoved = true;
+          swiping = false; swipeY = 0;
+        }
+        lbContent.classList.add('dragging');
+      });
+
+      lbStage.addEventListener('pointermove', function (e) {
+        var i = findPt(e.pointerId);
+        if (i < 0) return;
+        pts[i].x = e.clientX; pts[i].y = e.clientY;
+        if (pts.length === 1) {
+          // A finger never holds perfectly still; only real travel
+          // stops the release from counting as a tap.
+          if (Math.abs(e.clientX - downX) > 6 || Math.abs(e.clientY - downY) > 6) {
+            gestureMoved = true;
+          }
+          if (swiping) {
+            swipeY = e.clientY - downY;
+          } else {
+            tx += e.clientX - lastX; ty += e.clientY - lastY;
+            clampPan();
+          }
+          lastX = e.clientX; lastY = e.clientY;
+          samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+          if (samples.length > 5) samples.shift();
+        } else {
+          var p = pinch();              // a third finger is simply ignored
+          if (lastDist) zoomTo(scale * (p.d / lastDist), p.x, p.y);
+          tx += p.x - lastX; ty += p.y - lastY;
+          clampPan();
+          lastX = p.x; lastY = p.y; lastDist = p.d;
+        }
+        draw();
+      });
+
+      // dblclick is not dependable from a touch screen, so a double-tap
+      // is detected by hand: two clean taps within a third of a second.
+      // Both toggle: in to a closer look at the point, or back to the fit.
+      var lastTap = 0;
+      var toggleZoom = function (x, y) {
+        settle();
+        if (!atFit()) fit();
+        else zoomTo(fitScale * 2.5, x, y);
+      };
+
+      var endPointer = function (e) {
+        var i = findPt(e.pointerId);
+        if (i < 0) return;
+        pts.splice(i, 1);
+        if (pts.length === 1) {
+          // Pinch back down to a drag without the figure jumping.
+          lastX = pts[0].x; lastY = pts[0].y; lastDist = 0;
+          samples = [];
+          return;
+        }
+        if (pts.length) return;
+        lbContent.classList.remove('dragging');
+
+        if (swiping) {
+          swiping = false;
+          if (Math.abs(swipeY) > 110) { close(); return; }
+          if (swipeY) { settle(); swipeY = 0; draw(); }
+        } else if (gestureMoved && samples.length > 1) {
+          var a = samples[0], b = samples[samples.length - 1];
+          var dt = b.t - a.t;
+          if (dt > 0 && e.timeStamp - b.t < 80) startGlide((b.x - a.x) / dt, (b.y - a.y) / dt);
+        }
+
+        if (gestureMoved || e.type !== 'pointerup') return;
+        if (!downOnContent) { close(); return; }   // tap beside the figure
+        if (e.pointerType !== 'touch') return;
+        var now = Date.now();
+        if (now - lastTap < 320) {
+          lastTap = 0;
+          toggleZoom(e.clientX, e.clientY);
+        } else lastTap = now;
+      };
+      lbStage.addEventListener('pointerup', endPointer);
+      lbStage.addEventListener('pointercancel', endPointer);
+
+      lbStage.addEventListener('dblclick', function (e) {
+        // Touch is handled above; some browsers synthesise this as well.
+        if (lastPointerType === 'touch' || !downOnContent) return;
+        toggleZoom(e.clientX, e.clientY);
+      });
+
+      window.addEventListener('resize', function () {
+        if (!lb.hidden) { measure(); fit(); }
+      }, { passive: true });
+
+      document.addEventListener('keydown', function (e) {
+        if (lb.hidden) return;
+        var PAN = 60;
+        if (e.key === 'Escape') close();
+        else if (e.key === '+' || e.key === '=') { settle(); zoomTo(scale * 1.4); }
+        else if (e.key === '-') { settle(); zoomTo(scale / 1.4); }
+        else if (e.key === '0') { settle(); fit(); }
+        else if (e.key === 'ArrowLeft') { tx += PAN; clampPan(); draw(); }
+        else if (e.key === 'ArrowRight') { tx -= PAN; clampPan(); draw(); }
+        else if (e.key === 'ArrowUp') { ty += PAN; clampPan(); draw(); }
+        else if (e.key === 'ArrowDown') { ty -= PAN; clampPan(); draw(); }
+        else return;
+        e.preventDefault();
+      });
+    }
+
+    // ── Collapsible rails ──────────────────────────────────────
+    // Each rail collapses to a pill showing just its own icon. The
+    // choice is remembered per rail, because it is a working preference
+    // ("I want the width") rather than a per-page decision.
+    //
+    // Collapsing changes how much room the TOC and the parts list have,
+    // and both already recompute themselves on resize, so a synthetic
+    // resize is the honest way to tell them, rather than reaching into
+    // their internals from here.
+    document.querySelectorAll('.rail-toggle').forEach(function (btn) {
+      var rail = btn.closest('.post-rail, .post-sidebar');
+      if (!rail) return;
+      var key = 'rail-collapsed-' + btn.getAttribute('data-rail');
+
+      var apply = function (collapsed, remember) {
+        rail.classList.toggle('collapsed', collapsed);
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        btn.setAttribute('title', collapsed
+          ? btn.getAttribute('data-label-expand')
+          : btn.getAttribute('data-label-collapse'));
+        if (remember) {
+          try { localStorage.setItem(keyNow(), collapsed ? '1' : '0'); } catch (e) {}
+        }
+        window.dispatchEvent(new Event('resize'));
+      };
+
+      // On a phone the parts list sits between the title and the first
+      // paragraph, so it starts folded to a one-line bar, and its state
+      // is kept apart from the desktop rail's: folding a side rail on a
+      // wide screen says nothing about wanting the list open on a phone.
+      var phone = rail.classList.contains('post-rail') && window.matchMedia
+        ? window.matchMedia('(max-width: 860px)') : null;
+      var keyNow = function () { return phone && phone.matches ? key + '-phone' : key; };
+      var restore = function () {
+        var saved = null;
+        try { saved = localStorage.getItem(keyNow()); } catch (e) {}
+        var collapsed = saved === null ? !!(phone && phone.matches) : saved === '1';
+        if (collapsed !== rail.classList.contains('collapsed')) apply(collapsed, false);
+      };
+      restore();
+      if (phone) {
+        var onChange = function () { restore(); };
+        if (phone.addEventListener) phone.addEventListener('change', onChange);
+        else if (phone.addListener) phone.addListener(onChange);
+      }
+
+      btn.addEventListener('click', function () {
+        apply(!rail.classList.contains('collapsed'), true);
+      });
+
+      // Collapsed, the tab is mostly its sideways heading, so clicking the
+      // words should open it, not just the 30px button. Only in that
+      // direction: expanded, the card is full of links and a stray click
+      // must not fold it away underneath the reader.
+      var card = rail.querySelector('.sidebar-card');
+      if (card) {
+        card.addEventListener('click', function (e) {
+          if (!rail.classList.contains('collapsed')) return;
+          if (btn.contains(e.target)) return;   // the button speaks for itself
+          apply(false, true);
+        });
+      }
+    });
+
+    // ── Series rail: reveal the current part ───────────────────
+    // The rail scrolls internally once a series runs long, and the part
+    // you are reading is often below the fold. Bring it into the rail's
+    // own scroll box (never scrollIntoView; that moves the page too).
+    //
+    // The landing position is snapped to an entry boundary. Scrolling to
+    // an arbitrary offset leaves whatever entry straddles the top edge
+    // cut through the middle of a line, which reads as a broken card
+    // rather than as a list you can scroll.
+    var seriesCurrent = document.querySelector('.series-list li.current');
+    if (seriesCurrent) {
+      var scroller = seriesCurrent.closest('.series-list');
+      var items = Array.prototype.slice.call(scroller.children);
+      var centreCurrent = function () {
+        if (scroller.scrollHeight <= scroller.clientHeight) {
+          scroller.scrollTop = 0;
+          return;
+        }
+        var boxTop = scroller.getBoundingClientRect().top;
+        var offsetOf = function (el) {
+          return el.getBoundingClientRect().top - boxTop + scroller.scrollTop;
+        };
+        // Aim to centre the current part…
+        var aim = offsetOf(seriesCurrent)
+                  - (scroller.clientHeight - seriesCurrent.offsetHeight) / 2;
+        // …then fall back to the last entry that starts at or above it.
+        var snapped = 0;
+        for (var i = 0; i < items.length; i++) {
+          var top = offsetOf(items[i]);
+          if (top <= aim) snapped = top; else break;
+        }
+        scroller.scrollTop = Math.max(0, snapped);
+      };
+      centreCurrent();
+      // The rail's own height depends on the viewport, so re-centre when
+      // it changes and the current item may have fallen out of view.
+      window.addEventListener('resize', centreCurrent, { passive: true });
+    }
+
+    // ── Tab bar (phones) ───────────────────────────────────────
+    // Below 860px the nav is a floating tab bar, and this gives it the
+    // iOS 26 behaviour the CSS only lays the ground for: a glass lens
+    // that slides to the selected tab and follows a scrubbing finger.
+    // (It used to minimise to a circle on scroll as well; that was cut:
+    // the bar stays a pill.) Everything here is guarded on the same
+    // breakpoint the CSS uses,
+    // so on a desktop the nav is left exactly as it was.
+    var tabMq = window.matchMedia('(max-width: 860px)');
+    if (siteNav && siteNav.querySelector('a')) {
+      var tabs = Array.prototype.slice.call(siteNav.querySelectorAll('a'));
+      var activeTab = siteNav.querySelector('a.active');
+
+      // Tabs are a fixed width, so the lens is placed by index rather
+      // than by measuring; measuring mid-animation would land it on a
+      // moving target.
+      var tabW = function () {
+        return parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue('--tab-w')) || 78;
+      };
+      var lensTo = function (tab) {
+        if (!tab) return;
+        var w = tabW();
+        siteNav.style.setProperty('--lens-x', (tabs.indexOf(tab) * w) + 'px');
+        siteNav.style.setProperty('--lens-w', w + 'px');
+      };
+      // Positioned before they enter the DOM, so their first computed
+      // style is already the right one. Set afterwards, the lens
+      // transitioned in from the first tab on every page load; the
+      // getComputedStyle above forces a style pass, and that pass would
+      // see it unplaced.
+      lensTo(activeTab);
+      // The glass sits on its own leaf, under the tabs and the lens.
+      var shell = document.createElement('span');
+      shell.className = 'nav-shell';
+      shell.setAttribute('aria-hidden', 'true');
+      var lens = document.createElement('span');
+      lens.className = 'nav-lens';
+      lens.setAttribute('aria-hidden', 'true');
+      siteNav.insertBefore(lens, siteNav.firstChild);
+      siteNav.insertBefore(shell, lens);
+      siteNav.classList.add('has-lens');
+      siteNav.classList.toggle('no-active', !activeTab);
+
+      // The back-to-top button parks above the bar unless there is
+      // room beside it, in which case it comes down onto the bar's line.
+      var fab = document.getElementById('scroll-top');
+      var placeFab = function () {
+        if (!fab) return;
+        var beside = false;
+        if (tabMq.matches) {
+          var cs = getComputedStyle(fab);
+          var room = (window.innerWidth - siteNav.offsetWidth) / 2;
+          beside = room >= fab.offsetWidth + (parseFloat(cs.right) || 0) + 8;
+        }
+        document.body.classList.toggle('fab-beside', beside);
+      };
+      placeFab();
+      window.addEventListener('resize', placeFab, { passive: true });
+
+      // ── Press, scrub, release ──
+      // The lens jumps to the tab under the finger on press, tracks it
+      // as the finger slides along the bar, and the tab under the finger
+      // on release is the one followed. Lifting off the bar cancels.
+      var scrub = null, swallowClick = false, swallowTimer = null;
+      var swallowNext = function () {
+        // The click that trails a pointerup is what would double up the
+        // navigation, so it is eaten, but only the next one, and only
+        // briefly, in case no click ever comes.
+        swallowClick = true;
+        clearTimeout(swallowTimer);
+        swallowTimer = setTimeout(function () { swallowClick = false; }, 400);
+      };
+      var tabAt = function (x) {
+        for (var i = 0; i < tabs.length; i++) {
+          var r = tabs[i].getBoundingClientRect();
+          if (r.width && x >= r.left && x <= r.right) return tabs[i];
+        }
+        return null;
+      };
+
+      siteNav.addEventListener('pointerdown', function (e) {
+        if (!tabMq.matches || e.button !== 0) return;
+        var t = e.target.closest('a');
+        if (!t) return;
+        scrub = t;
+        siteNav.setPointerCapture(e.pointerId);
+        siteNav.style.setProperty('--lens-s', '1.06');
+        lensTo(t);
+      });
+      siteNav.addEventListener('pointermove', function (e) {
+        if (!scrub) return;
+        var t = tabAt(e.clientX);
+        if (t && t !== scrub) { scrub = t; lensTo(t); }
+      });
+      var endScrub = function (e) {
+        if (!scrub) return;
+        scrub = null;
+        siteNav.style.setProperty('--lens-s', '1');
+        var t = e.type === 'pointerup' ? tabAt(e.clientX) : null;
+        if (t) {
+          swallowNext();
+          window.location.href = t.href;
+        } else {
+          lensTo(activeTab);            // cancelled: settle back
+        }
+      };
+      siteNav.addEventListener('pointerup', endScrub);
+      siteNav.addEventListener('pointercancel', endScrub);
+      siteNav.addEventListener('click', function (e) {
+        if (swallowClick) { swallowClick = false; e.preventDefault(); }
+      });
+
+      // Crossing the breakpoint either way: lens squared up to the
+      // current tab.
+      tabMq.addEventListener('change', function () {
+        lensTo(activeTab);
+        placeFab();
+      });
+    }
+
+    // ── Back to top, with progress on its ring ─────────────────
+    var toTop = document.getElementById('scroll-top');
+    var ring = document.getElementById('ring-bar');
+    if (toTop && ring) {
+      var CIRC = 2 * Math.PI * 21;          // r=21, matches the markup
+      ring.style.strokeDasharray = CIRC;
+      var progressTicking = false;
+
+      // Once the article itself has scrolled by, the page is into the
+      // nav bands and the footer, which carry their own way onward, so
+      // the button retires rather than hovering over them.
+      var readable = document.getElementById('post-body')
+                     || document.querySelector('main');
+
+      var drawProgress = function () {
+        progressTicking = false;
+        var doc = document.documentElement;
+        var s = doc.scrollTop || document.body.scrollTop;
+        var t = doc.scrollHeight - doc.clientHeight;
+        var p = t > 0 ? Math.min(Math.max(s / t, 0), 1) : 0;
+        ring.style.strokeDashoffset = CIRC * (1 - p);
+
+        // Appears once there is somewhere to go back to. Not tied to the
+        // progress fraction: on a long page 10% is already a long way.
+        // Hides the moment the article no longer reaches down to where
+        // the button sits; past that point it would be hovering over
+        // the prev/next bands and the footer, not over anything it can
+        // usefully take you back from. Comparing against the button's
+        // own box (rather than a magic offset) keeps this true if its
+        // size or corner ever changes; the 10px it is translated by
+        // while hidden also gives the boundary a little hysteresis.
+        var started = s > 300;
+        var pastEnd = readable
+          ? readable.getBoundingClientRect().bottom < toTop.getBoundingClientRect().top
+          : false;
+        toTop.classList.toggle('visible', started && !pastEnd);
+      };
+      var scheduleProgress = function () {
+        if (!progressTicking) {
+          progressTicking = true;
+          requestAnimationFrame(drawProgress);
+        }
+      };
+
+      window.addEventListener('scroll', scheduleProgress, { passive: true });
+      window.addEventListener('resize', scheduleProgress, { passive: true });
+      drawProgress();
+
+      toTop.addEventListener('click', function () {
+        // html has scroll-behavior:smooth, so this animates on its own,
+        // except under prefers-reduced-motion, where 'auto' is honoured.
+        window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+      });
+    }
+
+    // ── TOC ────────────────────────────────────────────────────
+    var article = document.getElementById('post-body');
+    var tocList = document.getElementById('toc-list');
+    var tocCard = document.getElementById('toc-card');
+    if (!article || !tocList) return;
+    var headings = article.querySelectorAll('h2, h3');
+    if (headings.length < 2) { if (tocCard) tocCard.style.display = 'none'; return; }
+    headings.forEach(function (h, i) {
+      if (!h.id) h.id = 'section-' + i;
+      var li = document.createElement('li');
+      if (h.tagName === 'H3') li.classList.add('toc-h3');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/^§\s*/, '');
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    // Active-section tracking.
+    //
+    // An IntersectionObserver only fires when a heading crosses the band,
+    // so any heading tall enough to skip the band (or a scroll that lands
+    // between two headings) leaves the highlight stale. Instead we ask the
+    // plain question on every scroll: which heading is the last one above
+    // the reading line? That is always exactly one answer, so the TOC and
+    // the article can never drift apart.
+    var headingList = Array.prototype.slice.call(headings);
+    var links = Array.prototype.slice.call(tocList.querySelectorAll('a'));
+    var activeIndex = -1;
+    var ticking = false;
+
+    function syncToc() {
+      ticking = false;
+      // The reading line sits just under the sticky header.
+      var line = (parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--h-header')) || 54) + 24;
+
+      var i = 0;
+      for (var n = 0; n < headingList.length; n++) {
+        if (headingList[n].getBoundingClientRect().top <= line) i = n; else break;
+      }
+      // Bottom of the page can't scroll far enough to reach the last
+      // headings; hand them the highlight as the end approaches.
+      var doc = document.documentElement;
+      if (doc.scrollHeight - (doc.scrollTop + doc.clientHeight) < 4) {
+        i = headingList.length - 1;
+      }
+      if (i === activeIndex) return;
+      activeIndex = i;
+
+      links.forEach(function (l) { l.classList.remove('active'); });
+      var active = links[i];
+      if (!active) return;
+      active.classList.add('active');
+
+      // Keep the active entry inside the TOC's own scroll box, without
+      // dragging the page along (scrollIntoView would).
+      var box = tocList.getBoundingClientRect();
+      var item = active.getBoundingClientRect();
+      if (item.top < box.top) {
+        tocList.scrollTop -= (box.top - item.top) + 12;
+      } else if (item.bottom > box.bottom) {
+        tocList.scrollTop += (item.bottom - box.bottom) + 12;
+      }
+    }
+
+    function requestTocSync() {
+      if (!ticking) { ticking = true; requestAnimationFrame(syncToc); }
+    }
+    window.addEventListener('scroll', requestTocSync, { passive: true });
+    window.addEventListener('resize', requestTocSync, { passive: true });
+    syncToc();
+  })();
+  </script>
+
+</body>
+</html>

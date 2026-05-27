@@ -1,0 +1,7 @@
+# Where to find me. One list for the whole site: the footer shows it on
+# every page, and the home page's hero and contact links start with it
+# (followed by the home-only links in index.md's `links`).
+# `icon` is a name from _includes/icon.html.
+- { label: GitHub,   url: "https://github.com/rishabh0111",       icon: github }
+- { label: LinkedIn, url: "https://linkedin.com/in/rishabh0111",  icon: linkedin }
+- { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
