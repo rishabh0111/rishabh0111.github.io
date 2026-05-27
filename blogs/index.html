@@ -1,0 +1,46 @@
+---
+layout: default
+title: Blog
+---
+
+{% assign blog_posts = site.categories.blogs %}
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-label">Writing</p>
+    <h1>Blog</h1>
+    <p>Original series articles on design, engineering, and ideas.</p>
+    <span class="post-count">
+      {{ blog_posts.size }} post{% if blog_posts.size != 1 %}s{% endif %}
+    </span>
+  </div>
+</div>
+
+<div class="listing-wrap">
+  {% if blog_posts.size == 0 %}
+    <p class="empty-state">No posts yet — the first one is coming soon.</p>
+  {% else %}
+    {% assign by_year = blog_posts | group_by_exp: "p", "p.date | date: '%Y'" %}
+    {% for yg in by_year %}
+      <p class="group-heading">{{ yg.name }}</p>
+      {% for post in yg.items %}
+      <a class="post-row" href="{{ post.url | relative_url }}">
+        <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
+        <span>
+          <span class="post-row-title">{{ post.title }}</span>
+          {% if post.tags and post.tags.size > 0 %}
+          <div class="post-row-tags">
+            {% for tag in post.tags limit: 3 %}
+            <span class="post-row-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </span>
+        {% if post.read_time %}
+        <span class="post-row-readtime">{{ post.read_time }} min</span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+</div>

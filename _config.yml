@@ -1,0 +1,40 @@
+# ─────────────────────────────────────────────────────────────────
+# Atlas — _config.yml
+# GitHub Pages compatible. No permalink set here — controlled
+# per-post via front matter (blogs) or left to Jekyll default (news).
+# ─────────────────────────────────────────────────────────────────
+
+title:       "Atlas"
+description: "Writing on design, engineering, and the space between."
+baseurl:     ""        # "" for username.github.io · "/repo-name" for project pages
+url:         "https://yourusername.github.io"   # ← your GitHub Pages URL
+
+author:
+  name:  "Your Name"
+  email: "you@example.com"
+
+# ── Timezone ───────────────────────────────────────────────────
+timezone: Asia/Kolkata
+
+# ── Markdown ───────────────────────────────────────────────────
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    block:
+      line_numbers: false
+
+# ── Plugins (all supported natively by GitHub Pages) ──────────
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# ── Exclude from build ────────────────────────────────────────
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor
