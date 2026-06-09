@@ -68,8 +68,8 @@
   --bg:           var(--paper);
   --bg-raised:    var(--paper-mid);
   --text:         var(--ink);
-  --text-2:       var(--ink-mid);
-  --text-3:       var(--ink-faint);
+  --text-2:       #363030;   /* was ink-mid #4A4540 — boosted for light mode contrast */
+  --text-3:       #706860;   /* was ink-faint #9A9288 — much more readable in light */
   --accent:       var(--lacquer);
   --accent-dim:   var(--lacquer-light);
   --border:       var(--paper-deep);
@@ -108,12 +108,34 @@
 /* Tell browsers (and Dark Reader) we handle both modes */
 :root { color-scheme: light dark; }
 
+/* Refined text selection */
+::selection {
+  background: rgba(184,110,82,0.22);
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background: rgba(184,110,82,0.35);
+    color: var(--text);
+  }
+}
+
 
 /* ════════════════════════════════════════════════════════════════
    RESET + BASE
 ════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--h-header) + 1rem);
+}
+
+/* Accessible focus ring that respects the palette */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 
 body {
   background: var(--bg);
@@ -147,11 +169,12 @@ body::before {
 ════════════════════════════════════════════════════════════════ */
 .read-progress {
   position: fixed; top: var(--h-header); left: 0; right: 0;
-  height: 1px; z-index: 99;
+  height: 2px; z-index: 99;
 }
 .read-progress-bar {
   height: 100%; width: 0%;
   background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
   transition: width 0.06s linear;
 }
 
@@ -162,7 +185,9 @@ body::before {
    Three things happen here: wordmark, nav, nothing else.
 ════════════════════════════════════════════════════════════════ */
 .site-header {
-  background: var(--header-bg);
+  background: rgba(13, 21, 32, 0.82);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
   height: var(--h-header);
   padding: 0 var(--s5);
   display: flex; align-items: center; justify-content: space-between;
@@ -261,15 +286,18 @@ body::before {
   overflow: hidden;
 }
 
-/* Faint ruled lines — the page was printed on paper */
+/* Ambient glow orbs — two soft blobs that give the header depth */
 .page-header::before {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0px, transparent 27px,
-    rgba(255,255,255,0.014) 27px, rgba(255,255,255,0.014) 28px
-  );
+  background-image:
+    radial-gradient(ellipse 60% 50% at 10% 60%, rgba(54,76,110,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 30%, rgba(184,110,82,0.10) 0%, transparent 60%),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px, transparent 27px,
+      rgba(255,255,255,0.014) 27px, rgba(255,255,255,0.014) 28px
+    );
 }
 
 /* Bottom rule: a measured lacquer line, not full-width */
@@ -402,7 +430,11 @@ body::before {
   transition: transform 0.2s var(--ease-out);
 }
 
-.post-row:hover { background: var(--bg-raised); }
+.post-row:hover {
+  background: var(--bg-raised);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-radius: 2px;
+}
 .post-row:hover::before { transform: scaleY(1); }
 .post-row:last-child { border-bottom: none; }
 
@@ -477,15 +509,18 @@ body::before {
   position: relative; overflow: hidden;
 }
 
-/* Same ruled-line texture as listing header */
+/* Ambient glow — mirrors page-header for visual coherence */
 .post-hero::before {
   content: '';
   position: absolute; inset: 0; pointer-events: none;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0px, transparent 27px,
-    rgba(255,255,255,0.013) 27px, rgba(255,255,255,0.013) 28px
-  );
+  background-image:
+    radial-gradient(ellipse 55% 60% at 5% 80%, rgba(54,76,110,0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 50% at 85% 20%, rgba(184,110,82,0.09) 0%, transparent 60%),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px, transparent 27px,
+      rgba(255,255,255,0.013) 27px, rgba(255,255,255,0.013) 28px
+    );
 }
 
 /* A thin lacquer line across the hero foot — marks the plane change */
@@ -621,7 +656,7 @@ body::before {
 .post-content h3 {
   font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--text-3); margin: var(--s6) 0 var(--s2);
+  color: var(--text-2); margin: var(--s6) 0 var(--s2);
 }
 
 .post-content h4 {
@@ -691,7 +726,7 @@ body::before {
 .post-content blockquote p {
   font-family: var(--f-display);
   font-size: 1.28rem; font-weight: 300; font-style: italic;
-  line-height: 1.5; color: var(--indigo); margin-bottom: 0;
+  line-height: 1.5; color: var(--text-2); margin-bottom: 0;
 }
 @media (prefers-color-scheme: dark) {
   .post-content blockquote p { color: var(--indigo-light); }
@@ -715,6 +750,8 @@ body::before {
 .post-content img {
   max-width: 100%; display: block;
   border: 1px solid var(--border); margin: var(--s5) 0;
+  border-radius: 3px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 .post-content figure { margin: var(--s6) 0; }
 .post-content figcaption {
@@ -772,11 +809,14 @@ body::before {
 .post-nav-item {
   background: var(--bg); padding: var(--s4) var(--s5);
   text-decoration: none; color: inherit;
-  transition: background 0.15s;
+  transition: background 0.15s, box-shadow 0.15s;
   border-right: 1px solid var(--border);
 }
 .post-nav-item:last-child { border-right: none; }
-.post-nav-item:hover { background: var(--bg-raised); }
+.post-nav-item:hover {
+  background: var(--bg-raised);
+  box-shadow: inset 0 0 0 1px rgba(54,76,110,0.15);
+}
 .post-nav-item.next { text-align: right; }
 
 .post-nav-dir {
@@ -786,7 +826,7 @@ body::before {
 }
 .post-nav-title {
   font-family: var(--f-display); font-size: 1.1rem;
-  font-weight: 300; color: var(--indigo); line-height: 1.3;
+  font-weight: 300; color: var(--text-2); line-height: 1.3;
 }
 @media (prefers-color-scheme: dark) {
   .post-nav-title { color: var(--indigo-light); }
@@ -802,11 +842,14 @@ body::before {
 }
 
 .sidebar-card {
-  background: var(--bg-raised);
+  background: color-mix(in srgb, var(--bg-raised) 80%, transparent);
   border: 1px solid var(--border);
-  border-radius: 1px;
+  border-radius: 6px;
   padding: var(--s3) var(--s3);
   margin-bottom: var(--s3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(255,255,255,0.04) inset;
 }
 
 .sidebar-label {
