@@ -328,6 +328,24 @@ body::before {
   position: relative; z-index: 1;
 }
 
+/* Typographic debris layer — § glyph + structural lines */
+.page-header-inner::before {
+  content: '';
+  position: absolute;
+  inset: -40px -60px -40px -60px;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    /* Large § — bleeds off right, echoes the section marker in posts */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='300' viewBox='0 0 900 300'%3E%3Ctext x='720' y='310' font-family='Georgia%2C serif' font-size='320' font-weight='400' fill='rgba(255%2C255%2C255%2C0.028)' letter-spacing='-0.02em'%3E%C2%A7%3C/text%3E%3C/svg%3E"),
+    /* Structural rectangle — column margin suggestion, offset right */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='300' viewBox='0 0 900 300'%3E%3Crect x='610' y='28' width='220' height='200' fill='none' stroke='rgba(255%2C255%2C255%2C0.04)' stroke-width='0.75'/%3E%3C/svg%3E"),
+    /* Diagonal slash — mirrors ATLAS/ logo motif, far right */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='300' viewBox='0 0 900 300'%3E%3Cline x1='858' y1='0' x2='830' y2='300' stroke='rgba(255%2C255%2C255%2C0.055)' stroke-width='0.75'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
 /* The rotated stamp in the corner — editorial marginal notation */
 .page-header-inner::after {
   content: attr(data-section);
@@ -542,6 +560,26 @@ body::before {
 .post-hero-inner {
   max-width: var(--max-w); margin: 0 auto;
   position: relative; z-index: 1;
+}
+
+/* Typographic debris layer — matches page-header but varied composition */
+.post-hero-inner::before {
+  content: '';
+  position: absolute;
+  inset: -60px -60px -40px -60px;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    /* § sits lower-right — anchors the bottom of the hero */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='420' viewBox='0 0 960 420'%3E%3Ctext x='760' y='460' font-family='Georgia%2C serif' font-size='380' font-weight='400' fill='rgba(255%2C255%2C255%2C0.022)' letter-spacing='-0.02em'%3E%C2%A7%3C/text%3E%3C/svg%3E"),
+    /* Corner registration mark — top right, like a print crop mark */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='420' viewBox='0 0 960 420'%3E%3Cline x1='870' y1='48' x2='930' y2='48' stroke='rgba(255%2C255%2C255%2C0.07)' stroke-width='0.75'/%3E%3Cline x1='900' y1='18' x2='900' y2='78' stroke='rgba(255%2C255%2C255%2C0.07)' stroke-width='0.75'/%3E%3C/svg%3E"),
+    /* Structural rectangle — taller, narrower, right-aligned */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='420' viewBox='0 0 960 420'%3E%3Crect x='640' y='40' width='180' height='300' fill='none' stroke='rgba(255%2C255%2C255%2C0.035)' stroke-width='0.75'/%3E%3C/svg%3E"),
+    /* Diagonal slash — same angle as ATLAS/, shifted left vs page-header */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='420' viewBox='0 0 960 420'%3E%3Cline x1='820' y1='0' x2='790' y2='420' stroke='rgba(255%2C255%2C255%2C0.045)' stroke-width='0.75'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 
 /* Breadcrumb — stays out of the way */
@@ -925,6 +963,10 @@ body::before {
   .post-title { font-size: clamp(2rem, 8vw, 2.8rem); }
   .page-header h1 { font-size: clamp(2.4rem, 10vw, 3.6rem); }
 
+  /* Hide decorative shapes — too large relative to narrow viewport */
+  .page-header-inner::before,
+  .post-hero-inner::before { display: none; }
+
   .post-row {
     grid-template-columns: 1fr;
     gap: 2px;
@@ -949,4 +991,6 @@ body::before {
   .post-hero { background: none; padding: 0 0 var(--s3); }
   .post-hero * { color: black !important; }
   .post-title { font-size: 2.2rem; }
+  .page-header-inner::before,
+  .post-hero-inner::before { display: none; }
 }
