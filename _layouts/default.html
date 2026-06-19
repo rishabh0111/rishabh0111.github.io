@@ -3,6 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Theme: apply saved choice before first paint to avoid a flash.
+       No saved choice → leave unset so CSS follows prefers-color-scheme. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('atlas-theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>{% if page.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
   <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
   <meta property="og:title"       content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
@@ -16,6 +29,14 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
+
+  <!-- Parallax scene: garden (light) / space (dark). Decorative only. -->
+  <div class="px" aria-hidden="true">
+    <div class="px-layer px-far"  data-depth="0.05"></div>
+    <div class="px-layer px-mid"  data-depth="0.12"></div>
+    <div class="px-layer px-tex"  data-depth="0.07"></div>
+    <div class="px-layer px-near" data-depth="0.20"></div>
+  </div>
 
   <div class="read-progress" aria-hidden="true">
     <div class="read-progress-bar" id="progress-bar"></div>
@@ -32,6 +53,22 @@
          {% if page.url contains '/blogs' %}class="active"{% endif %}>Blog</a>
       <a href="{{ '/news/' | relative_url }}"
          {% if page.url contains '/news' %}class="active"{% endif %}>News</a>
+
+      <button type="button" class="theme-toggle" id="theme-toggle"
+              role="switch" aria-checked="false" aria-label="Toggle light and dark theme"
+              title="Toggle theme">
+        <!-- Sun -->
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <!-- Moon -->
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+        </svg>
+        <span class="tt-thumb" aria-hidden="true"></span>
+      </button>
     </nav>
   </header>
 
@@ -50,6 +87,66 @@
 
   <script>
   (function () {
+    // ── Parallax (scroll depth + pointer drift) ────────────────
+    var px = document.querySelector('.px');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (px && !reduce.matches) {
+      // The scene is fixed (locked) — content scrolling over it provides the
+      // depth. Layers only drift gently with the pointer for a touch of life.
+      var layers = Array.prototype.slice.call(px.querySelectorAll('.px-layer'));
+      var mx = 0, my = 0, raf = null;
+
+      function render() {
+        raf = null;
+        for (var i = 0; i < layers.length; i++) {
+          var d = parseFloat(layers[i].getAttribute('data-depth')) || 0;
+          var x = mx * d * 55;   // pointer drift (gentle)
+          var y = my * d * 55;
+          layers[i].style.transform =
+            'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+        }
+      }
+      function schedule() { if (!raf) raf = requestAnimationFrame(render); }
+
+      if (window.matchMedia('(pointer:fine)').matches) {
+        window.addEventListener('pointermove', function (e) {
+          mx = (e.clientX / window.innerWidth - 0.5) * 2;
+          my = (e.clientY / window.innerHeight - 0.5) * 2;
+          schedule();
+        }, { passive: true });
+      }
+      render();
+    }
+
+    // ── Theme toggle ───────────────────────────────────────────
+    var toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+      var root = document.documentElement;
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function currentTheme() {
+        var set = root.getAttribute('data-theme');
+        return set ? set : (mq.matches ? 'dark' : 'light');
+      }
+      function syncToggle() {
+        toggle.setAttribute('aria-checked', currentTheme() === 'dark' ? 'true' : 'false');
+      }
+      syncToggle();
+
+      toggle.addEventListener('click', function () {
+        var next = currentTheme() === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('atlas-theme', next); } catch (e) {}
+        syncToggle();
+      });
+
+      // If the user hasn't picked explicitly, follow OS changes live.
+      mq.addEventListener('change', function () {
+        try { if (!localStorage.getItem('atlas-theme')) syncToggle(); } catch (e) {}
+      });
+    }
+
+    // ── Reading progress + TOC ─────────────────────────────────
     var bar = document.getElementById('progress-bar');
     if (!bar) return;
     window.addEventListener('scroll', function () {
