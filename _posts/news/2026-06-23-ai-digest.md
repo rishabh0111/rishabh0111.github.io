@@ -1,0 +1,73 @@
+---
+layout: post
+title: "OpenAI ships AI-assisted vulnerability patching at scale — plus a new MCP attack class"
+date: 2026-06-23 00:00:00 +0530
+categories: news
+tags: [digest, ai-security, agents, inference, mcp, openai]
+read_time: 6
+excerpt: "OpenAI's Daybreak initiative lands its most concrete form yet — GPT-5.5-Cyber in full release, a partner ecosystem for embedding cyber models in commercial products, and Patch the Planet, a programme that puts frontier AI directly in the hands of open-source maintainers. Meanwhile, Tenet Security demonstrated that the Sentry MCP integration can silently hijack Claude Code, Cursor, and Codex on developer machines without touching a single password — and Anthropic's Fable 5 remains offline as a US export-control dispute enters its second week with a bipartisan congressional challenge."
+---
+
+This five-day window belonged to two intersecting themes: AI is now capable enough to find and patch real software vulnerabilities faster than human teams can absorb them, and the attack surface created by granting AI agents access to external tools is not yet well-understood or defended.
+
+---
+
+## OpenAI puts GPT-5.5-Cyber to work on open-source software
+
+On June 22, OpenAI expanded its [Daybreak cybersecurity programme](https://openai.com/index/patch-the-planet/) with three simultaneous releases: the full version of GPT-5.5-Cyber for vetted defenders, an updated Codex Security plugin, and an open-source patching initiative called Patch the Planet, co-founded with Trail of Bits and built in collaboration with HackerOne and Calif.
+
+The model itself is not dramatically smarter than standard GPT-5.5 — OpenAI is explicit that the primary change is permissiveness for security-adjacent tasks, not raw capability. On the internal [CyberGym benchmark](https://openai.com/index/patch-the-planet/), GPT-5.5-Cyber reaches 85.6% against 81.8% for the standard model, and 39.5% on ExploitGym, measuring the ability to convert known vulnerabilities into working exploits, compared to 25.95% for GPT-5.5. The more consequential piece is Patch the Planet. Trail of Bits dedicated engineers full-time to 19 open-source projects — cURL, Go, Python, Sigstore, pyca/cryptography, NATS Server, aiohttp, freenginx, and Python.org among them — pairing frontier models with expert triage and patch authorship. [Their preliminary report](https://blog.trailofbits.com/2026/06/22/introducing-patch-the-planet/) details: 8 Linux kernel privilege-escalation proof-of-concepts, a 23-year-old OpenBSD use-after-free, six dnsmasq CVEs, and five exploitable V8 bugs in Chrome. A WebAssembly flaw in Firefox, found with GPT-5.5 during safety evaluations, was patched by Mozilla two days before Pwn2Own Berlin — prompting five of the six registered Firefox entries to withdraw. Codex Security has now scanned over 30 million commits across 30,000 codebases since its March research preview, with human reviewers confirming more than 70,000 findings as fixed. The Daybreak Cyber Partner Programme extends access to 19 product vendors and eight systems integrators, including Cisco, CrowdStrike, Palo Alto Networks, and Wiz, allowing them to embed GPT-5.5 with Trusted Access for Cyber in products they sell to customers.
+
+**Why it matters:** OpenAI's thesis — that AI has made vulnerability *discovery* fast but *remediation* is now the scarce resource — is supported by the evidence here. Trail of Bits found that building a fuzzing lab with agentic tooling took less than a day versus several weeks manually. The shift from "AI finds bugs" to "AI finds, validates, writes patches, and coordinates disclosure" is material, and Patch the Planet represents the first systematic attempt to apply this to shared infrastructure at scale.
+
+**If you're building security tooling:** Evaluate whether Codex Security's SARIF and CodeQL export paths slot into your existing vulnerability-management workflows before building custom integration. The Daybreak partner programme is also the fastest route to GPT-5.5 cyber capabilities inside customer-facing products; direct unrestricted access is not on the table.
+
+---
+
+## Agentjacking: a fake Sentry error can hijack your coding agent
+
+Tenet Security's Threat Labs published research on June 17 demonstrating a new attack class it calls [agentjacking](https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/): an attacker plants a malicious instruction inside a fake Sentry error event, and when a developer asks their AI coding agent to fix unresolved Sentry issues, the agent executes the attacker's shell command on the developer's machine with the developer's own privileges. No breach, no phishing, no malware installation required.
+
+The attack chain exploits two design decisions that appear safe in isolation. Sentry's Data Source Name (DSN) is intentionally public and embedded in frontend JavaScript so browsers can submit error reports without credentials. And MCP — the protocol that connects AI coding agents to tools like Sentry — has no mechanism for distinguishing legitimate error data from attacker-injected instructions embedded in that data. The Tenet team achieved an 85% exploitation success rate across Claude Code, Cursor, and Codex in controlled testing across more than 100 organisations, identifying at least 2,388 organisations with injectable DSNs reachable from public JavaScript or GitHub search. The attack bypassed EDR, WAF, IAM controls, VPN, and even explicit system prompt instructions to treat MCP output as untrusted — the agents ran the injected commands anyway. Tenet disclosed to Sentry on June 3. Sentry acknowledged the issue and added a content filter targeting the specific payload string from the proof-of-concept, but characterised the root cause as "technically not defensible" at the ingestion layer. Tenet has open-sourced a hardening tool called [Agent-JackStop](https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/) for Cursor and Claude Code configurations.
+
+**Why it matters:** This is the clearest real-world demonstration to date that indirect prompt injection through MCP-connected tools is an active, weaponisable attack class, not a theoretical risk. The "Authorized Intent Chain" framing is accurate: the agent did exactly what it was asked to do, which is precisely what makes existing security controls blind to it. Sentry pointing at model vendors as the correct mitigation layer, while correct about the architecture, means the fix requires changes from every AI agent provider — there is no single upstream patch.
+
+**If you're building with AI coding agents:** Audit your MCP tool list immediately and remove integrations you are not actively using. In Claude Code, remove unused entries from `.claude/settings.json`; in Cursor, disconnect from Settings. For any MCP integration that surfaces externally controlled content — error logs, issue trackers, email — require explicit human approval before executing any shell command the agent returns from a tool call. This is a class problem, and Sentry is one of many entry points; any MCP server that ingests external data you don't fully control carries similar risk.
+
+---
+
+## Anthropic's Fable 5 export ban enters its second week — with new pressure
+
+Anthropic's Claude Fable 5 and Mythos 5 have been suspended globally since June 12, when the US Commerce Department's Bureau of Industry and Security issued an "Is Informed" letter invoking ECRA § 4817(b)(1), requiring Anthropic to obtain an individually validated export licence before sharing the models with any foreign national anywhere. Anthropic complied by disabling both models for all users, but [disputed the action publicly](https://www.anthropic.com/news/fable-mythos-access), calling the underlying jailbreak finding — which consisted of asking the model to read a codebase and fix flaws — a narrow, non-universal technique that other publicly available models can also perform.
+
+Within the June 18–23 window: Anthropic's Managing Director of International Chris Ciauri [told reporters in Seoul on June 18](https://www.koreajoongangdaily.com/business/anthropic-confident-of-reenabling-mythos-fable-5-access-in-coming-days-executive/12727522) that he was "very confident that in the coming days the models will become available again." A bipartisan House letter, also dated June 18, demanded the Commerce Department provide legal justification for the directive. As of June 22, both models remain offline per Anthropic's status page; the restoration had not occurred. For builders, the practical fallback is Claude Opus 4.8 — API calls to `claude-fable-5` return errors, and Claude Code defaults new sessions to Opus 4.8.
+
+**Why it matters:** This is the first time a US government agency has used export-control authority to recall a commercially deployed AI model, and it establishes a precedent that even a narrow, non-universal jailbreak finding can trigger a global access suspension. The compliance architecture this creates — nationality verification at inference time, export-control addenda in terms of service, deemed-export risk for foreign-national employees using AI via API — is genuinely new territory for every enterprise deploying frontier AI.
+
+**If you're building on Anthropic's API:** Fable 5 returning is not yet confirmed and carries no reliable timeline. Harden your fallback path to Opus 4.8 now if you haven't already. If your application routes through AWS Bedrock, Vertex AI, or Azure Foundry, check each provider's compliance screening requirements independently — cloud providers have not uniformly published their own export-control addenda. Any production system that hard-codes `claude-fable-5` as a model string needs an updated fallback before the next billing cycle.
+
+---
+
+## Elsewhere worth a click
+
+- vLLM [released v0.23.0](https://github.com/vllm-project/vllm/releases) on June 13 with DeepSeek-V4 hardening across backends, Model Runner V2 now default for Llama and Mistral dense models, 28.9% end-to-end latency improvement from Cutlass FP8 batch-invariant inference, and an experimental Rust frontend with streaming and dynamic LoRA endpoints.
+
+- DeepSeek's [legacy `deepseek-chat` and `deepseek-reasoner` API aliases retire on July 24, 2026](https://api-docs.deepseek.com/news/news260424) — they currently route to V4-Flash, but both will be inaccessible after that date; update any production code that hardcodes those strings.
+
+- Trail of Bits' standalone [Patch the Planet field report](https://blog.trailofbits.com/2026/06/22/introducing-patch-the-planet/) gives granular detail on what GPT-5.5-Cyber actually did autonomously across 19 projects — including building a full fuzzing lab in under a day — worth reading before you form an opinion on what "AI-assisted security" means in practice.
+
+- OpenAI's [Daybreak Cyber Partner Programme](https://openai.com/index/gpt-5-5-with-trusted-access-for-cyber/) now includes government-level Trusted Access partnerships with Australia, Canada, France, Germany, Japan, South Korea, Poland, and EU institutions including ENISA — the international cyber-AI race is now explicitly through alliance structures, not just model benchmarks.
+
+- The UK AI Security Institute's [evaluation of GPT-5.5](https://www.aisi.gov.uk/blog/our-evaluation-of-openais-gpt-5-5-cyber-capabilities) found a universal jailbreak that bypassed all cyber safeguards in six hours of expert red-teaming, and separately noted that GPT-5.5 scores 71.4% on expert-level CTF tasks — its strongest result — against 68.6% for Mythos Preview; models have now saturated basic-tier cyber tasks entirely.
+
+- Simon Willison's [write-up on DeepSeek V4](https://simonwillison.net/2026/apr/24/deepseek-v4/) remains the clearest practical breakdown of V4's architecture and pricing; V4-Pro at $0.87/M output is still the cheapest frontier-class open-weight model with 1M context.
+
+For the full firehose: [Hacker News](https://news.ycombinator.com), [Hugging Face trending](https://huggingface.co/models?sort=trending), [Techmeme](https://www.techmeme.com).
+
+---
+
+## One to read this weekend
+
+[Introducing Patch the Planet — Trail of Bits Blog](https://blog.trailofbits.com/2026/06/22/introducing-patch-the-planet/)
+
+The technical detail here is more useful than any summary: Trail of Bits engineers describe exactly what GPT-5.5-Cyber decided to do autonomously on cURL, Python.org's release pipeline, and a CVE-variant-analysis pipeline — and how they judged what to report versus discard. It is the clearest picture yet of what a frontier model actually does unsupervised inside a serious security workflow, which is a more useful data point for setting expectations than any benchmark headline.
