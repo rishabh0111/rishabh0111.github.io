@@ -764,6 +764,16 @@ body::before {
   color: var(--text-3);
 }
 
+/* Series grouping in the blog listing */
+.series-title {
+  font-family: var(--f-display); font-size: 1rem; color: var(--text-2);
+  margin: var(--s5) 0 var(--s1);
+}
+.series-title span {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text-3); margin-left: var(--s2);
+}
+
 
 /* ════════════════════════════════════════════════════════════════
    POST HERO
@@ -1142,6 +1152,17 @@ body::before {
   display: block; font-family: var(--f-mono); font-size: 9px;
   color: var(--text-3); letter-spacing: 0.07em; margin-top: 2px;
 }
+
+/* Series nav card in the post sidebar */
+.series-list { list-style: none; }
+.series-list li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
+.series-list li:last-child { border-bottom: none; }
+.series-list a {
+  color: var(--text-2); text-decoration: none; font-size: 13px;
+  line-height: 1.4; display: block; transition: color 0.14s;
+}
+.series-list a:hover { color: var(--text); }
+.series-list li.current a { color: var(--accent); }
 
 
 /* ════════════════════════════════════════════════════════════════

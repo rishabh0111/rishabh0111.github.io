@@ -68,6 +68,21 @@ layout: default
       <ul id="toc-list"></ul>
     </div>
 
+    <!-- Series navigation — same series, ordered -->
+    {% if page.series %}
+    {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+    <div class="sidebar-card">
+      <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ siblings.size }}</span>
+      <ul class="series-list">
+        {% for p in siblings %}
+        <li{% if p.url == page.url %} class="current"{% endif %}>
+          <a href="{{ p.url | relative_url }}">{{ p.series_order }}. {{ p.title }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
     <!-- Related posts — same category -->
     {% assign cat = page.categories | first %}
     {% assign related = site.posts

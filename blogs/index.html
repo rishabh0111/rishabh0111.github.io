@@ -4,6 +4,9 @@ title: Blog
 ---
 
 {% assign blog_posts = site.categories.blogs %}
+{% assign series_posts = blog_posts | where_exp: "p", "p.series" %}
+{% assign standalone = blog_posts | where_exp: "p", "p.series == nil" %}
+{% assign series_names = series_posts | map: "series" | uniq %}
 
 <div class="page-header">
   <div class="page-header-inner" data-section="Writing — Blog">
@@ -20,7 +23,33 @@ title: Blog
   {% if blog_posts.size == 0 %}
     <p class="empty-state">No posts yet — the first one is coming soon.</p>
   {% else %}
-    {% assign by_year = blog_posts | group_by_exp: "p", "p.date | date: '%Y'" %}
+    {% if series_names.size > 0 %}
+      <p class="group-heading">Series</p>
+      {% for s in series_names %}
+        {% assign items = series_posts | where: "series", s | sort: "series_order" %}
+        <p class="series-title">{{ s }}<span>{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span></p>
+        {% for post in items %}
+        <a class="post-row series-row" href="{{ post.url | relative_url }}">
+          <span class="post-row-date">Part {{ post.series_order }}</span>
+          <span>
+            <span class="post-row-title">{{ post.title }}</span>
+            {% if post.tags and post.tags.size > 0 %}
+            <div class="post-row-tags">
+              {% for tag in post.tags limit: 3 %}
+              <span class="post-row-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </span>
+          {% if post.read_time %}
+          <span class="post-row-readtime">{{ post.read_time }} min</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      {% endfor %}
+    {% endif %}
+
+    {% assign by_year = standalone | group_by_exp: "p", "p.date | date: '%Y'" %}
     {% for yg in by_year %}
       <p class="group-heading">{{ yg.name }}</p>
       {% for post in yg.items %}
