@@ -40,16 +40,6 @@
     <use href="#nleaf" transform="translate(800 1024) rotate(180) scale(1.15)"/>
   </g>
 
-  <!-- grass-blade fringe across the bottom -->
-  <g fill="#2c6321" fill-opacity="0.58">
-    <use href="#nleaf" transform="translate(120 1020) rotate(182) scale(0.3 1.8)"/>
-    <use href="#nleaf" transform="translate(380 1020) rotate(178) scale(0.32 2.0)"/>
-    <use href="#nleaf" transform="translate(600 1020) rotate(184) scale(0.28 1.7)"/>
-    <use href="#nleaf" transform="translate(980 1020) rotate(177) scale(0.3 1.8)"/>
-    <use href="#nleaf" transform="translate(1200 1020) rotate(183) scale(0.32 1.95)"/>
-    <use href="#nleaf" transform="translate(1470 1020) rotate(179) scale(0.28 1.7)"/>
-  </g>
-
   <!-- a few soft blossoms tucked in the foliage -->
   <g fill-opacity="0.9">
     <use href="#bloom" transform="translate(230 905) scale(1.15)"/>

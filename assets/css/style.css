@@ -108,24 +108,30 @@
   --plane-faint:  #5A554F;             /* separators, counts          */
   --plane-rule:   rgba(24,20,16,0.12); /* hairline on header/footer   */
   --plane-scrim:  linear-gradient(180deg,
-                    rgba(248,244,236,0.72) 0%,
-                    rgba(248,244,236,0.40) 45%,
-                    rgba(248,244,236,0.20) 100%);
+                    rgba(248,244,236,0.78) 0%,
+                    rgba(248,244,236,0.60) 55%,
+                    rgba(248,244,236,0.42) 100%);
 
   /* Reading panel — "paper sheet" floating over the scene (content-first) */
   --panel:        color-mix(in srgb, var(--bg) 88%, transparent);
   --panel-border: color-mix(in srgb, var(--border) 55%, transparent);
   --panel-shadow: 0 10px 44px rgba(40,50,30,0.10);
 
-  /* ── Parallax scene: GARDEN (light) ──────────────────────────── */
-  --px-base: linear-gradient(180deg, #c7e2ec 0%, #dceccf 42%, #aecf86 100%);
+  /* ── Parallax scene: GARDEN (light) ──────────────────────────────
+     Calm, paper-toned garden — low chroma so it sits behind reading
+     content as ambient atmosphere, never competing with text. */
+  --px-base: linear-gradient(180deg, #e9efe7 0%, #ecf0e3 46%, #dbe7cb 100%);
   --px-far:
-    radial-gradient(circle 480px at 80% 10%, rgba(255,221,140,0.95), rgba(255,221,140,0) 68%),
-    radial-gradient(circle 460px at 12% 88%, rgba(120,170,80,0.55), rgba(120,170,80,0) 72%);
+    radial-gradient(circle 520px at 82% 8%, rgba(255,228,160,0.34), rgba(255,228,160,0) 70%),
+    radial-gradient(circle 460px at 10% 90%, rgba(140,180,100,0.22), rgba(140,180,100,0) 74%);
   --px-mid:  url("../img/garden-mid.svg");    /* canopy leaves, top corners */
   --px-near: url("../img/garden-near.svg");   /* foreground foliage, bottom */
   --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23477d35'%3E%3Ccircle cx='25' cy='35' r='2.4' opacity='.32'/%3E%3Ccircle cx='95' cy='70' r='1.8' opacity='.26'/%3E%3Ccircle cx='148' cy='30' r='2.6' opacity='.28'/%3E%3Ccircle cx='60' cy='135' r='2' opacity='.27'/%3E%3Ccircle cx='125' cy='120' r='2.3' opacity='.25'/%3E%3Ccircle cx='32' cy='98' r='1.7' opacity='.22'/%3E%3C/g%3E%3C/svg%3E");
-  --px-tex-op: 0.6;
+  --px-tex-op: 0.26;
+  /* Leaf vectors kept faint in light mode so they read as intentional
+     edge decoration, not foliage crowding the text */
+  --px-mid-op:  0.42;
+  --px-near-op: 0.5;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -204,6 +210,8 @@
     radial-gradient(150% 62% at 50% 122%, rgba(14,22,46,0.70), rgba(14,22,46,0) 60%);
   --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='white'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
   --px-tex-op: 0.70;
+  --px-mid-op: 1;
+  --px-near-op: 1;
 }
 
 /* No explicit choice yet → follow the OS. Mirror of the block above. */
@@ -274,6 +282,8 @@
       radial-gradient(150% 62% at 50% 122%, rgba(14,22,46,0.70), rgba(14,22,46,0) 60%);
     --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='white'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
     --px-tex-op: 0.70;
+    --px-mid-op: 1;
+    --px-near-op: 1;
   }
 }
 
@@ -368,8 +378,8 @@ body::before {
   transition: opacity 0.6s var(--ease-out);
 }
 .px-far  { background-image: var(--px-far); }
-.px-mid  { background-image: var(--px-mid);  background-position: top center; }
-.px-near { background-image: var(--px-near); background-position: bottom center; }
+.px-mid  { background-image: var(--px-mid);  background-position: top center;    opacity: var(--px-mid-op, 1); }
+.px-near { background-image: var(--px-near); background-position: bottom center; opacity: var(--px-near-op, 1); }
 .px-tex  {
   background-image: var(--px-tex);
   background-repeat: repeat;
