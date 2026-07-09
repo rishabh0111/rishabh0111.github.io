@@ -1,0 +1,200 @@
+---
+layout: default
+---
+
+<!-- Post hero -->
+<div class="post-hero {% if page.categories contains 'news' %}news{% endif %}">
+  <div class="post-hero-inner">
+
+    <!-- Breadcrumb -->
+    <p class="post-crumb">
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <span class="sep">/</span>
+      {% if page.categories contains 'news' %}
+        <a href="{{ '/news/' | relative_url }}">News</a>
+        <span class="sep">/</span>
+        <span class="cat-pill news">News Digest</span>
+      {% else %}
+        <a href="{{ '/blogs/' | relative_url }}">Blog</a>
+        {% if page.series %}
+        <span class="sep">/</span>
+        <span class="cat-pill blog">{{ page.series }}</span>
+        {% endif %}
+      {% endif %}
+    </p>
+
+    <h1 class="post-title">{{ page.title }}</h1>
+
+    <div class="post-meta">
+      {% if page.author %}<span>{{ page.author }}</span><span class="sep">·</span>{% endif %}
+      <span class="meta-item">{% include icon.html name="calendar" %}<time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time></span>
+      {% if page.source %}
+        <span class="sep">·</span>
+        <span class="post-source">via {{ page.source }}</span>
+      {% endif %}
+      {% if page.read_time %}
+        <span class="sep">·</span>
+        <span class="meta-item">{% include icon.html name="clock" %}{{ page.read_time }} min read</span>
+      {% endif %}
+    </div>
+
+    {% if page.excerpt %}
+    <p class="post-excerpt">{{ page.excerpt | strip_html }}</p>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Post body + rails.
+     Left rail = series ("parts") navigation, right rail = TOC + related.
+     Both collapse into the flow on narrow screens, see RESPONSIVE. -->
+<div class="post-wrap{% if page.series %} has-rail{% endif %}">
+
+  <!-- Series navigation: same series, ordered. Left rail. -->
+  {% if page.series %}
+  {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+  {%- comment -%}
+    `siblings` only counts parts already published, so a series released one part
+    at a time would otherwise report itself as complete on day one ("Part 1 of 1").
+    Posts in a planned series set `series_total` in front matter; anything without
+    it falls back to counting what's live.
+  {%- endcomment -%}
+  {% assign series_total = page.series_total | default: siblings.size %}
+  <aside class="post-rail" aria-label="Series navigation">
+    <div class="sidebar-card" id="series-card">
+      <div class="sidebar-head">
+        <span class="sidebar-icon">{% include icon.html name="layers" %}</span>
+        <span class="sidebar-label">{{ page.series }} · <span class="sidebar-part">Part {{ page.series_order }} of {{ series_total }}</span></span>
+        <button type="button" class="rail-toggle" data-rail="series"
+                aria-expanded="true" aria-controls="series-body"
+                data-label-collapse="Collapse the parts list"
+                data-label-expand="Show the parts list"
+                title="Collapse the parts list">
+          <span class="ic-collapse">{% include icon.html name="chevron-left" %}</span>
+          <span class="ic-expand">{% include icon.html name="layers" %}</span>
+        </button>
+      </div>
+      <ul class="series-list" id="series-body">
+        {% for p in siblings %}
+        <li{% if p.url == page.url %} class="current"{% endif %}>
+          <a href="{{ p.url | relative_url }}"{% if p.url == page.url %} aria-current="page"{% endif %}>{{ p.series_order }}. {{ p.title }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+  {% endif %}
+
+  <article class="post-content" id="post-body">
+    {{ content }}
+
+    {% if page.tags and page.tags.size > 0 %}
+    <div class="post-tags" aria-label="Tags">
+      {% for tag in page.tags %}
+      <span class="post-tag">{% include icon.html name="tag" %}{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </article>
+
+  <aside class="post-sidebar" aria-label="Sidebar">
+
+    <!-- TOC: auto-populated by JS in default.html.
+         Takes whatever vertical room is left and scrolls internally. -->
+    <div class="sidebar-card" id="toc-card">
+      <div class="sidebar-head">
+        <span class="sidebar-icon">{% include icon.html name="list" %}</span>
+        <span class="sidebar-label">In this article</span>
+        <button type="button" class="rail-toggle" data-rail="toc"
+                aria-expanded="true" aria-controls="toc-list"
+                data-label-collapse="Collapse the contents"
+                data-label-expand="Show the contents"
+                title="Collapse the contents">
+          <span class="ic-collapse">{% include icon.html name="chevron-right" %}</span>
+          <span class="ic-expand">{% include icon.html name="list" %}</span>
+        </button>
+      </div>
+      <ul id="toc-list"></ul>
+    </div>
+
+  </aside>
+</div>
+
+<!-- Prev / Next navigation -->
+<nav class="post-nav" aria-label="Post navigation">
+  <a class="post-nav-item prev"
+     {% if page.previous %}href="{{ page.previous.url | relative_url }}"
+     {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
+    <span class="post-nav-dir">{% include icon.html name="arrow-left" %}Previous</span>
+    <span class="post-nav-title">
+      {% if page.previous %}{{ page.previous.title }}{% else %}·{% endif %}
+    </span>
+  </a>
+  <a class="post-nav-item next"
+     {% if page.next %}href="{{ page.next.url | relative_url }}"
+     {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
+    <span class="post-nav-dir">Next{% include icon.html name="arrow-right" %}</span>
+    <span class="post-nav-title">
+      {% if page.next %}{{ page.next.title }}{% else %}·{% endif %}
+    </span>
+  </a>
+</nav>
+
+<!-- Related posts: same category. The last band on the page: prev/next
+     is the immediate continuation, this is the wider shelf beside it.
+     Always one row; the count is capped to what a row can hold. -->
+{% assign cat = page.categories | first %}
+{% assign related = site.posts
+    | where_exp: "p", "p.url != page.url"
+    | where_exp: "p", "p.categories contains cat" %}
+{% if related.size > 0 %}
+<section class="post-more" aria-label="More {{ cat }}">
+  <div class="post-more-head">
+    <span class="post-more-label">More {{ cat }}</span>
+    <a class="post-more-all" href="{% if cat == 'news' %}{{ '/news/' | relative_url }}{% else %}{{ '/blogs/' | relative_url }}{% endif %}">All posts{% include icon.html name="arrow-right" %}</a>
+  </div>
+  <div class="post-more-grid">
+    {% comment %}
+      `limit` is a for-loop parameter, not a filter; as a filter Liquid
+      doesn't recognise it and silently hands back the whole list.
+    {% endcomment %}
+    {% for post in related limit: 5 %}
+    <a class="post-more-item" href="{{ post.url | relative_url }}">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+      <span class="post-more-title">{{ post.title }}</span>
+      {% if post.series %}<span class="post-more-series">{{ post.series }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<script>
+  // Wide tables scroll inside their own box instead of widening the page
+  // on a phone. kramdown can't emit a wrapper, so it goes on here; the
+  // CSS has a no-JS fallback for narrow screens.
+  (function () {
+    document.querySelectorAll('#post-body table').forEach(function (t) {
+      if (t.parentNode.classList && t.parentNode.classList.contains('table-wrap')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'table-wrap';
+      wrap.setAttribute('role', 'region');
+      wrap.setAttribute('aria-label', 'Table, scrolls sideways');
+      wrap.tabIndex = 0;
+      t.parentNode.insertBefore(wrap, t);
+      wrap.appendChild(t);
+    });
+  })();
+{% if page.links_new_tab %}
+  // links_new_tab: true in front matter: every link in the body opens in a new tab,
+  // so a reader working through a lesson never loses their place in it.
+  // In-page anchors (#…) stay put.
+  (function () {
+    document.querySelectorAll('#post-body a[href]').forEach(function (a) {
+      if (a.getAttribute('href').charAt(0) === '#') return;
+      a.target = '_blank';
+      a.rel = 'noopener';
+    });
+  })();
+{% endif %}
+</script>
