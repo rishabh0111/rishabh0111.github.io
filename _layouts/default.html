@@ -46,13 +46,15 @@
     <a class="site-logo" href="{{ '/' | relative_url }}">
       {{ site.title | default: "Atlas" }}<span>/</span>
     </a>
-    <nav class="site-nav" aria-label="Site navigation">
-      <a href="{{ '/' | relative_url }}"
-         {% if page.url == '/' %}class="active"{% endif %}>Home</a>
-      <a href="{{ '/blogs/' | relative_url }}"
-         {% if page.url contains '/blogs' %}class="active"{% endif %}>Blog</a>
-      <a href="{{ '/news/' | relative_url }}"
-         {% if page.url contains '/news' %}class="active"{% endif %}>News</a>
+    <div class="header-right">
+      <nav class="site-nav" id="site-nav" aria-label="Site navigation">
+        <a href="{{ '/' | relative_url }}"
+           {% if page.url == '/' %}class="active"{% endif %}>Home</a>
+        <a href="{{ '/blogs/' | relative_url }}"
+           {% if page.url contains '/blogs' %}class="active"{% endif %}>Blog</a>
+        <a href="{{ '/news/' | relative_url }}"
+           {% if page.url contains '/news' %}class="active"{% endif %}>News</a>
+      </nav>
 
       <button type="button" class="theme-toggle" id="theme-toggle"
               role="switch" aria-checked="false" aria-label="Toggle light and dark theme"
@@ -69,7 +71,17 @@
         </svg>
         <span class="tt-thumb" aria-hidden="true"></span>
       </button>
-    </nav>
+
+      <!-- Hamburger: only rendered at ≤860px, see RESPONSIVE -->
+      <button type="button" class="nav-toggle" id="nav-toggle"
+              aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-box" aria-hidden="true">
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </span>
+      </button>
+    </div>
   </header>
 
   <main>{{ content }}</main>
@@ -143,6 +155,43 @@
       // If the user hasn't picked explicitly, follow OS changes live.
       mq.addEventListener('change', function () {
         try { if (!localStorage.getItem('atlas-theme')) syncToggle(); } catch (e) {}
+      });
+    }
+
+    // ── Mobile nav (hamburger) ─────────────────────────────────
+    var navToggle = document.getElementById('nav-toggle');
+    var siteNav = document.getElementById('site-nav');
+    if (navToggle && siteNav) {
+      var setNav = function (open) {
+        siteNav.classList.toggle('open', open);
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        navToggle.setAttribute('aria-label',
+          open ? 'Close navigation menu' : 'Open navigation menu');
+      };
+
+      navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setNav(navToggle.getAttribute('aria-expanded') !== 'true');
+      });
+
+      // Following a link, tapping outside, or Escape all dismiss it.
+      siteNav.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') setNav(false);
+      });
+      document.addEventListener('click', function (e) {
+        if (siteNav.classList.contains('open') && !siteNav.contains(e.target)) setNav(false);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && siteNav.classList.contains('open')) {
+          setNav(false);
+          navToggle.focus();
+        }
+      });
+
+      // Resizing past the breakpoint must not strand the panel open,
+      // since .open would then apply to the desktop flex row.
+      window.matchMedia('(min-width: 861px)').addEventListener('change', function (ev) {
+        if (ev.matches) setNav(false);
       });
     }
 

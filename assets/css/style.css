@@ -93,6 +93,10 @@
   --th-border:    transparent;
   --stripe:       rgba(0,0,0,0.022);
   --select-bg:    rgba(184,110,82,0.22);
+  --pill-blog-bg: rgba(54,76,110,0.14);
+  --pill-blog-fg: #2E4160;
+  --pill-news-bg: rgba(184,110,82,0.16);
+  --pill-news-fg: #8A4A32;
 
   /* Glass — tuned per theme, used sparingly (header + sidebar cards) */
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 72%, transparent);
@@ -100,6 +104,8 @@
   --glass-blur:   10px;
   --glass-hi:     rgba(255,255,255,0.55);   /* top inner-light edge */
   --header-glass: color-mix(in srgb, var(--paper) 84%, transparent);
+  /* Mobile nav panel: near-opaque — it covers body text, unlike the header bar */
+  --nav-panel:    color-mix(in srgb, var(--paper) 97%, transparent);
 
   /* Plane = header / hero / footer surfaces. Now transparent so the
      parallax shows through; text colours follow the theme. */
@@ -147,8 +153,8 @@
   --bg:           #141820;
   --bg-raised:    #1C2230;
   --text:         #CEC8BA;
-  --text-2:       #7A7268;
-  --text-3:       #4A4640;
+  --text-2:       #A59D91;   /* 6.6:1 on --bg — carries lead paragraphs */
+  --text-3:       #8B8377;   /* 4.8:1 on --bg — small mono labels need AA too */
   --accent:       #C4826A;
   --accent-dim:   #8A5244;
   --border:       #252E3E;
@@ -162,8 +168,8 @@
   --paper-mid:    #1C2230;
   --paper-deep:   #252E3E;
   --ink:          #CEC8BA;
-  --ink-mid:      #7A7268;
-  --ink-faint:    #4A4640;
+  --ink-mid:      #A59D91;
+  --ink-faint:    #8B8377;
   --night:        #0C1018;
 
   --link:         var(--indigo-light);
@@ -179,11 +185,16 @@
   --th-border:    var(--border);
   --stripe:       rgba(255,255,255,0.03);
   --select-bg:    rgba(184,110,82,0.35);
+  --pill-blog-bg: rgba(106,138,170,0.20);
+  --pill-blog-fg: #A9C0DC;
+  --pill-news-bg: rgba(196,130,106,0.22);
+  --pill-news-fg: #E0AC98;
 
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
   --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
   --glass-hi:     rgba(255,255,255,0.06);
   --header-glass: color-mix(in srgb, #0c1018 64%, transparent);
+  --nav-panel:    color-mix(in srgb, #0c1018 97%, transparent);
 
   --plane-ink:    #EDE8DE;
   --plane-ink-2:  #93A6C0;
@@ -220,8 +231,8 @@
     --bg:           #141820;
     --bg-raised:    #1C2230;
     --text:         #CEC8BA;
-    --text-2:       #7A7268;
-    --text-3:       #4A4640;
+    --text-2:       #A59D91;   /* 6.6:1 on --bg — carries lead paragraphs */
+    --text-3:       #8B8377;   /* 4.8:1 on --bg — small mono labels need AA too */
     --accent:       #C4826A;
     --accent-dim:   #8A5244;
     --border:       #252E3E;
@@ -235,8 +246,8 @@
     --paper-mid:    #1C2230;
     --paper-deep:   #252E3E;
     --ink:          #CEC8BA;
-    --ink-mid:      #7A7268;
-    --ink-faint:    #4A4640;
+    --ink-mid:      #A59D91;
+    --ink-faint:    #8B8377;
     --night:        #0C1018;
 
     --link:         var(--indigo-light);
@@ -252,11 +263,16 @@
     --th-border:    var(--border);
     --stripe:       rgba(255,255,255,0.03);
     --select-bg:    rgba(184,110,82,0.35);
+    --pill-blog-bg: rgba(106,138,170,0.20);
+    --pill-blog-fg: #A9C0DC;
+    --pill-news-bg: rgba(196,130,106,0.22);
+    --pill-news-fg: #E0AC98;
 
     --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
     --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
     --glass-hi:     rgba(255,255,255,0.06);
     --header-glass: color-mix(in srgb, #0c1018 64%, transparent);
+    --nav-panel:    color-mix(in srgb, #0c1018 97%, transparent);
 
     --plane-ink:    #EDE8DE;
     --plane-ink-2:  #93A6C0;
@@ -468,6 +484,43 @@ body::before {
 .site-nav a:hover::after,
 .site-nav a.active::after { left: var(--s2); right: var(--s2); }
 .site-nav a.active { color: var(--accent); }
+
+/* Header right cluster: nav + theme switch + hamburger */
+.header-right { display: flex; align-items: center; gap: var(--s1); }
+
+/* Hamburger — desktop hides it; the ≤860px block turns it on.
+   Three bars that morph into an X when expanded. */
+.nav-toggle {
+  display: none;
+  background: none; border: 0; cursor: pointer;
+  padding: 0; margin-left: var(--s1);
+  width: 34px; height: 34px;
+  align-items: center; justify-content: center;
+  color: var(--header-text);
+  border-radius: 3px;
+}
+.nav-toggle-box {
+  position: relative;
+  width: 18px; height: 12px;
+  display: block;
+}
+.nav-toggle-bar {
+  position: absolute; left: 0;
+  width: 100%; height: 1.5px;
+  background: currentColor;
+  transition: transform 0.24s var(--ease-out), opacity 0.16s linear;
+}
+.nav-toggle-bar:nth-child(1) { top: 0; }
+.nav-toggle-bar:nth-child(2) { top: 50%; transform: translateY(-50%); }
+.nav-toggle-bar:nth-child(3) { bottom: 0; }
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(5.25px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-5.25px) rotate(-45deg);
+}
 
 
 /* ════════════════════════════════════════════════════════════════
@@ -847,8 +900,8 @@ body::before {
   letter-spacing: 0.16em; text-transform: uppercase;
   padding: 2px 9px; border-radius: 2px;
 }
-.cat-pill.blog { background: rgba(54,76,110,0.4); color: var(--indigo-ghost); }
-.cat-pill.news { background: rgba(184,110,82,0.25); color: var(--lacquer-light); }
+.cat-pill.blog { background: var(--pill-blog-bg); color: var(--pill-blog-fg); }
+.cat-pill.news { background: var(--pill-news-bg); color: var(--pill-news-fg); }
 
 /* The post title — display serif at full stretch */
 .post-title {
@@ -1026,14 +1079,14 @@ body::before {
   color: var(--text-3); letter-spacing: 0.24em;
 }
 
-/* Images */
+/* Images — centred in the measure, caption tracks the image */
 .post-content img {
   max-width: 100%; display: block;
-  border: 1px solid var(--border); margin: var(--s5) 0;
+  border: 1px solid var(--border); margin: var(--s5) auto;
   border-radius: 3px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
-.post-content figure { margin: var(--s6) 0; }
+.post-content figure { margin: var(--s6) 0; text-align: center; }
 .post-content figcaption {
   font-family: var(--f-mono); font-size: 9px;
   letter-spacing: 0.1em; color: var(--text-3);
@@ -1197,11 +1250,60 @@ body::before {
 /* ════════════════════════════════════════════════════════════════
    RESPONSIVE
 ════════════════════════════════════════════════════════════════ */
+
+/* Wide desktops: let the measure and the sidebar grow rather than
+   leaving the field empty. --max-w recomputes from these. */
+@media (min-width: 1180px) {
+  :root { --article-w: 760px; --sidebar-w: 250px; }
+}
+@media (min-width: 1440px) {
+  :root { --article-w: 820px; --sidebar-w: 280px; --col-gap: 4.5rem; }
+}
+
 @media (max-width: 860px) {
   .post-wrap { grid-template-columns: 1fr; }
   .post-sidebar { display: none; }
   .post-nav { grid-template-columns: 1fr; }
   .post-content h2::before { display: none; }
+
+  /* Nav collapses into a panel under the header; the hamburger drives it.
+     The theme switch stays in the bar — it is one tap, not navigation. */
+  .nav-toggle { display: flex; }
+
+  .site-nav {
+    position: fixed;
+    top: var(--h-header); left: 0; right: 0;
+    flex-direction: column; align-items: stretch;
+    gap: 0;
+    padding: var(--s1) var(--s5) var(--s2);
+    background: var(--nav-panel);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid var(--plane-rule);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+    opacity: 0; visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.18s linear,
+                transform 0.22s var(--ease-out),
+                visibility 0s linear 0.22s;
+  }
+  .site-nav.open {
+    opacity: 1; visibility: visible;
+    transform: none;
+    transition: opacity 0.18s linear,
+                transform 0.22s var(--ease-out),
+                visibility 0s linear 0s;
+  }
+
+  /* Stacked links: full-width tap targets, no centre-grow underline */
+  .site-nav a {
+    height: auto;
+    padding: var(--s2) 0;
+    font-size: 11px;
+    border-bottom: 1px solid var(--plane-rule);
+  }
+  .site-nav a:last-child { border-bottom: 0; }
+  .site-nav a::after { display: none; }
 }
 
 @media (max-width: 640px) {
