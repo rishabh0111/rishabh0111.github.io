@@ -7,11 +7,11 @@
 title:       "Atlas"
 description: "Writing on design, engineering, and the space between."
 baseurl:     ""        # "" for username.github.io · "/repo-name" for project pages
-url:         "https://yourusername.github.io"   # ← your GitHub Pages URL
+url:         "https://rishabh0111.github.io"
 
 author:
-  name:  "Your Name"
-  email: "you@example.com"
+  name:  "Rishabh Sharma"
+  email: "rishabhsharma8912@gmail.com"
 
 # ── Timezone ───────────────────────────────────────────────────
 timezone: Asia/Kolkata
@@ -38,3 +38,5 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+  - dump
+  - _templates
