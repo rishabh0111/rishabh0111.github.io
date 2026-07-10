@@ -1,0 +1,1051 @@
+---
+layout: default
+---
+
+{% assign p = page.profile %}
+{% assign n_blogs = site.categories.blogs | size %}
+{% assign n_news  = site.categories.news  | size %}
+{% assign marks   = site.data.tech_logos.icons %}
+{% comment %} Hero and contact links: the site-wide socials, then the home-only ones. {% endcomment %}
+{% assign profile_links = site.data.social | concat: page.links %}
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO: sits on the parallax scene, same plane as .page-header
+═══════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+
+    <div class="hero-text">
+      <p class="page-label">{{ p.role }}</p>
+      <p class="hero-hi">Hi <span class="hero-wave" role="img" aria-label="waving hand">👋</span>, I'm</p>
+
+      <!-- home-fx.js draws the name as glass that bends under the
+           pointer (React Bits Warp Text; letters rising in, Split Text,
+           where WebGL can't run), and turns the eyebrow above into
+           words that take turns (Rotating Text). The plain <h1> is
+           what search engines, readers and no-JS get. -->
+      <div class="hero-name-wrap">
+        <h1 class="hero-name" id="hero-name">{{ p.name }} <em>{{ p.surname }}</em></h1>
+      </div>
+
+      <nav class="hero-links" aria-label="Profile links">
+        {% for l in profile_links %}
+        {% assign ext = false %}
+        {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
+        <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+          <span class="hero-link-ic">{% include icon.html name=l.icon %}</span>
+          {{ l.label }}
+        </a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    <!-- The portrait, popping out of a disc. The photo is a cut-out
+         (transparent background), so it stands in a circle drawn in the
+         site's own palette: the shoulders stay inside the circle and the
+         head rises past its rim. The disc is the backdrop; .pf-cut is
+         the clip, square on top and round on the bottom, so the rim
+         only cuts where the circle does. If the image is missing, an RS
+         monogram takes over. -->
+    <figure class="hero-portrait" id="portrait">
+      <div class="pf-disc" aria-hidden="true"></div>
+      <div class="pf-cut">
+        <img src="{{ p.avatar | relative_url }}" alt="{{ p.name }} {{ p.surname }}"
+             width="600" height="622"
+             onerror="this.closest('.hero-portrait').classList.add('no-img')">
+      </div>
+      <span class="portrait-monogram" aria-hidden="true">RS</span>
+    </figure>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DOSSIER RAIL: the page's navigation AND its section labels, in
+     one control. A column of dots in the left margin: the section
+     you are reading lights up and names itself, and a fill line
+     tracks how far down the page you are. Replaces a full-width chip
+     bar that repeated every section's own heading.
+
+     Shown from 1200px up (see .drail). Narrower than that it is
+     hidden and each section carries its own .ds-heading. Static
+     links, so it still works as a nav without JS; the script adds
+     the active-section tracking and the fill.
+═══════════════════════════════════════════════════════════════ -->
+<nav class="drail" id="drail" aria-label="Sections">
+  <span class="drail-line" aria-hidden="true"><i id="drail-fill"></i></span>
+  <a href="#about"       data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="spark" %}</i><span>About</span></a>
+  <a href="#experience"  data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="clock" %}</i><span>Experience</span></a>
+  <a href="#projects"    data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="layers" %}</i><span>Projects</span></a>
+  <a href="#toolkit"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="cube" %}</i><span>Toolkit</span></a>
+  {% if n_blogs > 0 or n_news > 0 %}<a href="#writing" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="pen" %}</i><span>Writing</span></a>{% endif %}
+  <a href="#credentials" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="seal" %}</i><span>Credentials</span></a>
+  <a href="#contact"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="mail" %}</i><span>Contact</span></a>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     METRICS: the first band: four stat tiles on the same surface as
+     every other tile on the page (shadcn's dashboard section-cards),
+     the figures counting up as they come into view (React Bits
+     Count Up; the script at the foot does the counting).
+═══════════════════════════════════════════════════════════════ -->
+<div class="home">
+
+  {% if page.metrics %}
+  <section class="ds-row ds-band" id="metrics">
+    <div class="band-inner">
+      <div class="metrics" data-stagger>
+        {% for m in page.metrics %}
+        <div class="tile metric" data-anim="up">
+          {%- comment -%} Number first: each label is written to follow it ("500+ employees get …"). {%- endcomment -%}
+          <span class="metric-figure" data-count="{{ m.figure }}">{{ m.figure }}</span>
+          <span class="metric-label" data-decrypt>{{ m.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     THE SECTIONS: each one its own full-width row, with the content
+     in one column (.band-inner). The rows alternate between the open
+     scene and a tinted band (.ds-band), so the eye finds where one
+     section ends and the next begins without a card around each.
+     Every section is a different component (see the comment on each).
+     The rail (.drail) names the section you are reading from 1200px
+     up; below that each row carries a compact .ds-heading.
+═══════════════════════════════════════════════════════════════ -->
+      <!-- ── About: spotlight cards on the open scene ─────────────
+           The lede, then the three claims as icon tiles: three marks
+           (spark, shield, server) say AI · security · backends before
+           a word is taken in. Each tile carries a spotlight that
+           follows the pointer (React Bits SpotlightCard; the script at
+           the foot sets --mouse-x/--mouse-y). The essay is folded
+           under a disclosure at the end. -->
+      <section class="ds-row" id="about">
+        <div class="band-inner">
+        <p class="ds-heading">About <small>how I got here, and what I am good at</small></p>
+        <div class="ds-val">
+          <div class="ds-prose">
+            {% if p.tagline %}
+            <p class="ds-lede" data-scroll-reveal>
+              {{ p.tagline | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+            </p>
+            {% endif %}
+            {% if p.status %}
+            <p class="ds-now" data-typewrite><span class="status-dot" aria-hidden="true"></span>{{ p.status }}</p>
+            {% endif %}
+          </div>
+
+          <div class="pillar-grid" data-stagger>
+            {% for pil in page.pillars %}
+            <div class="tile pillar spot" data-anim="up">
+              <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name=pil.icon %}</i></span>
+              <p class="pillar-title">{{ pil.title }}</p>
+              <p class="pillar-body">{{ pil.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if page.about %}
+          <details class="more about-more" data-anim="fade">
+            <summary>The longer version</summary>
+            <div class="ds-prose">{{ page.about | markdownify }}</div>
+          </details>
+          {% endif %}
+        </div>
+        </div>
+      </section>
+
+      <!-- ── Experience: a timeline ─────────────────────────────
+           The period sits in a gutter, a spine runs down the middle
+           with a dot per job (the current one lit), and each job is
+           a card: mark, name, role, one line, the ventures as tiles,
+           the stack. The current job's card has a live, turbulent edge
+           (React Bits Electric Border), the same family of wobble as
+           the survey lines. The bullets are folded inside the card. -->
+      <section class="ds-row ds-band" id="experience">
+        <div class="band-inner">
+        <p class="ds-heading">Experience <small>most recent first</small></p>
+        <div class="ds-val">
+          <ol class="tl">
+          {% for e in page.experience %}
+          <li class="tl-item{% if e.current %} is-current{% endif %}" data-anim="left">
+            <span class="tl-when" data-decrypt>{{ e.period }}</span>
+            <span class="tl-spine" aria-hidden="true"><i class="tl-dot"></i></span>
+
+            <div class="tile tl-card{% if e.current %} electric{% endif %}">
+              {% if e.current %}<div class="eb-layers" aria-hidden="true"><canvas class="eb-canvas"></canvas><i class="eb-glow-1"></i><i class="eb-glow-2"></i><i class="eb-bg-glow"></i></div>{% endif %}
+              <div class="tl-head">
+                {% comment %}
+                  The company mark. `logo_dark` is only needed for a mark
+                  that reads on one ground and not the other: a wordmark,
+                  typically. A square icon that works on both ships once.
+                  With no `logo` at all, initials stand in deliberately;
+                  see _templates/logos/README.md.
+                {% endcomment %}
+                <div class="co-logo">
+                  {% if e.logo %}
+                  {% comment %}
+                    The `logo-light` class is only added when there is a dark
+                    counterpart to swap to. Tagging a lone mark with it would
+                    hide it on the dark theme, leaving an empty plate.
+                  {% endcomment %}
+                  <img{% if e.logo_dark %} class="logo-light"{% endif %}
+                       src="{{ e.logo | relative_url }}"
+                       alt="{{ e.company }}" loading="lazy">
+                  {% if e.logo_dark %}
+                  <img class="logo-dark" src="{{ e.logo_dark | relative_url }}"
+                       alt="{{ e.company }}" loading="lazy">
+                  {% endif %}
+                  {% else %}
+                  <b>{{ e.company | slice: 0 }}</b>
+                  {% endif %}
+                </div>
+                <div class="tl-title">
+                  <h3 class="tl-co">{{ e.company }}</h3>
+                  <span class="tl-role">{{ e.role }}<span class="sep">·</span>{{ e.place }}</span>
+                </div>
+                <span class="xp-when tl-when-inline">{{ e.period }}</span>
+              </div>
+
+              {% if e.summary %}
+              <p class="project-body">
+                {{ e.summary | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+              </p>
+              {% endif %}
+
+              {% if e.ventures %}
+              <div class="venture-strip">
+                {% for v in e.ventures %}
+                <div class="venture-tile"><b>{{ v.name }}</b>{% if v.note %}<span>{{ v.note }}</span>{% endif %}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {% if e.stack %}
+              <ul class="chips" aria-label="Stack">
+                {% for s in e.stack %}
+                {% assign mk = marks[s] %}
+                <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+
+              {% if e.points or e.ventures %}
+              <details class="more xp-more">
+                <summary>What I did there</summary>
+
+                {% if e.points %}
+                <ul class="points">
+                  {% for pt in e.points %}
+                  <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% for v in e.ventures %}
+                <div class="xp-venture">
+                  <h4>{{ v.name }}</h4>
+                  {% if v.note %}<p class="note">{{ v.note }}</p>{% endif %}
+                  <ul class="points">
+                    {% for pt in v.points %}
+                    <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endfor %}
+              </details>
+              {% endif %}
+            </div>
+          </li>
+          {% endfor %}
+          </ol>
+        </div>
+        </div>
+      </section>
+
+      <!-- ── Projects: a tinted band of poster cards ────────────
+           One card per project, however many, and no tiers: every
+           project gets the same card. A screenshot as the cover (or a
+           plate with the name's initial when there is none), the name,
+           one line, what it is made of, where to find it. The write-up
+           is folded inside the card. The border lights up around the
+           pointer (React Bits MagicBento; the script at the foot sets
+           --glow-x/--glow-y/--glow-intensity). -->
+      <section class="ds-row" id="projects">
+        <div class="band-inner">
+        <p class="ds-heading">Projects <small>built, shipped, and live</small></p>
+        <div class="ds-val">
+
+          {% comment %}
+            "Focus": each lens lights the projects tagged with it.
+            Plain links to ?for=<id>, so a lens can be linked from an
+            application; the script does the lighting without a reload.
+          {% endcomment %}
+          {% if page.lenses %}
+          <div class="proj-lens" role="group" aria-label="Show projects by focus">
+            <span class="proj-lens-label">Focus</span>
+            {% for l in page.lenses %}
+            <a class="proj-lens-btn" href="?for={{ l.id }}#projects" data-lens="{{ l.id }}" data-note="{{ l.note | escape }}" aria-pressed="false">{{ l.label }}</a>
+            {% endfor %}
+          </div>
+          <p class="proj-lens-note" aria-live="polite" hidden></p>
+          {% endif %}
+
+          <div class="proj-grid" data-stagger data-show="4">
+          {% for f in page.projects %}
+          <article class="tile proj glow" id="{{ f.name | slugify }}" data-roles="{{ f.roles | join: ' ' }}" data-anim="up">
+
+            <!-- 1 · the cover: the screenshots as an accordion (React
+                 Bits Accordion Gallery): the hovered or tapped shot
+                 grows, the rest narrow. No shots: a plate with the
+                 first stack mark that fills with pixels on hover (Pixel
+                 Card), so every card has the same silhouette. -->
+            {% if f.shots %}
+            <div class="proj-shots">
+              <div class="proj-carousel ag" role="group" aria-label="{{ f.name }} screenshots">
+                {% for s in f.shots %}
+                {% comment %}
+                  `src` is the image. `src_dark` is only for a shot that
+                  needs a second version to read on the dark theme, the
+                  same rule as company logos. A lone image carries no
+                  theme class, or the dark theme would hide it.
+                {% endcomment %}
+                <figure class="shot">
+                  <img{% if s.src_dark %} class="shot-light"{% endif %}
+                       src="{{ s.src | relative_url }}" alt="{{ s.alt }}" loading="lazy">
+                  {% if s.src_dark %}
+                  <img class="shot-dark" src="{{ s.src_dark | relative_url }}"
+                       alt="{{ s.alt }}" loading="lazy">
+                  {% endif %}
+                  <figcaption>{{ s.caption }}</figcaption>
+                </figure>
+                {% endfor %}
+              </div>
+            </div>
+            {% else %}
+            {% comment %}
+              The plate shows the first stack item's brand mark, large;
+              with no mark for it, the name's initial instead.
+            {% endcomment %}
+            {% assign pm = nil %}
+            {% if f.stack %}{% assign pm = marks[f.stack.first] %}{% endif %}
+            <div class="proj-shots proj-plate" aria-hidden="true">
+              {% if pm %}
+              <img class="proj-plate-mark" src="{{ pm.file | relative_url }}" alt="" loading="lazy">
+              {% else %}
+              <span class="proj-plate-initial">{{ f.name | slice: 0 }}</span>
+              {% endif %}
+              {% if f.languages %}<span class="proj-plate-lang">{{ f.languages | join: ' · ' }}</span>{% endif %}
+            </div>
+            {% endif %}
+
+            <!-- 2 · heading and the one line -->
+            <div class="ds-fhead">
+              <h2>{{ f.name }}</h2>
+              {% if f.kind %}<span class="kind-pill" data-decrypt>{{ f.kind }}</span>{% endif %}
+              {% if f.year %}<span class="xp-when">{{ f.year }}</span>{% endif %}
+            </div>
+            {% if f.blurb %}<p class="proj-blurb">{{ f.blurb }}</p>{% endif %}
+            {% if f.why %}<p class="proj-why">{{ f.why }}</p>{% endif %}
+
+            <!-- 3 · what it is made of. A project with `parts` and no
+                 top-level `stack` shows its pieces instead. -->
+            {% if f.stack %}
+            <ul class="chips" aria-label="Stack">
+              {% for s in f.stack %}
+              {% assign mk = marks[s] %}
+              <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+              {% endfor %}
+            </ul>
+            {% elsif f.parts %}
+            <ul class="chips" aria-label="Pieces">
+              {% for c in f.parts %}
+              <li>{{ c.label }}<span class="chip-sub">{{ c.lang }}</span></li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- 4 · where to find it. A recording comes first: it is
+                 the one link that needs nothing from the reader. -->
+            <div class="project-links">
+              {% if f.video %}
+              <a class="proj-watch" href="{{ f.video.src | relative_url }}" data-video="video-{{ f.name | slugify }}">
+                <span class="link-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>Watch it work ({{ f.video.length }})
+              </a>
+              {% endif %}
+              {% for l in f.links %}
+              <a href="{% if l.url contains '://' %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+                {% if l.icon %}<span class="link-ic">{% include icon.html name=l.icon %}</span>{% endif %}{{ l.label }}
+              </a>
+              {% endfor %}
+            </div>
+
+            <!-- 5 · the write-up, folded: promise, body, results,
+                 glance, parts. A native <details>, so it opens without
+                 JS and is announced as a button. -->
+            {% if f.promise or f.body or f.points or f.glance or f.parts %}
+            <details class="more proj-more">
+              <summary>The full write-up</summary>
+
+              {% if f.promise %}
+              <blockquote class="promise">
+                {{ f.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+              </blockquote>
+              {% endif %}
+              {% if f.body %}
+              <p class="project-body">
+                {{ f.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+              </p>
+              {% endif %}
+              {% if f.points %}
+              <ul class="points">
+                {% for pt in f.points %}
+                <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+
+              {% if f.glance %}
+              <table class="glance">
+                {% for g in f.glance %}
+                <tr>
+                  <th>{{ g.k }}</th>
+                  <td>{{ g.v | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+
+              <!-- the separable pieces, one card per row -->
+              {% if f.parts %}
+              <p class="proj-parts-label">Built as {{ f.parts | size }} separate pieces</p>
+              <div class="parts-stack">
+                {% for c in f.parts %}
+                <div class="comp">
+                  <div class="comp-head">
+                    <h3 class="comp-label">{{ c.label }}</h3>
+                    <span class="comp-lang">{{ c.lang }}</span>
+                  </div>
+                  {% if c.promise %}
+                  <p class="comp-promise">
+                    {{ c.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+                  </p>
+                  {% endif %}
+                  {% if c.points %}
+                  <ul class="points">
+                    {% for pt in c.points %}
+                    <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                  {% if c.stack %}
+                  <ul class="chips" aria-label="Stack">
+                    {% for s in c.stack %}
+                    {% assign mk = marks[s] %}
+                    <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                  {% if c.blog %}
+                  <a class="comp-more" href="{{ c.blog | relative_url }}">How I built it &rarr;</a>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </details>
+            {% endif %}
+
+          </article>
+          {% endfor %}
+          </div>
+
+          {% comment %} The recordings, one dialog each, opened by "Watch it work". {% endcomment %}
+          {% for f in page.projects %}{% if f.video %}
+          <dialog class="proj-video" id="video-{{ f.name | slugify }}" aria-label="{{ f.video.title | escape }}">
+            <video src="{{ f.video.src | relative_url }}" poster="{{ f.video.poster | relative_url }}" controls muted playsinline preload="none"></video>
+            <form method="dialog"><button class="proj-video-close">Close</button></form>
+          </dialog>
+          {% endif %}{% endfor %}
+
+          {% comment %}
+            Four projects show; from the fifth on they wait behind this
+            button (the script wires it; without JS every card shows).
+            A grid that grows in place keeps every project the same
+            card; a carousel would hide most of them.
+          {% endcomment %}
+          {% if page.projects.size > 4 %}
+          <p class="section-more proj-grid-more" hidden>
+            <button type="button" class="proj-grid-btn specular" data-more="All {{ page.projects.size }} projects" data-less="Fewer projects">All {{ page.projects.size }} projects<span aria-hidden="true">→</span></button>
+          </p>
+          {% endif %}
+
+        </div>
+        </div>
+      </section>
+
+      <!-- ── Toolkit: a tinted band of logo loops ────────────────
+           Each group is a single line that slides continuously, edge
+           to edge of the viewport, fading out at both ends (React Bits
+           LogoLoop). The label sits in the content column; the loop
+           itself is full width. The run of items is emitted twice and
+           the track is shifted by exactly half its width, so the loop
+           has no visible seam. Hover or keyboard focus pauses it;
+           reduced-motion stops it and lets the row scroll by hand. -->
+      <section class="ds-row ds-band" id="toolkit">
+        <div class="band-inner">
+          <p class="ds-heading">Toolkit <small>things I have actually used</small></p>
+        </div>
+        <div class="ds-val">
+          {% for sk in page.skills %}
+          <div class="ribbon{% cycle 'dir': '', ' ribbon-rev' %}" data-anim="fade" style="--anim-i: {{ forloop.index0 }}">
+            <div class="band-inner"><p class="ribbon-label" data-decrypt>{{ sk.group }}</p></div>
+            <div class="ribbon-view">
+              <div class="ribbon-track">
+                {% for pass in (1..2) %}
+                <ul class="ribbon-run" {% if pass == 2 %}aria-hidden="true"{% endif %}>
+                  {% for item in sk.items %}
+                  {% assign mk = marks[item] %}
+                  <li class="tool{% unless mk %} tool-textual{% endunless %}">
+                    {% if mk %}
+                    <img src="{{ mk.file | relative_url }}" alt="" loading="lazy">
+                    {% else %}
+                    <i>{{ item | replace: '(', '' | replace: ')', '' | split: ' ' | first | slice: 0, 2 | upcase }}</i>
+                    {% endif %}
+                    <span>{{ item }}</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- ── Writing: a list on the open scene ───────────────────
+           Pulled live from the collections. Each post is one row with
+           the date in a block on the left (shadcn Item / React Bits
+           AnimatedList): a list, not a card. -->
+      {% if n_blogs > 0 or n_news > 0 %}
+      <section class="ds-row" id="writing">
+        <div class="band-inner">
+        <p class="ds-heading">Writing <small>most recent</small></p>
+        <div class="ds-val post-list" data-stagger>
+          {% for post in site.categories.blogs limit: 3 %}
+          <a class="post-row" href="{{ post.url | relative_url }}" data-anim="up">
+            <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
+            <span>
+              <span class="post-row-title">{{ post.title }}</span>
+              {% if post.tags and post.tags.size > 0 %}
+              <div class="post-row-tags">
+                {% for tag in post.tags limit: 3 %}<span class="post-row-tag">{{ tag }}</span>{% endfor %}
+              </div>
+              {% endif %}
+            </span>
+            {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
+          </a>
+          {% endfor %}
+
+          {% for post in site.categories.news limit: 2 %}
+          <a class="post-row news-item" href="{{ post.url | relative_url }}" data-anim="up">
+            <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
+            <span>
+              <span class="post-row-title">{{ post.title }}</span>
+              {% if post.excerpt %}
+              <span class="post-row-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</span>
+              {% endif %}
+            </span>
+            {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
+          </a>
+          {% endfor %}
+
+          <p class="section-more" data-anim="fade">
+            <a href="{{ '/blogs/' | relative_url }}">All writing<span aria-hidden="true">→</span></a>
+            {% if n_news > 0 %}<a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>{% endif %}
+          </p>
+        </div>
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- ── Credentials: a tinted band, two panels ──────────────
+           Education, then certifications and awards, each a full-width
+           panel on the same six-column grid: a row of two cards spans
+           3 + 3, a row of three spans 2 + 2 + 2, so every row is full
+           and the two subsections share one geometry.
+           Every card: the mark of its kind (a cap, a seal, a trophy),
+           the name, where it came from, and a score or verify chips
+           along its foot. -->
+      <section class="ds-row ds-band" id="credentials">
+        <div class="band-inner">
+        <p class="ds-heading">Credentials <small>degree, certificates, awards</small></p>
+        <div class="ds-val">
+          <div class="cred-stack" data-stagger>
+
+            <div class="tile cred-panel" data-anim="up">
+              <p class="cred-panel-title" data-decrypt>Education</p>
+              <ul class="cred-grid">
+                {% for e in page.education %}
+                <li class="cred-card cred-card--w3">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="cap" %}</i></span>
+                  <div class="cred-body">
+                    <p class="cred-head">{{ e.degree }}</p>
+                    {% if e.detail %}<p class="cred-sub">{{ e.detail }}</p>{% endif %}
+                    <p class="cred-meta">{{ e.school }}<span class="sep">·</span>{{ e.period }}</p>
+                    {% if e.score %}<p class="cred-foot"><span class="cred-score">{{ e.score }}</span></p>{% endif %}
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="tile cred-panel" data-anim="up">
+              <p class="cred-panel-title" data-decrypt>Certifications &amp; awards</p>
+              <ul class="cred-grid">
+                {% for c in page.certifications %}
+                <li class="cred-card cred-card--w2">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="seal" %}</i></span>
+                  <div class="cred-body">
+                    <p class="cred-head">{{ c.name }}</p>
+                    <p class="cred-meta">{{ c.issuer }}</p>
+                    <div class="cred-foot cert-links">
+                      {% if c.links %}
+                      {% for l in c.links %}
+                      <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
+                      {% endfor %}
+                      {% elsif c.url %}
+                      <a href="{{ c.url | escape }}" target="_blank" rel="noopener">Verify<span aria-hidden="true">↗</span></a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+                {% for a in page.awards %}
+                <li class="cred-card cred-card--w3">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="trophy" %}</i></span>
+                  <div class="cred-body">
+                    <p class="cred-head">{{ a.name }}</p>
+                    {% if a.note %}<p class="cred-meta">{{ a.note }}</p>{% endif %}
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+          </div>
+
+          {% if page.interests %}
+          <p class="interests" data-anim="fade" data-truefocus>
+            <span class="interests-label">Off-hours</span>
+            {% for i in page.interests %}{{ i }}{% unless forloop.last %} <span class="sep">·</span> {% endunless %}{% endfor %}
+          </p>
+          {% endif %}
+        </div>
+        </div>
+      </section>
+
+</div><!-- /.home -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CONTACT: a closing plane, mirrors the hero
+═══════════════════════════════════════════════════════════════ -->
+<section class="contact" id="contact">
+  <div class="magnet-lines" aria-hidden="true"></div>
+  <div class="contact-inner" data-anim="up">
+    <p class="page-label" data-decrypt>Get in touch</p>
+    <a class="contact-email shiny" href="mailto:{{ page.contact.email }}">{{ page.contact.email }}</a>
+    <nav class="hero-links" aria-label="Profile links">
+      {% for l in profile_links %}
+      {% assign ext = false %}
+      {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
+      <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+        <span class="hero-link-ic">{% include icon.html name=l.icon %}</span>
+        {{ l.label }}
+      </a>
+      {% endfor %}
+    </nav>
+  </div>
+</section>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── Hero: entrance stagger ─────────────────────────────────
+  // Added from JS rather than baked into the markup so a no-JS load
+  // simply shows the finished hero instead of an invisible one.
+  var heroInner = document.querySelector('.hero-inner');
+  if (heroInner && !reduce) {
+    // On phones the portrait leads the column, so it rises first there.
+    var portraitDelay = window.matchMedia('(max-width: 860px)').matches ? 0 : 0.12;
+    [['.page-label', 0], ['.hero-hi', 0.05], ['.hero-name-wrap', 0.1],
+     ['.hero-links', 0.24], ['.hero-portrait', portraitDelay]
+    ].forEach(function (pair) {
+      var el = heroInner.querySelector(pair[0]);
+      if (!el) return;
+      el.style.setProperty('--rise-d', pair[1] + 's');
+      el.classList.add('hero-rise');
+    });
+  }
+
+  // ── Everything animates in as it arrives ────────────────────
+  // [data-anim] elements start hidden (see .anim in the stylesheet)
+  // and get .in when they enter the viewport: up / left / right /
+  // fade, after React Bits AnimatedContent and FadeContent. Children
+  // of a [data-stagger] parent are numbered (--anim-i) so they follow
+  // one another. Once, not every time. Reduced motion: shown at once.
+  var animEls = Array.prototype.slice.call(document.querySelectorAll('[data-anim]'));
+  animEls.forEach(function (el) { el.classList.add('anim'); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-stagger]'), function (parent) {
+    var k = 0;
+    Array.prototype.forEach.call(parent.children, function (child) {
+      if (child.hasAttribute('data-anim')) child.style.setProperty('--anim-i', k++);
+    });
+  });
+  var canObserve = 'IntersectionObserver' in window;
+  if (reduce || !canObserve) {
+    animEls.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var animIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          en.target.classList.add('in');
+          animIO.unobserve(en.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    animEls.forEach(function (el) { animIO.observe(el); });
+    // A flick can carry an element through the viewport between two
+    // frames without it ever intersecting; anything left above the
+    // fold is shown so nothing stays hidden behind the reader.
+    var animTick = false;
+    window.addEventListener('scroll', function () {
+      if (animTick) return;
+      animTick = true;
+      requestAnimationFrame(function () {
+        animTick = false;
+        animEls.forEach(function (el) {
+          if (!el.classList.contains('in') && el.getBoundingClientRect().bottom < 0) {
+            el.classList.add('in');
+            animIO.unobserve(el);
+          }
+        });
+      });
+    }, { passive: true });
+  }
+
+  // ── The lede reveals word by word as you scroll through it ────
+  // After React Bits ScrollReveal: each word goes from faint and
+  // soft to full as the paragraph travels up the viewport, so the
+  // line is read at the pace it is scrolled. Reduced motion: plain.
+  var ledes = document.querySelectorAll('[data-scroll-reveal]');
+  if (ledes.length && !reduce) {
+    Array.prototype.forEach.call(ledes, function (lede) {
+      // Wrap each word, keeping inline markup (<strong>) intact.
+      var walker = document.createTreeWalker(lede, NodeFilter.SHOW_TEXT), texts = [];
+      while (walker.nextNode()) texts.push(walker.currentNode);
+      texts.forEach(function (node) {
+        var parts = node.nodeValue.split(/(\s+)/), frag = document.createDocumentFragment();
+        parts.forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement('span'); w.className = 'w'; w.textContent = part;
+          frag.appendChild(w);
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+      var words = Array.prototype.slice.call(lede.querySelectorAll('.w'));
+      words.forEach(function (w, i) { w.style.setProperty('--w', i / Math.max(1, words.length - 1)); });
+      lede.classList.add('is-split');
+      var ledeTick = false;
+      function ledeSync() {
+        ledeTick = false;
+        var r = lede.getBoundingClientRect(), vh = document.documentElement.clientHeight;
+        // 0 when the top of the lede is at the bottom of the viewport,
+        // 1 once it has climbed into the upper 45%.
+        var p = (vh - r.top) / (vh * 0.55 + r.height);
+        lede.style.setProperty('--p', Math.min(1, Math.max(0, p)).toFixed(3));
+      }
+      var ledeReq = function () { if (!ledeTick) { ledeTick = true; requestAnimationFrame(ledeSync); } };
+      window.addEventListener('scroll', ledeReq, { passive: true });
+      window.addEventListener('resize', ledeReq, { passive: true });
+      ledeSync();
+    });
+  }
+
+  // ── Projects: four show; the rest wait behind a button ─────────
+  var pgrid = document.querySelector('.proj-grid[data-show]');
+  var pmore = document.querySelector('.proj-grid-more');
+  if (pgrid && pmore) {
+    var show = parseInt(pgrid.getAttribute('data-show'), 10) || 4;
+    var cards = Array.prototype.slice.call(pgrid.querySelectorAll('.proj'));
+    if (cards.length > show) {
+      var btn = pmore.querySelector('.proj-grid-btn');
+      pgrid.classList.add('is-collapsed');
+      pmore.hidden = false;
+      btn.addEventListener('click', function () {
+        var open = pgrid.classList.toggle('is-collapsed') === false;
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.firstChild.nodeValue = open ? btn.getAttribute('data-less') : btn.getAttribute('data-more');
+        if (open) {
+          cards.slice(show).forEach(function (c, k) {
+            c.style.setProperty('--anim-i', k);
+            c.classList.remove('in');
+            requestAnimationFrame(function () { requestAnimationFrame(function () { c.classList.add('in'); }); });
+          });
+        } else {
+          pgrid.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        }
+      });
+    }
+  }
+
+  // ── "Watch it work": the recording, full-size, in a dialog ─────
+  // The link is the MP4 itself, so without JS (or without <dialog>) it
+  // still opens the video. Clicking the backdrop closes it, and closing
+  // stops the playback.
+  Array.prototype.forEach.call(document.querySelectorAll('a[data-video]'), function (a) {
+    var dlg = document.getElementById(a.getAttribute('data-video'));
+    if (!dlg || !dlg.showModal) return;
+    var vid = dlg.querySelector('video');
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      dlg.showModal();
+      vid.currentTime = 0;
+      var go = vid.play(); if (go && go.catch) go.catch(function () {});
+    });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('close', function () { vid.pause(); });
+  });
+
+  // ── "Focus": light the projects for one kind of work ──────────
+  // Read from ?for= on arrival (so a link from a job application
+  // lands on the right projects) and set by the buttons without a
+  // reload. Pressing the lit one again clears it.
+  var lensBtns = Array.prototype.slice.call(document.querySelectorAll('.proj-lens-btn'));
+  var lensNote = document.querySelector('.proj-lens-note');
+  if (lensBtns.length && pgrid) {
+    var lensCards = Array.prototype.slice.call(pgrid.querySelectorAll('.proj'));
+    var setLens = function (id) {
+      lensBtns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lens') === id ? 'true' : 'false'); });
+      var hiddenMatch = false;
+      lensCards.forEach(function (c, i) {
+        var match = !!id && (' ' + c.getAttribute('data-roles') + ' ').indexOf(' ' + id + ' ') !== -1;
+        c.classList.toggle('is-lit', match);
+        c.classList.toggle('is-dim', !!id && !match);
+        if (match && i >= 4) hiddenMatch = true;
+      });
+      pgrid.classList.toggle('has-lens', !!id);
+      if (hiddenMatch && pgrid.classList.contains('is-collapsed') && pmore) pmore.querySelector('.proj-grid-btn').click();
+      var on = lensBtns.filter(function (b) { return b.getAttribute('data-lens') === id; })[0];
+      if (lensNote) { lensNote.hidden = !on; lensNote.textContent = on ? on.getAttribute('data-note') : ''; }
+      var url = new URL(window.location.href);
+      if (id) url.searchParams.set('for', id); else url.searchParams.delete('for');
+      history.replaceState(history.state, '', url);
+    };
+    lensBtns.forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        setLens(b.getAttribute('aria-pressed') === 'true' ? null : b.getAttribute('data-lens'));
+      });
+    });
+    var arrived = new URLSearchParams(window.location.search).get('for');
+    if (arrived && lensBtns.some(function (b) { return b.getAttribute('data-lens') === arrived; })) setLens(arrived);
+  }
+
+  // ── Wake the live demos while the page is being read ──────────
+  // They run on free instances that sleep when idle and take up to a
+  // minute to wake. Asking now means the first click on a demo link
+  // lands on an awake service. Nothing reads the answers.
+  ['https://nivara-api-nestjs.onrender.com/health',
+   'https://nivara-ai-7qw8.onrender.com/health',
+   'https://webhook-delivery-engine-on21.onrender.com/health'].forEach(function (u) {
+    fetch(u, { mode: 'no-cors', cache: 'no-store' }).catch(function () {});
+  });
+
+  // ── Dossier rail: the section you're reading, and how far in ───
+  // Same question the article TOC asks (which section top is the
+  // last one above the reading line), so the rail and the page can't
+  // drift apart. The rail also stays hidden until the hero is behind
+  // you, and a fill line grows as you move through the page.
+  var rail = document.getElementById('drail');
+  if (rail) {
+    var railLinks = Array.prototype.slice.call(rail.querySelectorAll('a[data-drail]'));
+    var railTargets = railLinks.map(function (a) {
+      return document.querySelector(a.getAttribute('href'));
+    });
+    var dsRows = Array.prototype.slice.call(document.querySelectorAll('.ds-row'));
+    var lineEl = rail.querySelector('.drail-line');
+    var fill = document.getElementById('drail-fill');
+    var heroEl = document.querySelector('.hero');
+    var railActive = -1, railTick = false;
+
+    // A line ~28% down the viewport: a section counts as "current"
+    // once its heading has climbed into the top third, not only when
+    // it reaches the header.
+    var readingLine = function () {
+      var head = parseFloat(getComputedStyle(document.documentElement)
+                   .getPropertyValue('--h-header')) || 54;
+      return head + (document.documentElement.clientHeight - head) * 0.28;
+    };
+    var dotY = function (link) {
+      var d = link.querySelector('.drail-dot').getBoundingClientRect();
+      return d.top + d.height / 2 - lineEl.getBoundingClientRect().top;
+    };
+
+    function railSync() {
+      railTick = false;
+      if (!rail.getClientRects().length) return;   // hidden below 1200px
+      var doc = document.documentElement;
+      var line = readingLine();
+
+      var i = -1;
+      for (var n = 0; n < railTargets.length; n++) {
+        if (railTargets[n] && railTargets[n].getBoundingClientRect().top <= line) i = n;
+        else break;
+      }
+      var atBottom = doc.scrollHeight - (doc.scrollTop + doc.clientHeight) < 4;
+      if (atBottom) i = railTargets.length - 1;
+
+      // Appears once the hero is mostly behind you.
+      rail.classList.toggle('is-ready',
+        doc.scrollTop > (heroEl ? heroEl.offsetHeight * 0.55 : 400));
+
+      if (i !== railActive) {
+        railActive = i;
+        var id = i >= 0 ? railLinks[i].getAttribute('href').slice(1) : null;
+        railLinks.forEach(function (a, k) { a.classList.toggle('is-active', k === i); });
+        dsRows.forEach(function (r) { r.classList.toggle('is-active', r.id === id); });
+      }
+
+      if (fill) {
+        var h = 0;
+        if (i >= 0) {
+          var cur = railTargets[i], nxt = railTargets[i + 1];
+          var curTop = cur.getBoundingClientRect().top - line;
+          var nextTop = nxt ? nxt.getBoundingClientRect().top - line
+                            : cur.getBoundingClientRect().bottom - line;
+          var frac = nextTop > curTop
+            ? Math.min(1, Math.max(0, -curTop / (nextTop - curTop))) : 0;
+          if (atBottom) frac = 1;
+          var here = dotY(railLinks[i]);
+          var to = railLinks[i + 1] ? dotY(railLinks[i + 1]) : lineEl.clientHeight;
+          h = here + (to - here) * frac;
+        }
+        fill.style.height = Math.max(0, h) + 'px';
+      }
+    }
+
+    var railRequest = function () {
+      if (!railTick) { railTick = true; requestAnimationFrame(railSync); }
+    };
+    window.addEventListener('scroll', railRequest, { passive: true });
+    window.addEventListener('resize', railRequest, { passive: true });
+    railSync();
+  }
+
+  // ── Spotlight and glow cards: the pointer's position as CSS vars ──
+  // One handler per card. The CSS does the drawing (a radial gradient
+  // for .spot, a masked ring for .glow); without a pointer, or without
+  // JS, the cards are simply still. Hover-capable devices only.
+  if (window.matchMedia('(hover: hover)').matches) {
+    Array.prototype.forEach.call(document.querySelectorAll('.spot, .glow'), function (card) {
+      var isGlow = card.classList.contains('glow');
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        var x = e.clientX - r.left, y = e.clientY - r.top;
+        if (isGlow) {
+          card.style.setProperty('--glow-x', x + 'px');
+          card.style.setProperty('--glow-y', y + 'px');
+          card.style.setProperty('--glow-intensity', '1');
+        } else {
+          card.style.setProperty('--mouse-x', x + 'px');
+          card.style.setProperty('--mouse-y', y + 'px');
+        }
+      });
+      if (isGlow) {
+        card.addEventListener('mouseleave', function () {
+          card.style.setProperty('--glow-intensity', '0');
+        });
+      }
+    });
+  }
+
+  // ── Toolkit ribbons: only animate the ones on screen ──────────
+  // Each ribbon runs an infinite CSS marquee. Left to itself every row
+  // is composited on every frame for the whole session, even scrolled
+  // away, which showed up as scroll lag on phones. Park the ones that
+  // aren't visible.
+  var ribbons = document.querySelectorAll('.ribbon');
+  if (ribbons.length && 'IntersectionObserver' in window) {
+    var ribbonIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        en.target.classList.toggle('is-offscreen', !en.isIntersecting);
+      });
+    }, { rootMargin: '200px 0px' });
+    ribbons.forEach(function (r) { r.classList.add('is-offscreen'); ribbonIO.observe(r); });
+  }
+
+  // ── Screenshot carousels: dots ────────────────────────────────
+  // One dot per shot, built here so they never show up where the
+  // script that drives them isn't running. Click a dot to jump; the
+  // lit dot also follows manual scrolling and swiping.
+  Array.prototype.forEach.call(document.querySelectorAll('.proj-shots'), function (shots) {
+    var track = shots.querySelector('.proj-carousel');
+    var dotWrap = shots.querySelector('.proj-dots');
+    if (!track || !dotWrap) return;
+    var figs = Array.prototype.slice.call(track.querySelectorAll('.shot'));
+    if (figs.length < 2) return;
+
+    var scrollTargetFor = function (fig) {
+      return fig.getBoundingClientRect().left
+             - track.getBoundingClientRect().left + track.scrollLeft;
+    };
+
+    var dots = figs.map(function (fig, k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'proj-dot';
+      b.setAttribute('aria-label', 'Show screenshot ' + (k + 1) + ' of ' + figs.length);
+      b.addEventListener('click', function () {
+        track.scrollTo({ left: scrollTargetFor(fig), behavior: reduce ? 'auto' : 'smooth' });
+      });
+      dotWrap.appendChild(b);
+      return b;
+    });
+
+    var cTick = false;
+    function cSync() {
+      cTick = false;
+      var origin = track.getBoundingClientRect().left;
+      var on = 0, best = Infinity;
+      figs.forEach(function (fig, k) {
+        var d = Math.abs(fig.getBoundingClientRect().left - origin);
+        if (d < best) { best = d; on = k; }
+      });
+      dots.forEach(function (d, k) {
+        d.classList.toggle('is-on', k === on);
+        d.setAttribute('aria-current', k === on ? 'true' : 'false');
+      });
+    }
+    var cReq = function () { if (!cTick) { cTick = true; requestAnimationFrame(cSync); } };
+    track.addEventListener('scroll', cReq, { passive: true });
+    window.addEventListener('resize', cReq, { passive: true });
+    cSync();
+  });
+})();
+</script>
+
+<!-- Home-only motion (see the file's header for what it carries).
+     defer keeps it off the critical path; it degrades to nothing. -->
+<script defer src="{{ '/assets/js/home-fx.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/js/home-bits.js' | relative_url }}"></script>
