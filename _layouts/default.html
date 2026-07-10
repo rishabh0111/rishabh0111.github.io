@@ -9,20 +9,20 @@
   <script>
     (function () {
       try {
-        var t = localStorage.getItem('atlas-theme');
+        var t = localStorage.getItem('site-theme');
         if (t === 'light' || t === 'dark') {
           document.documentElement.setAttribute('data-theme', t);
         }
       } catch (e) {}
     })();
   </script>
-  <title>{% if page.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
-  <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
-  <meta property="og:title"       content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
-  <meta property="og:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
-  <meta property="og:type"        content="website">
-  <meta name="twitter:card"       content="summary">
-  {% seo %}
+  <!-- The home page sets page.title to the site title; without the guard it
+       would render "Rishabh Sharma — Rishabh Sharma". -->
+  <title>{% if page.title and page.title != site.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
+
+  <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
+       title is suppressed, because the em-dash form above is the one we want. -->
+  {% seo title=false %}
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@
 
   <header class="site-header">
     <a class="site-logo" href="{{ '/' | relative_url }}">
-      {{ site.title | default: "Atlas" }}<span>/</span>
+      {{ site.title }}<span>/</span>
     </a>
     <div class="header-right">
       <nav class="site-nav" id="site-nav" aria-label="Site navigation">
@@ -87,7 +87,7 @@
   <main>{{ content }}</main>
 
   <footer class="site-footer">
-    <p>{{ site.title | default: "Atlas" }} &mdash; {{ 'now' | date: "%Y" }}</p>
+    <p>{{ site.title }} &mdash; {{ 'now' | date: "%Y" }}</p>
     <div class="footer-palette" aria-hidden="true">
       <div class="footer-dot" style="background:#F4EFE4;"></div>
       <div class="footer-dot" style="background:#7A8BAB;"></div>
@@ -148,13 +148,13 @@
       toggle.addEventListener('click', function () {
         var next = currentTheme() === 'dark' ? 'light' : 'dark';
         root.setAttribute('data-theme', next);
-        try { localStorage.setItem('atlas-theme', next); } catch (e) {}
+        try { localStorage.setItem('site-theme', next); } catch (e) {}
         syncToggle();
       });
 
       // If the user hasn't picked explicitly, follow OS changes live.
       mq.addEventListener('change', function () {
-        try { if (!localStorage.getItem('atlas-theme')) syncToggle(); } catch (e) {}
+        try { if (!localStorage.getItem('site-theme')) syncToggle(); } catch (e) {}
       });
     }
 

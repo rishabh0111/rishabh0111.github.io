@@ -1,11 +1,12 @@
 # ─────────────────────────────────────────────────────────────────
-# Atlas — _config.yml
+# rishabh0111.github.io — _config.yml
 # GitHub Pages compatible. No permalink set here — controlled
 # per-post via front matter (blogs) or left to Jekyll default (news).
 # ─────────────────────────────────────────────────────────────────
 
-title:       "Atlas"
-description: "Writing on design, engineering, and the space between."
+# `title` is the wordmark, the <title> suffix, and the footer line.
+title:       "Rishabh Sharma"
+description: "Engineer working across AI agents, backends, and full-stack product. Notes on the systems I build and what breaks in them."
 baseurl:     ""        # "" for username.github.io · "/repo-name" for project pages
 url:         "https://rishabh0111.github.io"
 
@@ -40,3 +41,6 @@ exclude:
   - vendor
   - dump
   - _templates
+  # Private source-of-truth: has a phone number and salary floor in it.
+  # Without this line Jekyll copies it verbatim to /master_profile.md.
+  - master_profile.md

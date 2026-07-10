@@ -1,5 +1,5 @@
 /* =================================================================
-   Atlas — style.css  v3
+   rishabh0111.github.io — style.css  v3
    Palette: Sanzo Wada "Indigo Lacquer"
    
    Design language: the feel of a 1960s Italian cultural magazine —
@@ -437,14 +437,18 @@ body::before {
   border-bottom: 1px solid var(--plane-rule);
 }
 
-/* Wordmark: mono, uppercase, with slash in lacquer */
+/* Wordmark: mono, uppercase, with slash in lacquer.
+   Tracking is 0.16em rather than 0.2em: the name runs 14 characters against
+   the 5 of the placeholder wordmark this replaced, and the wider tracking
+   left too little room beside the theme toggle on a 320px screen. */
 .site-logo {
   font-family: var(--f-mono);
   font-size: 11px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--header-text);
   text-decoration: none;
+  white-space: nowrap;
   display: flex; align-items: baseline; gap: 0;
 }
 .site-logo span {
@@ -1245,6 +1249,679 @@ body::before {
 }
 .error-page p { color: var(--text-2); font-size: 15px; }
 .error-page a { color: var(--indigo); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   HOME — the portfolio
+
+   Same grammar as the rest of the site: a hero plane floating on the
+   parallax scene, then one continuous paper sheet holding every
+   section, closed by a second plane. Sections are separated by the
+   same mono rules the blog listing uses. Nothing here is a "card".
+════════════════════════════════════════════════════════════════ */
+
+/* Shared: the interpunct that joins two facts on one line */
+.hero .sep, .home-wrap .sep { margin: 0 0.5em; opacity: 0.45; }
+
+/* Sections fade up as they arrive. JS adds .in; print + reduced-motion
+   force them visible (see the bottom of this block). */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.hero {
+  background: transparent;
+  padding: var(--s12) var(--s5) var(--s10);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: var(--plane-scrim);
+}
+.hero::after {
+  content: ''; position: absolute; bottom: 0; left: var(--s5); right: var(--s5);
+  height: 1px;
+  background: linear-gradient(to right,
+    var(--lacquer) 0%, var(--lacquer) 56px, transparent 56px);
+}
+
+/* The text column is capped rather than 1fr: a 1fr column swallows all the
+   spare width, and since the tagline wraps at its own measure, that surplus
+   shows up as a dead band between the copy and the photo.
+
+   Capping it leaves surplus outside the pair, and `justify-content: center`
+   splits that surplus evenly so the hero reads as a centred composition.
+   The trade is that the hero's left edge no longer tracks the document
+   panel below it on wide screens — acceptable, because the hero is a
+   full-bleed plane with no edge of its own to align to. */
+.hero-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 660px) 250px;
+  justify-content: center;
+  gap: var(--s5);
+  align-items: center;
+}
+
+/* The name carries the page. Surname in italic lacquer. */
+.hero-name {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 400;
+  color: var(--plane-ink);
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+.hero-name em { font-style: italic; color: var(--accent); }
+
+/* No ch cap: the column is already capped at 620px (~60ch), which is inside
+   a comfortable measure. Capping again here would re-open the dead band. */
+.hero-tagline {
+  margin-top: var(--s3);
+  font-size: 1.02rem; line-height: 1.7;
+  color: var(--plane-ink-2);
+}
+.hero-tagline strong { color: var(--plane-ink); font-weight: 700; }
+
+.hero-status {
+  display: flex; align-items: center;
+  margin-top: var(--s4);
+  font-family: var(--f-mono); font-size: 10.5px;
+  letter-spacing: 0.04em; line-height: 1.5;
+  color: var(--plane-ink-2);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  margin-right: 9px; flex-shrink: 0;
+  animation: pulse-dot 2.4s var(--ease-out) infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+/* Link pills — mono, hairline, lacquer on hover */
+.hero-links { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s5); }
+.hero-links a {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-mono); font-size: 9.5px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--plane-ink-2); text-decoration: none;
+  padding: 8px 15px;
+  border: 1px solid var(--plane-rule);
+  border-radius: 999px;
+  transition: color 0.18s, border-color 0.18s, transform 0.18s var(--ease-out);
+}
+.hero-links a:hover {
+  color: var(--plane-ink);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.hero-link-ic { display: inline-flex; }
+.hero-link-ic svg { width: 12px; height: 12px; display: block; }
+
+/* Portrait: a plate with an offset lacquer frame behind it.
+
+   The PLATE owns the aspect ratio and the image is pinned inside it, rather
+   than the image sizing itself and the plate following. That way the box can
+   never inherit the photo's intrinsic height — drop in a taller or wider file
+   and the hero does not move.
+
+   1:1 matches the source photo (1182x1226, ratio 0.96). A taller box such as
+   5:6 makes `cover` scale the image up to reach the box height, which crops
+   the shoulders off both sides. */
+.hero-portrait { margin: 0; }
+.portrait-plate {
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+.portrait-plate::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  transform: translate(14px, 14px);
+  border: 1px solid var(--accent);
+  border-radius: 4px; opacity: 0.5;
+  pointer-events: none;
+}
+.portrait-plate img {
+  position: absolute; inset: 0; z-index: 1;
+  display: block;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;   /* bias the crop upward, keeping the face high */
+  border: 1px solid var(--plane-rule);
+  border-radius: 4px;
+  box-shadow: var(--panel-shadow);
+  filter: saturate(0.92) contrast(1.02);
+}
+
+/* Fallback when /assets/img/profile.png is absent.
+   Fills the plate the same way the image does, so the box is identical. */
+.portrait-monogram { display: none; }
+.hero-portrait.no-img .portrait-plate img { display: none; }
+.hero-portrait.no-img .portrait-monogram {
+  position: absolute; inset: 0; z-index: 1;
+  display: grid; place-items: center;
+  background: var(--panel);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--plane-rule);
+  border-radius: 4px;
+  box-shadow: var(--panel-shadow);
+  font-family: var(--f-display);
+  font-size: 4.5rem; letter-spacing: 0.06em;
+  color: var(--plane-ink-2);
+}
+
+.hero-portrait figcaption {
+  margin-top: var(--s2);
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--plane-faint);
+}
+
+
+/* ── The sheet + its section rail ────────────────────────────── */
+.home-layout {
+  max-width: var(--max-w);
+  margin: var(--s5) auto var(--s8);
+  padding: 0 var(--s5);
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-w);
+  gap: var(--col-gap);
+  align-items: start;
+}
+
+.home-wrap {
+  min-width: 0;
+  padding: var(--s6);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.home-section + .home-section { margin-top: var(--s10); }
+.home-section > .group-heading { margin-top: 0; margin-bottom: var(--s4); }
+
+/* The rail rides along, pinned below the header */
+.home-sidebar {
+  position: sticky;
+  top: calc(var(--h-header) + var(--s3));
+  padding-top: var(--s2);
+}
+
+/* The rail is the page's primary navigation, so it is set larger than
+   the post-page TOC, which is a secondary aid to an article already
+   being read. Scoped to .home-sidebar to leave that TOC alone. */
+.home-sidebar .sidebar-label { font-size: 9.5px; }
+
+/* Numbered section list — counters, so reordering the nav in the
+   layout renumbers it automatically. */
+.home-nav { list-style: none; counter-reset: sec; }
+.home-nav li { padding: 3.5px 0; counter-increment: sec; }
+.home-nav a {
+  display: flex; align-items: baseline; gap: 10px;
+  font-family: var(--f-mono); font-size: 12.5px;
+  letter-spacing: 0.01em;
+  color: var(--text-2); text-decoration: none;
+  line-height: 1.45;
+  padding-left: 0;
+  border-left: 1.5px solid transparent;
+  transition: color 0.14s, padding-left 0.14s, border-color 0.14s;
+}
+.home-nav a::before {
+  content: '0' counter(sec);
+  font-size: 10px; letter-spacing: 0.1em;
+  color: var(--text-3);
+  transition: color 0.14s;
+}
+.home-nav a:hover { color: var(--text); }
+.home-nav a.active {
+  color: var(--accent);
+  padding-left: 7px;
+  border-left-color: var(--accent);
+}
+.home-nav a.active::before { color: var(--accent); }
+
+.sidebar-links { list-style: none; }
+.sidebar-links li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
+.sidebar-links li:last-child { border-bottom: none; }
+.sidebar-links a {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
+  font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-2); text-decoration: none;
+  transition: color 0.14s;
+}
+/* Icon + label group on the left, trailing arrow pinned right */
+.sl-label { display: inline-flex; align-items: center; gap: 9px; }
+.sl-label .link-ic svg { width: 13px; height: 13px; }
+.sidebar-links a > span:last-child {
+  color: var(--text-3);
+  transition: transform 0.2s var(--ease-out), color 0.14s;
+}
+.sidebar-links a:hover { color: var(--accent); }
+.sidebar-links a:hover > span:last-child { color: var(--accent); transform: translateX(2px); }
+
+
+/* ── Pillars — 2×2; each quadrant is a claim ─────────────────── */
+.pillars {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: var(--s5);
+}
+.pillar {
+  position: relative;
+  border-top: 1px solid var(--border);
+  padding-top: var(--s2);
+}
+.pillar::before {
+  content: ''; position: absolute; top: -1px; left: 0;
+  width: 32px; height: 1px; background: var(--accent);
+}
+.pillar-num {
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.2em; color: var(--accent);
+}
+.pillar h3 {
+  font-family: var(--f-display); font-size: 1.2rem; font-weight: 400;
+  color: var(--text); margin: 0.35rem 0 0.5rem; line-height: 1.2;
+}
+.pillar p { font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
+
+
+/* ── Metrics ─────────────────────────────────────────────────── */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); }
+.metric { padding-left: var(--s3); border-left: 1px solid var(--border); }
+.metric:first-child { padding-left: 0; border-left: none; }
+.metric-figure {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+  font-weight: 400; line-height: 1;
+  color: var(--text); letter-spacing: -0.02em;
+}
+.metric-label {
+  display: block; margin-top: 8px;
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-3); line-height: 1.6;
+}
+
+
+/* ── About prose ─────────────────────────────────────────────── */
+.home-prose p { margin-bottom: 1.4rem; color: var(--text-2); }
+.home-prose p:first-of-type { font-size: 1.06em; line-height: 1.8; }
+.home-prose p:last-child { margin-bottom: 0; }
+.home-prose em { color: var(--text-3); }
+.home-prose strong { color: var(--text); }
+
+
+/* ── Experience ──────────────────────────────────────────────── */
+.job {
+  display: grid; grid-template-columns: 150px 1fr;
+  gap: var(--s4);
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--border);
+}
+.job:last-child { border-bottom: none; padding-bottom: 0; }
+.job-gutter { padding-top: 7px; }
+.job-period {
+  display: block;
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.05em; line-height: 1.5; color: var(--text-3);
+}
+.job-now {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: var(--s1);
+  font-family: var(--f-mono); font-size: 8px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px; padding: 2px 9px;
+}
+.job-now::before {
+  content: ''; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--accent);
+}
+
+.job-role {
+  font-family: var(--f-display); font-size: 1.5rem; font-weight: 400;
+  color: var(--text); line-height: 1.2;
+}
+.job-company { font-size: 13.5px; color: var(--text-2); margin-top: 3px; }
+.job-legal {
+  display: block; margin-top: 3px;
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.06em; color: var(--text-3);
+}
+.job-summary { margin-top: var(--s2); font-size: 14.5px; color: var(--text-2); }
+.job-summary strong { color: var(--text); }
+
+/* Sub-ventures under one employer */
+.venture {
+  margin-top: var(--s4);
+  padding-left: var(--s3);
+  border-left: 1px solid var(--border);
+  transition: border-color 0.25s var(--ease-out);
+}
+.venture:hover { border-left-color: var(--accent); }
+.venture h4 {
+  font-family: var(--f-display); font-size: 1.12rem;
+  font-weight: 400; color: var(--text);
+}
+.venture h4 span {
+  display: block; margin-top: 3px;
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-3);
+}
+
+
+/* ── Bullets (shared by jobs + projects) ─────────────────────── */
+.points { list-style: none; margin: var(--s2) 0 0; }
+.points li {
+  position: relative; padding-left: var(--s3);
+  margin-bottom: 0.65rem;
+  font-size: 14.5px; line-height: 1.7; color: var(--text-2);
+}
+.points li:last-child { margin-bottom: 0; }
+.points li::before {
+  content: ''; position: absolute; left: 0; top: 0.75em;
+  width: 8px; height: 1px; background: var(--accent); opacity: 0.75;
+}
+.points strong { color: var(--text); font-weight: 700; }
+.points em { color: var(--text-3); }
+.points code {
+  font-family: var(--f-mono); font-size: 0.85em;
+  background: var(--code-bg); color: var(--code-fg);
+  padding: 1px 5px; border-radius: 2px;
+}
+
+
+/* ── Chips (stack / skills) ──────────────────────────────────── */
+.chips {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 5px;
+  margin: var(--s2) 0 0;
+}
+.chips li {
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text-3); border-radius: 1px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.chips li:hover { border-color: var(--accent); color: var(--text); }
+
+
+/* ── Projects ────────────────────────────────────────────────── */
+.project {
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--border);
+}
+.project:last-child { border-bottom: none; padding-bottom: 0; }
+.project-head h3 {
+  font-family: var(--f-display); font-size: 1.6rem; font-weight: 400;
+  color: var(--text); line-height: 1.15;
+  display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap;
+}
+.project-year {
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.14em; color: var(--text-3);
+}
+.project-blurb {
+  margin-top: 4px; font-size: 13px;
+  font-style: italic; color: var(--text-3);
+}
+.project-lang {
+  font-family: var(--f-mono); font-style: normal;
+  font-size: 9.5px; letter-spacing: 0.08em; color: var(--accent);
+}
+.project-body { margin-top: var(--s2); font-size: 14.5px; color: var(--text-2); }
+.project-body strong { color: var(--text); }
+
+.project-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3); flex-wrap: wrap; margin-top: var(--s3);
+}
+.project-foot .chips { margin: 0; }
+.project-links { display: flex; gap: var(--s3); }
+.project-links a, .section-more a, .resources a {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono); font-size: 9.5px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--link); text-decoration: none;
+  transition: color 0.15s;
+}
+.project-links a:hover, .section-more a:hover, .resources a:hover { color: var(--accent); }
+
+/* The arrow nudge belongs to "go somewhere else" links. Project links now
+   carry a type icon instead, which must not slide on hover. */
+.section-more a span, .resources a span { transition: transform 0.2s var(--ease-out); }
+.section-more a:hover span, .resources a:hover span { transform: translateX(3px); }
+
+/* Inline link-type icon: github / external / pen */
+.link-ic { display: inline-flex; flex-shrink: 0; }
+.link-ic svg { width: 12px; height: 12px; display: block; }
+
+
+/* ── Skills ──────────────────────────────────────────────────── */
+.skills { display: grid; gap: var(--s3); }
+.skill-group {
+  display: grid; grid-template-columns: 150px 1fr;
+  gap: var(--s4); align-items: baseline;
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--border);
+}
+.skill-group:last-child { border-bottom: none; padding-bottom: 0; }
+/* Icon rides on the heading's first line. align-items: start (not center)
+   keeps it aligned to the text when a long group name wraps to two lines. */
+.skill-group dt {
+  display: flex; align-items: start; gap: 9px;
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.skill-ic {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--text-3);
+  transition: color 0.18s;
+}
+.skill-ic svg { width: 14px; height: 14px; display: block; }
+.skill-group:hover .skill-ic { color: var(--accent); }
+.skill-group dd { margin: 0; }
+.skill-group .chips { margin: 0; }
+
+
+/* ── Writing ─────────────────────────────────────────────────── */
+.section-more { display: flex; gap: var(--s5); margin-top: var(--s4); }
+
+
+/* ── Background: education / certs / awards ──────────────────── */
+.bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+.bg-title {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 7px; margin-bottom: var(--s3);
+  border-bottom: 1px solid var(--border);
+}
+/* Already lacquer via currentColor on the heading */
+.bg-ic { display: inline-flex; flex-shrink: 0; }
+.bg-ic svg { width: 14px; height: 14px; display: block; }
+.bg-title + .bg-item { margin-top: 0; }
+.bg-col .bg-title:not(:first-child) { margin-top: var(--s6); }
+.bg-item { margin-bottom: var(--s4); }
+.bg-item:last-child { margin-bottom: 0; }
+.bg-item-head {
+  font-family: var(--f-display); font-size: 1.08rem;
+  color: var(--text); line-height: 1.3;
+}
+.bg-item-head a {
+  color: inherit; text-decoration: underline;
+  text-decoration-color: var(--link-uline);
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.bg-item-head a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+.bg-item-sub { font-size: 13px; font-style: italic; color: var(--text-2); margin-top: 2px; }
+.bg-item-meta {
+  font-family: var(--f-mono); font-size: 9.5px;
+  letter-spacing: 0.05em; color: var(--text-3); margin-top: 5px;
+}
+.bg-item-score {
+  font-family: var(--f-mono); font-size: 10px;
+  color: var(--accent); margin-top: 4px;
+}
+.bg-item-note { font-size: 13px; line-height: 1.6; color: var(--text-2); margin-top: 6px; }
+
+/* Verify links for certs that bundle several credentials */
+.cert-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s1); }
+.cert-links a {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px;
+  border: 1px solid var(--border); border-radius: 999px;
+  color: var(--text-3); text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cert-links a span { opacity: 0.6; }
+.cert-links a:hover { border-color: var(--accent); color: var(--accent); }
+.cert-links a:hover span { opacity: 1; }
+
+.resources { margin-top: var(--s6); }
+.resources ul { list-style: none; }
+.resources li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
+.resources li:last-child { border-bottom: none; }
+
+.interests {
+  margin-top: var(--s6); padding-top: var(--s3);
+  border-top: 1px solid var(--border);
+  font-size: 13.5px; color: var(--text-2);
+}
+.interests-label {
+  font-family: var(--f-mono); font-size: 8.5px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-right: var(--s2);
+}
+
+
+/* ── Contact plane — mirrors the hero ────────────────────────── */
+.contact {
+  background: transparent;
+  padding: var(--s10) var(--s5) var(--s12);
+  position: relative; overflow: hidden;
+}
+.contact::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: var(--plane-scrim);
+}
+.contact::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right,
+    transparent, var(--lacquer) 15%, var(--lacquer) 85%, transparent);
+  opacity: 0.35;
+}
+.contact-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+.contact-email {
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 4.6vw, 3.1rem);
+  font-weight: 400; letter-spacing: -0.02em;
+  color: var(--plane-ink); text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 1px; background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.4s var(--ease-out), color 0.2s;
+}
+.contact-email:hover { color: var(--accent); background-size: 100% 1px; }
+.contact-line {
+  margin-top: var(--s3);
+  font-size: 14px; font-style: italic;
+  color: var(--plane-ink-2); max-width: 460px;
+}
+.contact .hero-links { justify-content: center; margin-top: var(--s5); }
+
+
+/* ── Home responsive ─────────────────────────────────────────── */
+
+/* Matches .post-wrap: the rail is a desktop affordance. The header
+   nav still reaches every page, and the sections are short enough
+   to scroll on a phone. */
+@media (max-width: 860px) {
+  .home-layout { grid-template-columns: 1fr; }
+  .home-sidebar { display: none; }
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: var(--s6);
+    justify-items: start;
+  }
+  /* Portrait leads on narrow screens, at a modest size */
+  .hero-portrait { order: -1; width: 190px; }
+  .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
+  .bg-grid { grid-template-columns: 1fr; gap: var(--s8); }
+}
+
+@media (max-width: 700px) {
+  .pillars { grid-template-columns: 1fr; gap: var(--s4); }
+  .metrics { grid-template-columns: 1fr 1fr; row-gap: var(--s4); }
+  .metric:nth-child(odd) { padding-left: 0; border-left: none; }
+
+  .job { grid-template-columns: 1fr; gap: var(--s2); }
+  .job-gutter {
+    padding-top: 0;
+    display: flex; align-items: center; gap: var(--s2);
+  }
+  .job-now { margin-top: 0; }
+
+  .skill-group { grid-template-columns: 1fr; gap: var(--s2); }
+}
+
+@media (max-width: 640px) {
+  .hero { padding: var(--s8) var(--s5) var(--s6); }
+  .hero-name { font-size: clamp(2.4rem, 10vw, 3.6rem); }
+  .home-wrap { padding: var(--s5) var(--s3); border-radius: 10px; }
+  .contact { padding: var(--s8) var(--s5) var(--s10); }
+  .project-foot { align-items: flex-start; }
+  .section-more { flex-direction: column; gap: var(--s2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot { animation: none; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+@media print {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero, .contact { padding: 0 0 var(--s3); }
+  .hero::before, .hero::after,
+  .contact::before, .contact::after { display: none; }
+  .home-layout { display: block; padding: 0; margin: 0; }
+  .home-wrap {
+    background: none !important; box-shadow: none !important;
+    border: none !important; backdrop-filter: none !important;
+    padding: 0;
+  }
+  .home-sidebar, .hero-portrait, .hero-links { display: none; }
+}
 
 
 /* ════════════════════════════════════════════════════════════════
