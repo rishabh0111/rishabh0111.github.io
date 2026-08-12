@@ -1491,8 +1491,9 @@ body::before {
 .post-sidebar.collapsed .sidebar-card {
   width: var(--pill-w);
   min-height: 0;
-  padding: 5px;
+  padding: 5px 4px 9px;
   margin: 0;
+  cursor: pointer;              /* the whole tab expands, not just the button */
   box-shadow: 0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 var(--glass-hi);
 }
 .post-rail.collapsed .sidebar-card {
@@ -1503,17 +1504,76 @@ body::before {
   border-radius: 9px 0 0 9px;
   border-right-color: transparent;
 }
+
+/* The whole tab is the control, so the whole tab answers the pointer —
+   icon and words together, not the 30px button alone. The docked edge
+   keeps its transparent border either way, so the tab still reads as
+   part of the page edge rather than as a floating outline. */
+.post-rail.collapsed .sidebar-card,
+.post-sidebar.collapsed .sidebar-card {
+  transition: background 0.16s, border-color 0.16s, color 0.16s;
+}
+.post-rail.collapsed .sidebar-card:hover,
+.post-sidebar.collapsed .sidebar-card:hover {
+  background: var(--bg-raised);
+  color: var(--accent);
+  border-top-color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.post-rail.collapsed .sidebar-card:hover { border-right-color: var(--accent); }
+.post-sidebar.collapsed .sidebar-card:hover { border-left-color: var(--accent); }
+
+/* Both children follow the card rather than lighting on their own */
+.post-rail.collapsed .sidebar-card:hover .sidebar-label,
+.post-sidebar.collapsed .sidebar-card:hover .sidebar-label,
+.post-rail.collapsed .sidebar-card:hover .rail-toggle,
+.post-sidebar.collapsed .sidebar-card:hover .rail-toggle { color: inherit; }
+
+/* The button's own hover chrome would be a second box inside the tab */
+.post-rail.collapsed .rail-toggle:hover,
+.post-sidebar.collapsed .rail-toggle:hover {
+  background: none;
+  border-color: transparent;
+}
 .post-rail.collapsed .sidebar-head,
 .post-sidebar.collapsed .sidebar-head {
   margin: 0; padding: 0; border-bottom: none;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
 }
+/* The button carries the section icon while collapsed, so the separate
+   icon would be the same glyph twice. */
 .post-rail.collapsed .sidebar-icon,
-.post-rail.collapsed .sidebar-label,
 .post-rail.collapsed .series-list,
 .post-sidebar.collapsed .sidebar-icon,
-.post-sidebar.collapsed .sidebar-label,
 .post-sidebar.collapsed #toc-list { display: none; }
+
+/* The heading, turned on its side. vertical-rl reads top-to-bottom,
+   which is the direction a docked tab is scanned in. It is capped and
+   clipped rather than allowed to run: a long series name would
+   otherwise make the tab taller than the screen. */
+.post-rail.collapsed .sidebar-label,
+.post-sidebar.collapsed .sidebar-label {
+  flex: 0 1 auto;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  overflow: hidden;
+  max-height: 46vh;
+  min-width: 0;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+/* Each tab's words lean away from the edge they are docked to: the
+   right tab reads downward, the left tab upward. vertical-rl only gives
+   the downward direction, so the left one is turned through 180° — a
+   paint-only change, the box it occupies is unaffected. */
+.post-rail.collapsed .sidebar-label { transform: rotate(180deg); }
+
+/* Icon above the words, whatever the source order says */
+.post-rail.collapsed .rail-toggle,
+.post-sidebar.collapsed .rail-toggle { order: -1; }
 
 /* Collapsed, the card must not stretch down the rail — it is a pill.
    min-height has to go too: #toc-card carries a 4rem floor so the open

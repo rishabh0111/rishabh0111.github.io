@@ -303,6 +303,19 @@
       btn.addEventListener('click', function () {
         apply(!rail.classList.contains('collapsed'), true);
       });
+
+      // Collapsed, the tab is mostly its sideways heading — clicking the
+      // words should open it, not just the 30px button. Only in that
+      // direction: expanded, the card is full of links and a stray click
+      // must not fold it away underneath the reader.
+      var card = rail.querySelector('.sidebar-card');
+      if (card) {
+        card.addEventListener('click', function (e) {
+          if (!rail.classList.contains('collapsed')) return;
+          if (btn.contains(e.target)) return;   // the button speaks for itself
+          apply(false, true);
+        });
+      }
     });
 
     // ── Series rail: reveal the current part ───────────────────
