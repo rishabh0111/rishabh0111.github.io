@@ -25,16 +25,14 @@ layout: default
 
     <div class="post-meta">
       {% if page.author %}<span>{{ page.author }}</span><span class="sep">·</span>{% endif %}
-      <time datetime="{{ page.date | date_to_xmlschema }}">
-        {{ page.date | date: "%B %-d, %Y" }}
-      </time>
+      <span class="meta-item">{% include icon.html name="calendar" %}<time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time></span>
       {% if page.source %}
         <span class="sep">·</span>
         <span class="post-source">via {{ page.source }}</span>
       {% endif %}
       {% if page.read_time %}
         <span class="sep">·</span>
-        <span>{{ page.read_time }} min read</span>
+        <span class="meta-item">{% include icon.html name="clock" %}{{ page.read_time }} min read</span>
       {% endif %}
     </div>
 
@@ -84,7 +82,7 @@ layout: default
     {% if page.tags and page.tags.size > 0 %}
     <div class="post-tags" aria-label="Tags">
       {% for tag in page.tags %}
-      <span class="post-tag">{{ tag }}</span>
+      <span class="post-tag">{% include icon.html name="tag" %}{{ tag }}</span>
       {% endfor %}
     </div>
     {% endif %}
@@ -118,7 +116,7 @@ layout: default
   <a class="post-nav-item prev"
      {% if page.previous %}href="{{ page.previous.url | relative_url }}"
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
-    <span class="post-nav-dir">&larr; Previous</span>
+    <span class="post-nav-dir">{% include icon.html name="arrow-left" %}Previous</span>
     <span class="post-nav-title">
       {% if page.previous %}{{ page.previous.title }}{% else %}&mdash;{% endif %}
     </span>
@@ -126,9 +124,38 @@ layout: default
   <a class="post-nav-item next"
      {% if page.next %}href="{{ page.next.url | relative_url }}"
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
-    <span class="post-nav-dir">Next &rarr;</span>
+    <span class="post-nav-dir">Next{% include icon.html name="arrow-right" %}</span>
     <span class="post-nav-title">
       {% if page.next %}{{ page.next.title }}{% else %}&mdash;{% endif %}
     </span>
   </a>
 </nav>
+
+<!-- Related posts — same category. The last band on the page: prev/next
+     is the immediate continuation, this is the wider shelf beside it.
+     Always one row — the count is capped to what a row can hold. -->
+{% assign cat = page.categories | first %}
+{% assign related = site.posts
+    | where_exp: "p", "p.url != page.url"
+    | where_exp: "p", "p.categories contains cat" %}
+{% if related.size > 0 %}
+<section class="post-more" aria-label="More {{ cat }}">
+  <div class="post-more-head">
+    <span class="post-more-label">More {{ cat }}</span>
+    <a class="post-more-all" href="{% if cat == 'news' %}{{ '/news/' | relative_url }}{% else %}{{ '/blogs/' | relative_url }}{% endif %}">All posts{% include icon.html name="arrow-right" %}</a>
+  </div>
+  <div class="post-more-grid">
+    {% comment %}
+      `limit` is a for-loop parameter, not a filter — as a filter Liquid
+      doesn't recognise it and silently hands back the whole list.
+    {% endcomment %}
+    {% for post in related limit: 5 %}
+    <a class="post-more-item" href="{{ post.url | relative_url }}">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+      <span class="post-more-title">{{ post.title }}</span>
+      {% if post.series %}<span class="post-more-series">{{ post.series }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
