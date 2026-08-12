@@ -427,6 +427,136 @@ body::before {
    READING PROGRESS — single hairline, lacquer
 ════════════════════════════════════════════════════════════════ */
 /* ════════════════════════════════════════════════════════════════
+   IMAGE / DIAGRAM VIEWER
+
+   A figure in an article is sized for the column, which is right for
+   reading and useless for a dense diagram. Clicking one opens it here
+   over a scrim at whatever size it wants, with zoom and pan.
+
+   The scrim is dark in both themes on purpose: it is the one surface on
+   the site whose job is to disappear behind the thing it is showing.
+════════════════════════════════════════════════════════════════ */
+.lightbox {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; flex-direction: column;
+  background: rgba(8, 12, 18, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.lightbox[hidden] { display: none; }
+
+/* Scrolling the page underneath while zooming would be a mess */
+body.lb-open { overflow: hidden; }
+
+.lightbox-bar {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: var(--s1);
+  padding: var(--s2) var(--s3);
+}
+.lightbox-zoom {
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.55);
+  min-width: 46px; text-align: center;
+  font-variant-numeric: tabular-nums;   /* the number must not jitter */
+}
+.lb-btn {
+  width: 32px; height: 32px; padding: 0;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 7px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.lb-btn:hover {
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+}
+.lb-btn svg { width: 15px; height: 15px; display: block; }
+
+/* Centring is done by the figure's own transform, not by the stage.
+   Grid/flex centring of a box bigger than its track is not dependable —
+   the overflow direction is up to the browser, and a tall diagram ended
+   up hanging off the bottom instead of sitting in the middle. Anchoring
+   the box's centre to the stage's centre is exact at any size. */
+.lightbox-stage {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;                 /* panning moves the figure, not this */
+  touch-action: none;               /* the pointer handlers own the gesture */
+}
+/* No size caps here on purpose: the figure is laid out at its natural
+   size and the script scales it to fill the stage. A max-width would
+   quietly cap that measurement and the fit would come out short. */
+.lightbox-content {
+  position: absolute; top: 50%; left: 50%;
+  /* Sized to the figure rather than to any track, so the scaling is
+     centred on the figure itself and not on a clamped box. */
+  width: max-content;
+  height: max-content;
+  transform-origin: center center;
+  cursor: grab;
+}
+.lightbox-content.dragging { cursor: grabbing; }
+.lightbox-content img,
+.lightbox-content svg {
+  display: block;
+  max-width: none;
+  max-height: none;
+  user-select: none; -webkit-user-drag: none;
+}
+/* Mermaid flowchart labels are HTML inside <foreignObject>, so they
+   inherit line-height from here — a zeroed one collapsed every label.
+   Sequence diagrams use plain <text> and were unaffected, which is why
+   only the flowcharts came out wrong. */
+.lightbox-content { line-height: normal; }
+
+/* Marks where a borrowed figure came from; never takes any space */
+.lb-placeholder { display: none; }
+
+/* The affordance: figures that open say so on hover */
+.post-content img,
+.post-content .mermaid-diagram svg { cursor: zoom-in; }
+.post-content a img { cursor: pointer; }
+
+/* Each figure gets a control in its corner. The artwork itself still
+   opens on click, but a diagram is mostly whitespace between boxes —
+   this is the part you can actually aim at. */
+.fig-wrap { position: relative; display: block; }
+span.fig-wrap { display: inline-block; max-width: 100%; }
+
+.fig-zoom {
+  position: absolute; top: 10px; right: 10px;
+  width: 28px; height: 28px; padding: 0;
+  display: grid; place-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  color: var(--text-2);
+  cursor: zoom-in;
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+  opacity: 0; transform: translateY(-3px);
+  transition: opacity 0.16s, transform 0.16s var(--ease-out),
+              color 0.14s, border-color 0.14s;
+}
+.fig-zoom svg { width: 14px; height: 14px; display: block; }
+.fig-wrap:hover .fig-zoom,
+.fig-zoom:focus-visible { opacity: 1; transform: none; }
+.fig-zoom:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Nothing hovers on a touch screen, so it simply stays put there */
+@media (hover: none) {
+  .fig-zoom { opacity: 1; transform: none; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
    BACK TO TOP + READING PROGRESS
 
    One control doing two jobs: the ring around it is how far you've
@@ -2637,7 +2767,8 @@ body::before {
 ════════════════════════════════════════════════════════════════ */
 @media print {
   .site-header, .site-footer, .post-sidebar, .post-rail,
-  .post-nav, .scroll-top, .theme-toggle, .px, body::before { display: none !important; }
+  .post-nav, .scroll-top, .theme-toggle, .px, .lightbox,
+  body::before { display: none !important; }
   body { background: #fff !important; }
   .post-hero { background: none; padding: 0 0 var(--s3); }
   .post-hero * { color: black !important; }

@@ -101,6 +101,29 @@
 
   <main>{{ content }}</main>
 
+  <!-- Image / diagram viewer. Empty until something is opened into it. -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"
+       aria-label="Image viewer" hidden>
+    <div class="lightbox-bar">
+      <button type="button" class="lb-btn" data-lb="out" title="Zoom out" aria-label="Zoom out">
+        {% include icon.html name="zoom-out" %}
+      </button>
+      <span class="lightbox-zoom" id="lightbox-zoom" aria-live="off">100%</span>
+      <button type="button" class="lb-btn" data-lb="in" title="Zoom in" aria-label="Zoom in">
+        {% include icon.html name="zoom-in" %}
+      </button>
+      <button type="button" class="lb-btn" data-lb="reset" title="Fit to screen" aria-label="Fit to screen">
+        {% include icon.html name="expand" %}
+      </button>
+      <button type="button" class="lb-btn" data-lb="close" title="Close (Esc)" aria-label="Close viewer">
+        {% include icon.html name="close" %}
+      </button>
+    </div>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <div class="lightbox-content" id="lightbox-content"></div>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <p>{{ site.title }} &mdash; {{ 'now' | date: "%Y" }}</p>
     <div class="footer-palette" aria-hidden="true">
@@ -267,6 +290,237 @@
       // since .open would then apply to the desktop flex row.
       window.matchMedia('(min-width: 861px)').addEventListener('change', function (ev) {
         if (ev.matches) setNav(false);
+      });
+    }
+
+    // ── Image / diagram viewer ─────────────────────────────────
+    // Figures in an article are sized for the column, which is fine for
+    // reading and useless for a dense diagram. Clicking one opens it
+    // here at full size, with wheel/pinch zoom and drag to pan.
+    //
+    // Click handling is delegated rather than bound per element, because
+    // mermaid diagrams are rendered asynchronously (and re-rendered on
+    // every theme switch) — anything bound to them directly would be
+    // attached to a node that no longer exists.
+    var lb = document.getElementById('lightbox');
+    var lbStage = document.getElementById('lightbox-stage');
+    var lbContent = document.getElementById('lightbox-content');
+    var lbZoom = document.getElementById('lightbox-zoom');
+
+    if (lb && lbStage && lbContent) {
+      var scale = 1, tx = 0, ty = 0, lastFocus = null;
+      var MIN = 0.2, MAX = 8;
+
+      var draw = function () {
+        // The -50% pair puts the figure's centre on the stage's centre
+        // whatever its size; tx/ty pan from there, and the scale runs
+        // about that same centre.
+        lbContent.style.transform =
+          'translate(-50%, -50%) translate(' + tx + 'px,' + ty + 'px) ' +
+          'scale(' + scale + ')';
+        if (lbZoom) lbZoom.textContent = Math.round(scale * 100) + '%';
+      };
+
+      var zoomTo = function (next, ox, oy) {
+        next = Math.min(MAX, Math.max(MIN, next));
+        // Keep whatever sits under the pointer under the pointer: solve
+        // the translate that leaves that point fixed across the change.
+        var rect = lbStage.getBoundingClientRect();
+        var px = (ox === undefined ? rect.width / 2 : ox - rect.left) - rect.width / 2;
+        var py = (oy === undefined ? rect.height / 2 : oy - rect.top) - rect.height / 2;
+        tx = px - (px - tx) * (next / scale);
+        ty = py - (py - ty) * (next / scale);
+        scale = next;
+        draw();
+      };
+
+      // Fit the figure to the stage — up as well as down. Opening at 1:1
+      // showed a column-sized diagram in the middle of a full screen,
+      // which is the problem this viewer exists to solve.
+      var fit = function () {
+        var fig = lbContent.firstElementChild;
+        if (!fig) return;
+        scale = 1; tx = 0; ty = 0;
+        lbContent.style.transform = '';        // measure unscaled
+        var st = lbStage.getBoundingClientRect();
+        // Measure the figure, not its wrapper. The wrapper is a grid
+        // item, so anything wider than the stage was reported as exactly
+        // stage-width — which made the fit come out at 1 and let the
+        // figure overflow. Small diagrams never hit that clamp, which is
+        // why only the large images and sequence diagrams overflowed.
+        var f = fig.getBoundingClientRect();
+        if (f.width && f.height) {
+          var k = Math.min(st.width / f.width, st.height / f.height) * 0.98;
+          scale = Math.min(MAX, Math.max(MIN, k));
+        }
+        draw();
+      };
+
+      var moved = null, placeholder = null, savedStyle = null;
+
+      var close = function () {
+        // The figure is the article's own node, on loan — put it back
+        // exactly where it was, with the styling it arrived with.
+        if (moved && placeholder && placeholder.parentNode) {
+          if (savedStyle === null) moved.removeAttribute('style');
+          else moved.setAttribute('style', savedStyle);
+          // A theme switch re-renders every mermaid diagram while the
+          // viewer is open, so the slot may already be filled. Putting
+          // the borrowed one back would leave two diagrams there.
+          var slot = placeholder.parentNode;
+          var refilled = moved.tagName !== 'IMG' && slot.querySelector('svg');
+          if (!refilled) slot.insertBefore(moved, placeholder);
+          slot.removeChild(placeholder);
+        }
+        moved = null; placeholder = null; savedStyle = null;
+        lb.hidden = true;
+        lbContent.innerHTML = '';
+        document.body.classList.remove('lb-open');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+        lastFocus = null;
+      };
+
+      var open = function (node) {
+        // Move the original rather than clone it. A mermaid flowchart
+        // carries its own <style> block scoped to the svg's id, and puts
+        // its node labels in <foreignObject> HTML — a copy lands in a
+        // different styling context with a duplicated id, and comes out
+        // wrong. Sequence diagrams survived it because they are plain
+        // <text>. Moving the node sidesteps the whole question.
+        placeholder = document.createElement('span');
+        placeholder.className = 'lb-placeholder';
+        node.parentNode.insertBefore(placeholder, node);
+        moved = node;
+        savedStyle = node.getAttribute('style');
+
+        lbContent.innerHTML = '';
+        lbContent.appendChild(node);
+
+        // Give it its natural size to be measured at; the stage caps
+        // nothing, so `fit` decides the scale from the real dimensions.
+        node.style.maxWidth = 'none';
+        node.style.maxHeight = 'none';
+        if (node.tagName !== 'IMG') {
+          var vb = node.viewBox && node.viewBox.baseVal;
+          if (vb && vb.width && vb.height) {
+            node.style.width = vb.width + 'px';
+            node.style.height = vb.height + 'px';
+          }
+        }
+
+        lastFocus = document.activeElement;
+        lb.hidden = false;
+        document.body.classList.add('lb-open');
+        requestAnimationFrame(fit);
+        var closeBtn = lb.querySelector('[data-lb="close"]');
+        if (closeBtn) closeBtn.focus();
+      };
+
+      // Only figures inside the article, and never one that is already a
+      // link — following the link is what a reader expects there.
+      document.addEventListener('click', function (e) {
+        var body = e.target.closest && e.target.closest('#post-body');
+        if (!body || lb.contains(e.target)) return;
+        if (e.target.closest('.fig-zoom')) return;   // has its own handler
+        var fig = e.target.closest('img, .mermaid-diagram svg');
+        if (!fig || fig.closest('a')) return;
+        e.preventDefault();
+        open(fig);
+      });
+
+      // A visible control on each figure. Clicking the artwork works too,
+      // but a diagram is mostly whitespace between boxes — you had to find
+      // a stroke to hit, and nothing said it was clickable at all.
+      var ZOOM_ICON =
+        '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" ' +
+        'aria-hidden="true"><path d="M6.2 1.8H1.8v4.4M9.8 1.8h4.4v4.4' +
+        'M9.8 14.2h4.4V9.8M6.2 14.2H1.8V9.8"/></svg>';
+
+      document.querySelectorAll('#post-body img, #post-body .mermaid-diagram')
+        .forEach(function (el) {
+          if (el.tagName === 'IMG' && el.closest('a')) return;
+
+          // The wrapper goes *around* the mermaid holder, not inside it:
+          // a theme switch replaces the holder's innerHTML, which would
+          // take the button with it.
+          var wrap = document.createElement(el.tagName === 'IMG' ? 'span' : 'div');
+          wrap.className = 'fig-wrap';
+          el.parentNode.insertBefore(wrap, el);
+          wrap.appendChild(el);
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'fig-zoom';
+          btn.title = 'Open full size';
+          btn.setAttribute('aria-label', 'Open full size');
+          btn.innerHTML = ZOOM_ICON;
+          wrap.appendChild(btn);
+
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Looked up at click time — for a diagram the svg may not
+            // have been rendered yet when the button was built.
+            var fig = wrap.querySelector('img, svg');
+            if (fig) open(fig);
+          });
+        });
+
+      lb.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-lb]');
+        if (btn) {
+          var act = btn.getAttribute('data-lb');
+          if (act === 'in') zoomTo(scale * 1.4);
+          else if (act === 'out') zoomTo(scale / 1.4);
+          else if (act === 'reset') fit();
+          else close();
+          return;
+        }
+        // Clicking the empty stage around the figure dismisses it.
+        if (!lbContent.contains(e.target)) close();
+      });
+
+      lbStage.addEventListener('wheel', function (e) {
+        if (lb.hidden) return;
+        e.preventDefault();
+        zoomTo(scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX, e.clientY);
+      }, { passive: false });
+
+      lbContent.addEventListener('dblclick', function (e) {
+        zoomTo(scale * 1.8, e.clientX, e.clientY);
+      });
+
+      // Drag to pan. Pointer events cover mouse, pen and single touch.
+      var dragging = false, lastX = 0, lastY = 0;
+      lbContent.addEventListener('pointerdown', function (e) {
+        dragging = true; lastX = e.clientX; lastY = e.clientY;
+        lbContent.setPointerCapture(e.pointerId);
+        lbContent.classList.add('dragging');
+      });
+      lbContent.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        tx += e.clientX - lastX; ty += e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        draw();
+      });
+      var endDrag = function () {
+        dragging = false;
+        lbContent.classList.remove('dragging');
+      };
+      lbContent.addEventListener('pointerup', endDrag);
+      lbContent.addEventListener('pointercancel', endDrag);
+
+      window.addEventListener('resize', function () {
+        if (!lb.hidden) fit();
+      }, { passive: true });
+
+      document.addEventListener('keydown', function (e) {
+        if (lb.hidden) return;
+        if (e.key === 'Escape') close();
+        else if (e.key === '+' || e.key === '=') zoomTo(scale * 1.4);
+        else if (e.key === '-') zoomTo(scale / 1.4);
+        else if (e.key === '0') fit();
       });
     }
 
