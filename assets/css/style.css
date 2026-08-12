@@ -1455,10 +1455,12 @@ body::before {
 .rail-toggle .ic-expand { display: none; }
 
 /* ── Collapsed: a tab docked to the page edge ────────────────────
-   Everything but the toggle is dropped and the toggle swaps its chevron
-   for the section's own icon. Only the inner corners are rounded, so
-   the pill reads as docked to the page edge rather than floating near
-   it. It stays inside the article's row — see below for why. */
+   The list is dropped, the toggle swaps its chevron for the section's
+   own icon, and the heading turns on its side beneath it — so a docked
+   rail still says what it is, not just which icon it wears. Only the
+   inner corners are rounded, so the pill reads as docked to the page
+   edge rather than floating near it. It stays inside the article's
+   row — see below for why. */
 .post-rail.collapsed,
 .post-sidebar.collapsed {
   /* Still a grid item, not fixed. Fixed positioning pinned the pill to
@@ -2520,8 +2522,18 @@ body::before {
 }
 
 @media (max-width: 860px) {
-  .post-wrap { grid-template-columns: 1fr; }
-  .post-sidebar { display: none; }
+  /* Each of these has to restate the collapsed selector to match its
+     specificity. `.post-sidebar.collapsed { display: block }` and the
+     :has() track rules both outrank a bare `.post-sidebar` / `.post-wrap`,
+     so a rail collapsed on a desktop — the choice is remembered — came
+     back as a floating tab here, in a layout that has no rails at all. */
+  .post-wrap,
+  .post-wrap:has(> .post-sidebar.collapsed) { grid-template-columns: 1fr; }
+  .post-sidebar,
+  .post-sidebar.collapsed { display: none; }
+
+  /* A tab nearly half the screen tall is not a tab. */
+  .post-rail.collapsed .sidebar-label { max-height: 28vh; }
 
   .post-hero { padding: var(--s6) var(--s5) var(--s5); }
   /* The parts list survives — on a phone it is the only way to reach the
