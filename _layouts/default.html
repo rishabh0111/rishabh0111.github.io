@@ -27,6 +27,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% if content contains 'language-mermaid' %}
+  <!-- Only loaded on pages with a mermaid fence, pinned major version 10 for a stable render. -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  {% endif %}
 </head>
 <body>
 
@@ -38,9 +42,17 @@
     <div class="px-layer px-near" data-depth="0.20"></div>
   </div>
 
-  <div class="read-progress" aria-hidden="true">
-    <div class="read-progress-bar" id="progress-bar"></div>
-  </div>
+  <!-- Reading progress rides the button's ring; see .scroll-top -->
+  <button type="button" class="scroll-top" id="scroll-top" title="Back to top">
+    <svg class="scroll-top-ring" viewBox="0 0 46 46" aria-hidden="true">
+      <circle class="ring-track" cx="23" cy="23" r="21"></circle>
+      <circle class="ring-bar" id="ring-bar" cx="23" cy="23" r="21"></circle>
+    </svg>
+    <svg class="scroll-top-arrow" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19V6M5 13l7-7 7 7"></path>
+    </svg>
+    <span class="sr-only">Back to top</span>
+  </button>
 
   <header class="site-header">
     <a class="site-logo" href="{{ '/' | relative_url }}">
@@ -49,11 +61,14 @@
     <div class="header-right">
       <nav class="site-nav" id="site-nav" aria-label="Site navigation">
         <a href="{{ '/' | relative_url }}"
-           {% if page.url == '/' %}class="active"{% endif %}>Home</a>
+           {% if page.url == '/' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="home" %}</span>Home</a>
         <a href="{{ '/blogs/' | relative_url }}"
-           {% if page.url contains '/blogs' %}class="active"{% endif %}>Blog</a>
+           {% if page.url contains '/blogs' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="article" %}</span>Blog</a>
         <a href="{{ '/news/' | relative_url }}"
-           {% if page.url contains '/news' %}class="active"{% endif %}>News</a>
+           {% if page.url contains '/news' %}class="active"{% endif %}>
+          <span class="nav-ic">{% include icon.html name="news" %}</span>News</a>
       </nav>
 
       <button type="button" class="theme-toggle" id="theme-toggle"
@@ -131,15 +146,15 @@
     }
 
     // ── Theme toggle ───────────────────────────────────────────
+    var root = document.documentElement;
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    function currentTheme() {
+      var set = root.getAttribute('data-theme');
+      return set ? set : (mq.matches ? 'dark' : 'light');
+    }
+
     var toggle = document.getElementById('theme-toggle');
     if (toggle) {
-      var root = document.documentElement;
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-      function currentTheme() {
-        var set = root.getAttribute('data-theme');
-        return set ? set : (mq.matches ? 'dark' : 'light');
-      }
       function syncToggle() {
         toggle.setAttribute('aria-checked', currentTheme() === 'dark' ? 'true' : 'false');
       }
@@ -150,13 +165,73 @@
         root.setAttribute('data-theme', next);
         try { localStorage.setItem('site-theme', next); } catch (e) {}
         syncToggle();
+        renderMermaid();
       });
 
       // If the user hasn't picked explicitly, follow OS changes live.
       mq.addEventListener('change', function () {
         try { if (!localStorage.getItem('site-theme')) syncToggle(); } catch (e) {}
+        renderMermaid();
       });
     }
+
+    // ── Mermaid diagrams ─────────────────────────────────────────
+    // kramdown emits a ```mermaid fence as <pre><code class="language-mermaid">
+    // (rouge doesn't know the "mermaid" lexer, so no highlighter wrapper divs
+    // get added — just the plain pre/code pair, HTML-escaped). .textContent
+    // decodes that escaping for free. We swap each block for a plain
+    // container mermaid can render into, and keep the original source around
+    // so a theme toggle can re-render in the new palette instead of leaving
+    // stale-colored SVGs behind.
+    var mermaidBlocks = [];
+    document.querySelectorAll('code.language-mermaid').forEach(function (codeEl) {
+      var pre = codeEl.closest('pre') || codeEl.parentElement;
+      // Some diagrams carry an embedded %%{init: {'theme':'base', 'themeVariables': {...}}}%%
+      // directive (authored once, for a light background). A directive inside the diagram
+      // source overrides whatever theme mermaid.initialize() was given, so those diagrams
+      // ignored the dark/light switch below and rendered dark text on a dark page. Strip it
+      // so every diagram always follows the live page theme instead of a baked-in one.
+      var src = codeEl.textContent.replace(/^%%\{init:.*%%\}?\s*$/gm, '');
+      var holder = document.createElement('div');
+      holder.className = 'mermaid-diagram';
+      pre.replaceWith(holder);
+      mermaidBlocks.push({ el: holder, src: src });
+    });
+
+    var mermaidRenderCount = 0;
+    function doRenderMermaid() {
+      if (!mermaidBlocks.length || typeof mermaid === 'undefined') return;
+      var dark = currentTheme() === 'dark';
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
+        theme: dark ? 'dark' : 'default',
+        fontFamily: '"DM Mono", monospace'
+      });
+      mermaidBlocks.forEach(function (block) {
+        var id = 'mermaid-diagram-' + (mermaidRenderCount++);
+        block.el.removeAttribute('data-processed');
+        block.el.innerHTML = '';
+        mermaid.render(id, block.src).then(function (result) {
+          block.el.innerHTML = result.svg;
+        }).catch(function (err) {
+          block.el.innerHTML = '';
+          console.error('mermaid render failed:', err);
+        });
+      });
+    }
+    // Mermaid measures node/text boxes against whatever font is active the
+    // instant it runs. If the webfont (DM Mono) hasn't finished loading yet,
+    // it measures against the fallback and every label clips once the real
+    // font swaps in. document.fonts.ready guarantees the swap already happened.
+    function renderMermaid() {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(doRenderMermaid);
+      } else {
+        doRenderMermaid();
+      }
+    }
+    renderMermaid();
 
     // ── Mobile nav (hamburger) ─────────────────────────────────
     var navToggle = document.getElementById('nav-toggle');
@@ -195,16 +270,136 @@
       });
     }
 
-    // ── Reading progress + TOC ─────────────────────────────────
-    var bar = document.getElementById('progress-bar');
-    if (!bar) return;
-    window.addEventListener('scroll', function () {
-      var doc = document.documentElement;
-      var s = doc.scrollTop || document.body.scrollTop;
-      var t = doc.scrollHeight - doc.clientHeight;
-      bar.style.width = t > 0 ? (s / t * 100) + '%' : '0%';
-    }, { passive: true });
+    // ── Collapsible rails ──────────────────────────────────────
+    // Each rail collapses to a pill showing just its own icon. The
+    // choice is remembered per rail, because it is a working preference
+    // ("I want the width") rather than a per-page decision.
+    //
+    // Collapsing changes how much room the TOC and the parts list have,
+    // and both already recompute themselves on resize — so a synthetic
+    // resize is the honest way to tell them, rather than reaching into
+    // their internals from here.
+    document.querySelectorAll('.rail-toggle').forEach(function (btn) {
+      var rail = btn.closest('.post-rail, .post-sidebar');
+      if (!rail) return;
+      var key = 'rail-collapsed-' + btn.getAttribute('data-rail');
 
+      var apply = function (collapsed, remember) {
+        rail.classList.toggle('collapsed', collapsed);
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        btn.setAttribute('title', collapsed
+          ? btn.getAttribute('data-label-expand')
+          : btn.getAttribute('data-label-collapse'));
+        if (remember) {
+          try { localStorage.setItem(key, collapsed ? '1' : '0'); } catch (e) {}
+        }
+        window.dispatchEvent(new Event('resize'));
+      };
+
+      try {
+        if (localStorage.getItem(key) === '1') apply(true, false);
+      } catch (e) {}
+
+      btn.addEventListener('click', function () {
+        apply(!rail.classList.contains('collapsed'), true);
+      });
+    });
+
+    // ── Series rail: reveal the current part ───────────────────
+    // The rail scrolls internally once a series runs long, and the part
+    // you are reading is often below the fold. Bring it into the rail's
+    // own scroll box (never scrollIntoView — that moves the page too).
+    //
+    // The landing position is snapped to an entry boundary. Scrolling to
+    // an arbitrary offset leaves whatever entry straddles the top edge
+    // cut through the middle of a line, which reads as a broken card
+    // rather than as a list you can scroll.
+    var seriesCurrent = document.querySelector('.series-list li.current');
+    if (seriesCurrent) {
+      var scroller = seriesCurrent.closest('.series-list');
+      var items = Array.prototype.slice.call(scroller.children);
+      var centreCurrent = function () {
+        if (scroller.scrollHeight <= scroller.clientHeight) {
+          scroller.scrollTop = 0;
+          return;
+        }
+        var boxTop = scroller.getBoundingClientRect().top;
+        var offsetOf = function (el) {
+          return el.getBoundingClientRect().top - boxTop + scroller.scrollTop;
+        };
+        // Aim to centre the current part…
+        var aim = offsetOf(seriesCurrent)
+                  - (scroller.clientHeight - seriesCurrent.offsetHeight) / 2;
+        // …then fall back to the last entry that starts at or above it.
+        var snapped = 0;
+        for (var i = 0; i < items.length; i++) {
+          var top = offsetOf(items[i]);
+          if (top <= aim) snapped = top; else break;
+        }
+        scroller.scrollTop = Math.max(0, snapped);
+      };
+      centreCurrent();
+      // The rail's own height depends on the viewport, so re-centre when
+      // it changes and the current item may have fallen out of view.
+      window.addEventListener('resize', centreCurrent, { passive: true });
+    }
+
+    // ── Back to top, with progress on its ring ─────────────────
+    var toTop = document.getElementById('scroll-top');
+    var ring = document.getElementById('ring-bar');
+    if (toTop && ring) {
+      var CIRC = 2 * Math.PI * 21;          // r=21, matches the markup
+      ring.style.strokeDasharray = CIRC;
+      var progressTicking = false;
+
+      // Once the article itself has scrolled by, the page is into the
+      // nav bands and the footer — which carry their own way onward, so
+      // the button retires rather than hovering over them.
+      var readable = document.getElementById('post-body')
+                     || document.querySelector('main');
+
+      var drawProgress = function () {
+        progressTicking = false;
+        var doc = document.documentElement;
+        var s = doc.scrollTop || document.body.scrollTop;
+        var t = doc.scrollHeight - doc.clientHeight;
+        var p = t > 0 ? Math.min(Math.max(s / t, 0), 1) : 0;
+        ring.style.strokeDashoffset = CIRC * (1 - p);
+
+        // Appears once there is somewhere to go back to. Not tied to the
+        // progress fraction: on a long page 10% is already a long way.
+        // Hides the moment the article no longer reaches down to where
+        // the button sits — past that point it would be hovering over
+        // the prev/next bands and the footer, not over anything it can
+        // usefully take you back from. Comparing against the button's
+        // own box (rather than a magic offset) keeps this true if its
+        // size or corner ever changes; the 10px it is translated by
+        // while hidden also gives the boundary a little hysteresis.
+        var started = s > 300;
+        var pastEnd = readable
+          ? readable.getBoundingClientRect().bottom < toTop.getBoundingClientRect().top
+          : false;
+        toTop.classList.toggle('visible', started && !pastEnd);
+      };
+      var scheduleProgress = function () {
+        if (!progressTicking) {
+          progressTicking = true;
+          requestAnimationFrame(drawProgress);
+        }
+      };
+
+      window.addEventListener('scroll', scheduleProgress, { passive: true });
+      window.addEventListener('resize', scheduleProgress, { passive: true });
+      drawProgress();
+
+      toTop.addEventListener('click', function () {
+        // html has scroll-behavior:smooth, so this animates on its own —
+        // except under prefers-reduced-motion, where 'auto' is honoured.
+        window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+      });
+    }
+
+    // ── TOC ────────────────────────────────────────────────────
     var article = document.getElementById('post-body');
     var tocList = document.getElementById('toc-list');
     var tocCard = document.getElementById('toc-card');
@@ -221,17 +416,60 @@
       li.appendChild(a);
       tocList.appendChild(li);
     });
-    var links = tocList.querySelectorAll('a');
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          links.forEach(function (l) { l.classList.remove('active'); });
-          var a = tocList.querySelector('a[href="#' + entry.target.id + '"]');
-          if (a) a.classList.add('active');
-        }
-      });
-    }, { rootMargin: '-20% 0px -70% 0px' });
-    headings.forEach(function (h) { obs.observe(h); });
+    // Active-section tracking.
+    //
+    // An IntersectionObserver only fires when a heading crosses the band,
+    // so any heading tall enough to skip the band — or a scroll that lands
+    // between two headings — leaves the highlight stale. Instead we ask the
+    // plain question on every scroll: which heading is the last one above
+    // the reading line? That is always exactly one answer, so the TOC and
+    // the article can never drift apart.
+    var headingList = Array.prototype.slice.call(headings);
+    var links = Array.prototype.slice.call(tocList.querySelectorAll('a'));
+    var activeIndex = -1;
+    var ticking = false;
+
+    function syncToc() {
+      ticking = false;
+      // The reading line sits just under the sticky header.
+      var line = (parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--h-header')) || 54) + 24;
+
+      var i = 0;
+      for (var n = 0; n < headingList.length; n++) {
+        if (headingList[n].getBoundingClientRect().top <= line) i = n; else break;
+      }
+      // Bottom of the page can't scroll far enough to reach the last
+      // headings; hand them the highlight as the end approaches.
+      var doc = document.documentElement;
+      if (doc.scrollHeight - (doc.scrollTop + doc.clientHeight) < 4) {
+        i = headingList.length - 1;
+      }
+      if (i === activeIndex) return;
+      activeIndex = i;
+
+      links.forEach(function (l) { l.classList.remove('active'); });
+      var active = links[i];
+      if (!active) return;
+      active.classList.add('active');
+
+      // Keep the active entry inside the TOC's own scroll box, without
+      // dragging the page along (scrollIntoView would).
+      var box = tocList.getBoundingClientRect();
+      var item = active.getBoundingClientRect();
+      if (item.top < box.top) {
+        tocList.scrollTop -= (box.top - item.top) + 12;
+      } else if (item.bottom > box.bottom) {
+        tocList.scrollTop += (item.bottom - box.bottom) + 12;
+      }
+    }
+
+    function requestTocSync() {
+      if (!ticking) { ticking = true; requestAnimationFrame(syncToc); }
+    }
+    window.addEventListener('scroll', requestTocSync, { passive: true });
+    window.addEventListener('resize', requestTocSync, { passive: true });
+    syncToc();
   })();
   </script>
 

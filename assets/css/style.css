@@ -43,11 +43,22 @@
   --f-display: 'Cormorant Garamond', Georgia, serif;
   --f-mono:    'DM Mono', 'Fira Mono', monospace;
 
-  /* Layout */
-  --article-w: 680px;
+  /* Layout. The gutters are deliberately tight: whatever the rails and
+     the gap don't take, the article gets. */
+  --article-w: 760px;
   --sidebar-w: 220px;
-  --col-gap:   4rem;
-  --max-w:     calc(var(--article-w) + var(--sidebar-w) + var(--col-gap) + 5rem);
+  --col-gap:   var(--s3);
+  /* Caps the home and listing pages. The post page ignores it and runs
+     the full width inside --page-pad; its columns are sized by the grid
+     rather than by --article-w, which is kept for the listing layouts. */
+  --max-w:     1280px;
+  /* Gutter between the page edge and the content spine — the same
+     --s5 that sits above and below the content, so the post page has
+     one even frame on all four sides. One variable, because
+     .post-wrap's padding and the bands' widths below it have to agree
+     exactly or their edges stop lining up. */
+  --page-pad:  var(--s3);
+  --pill-w:    38px;      /* a collapsed rail */
   --h-header:  54px;
 
   /* Spacing: every unit is 8px */
@@ -337,6 +348,14 @@ html {
   scroll-padding-top: calc(var(--h-header) + 1rem);
 }
 
+/* Visible to screen readers, to nobody else */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
+
 /* Accessible focus ring that respects the palette */
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -407,15 +426,120 @@ body::before {
 /* ════════════════════════════════════════════════════════════════
    READING PROGRESS — single hairline, lacquer
 ════════════════════════════════════════════════════════════════ */
-.read-progress {
-  position: fixed; top: var(--h-header); left: 0; right: 0;
-  height: 2px; z-index: 99;
+/* ════════════════════════════════════════════════════════════════
+   BACK TO TOP + READING PROGRESS
+
+   One control doing two jobs: the ring around it is how far you've
+   read, the arrow inside takes you back. It replaces the loading-bar
+   under the header, which read as "page is still loading" rather than
+   "you are two thirds through".
+
+   Nothing here is announced to screen readers except the button's own
+   label — progress is decoration, and the ring is inert SVG.
+════════════════════════════════════════════════════════════════ */
+.scroll-top {
+  position: fixed;
+  right: var(--fab-right, var(--s4)); bottom: var(--s4);
+  width: 46px; height: 46px;
+  z-index: 98;
+  display: grid; place-items: center;
+  padding: 0; cursor: pointer;
+  border-radius: 50%;
+  /* Opaque and bordered, not glass: against the TOC card — which *is*
+     glass — a second translucent disc simply disappeared. This one has
+     to read as sitting above the page, so it gets a real surface and a
+     two-part shadow: a tight contact shadow plus a wide soft one. */
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.26),
+    0 4px 8px rgba(0,0,0,0.18),
+    inset 0 1px 0 var(--glass-hi);
+  color: var(--text-2);
+  /* Out of the way until there is progress worth showing */
+  opacity: 0; visibility: hidden;
+  transform: translateY(10px) scale(0.94);
+  transition: opacity 0.2s linear,
+              transform 0.28s var(--ease-out),
+              right 0.26s var(--ease-out),
+              box-shadow 0.2s var(--ease-out),
+              border-color 0.15s,
+              color 0.15s,
+              visibility 0s linear 0.28s;
 }
-.read-progress-bar {
-  height: 100%; width: 0%;
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-  transition: width 0.06s linear;
+.scroll-top.visible {
+  opacity: 1; visibility: visible;
+  transform: none;
+  transition: opacity 0.2s linear,
+              transform 0.28s var(--ease-out),
+              box-shadow 0.2s var(--ease-out),
+              border-color 0.15s,
+              color 0.15s,
+              visibility 0s linear 0s;
+}
+/* Hover lifts it further off the page; press puts it back down */
+.scroll-top:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.scroll-top.visible:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.30),
+    0 5px 10px rgba(0,0,0,0.20),
+    inset 0 1px 0 var(--glass-hi);
+}
+.scroll-top.visible:active {
+  transform: translateY(0) scale(0.95);
+  box-shadow:
+    0 4px 10px rgba(0,0,0,0.24),
+    inset 0 1px 0 var(--glass-hi);
+}
+
+/* Placement. The convention is the bottom-right corner, and that is
+   where it goes — except on a post page, where the bottom-right corner
+   belongs to the TOC rail and a button there covers the last entries.
+   There it shifts left to straddle the article panel's right edge: it
+   lands in the column gutter and over the panel's own padding, so it
+   overlaps neither the rail nor a line of text. */
+@media (min-width: 861px) {
+  body:has(.post-sidebar) {
+    --fab-right: calc(var(--page-pad) + var(--sidebar-w)
+                      + var(--col-gap) - var(--s1));
+  }
+  /* Rail docked at the edge: the article now runs to the gutter, so the
+     button returns to the plain corner. The pill sits at the top of the
+     window, the button at the bottom — they never meet. The state is
+     read off body because a fixed element cannot see a variable set on
+     .post-wrap. */
+  body:has(.post-sidebar.collapsed) { --fab-right: var(--s4); }
+}
+
+/* The ring sits on the button's edge, arrow centred inside it */
+.scroll-top-ring {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);          /* progress starts at 12 o'clock */
+  overflow: visible;
+}
+/* Geometry (cx/cy/r) lives on the elements — as CSS properties it is
+   too new to rely on. */
+.scroll-top-ring circle { fill: none; stroke-width: 3.5; }
+.ring-track { stroke: var(--border); stroke-width: 3; }
+.ring-bar {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  /* dasharray/offset are set from JS — 2πr for r=21 */
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
+  transition: stroke-dashoffset 0.08s linear;
+}
+
+.scroll-top-arrow {
+  width: 17px; height: 17px;
+  fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  position: relative;
 }
 
 
@@ -475,6 +599,14 @@ body::before {
   position: relative;
   transition: color 0.2s;
 }
+/* Nav icons: same monochrome set as everywhere else, so they take the
+   link's colour through every theme and hover state for free. */
+.site-nav a { gap: 7px; }
+.nav-ic { display: grid; place-items: center; opacity: 0.75; transition: opacity 0.2s; }
+.nav-ic svg { width: 13px; height: 13px; display: block; }
+.site-nav a:hover .nav-ic,
+.site-nav a.active .nav-ic { opacity: 1; }
+
 /* Underline grows from centre on hover */
 .site-nav a::after {
   content: '';
@@ -928,14 +1060,16 @@ body::before {
   color: var(--plane-ink-2); letter-spacing: 0.07em;
 }
 .post-meta .sep { color: var(--plane-faint); }
+.meta-item { display: inline-flex; align-items: center; gap: 5px; }
+.meta-item svg { width: 11px; height: 11px; opacity: 0.7; }
 .post-source { color: var(--accent); }
 
 /* Excerpt — italic, indented with lacquer hairline */
 .post-excerpt {
-  margin-top: var(--s5);
+  margin-top: var(--s4);
   font-size: 15px; line-height: 1.6;
   color: var(--plane-ink-2);
-  font-style: italic; max-width: 520px;
+  font-style: italic; max-width: 60ch;
   padding-left: var(--s3);
   border-left: 1.5px solid var(--lacquer);
 }
@@ -944,13 +1078,43 @@ body::before {
 /* ════════════════════════════════════════════════════════════════
    POST BODY GRID
 ════════════════════════════════════════════════════════════════ */
+/* Two rails by default: article + TOC on the right. A post that belongs
+   to a series also gets a left rail (.has-rail) holding the parts list —
+   but only once the viewport can afford a third column, see RESPONSIVE.
+   Below that width the parts card becomes a strip above the article. */
+/* The top offset lives here, on the container, not on the columns. A
+   margin on a sticky column is added to its sticky `top` — the rails
+   would hang that far below the header for the whole scroll. */
 .post-wrap {
-  max-width: var(--max-w);
-  margin: 0 auto; padding: 0 var(--s5);
+  max-width: none;
+  margin: var(--s5) auto 0; padding: 0 var(--page-pad);
   display: grid;
   grid-template-columns: 1fr var(--sidebar-w);
-  gap: var(--col-gap);
+  column-gap: var(--col-gap);
+  row-gap: 0;               /* the strip above the article sets its own */
   align-items: start;
+}
+/* A collapsed rail keeps its track, at zero width: the pill sits in it
+   and overhangs into the page gutter, so the article gets the column
+   back without the rail leaving the grid. */
+.post-wrap:has(> .post-sidebar.collapsed) { grid-template-columns: 1fr 0px; }
+/* Fallback placement: a full-width strip above the article. It only
+   becomes a true left rail once there is room for a third column.
+   As a strip the parts list lies flat — no scroll box, it's short and
+   the page can absorb it. */
+.post-rail {
+  grid-column: 1 / -1; grid-row: 1;
+  margin-bottom: var(--s4);   /* strip mode only; the rail resets it */
+  min-width: 0;
+}
+.post-rail .sidebar-card { margin-bottom: 0; }
+/* Wide and short: the parts flow into as many columns as the strip can
+   hold, which usually means no scrolling at all. */
+.post-rail .series-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  column-gap: var(--s5);
+  overflow: visible;
 }
 
 
@@ -1124,22 +1288,38 @@ body::before {
   color: var(--text-3); border-radius: 1px;
   transition: border-color 0.15s, color 0.15s;
 }
+.post-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.post-tag svg { width: 10px; height: 10px; opacity: 0.6; }
 .post-tag:hover { border-color: var(--accent); color: var(--text); }
+.post-tag:hover svg { opacity: 1; }
 
 
 /* ════════════════════════════════════════════════════════════════
    POST NAVIGATION
    Two columns. Each is a flat plane. No fuss.
+
+   Held to the same measure as the article and the "more posts" band —
+   it used to run full-bleed, which read as part of the footer chrome
+   and left the article sitting directly on top of it.
 ════════════════════════════════════════════════════════════════ */
 .post-nav {
+  /* width, not padding: the border-top has to stop where the content
+     stops, so the gutters live outside the box rather than inside it */
+  width: calc(100% - var(--page-pad) * 2);
+  max-width: none;
+  margin: var(--s5) auto;
   display: grid; grid-template-columns: 1fr 1fr;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .post-nav-item {
   background: var(--bg); padding: var(--s4) var(--s5);
   text-decoration: none; color: inherit;
   transition: background 0.15s, box-shadow 0.15s;
   border-right: 1px solid var(--border);
+  min-width: 0;
 }
 .post-nav-item:last-child { border-right: none; }
 .post-nav-item:hover {
@@ -1151,8 +1331,16 @@ body::before {
 .post-nav-dir {
   font-family: var(--f-mono); font-size: 8px;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-3); display: block; margin-bottom: 5px;
+  color: var(--text-3);
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 5px;
 }
+.post-nav-item.next .post-nav-dir { justify-content: flex-end; }
+.post-nav-dir svg { width: 12px; height: 12px; }
+/* The arrow leans into the direction of travel on hover */
+.post-nav-item.prev:hover .post-nav-dir svg { transform: translateX(-3px); }
+.post-nav-item.next:hover .post-nav-dir svg { transform: translateX(3px); }
+.post-nav-dir svg { transition: transform 0.18s var(--ease-out); }
 .post-nav-title {
   font-family: var(--f-display); font-size: 1.1rem;
   font-weight: 400; color: var(--navtitle-fg); line-height: 1.3;
@@ -1180,15 +1368,156 @@ body::before {
     inset 0 1px 0 var(--glass-hi);   /* hairline top highlight = the "glass" tell */
 }
 
+/* Card head: icon, label, collapse control. The head is the one part
+   that survives collapsing — it becomes the pill. */
+.sidebar-head {
+  /* Never shrinks. The card is a flex column with overflow:hidden, so a
+     shrinkable head gets squeezed by the list below it — the label
+     clips against the card border and the toggle disappears with it. */
+  flex: 0 0 auto;
+  display: flex; align-items: flex-start; gap: 7px;
+  margin-bottom: var(--s1); padding-bottom: var(--s1);
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  height: 14px;                 /* aligns with the label's first line */
+  color: var(--text-3);
+}
+.sidebar-icon svg { width: 12px; height: 12px; display: block; }
+
 .sidebar-label {
   font-family: var(--f-mono); font-size: 8px;
   letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--text-3); display: block;
-  margin-bottom: var(--s1); padding-bottom: var(--s1);
-  border-bottom: 1px solid var(--border);
+  flex: 1 1 auto; min-width: 0;
+  line-height: 1.45;
+  overflow-wrap: anywhere;      /* a long series name must not overflow */
 }
 
-#toc-list { list-style: none; }
+.rail-toggle {
+  flex: 0 0 auto;
+  width: 22px; height: 22px; padding: 0;
+  margin-top: -2px;             /* optically level with the label */
+  display: grid; place-items: center;
+  background: none; border: 1px solid transparent; border-radius: 6px;
+  color: var(--text-3); cursor: pointer;
+  transition: color 0.14s, background 0.14s, border-color 0.14s;
+}
+.rail-toggle:hover {
+  color: var(--accent);
+  background: var(--bg-raised);
+  border-color: var(--border);
+}
+.rail-toggle svg { width: 13px; height: 13px; display: block; }
+.rail-toggle .ic-expand { display: none; }
+
+/* ── Collapsed: a tab docked to the page edge ────────────────────
+   Everything but the toggle is dropped and the toggle swaps its chevron
+   for the section's own icon. Only the inner corners are rounded, so
+   the pill reads as docked to the page edge rather than floating near
+   it. It stays inside the article's row — see below for why. */
+.post-rail.collapsed,
+.post-sidebar.collapsed {
+  /* Still a grid item, not fixed. Fixed positioning pinned the pill to
+     the window, so it floated up over the hero and stayed there for the
+     whole page; as a grid item it lives in the article's row and can
+     only travel within it. Its track is collapsed to 0 and the pill is
+     pulled out through the page gutter by a negative margin, so it
+     reaches the window edge without holding a column open. */
+  display: block;
+  width: var(--pill-w);
+  max-height: none; min-height: 0;
+  padding: 0;
+  overflow: visible;
+  z-index: 40;
+}
+.post-rail.collapsed {
+  /* Strip mode: a tab above the article, flush left. */
+  grid-column: 1 / -1; grid-row: 1;
+  justify-self: start;
+  margin: 0 0 var(--s3) calc(-1 * var(--page-pad));
+}
+.post-sidebar.collapsed {
+  position: sticky;
+  top: calc(var(--h-header) + var(--s2));
+  justify-self: end;
+  margin: 0 calc(-1 * var(--page-pad)) 0 0;
+}
+
+.post-rail.collapsed .sidebar-card,
+.post-sidebar.collapsed .sidebar-card {
+  width: var(--pill-w);
+  min-height: 0;
+  padding: 5px;
+  margin: 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 var(--glass-hi);
+}
+.post-rail.collapsed .sidebar-card {
+  border-radius: 0 9px 9px 0;
+  border-left-color: transparent;
+}
+.post-sidebar.collapsed .sidebar-card {
+  border-radius: 9px 0 0 9px;
+  border-right-color: transparent;
+}
+.post-rail.collapsed .sidebar-head,
+.post-sidebar.collapsed .sidebar-head {
+  margin: 0; padding: 0; border-bottom: none;
+  justify-content: center;
+}
+.post-rail.collapsed .sidebar-icon,
+.post-rail.collapsed .sidebar-label,
+.post-rail.collapsed .series-list,
+.post-sidebar.collapsed .sidebar-icon,
+.post-sidebar.collapsed .sidebar-label,
+.post-sidebar.collapsed #toc-list { display: none; }
+
+/* Collapsed, the card must not stretch down the rail — it is a pill.
+   min-height has to go too: #toc-card carries a 4rem floor so the open
+   TOC never shrinks to nothing, and that floor was showing up as empty
+   space under the pill's icon. */
+.post-sidebar.collapsed #toc-card {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.post-rail.collapsed .rail-toggle,
+.post-sidebar.collapsed .rail-toggle { width: 30px; height: 30px; }
+.post-rail.collapsed .ic-collapse,
+.post-sidebar.collapsed .ic-collapse { display: none; }
+.post-rail.collapsed .ic-expand,
+.post-sidebar.collapsed .ic-expand { display: block; }
+.post-rail.collapsed .rail-toggle svg,
+.post-sidebar.collapsed .rail-toggle svg { width: 15px; height: 15px; }
+
+/* TOC card: the rail's only tenant, so it simply takes the whole rail
+   and scrolls its list internally. */
+#toc-card {
+  display: flex; flex-direction: column;
+  flex: 1 1 auto; min-height: 4rem;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+#toc-card .sidebar-head { flex: 0 0 auto; }
+
+#toc-list {
+  list-style: none;
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  /* Thin, unobtrusive scrollbar — the rail is a quiet surface */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding-right: 2px;
+}
+#toc-list::-webkit-scrollbar { width: 5px; }
+#toc-list::-webkit-scrollbar-track { background: transparent; }
+#toc-list::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 3px;
+}
+#toc-list::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
 #toc-list li { padding: 2px 0; }
 #toc-list a {
   font-family: var(--f-mono); font-size: 10.5px;
@@ -1206,22 +1535,109 @@ body::before {
 }
 #toc-list .toc-h3 { padding-left: 10px; opacity: 0.65; }
 
-.related-list { list-style: none; }
-.related-list li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
-.related-list li:last-child { border-bottom: none; }
-.related-list a {
-  color: var(--text-2); text-decoration: none;
-  font-size: 13px; line-height: 1.4; display: block;
-  transition: color 0.14s;
+/* ════════════════════════════════════════════════════════════════
+   MORE POSTS — the band under the article
+
+   Sits on the same measure as the article so the page keeps one spine.
+   Columns are separated by the same hairline rules the listing uses,
+   not by boxes: this is a footnote to the article, not a card deck.
+════════════════════════════════════════════════════════════════ */
+/* Same content box as .post-wrap (which is max-w with an s5 gutter
+   inside it), so every edge on the page lines up. */
+.post-more {
+  width: calc(100% - var(--page-pad) * 2);
+  max-width: none;
+  margin: 0 auto;             /* spacing comes from .post-nav's margin */
 }
-.related-list a:hover { color: var(--text); }
-.related-list span {
-  display: block; font-family: var(--f-mono); font-size: 9px;
-  color: var(--text-3); letter-spacing: 0.07em; margin-top: 2px;
+.post-more-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s3);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--border);
+}
+.post-more-label {
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-3);
+}
+.post-more-all {
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-3); text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.post-more-all {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.post-more-all svg { width: 12px; height: 12px; transition: transform 0.18s var(--ease-out); }
+.post-more-all:hover { color: var(--accent); }
+.post-more-all:hover svg { transform: translateX(3px); }
+
+/* One row, always: auto-flow column puts every item on the same track
+   whatever the count, and equal auto-columns keep them even. It only
+   stacks at the phone breakpoint below. */
+.post-more-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.post-more-item {
+  min-width: 0;
+  display: flex; flex-direction: column; gap: 5px;
+  padding: var(--s3) var(--s2) var(--s3);
+  text-decoration: none; color: inherit;
+  border-right: 1px solid var(--border);
+  transition: background 0.15s;
+}
+/* Five across needs real width. Drop the tail rather than let the row
+   squeeze into unreadable columns — the "All posts" link covers the rest. */
+@media (max-width: 1100px) {
+  .post-more-item:nth-child(n+4) { display: none; }
+  /* item 3 becomes the last visible one, so it closes the row */
+  .post-more-item:nth-child(3) { border-right: none; padding-right: 0; }
+}
+.post-more-item:first-child { padding-left: 0; }
+.post-more-item:last-child { border-right: none; padding-right: 0; }
+.post-more-item:hover { background: var(--bg-raised); }
+.post-more-item time {
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.1em; color: var(--text-3);
+}
+.post-more-title {
+  font-family: var(--f-display); font-size: 1.02rem;
+  font-weight: 400; line-height: 1.32; color: var(--navtitle-fg);
+}
+.post-more-item:hover .post-more-title { color: var(--accent); }
+.post-more-series {
+  font-family: var(--f-mono); font-size: 8px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-3); margin-top: auto; padding-top: var(--s1);
 }
 
-/* Series nav card in the post sidebar */
-.series-list { list-style: none; }
+/* Series ("parts") card. Wherever the card ends up — left rail, strip
+   above the article — the list itself is always the scroll container, so
+   the "centre the current part" script has one element to talk to. */
+#series-card {
+  display: flex; flex-direction: column;
+  min-height: 0; overflow: hidden;
+}
+#series-card .sidebar-head { flex: 0 0 auto; }
+
+.series-list {
+  list-style: none;
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.series-list::-webkit-scrollbar { width: 5px; }
+.series-list::-webkit-scrollbar-track { background: transparent; }
+.series-list::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 3px;
+}
+.series-list::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 .series-list li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
 .series-list li:last-child { border-bottom: none; }
 .series-list a {
@@ -1907,6 +2323,10 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .status-dot { animation: none; }
   .reveal { opacity: 1; transform: none; }
+  /* The ring still tracks progress — it just stops easing there */
+  .scroll-top { transition: opacity 0.2s linear, visibility 0s linear; transform: none; }
+  .scroll-top.visible { transform: none; }
+  .ring-bar { transition: none; }
 }
 
 @media print {
@@ -1931,17 +2351,88 @@ body::before {
 /* Wide desktops: let the measure and the sidebar grow rather than
    leaving the field empty. --max-w recomputes from these. */
 @media (min-width: 1180px) {
-  :root { --article-w: 760px; --sidebar-w: 250px; }
+  :root { --article-w: 840px; --sidebar-w: 240px; }
 }
 @media (min-width: 1440px) {
-  :root { --article-w: 820px; --sidebar-w: 280px; --col-gap: 4.5rem; }
+  :root { --article-w: 900px; --sidebar-w: 260px; --max-w: 1400px; }
+}
+/* Very wide displays. --max-w still caps the home and listing pages;
+   the post page is uncapped and runs to the --page-pad frame. */
+@media (min-width: 1760px) {
+  :root { --sidebar-w: 280px; --max-w: 1520px; }
+}
+
+/* Three columns: parts rail | article | TOC. The breakpoint is set where
+   a third column can be paid for out of the empty margins rather than out
+   of the measure — below it the article would drop to ~600px. */
+@media (min-width: 1360px) {
+  :root { --rail-w: 210px; --rail-gap: var(--col-gap); }
+
+  .post-wrap.has-rail {
+    grid-template-columns: var(--rail-w) 1fr var(--sidebar-w);
+    column-gap: var(--rail-gap);
+  }
+  /* One track per rail still in flow. Placement is left to source order
+     (rail, article, sidebar) so these stay declarative. */
+  .post-wrap.has-rail:has(> .post-rail.collapsed) {
+    grid-template-columns: 0px 1fr var(--sidebar-w);
+  }
+  .post-wrap.has-rail:has(> .post-sidebar.collapsed) {
+    grid-template-columns: var(--rail-w) 1fr 0px;
+  }
+  .post-wrap.has-rail:has(> .post-rail.collapsed):has(> .post-sidebar.collapsed) {
+    grid-template-columns: 0px 1fr 0px;
+  }
+
+  /* Three columns: the parts pill gets its own sticky track on the left
+     instead of riding above the article as it does in strip mode. */
+  .post-wrap.has-rail > .post-rail.collapsed {
+    grid-column: 1; grid-row: 1;
+    position: sticky; top: calc(var(--h-header) + var(--s2));
+    margin: 0 0 0 calc(-1 * var(--page-pad));
+  }
+  /* :not(.collapsed) again — this selector outranks the collapsed block,
+     so without the guard the rail stayed a sticky grid item while the
+     grid had already dropped to two tracks, which pushed the article
+     into the sidebar's 220px column. */
+  .post-wrap.has-rail > .post-rail:not(.collapsed) {
+    grid-column: 1; grid-row: 1;
+    margin: 0;                      /* identical box to .post-sidebar */
+    position: sticky; top: calc(var(--h-header) + var(--s1));
+    max-height: calc(100vh - var(--h-header) - var(--s1) * 2);
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;               /* same guard as the right rail */
+  }
+  /* One narrow column again — the list itself does the scrolling.
+     Scoped to :not(.collapsed): this selector is more specific than the
+     collapsed rules, so without the guard it would switch the list back
+     on inside a collapsed pill. */
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .series-list {
+    display: block;
+    overflow-y: auto;
+  }
+}
+@media (min-width: 1440px) {
+  :root { --rail-w: 240px; }
 }
 
 @media (max-width: 860px) {
   .post-wrap { grid-template-columns: 1fr; }
   .post-sidebar { display: none; }
+
+  .post-hero { padding: var(--s6) var(--s5) var(--s5); }
+  /* The parts list survives — on a phone it is the only way to reach the
+     rest of the series. One column, capped so it can't push the article
+     off screen. */
+  .post-rail:not(.collapsed) #series-card { max-height: 44vh; }
+  .post-rail .series-list { display: block; overflow-y: auto; }
   .post-nav { grid-template-columns: 1fr; }
   .post-content h2::before { display: none; }
+
+  /* Two across, not three: below this the columns stop being readable */
+  .post-more-item:nth-child(n+3) { display: none; }
+  .post-more-item:nth-child(2) { border-right: none; padding-right: 0; }
 
   /* Nav collapses into a panel under the header; the hamburger drives it.
      The theme switch stays in the bar — it is one tap, not navigation. */
@@ -2010,6 +2501,19 @@ body::before {
   .post-nav-item { border-right: none; border-bottom: 1px solid var(--border); }
   .post-nav-item:last-child { border-bottom: none; }
 
+  /* Phones give up more of the gutter — every band narrows with it */
+  :root { --page-pad: var(--s2); }
+
+  /* Closer to the corner, and a thumb-sized target */
+  .scroll-top { right: var(--s2); bottom: var(--s2); width: 44px; height: 44px; }
+  .post-more-grid { grid-auto-flow: row; grid-auto-columns: auto; }
+  .post-more-item {
+    border-right: none; border-bottom: 1px solid var(--border);
+    padding-left: 0; padding-right: 0;
+  }
+  /* item 2 is the last *visible* one here; :last-child is hidden */
+  .post-more-item:nth-child(2) { border-bottom: none; }
+
   .site-footer { flex-direction: column; gap: var(--s2); align-items: flex-start; }
 }
 
@@ -2017,8 +2521,8 @@ body::before {
    PRINT
 ════════════════════════════════════════════════════════════════ */
 @media print {
-  .site-header, .site-footer, .post-sidebar,
-  .post-nav, .read-progress, .theme-toggle, .px, body::before { display: none !important; }
+  .site-header, .site-footer, .post-sidebar, .post-rail,
+  .post-nav, .scroll-top, .theme-toggle, .px, body::before { display: none !important; }
   body { background: #fff !important; }
   .post-hero { background: none; padding: 0 0 var(--s3); }
   .post-hero * { color: black !important; }

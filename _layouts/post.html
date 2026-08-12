@@ -45,8 +45,38 @@ layout: default
   </div>
 </div>
 
-<!-- Post body + sidebar -->
-<div class="post-wrap">
+<!-- Post body + rails.
+     Left rail = series ("parts") navigation, right rail = TOC + related.
+     Both collapse into the flow on narrow screens, see RESPONSIVE. -->
+<div class="post-wrap{% if page.series %} has-rail{% endif %}">
+
+  <!-- Series navigation — same series, ordered. Left rail. -->
+  {% if page.series %}
+  {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+  <aside class="post-rail" aria-label="Series navigation">
+    <div class="sidebar-card" id="series-card">
+      <div class="sidebar-head">
+        <span class="sidebar-icon">{% include icon.html name="layers" %}</span>
+        <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ siblings.size }}</span>
+        <button type="button" class="rail-toggle" data-rail="series"
+                aria-expanded="true" aria-controls="series-body"
+                data-label-collapse="Collapse the parts list"
+                data-label-expand="Show the parts list"
+                title="Collapse the parts list">
+          <span class="ic-collapse">{% include icon.html name="chevron-left" %}</span>
+          <span class="ic-expand">{% include icon.html name="layers" %}</span>
+        </button>
+      </div>
+      <ul class="series-list" id="series-body">
+        {% for p in siblings %}
+        <li{% if p.url == page.url %} class="current"{% endif %}>
+          <a href="{{ p.url | relative_url }}">{{ p.series_order }}. {{ p.title }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+  {% endif %}
 
   <article class="post-content" id="post-body">
     {{ content }}
@@ -62,48 +92,23 @@ layout: default
 
   <aside class="post-sidebar" aria-label="Sidebar">
 
-    <!-- TOC — auto-populated by JS in default.html -->
+    <!-- TOC — auto-populated by JS in default.html.
+         Takes whatever vertical room is left and scrolls internally. -->
     <div class="sidebar-card" id="toc-card">
-      <span class="sidebar-label">In this article</span>
+      <div class="sidebar-head">
+        <span class="sidebar-icon">{% include icon.html name="list" %}</span>
+        <span class="sidebar-label">In this article</span>
+        <button type="button" class="rail-toggle" data-rail="toc"
+                aria-expanded="true" aria-controls="toc-list"
+                data-label-collapse="Collapse the contents"
+                data-label-expand="Show the contents"
+                title="Collapse the contents">
+          <span class="ic-collapse">{% include icon.html name="chevron-right" %}</span>
+          <span class="ic-expand">{% include icon.html name="list" %}</span>
+        </button>
+      </div>
       <ul id="toc-list"></ul>
     </div>
-
-    <!-- Series navigation — same series, ordered -->
-    {% if page.series %}
-    {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
-    <div class="sidebar-card">
-      <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ siblings.size }}</span>
-      <ul class="series-list">
-        {% for p in siblings %}
-        <li{% if p.url == page.url %} class="current"{% endif %}>
-          <a href="{{ p.url | relative_url }}">{{ p.series_order }}. {{ p.title }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-
-    <!-- Related posts — same category -->
-    {% assign cat = page.categories | first %}
-    {% assign related = site.posts
-        | where_exp: "p", "p.url != page.url"
-        | where_exp: "p", "p.categories contains cat"
-        | limit: 4 %}
-    {% if related.size > 0 %}
-    <div class="sidebar-card">
-      <span class="sidebar-label">More {{ cat }}</span>
-      <ul class="related-list">
-        {% for post in related %}
-        <li>
-          <a href="{{ post.url | relative_url }}">
-            {{ post.title }}
-            <span>{{ post.date | date: "%b %-d, %Y" }}</span>
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
 
   </aside>
 </div>
