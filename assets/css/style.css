@@ -433,15 +433,17 @@ body::before {
    reading and useless for a dense diagram. Clicking one opens it here
    over a scrim at whatever size it wants, with zoom and pan.
 
-   The scrim is dark in both themes on purpose: it is the one surface on
-   the site whose job is to disappear behind the thing it is showing.
+   The scrim follows the theme rather than being dark in both. A mermaid
+   diagram is rendered in the page's own palette, so in the light theme
+   it draws dark ink — which a dark scrim swallowed. Mixing it from --bg
+   means it tracks the theme with no second set of values to maintain.
 ════════════════════════════════════════════════════════════════ */
 .lightbox {
   position: fixed; inset: 0; z-index: 200;
   display: flex; flex-direction: column;
-  background: rgba(8, 12, 18, 0.92);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--bg) 93%, transparent);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
 }
 .lightbox[hidden] { display: none; }
 
@@ -457,24 +459,26 @@ body.lb-open { overflow: hidden; }
 .lightbox-zoom {
   font-family: var(--f-mono); font-size: 10px;
   letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.55);
+  color: var(--text-3);
   min-width: 46px; text-align: center;
   font-variant-numeric: tabular-nums;   /* the number must not jitter */
 }
+/* Same tokens as every other control on the site, so the toolbar reads
+   correctly on a pale scrim as well as a dark one. */
 .lb-btn {
   width: 32px; height: 32px; padding: 0;
   display: grid; place-items: center;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 7px;
-  color: rgba(255,255,255,0.75);
+  color: var(--text-2);
   cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
 }
 .lb-btn:hover {
-  background: rgba(255,255,255,0.13);
-  border-color: rgba(255,255,255,0.3);
-  color: #fff;
+  background: var(--bg-raised);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .lb-btn svg { width: 15px; height: 15px; display: block; }
 
