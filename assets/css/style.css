@@ -683,8 +683,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 ════════════════════════════════════════════════════════════════ */
 .site-header {
   background: var(--header-glass);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  /* The blur lives on ::before, not here. An element with a
+     backdrop-filter becomes the containing block for its fixed-position
+     descendants, and .site-nav — which docks to the bottom of the
+     window on phones — is one of them. A pseudo-element has no
+     descendants to capture, so the glass survives without the trap. */
   height: var(--h-header);
   padding: 0 var(--s5);
   display: flex; align-items: center; justify-content: space-between;
@@ -692,6 +695,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   position: sticky; top: 0; z-index: 100;
   /* A single hairline separates header from page (theme-aware) */
   border-bottom: 1px solid var(--plane-rule);
+}
+.site-header::before {
+  content: '';
+  position: absolute; inset: 0; z-index: -1;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
 /* Wordmark: mono, uppercase, with slash in lacquer.
@@ -2689,18 +2698,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      tap and not navigation. */
   .nav-toggle { display: none; }
 
-  /* The nav is a child of the header, and a backdrop-filter makes an
-     element the containing block for its fixed-position descendants —
-     so with the blur left on, `bottom: 0` meant the bottom of the
-     header, not of the window, and the bar hung under the masthead.
-     --nav-panel is 97% opaque, so dropping the blur here costs nothing
-     visually. */
-  .site-header {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: var(--nav-panel);
-  }
-
   .site-nav {
     position: fixed;
     left: 0; right: 0; bottom: 0; top: auto;
@@ -2709,7 +2706,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
     gap: 0;
     /* The inset keeps the bar clear of the iOS home indicator */
     padding: 0 0 env(safe-area-inset-bottom, 0px);
-    background: var(--nav-panel);
+    /* Same glass as the header and the footer: the bar is the third of
+     the site's dark planes, not a surface of its own. */
+    background: var(--header-glass);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border-top: 1px solid var(--plane-rule);
