@@ -16,8 +16,10 @@ layout: default
         <span class="cat-pill news">News Digest</span>
       {% else %}
         <a href="{{ '/blogs/' | relative_url }}">Blog</a>
+        {% if page.series %}
         <span class="sep">/</span>
-        <span class="cat-pill blog">Blog</span>
+        <span class="cat-pill blog">{{ page.series }}</span>
+        {% endif %}
       {% endif %}
     </p>
 
