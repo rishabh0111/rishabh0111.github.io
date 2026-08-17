@@ -53,11 +53,18 @@ layout: default
   <!-- Series navigation — same series, ordered. Left rail. -->
   {% if page.series %}
   {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+  {%- comment -%}
+    `siblings` only counts parts already published, so a series released one part
+    at a time would otherwise report itself as complete on day one ("Part 1 of 1").
+    Posts in a planned series set `series_total` in front matter; anything without
+    it falls back to counting what's live.
+  {%- endcomment -%}
+  {% assign series_total = page.series_total | default: siblings.size %}
   <aside class="post-rail" aria-label="Series navigation">
     <div class="sidebar-card" id="series-card">
       <div class="sidebar-head">
         <span class="sidebar-icon">{% include icon.html name="layers" %}</span>
-        <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ siblings.size }}</span>
+        <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ series_total }}</span>
         <button type="button" class="rail-toggle" data-rail="series"
                 aria-expanded="true" aria-controls="series-body"
                 data-label-collapse="Collapse the parts list"
