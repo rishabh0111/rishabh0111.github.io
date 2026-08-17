@@ -17,6 +17,11 @@ author:
 # ── Timezone ───────────────────────────────────────────────────
 timezone: Asia/Kolkata
 
+# Posts are dated 09:00 IST but may be pushed earlier in the morning.
+# Without this, Jekyll silently drops a post whose timestamp is still
+# in the future at build time.
+future: true
+
 # ── Markdown ───────────────────────────────────────────────────
 markdown: kramdown
 kramdown:
