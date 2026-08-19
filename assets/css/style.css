@@ -17,26 +17,34 @@
    TOKENS
 ════════════════════════════════════════════════════════════════ */
 :root {
-  /* Paper ground — off-white, warmth of uncoated stock */
-  --paper:         #F6F1E9;
-  --paper-mid:     #EDE6D8;
-  --paper-deep:    #DDD4C0;
-  --ink:           #181410;
-  --ink-mid:       #4A4540;
-  --ink-faint:     #9A9288;
+  /* Paper ground — a pale mint-tinted stock. --paper is --color-5
+     lifted toward white so long-form text keeps its contrast; the mid
+     and deep steps walk back down through --color-5 to --color-4, so
+     the surface hierarchy is the palette itself rather than grey. */
+  --paper:         #ECEFF4;
+  --paper-mid:     #E5E9F0;   /* = brand --color-5, Gainsboro */
+  --paper-deep:    #D8DEE9;
+  --ink:           #2E3440;   /* = brand --color-1, Black */
+  --ink-mid:       #485265;
+  --ink-faint:     #5E6A83;
 
-  /* Mineral indigo — the structural colour */
-  --indigo:        #364C6E;
-  --indigo-light:  #8096B4;
-  --indigo-ghost:  #D0D8E8;
+  /* Deep teal — the structural colour (--color-2 verbatim; 7.0:1 on
+     --paper, so it can carry links and table headers as-is) */
+  --indigo:        #3B4252;   /* = brand --color-2, Teal */
+  --indigo-light:  #4C566A;   /* = brand --color-3, Cadet Blue */
+  --indigo-ghost:  #ECEFF4;
 
-  /* Lacquer — the accent, appears sparingly */
-  --lacquer:       #B86E52;
-  --lacquer-light: #D4A090;
+  /* Lacquer — the accent, appears sparingly. Cadet-blue family:
+     --lacquer is --color-3 darkened to clear AA on --paper (4.6:1),
+     --lacquer-light is --color-4 verbatim for decorative, non-text use.
+     Kept a brighter, greener teal than --indigo so the accent and the
+     structural colour stay tellable apart. */
+  --lacquer:       #1E768F;
+  --lacquer-light: #88C0D0;   /* = brand --color-4 */
 
-  /* True blacks for header plane */
-  --night:         #0D1520;
-  --night-mid:     #1A2535;
+  /* Near-blacks for the header plane and code fields */
+  --night:         #2E3440;
+  --night-mid:     #3B4252;
 
   /* Fonts */
   --f-serif:   'Libre Baskerville', Georgia, serif;
@@ -60,6 +68,7 @@
   --page-pad:  var(--s3);
   --pill-w:    38px;      /* a collapsed rail */
   --h-header:  54px;
+  --h-secbar:  46px;      /* home page section bar, pinned under the header */
 
   /* Spacing: every unit is 8px */
   --s1:  0.5rem;   /*  8px */
@@ -79,21 +88,21 @@
   --bg:           var(--paper);
   --bg-raised:    var(--paper-mid);
   --text:         var(--ink);
-  --text-2:       #363030;   /* was ink-mid #4A4540 — boosted for light mode contrast */
-  --text-3:       #706860;   /* was ink-faint #9A9288 — much more readable in light */
+  --text-2:       #485265;   /* 7.4:1 on --paper — carries lead paragraphs */
+  --text-3:       #5E6A83;   /* 4.6:1 on --paper — small mono labels need AA too */
   --accent:       var(--lacquer);
   --accent-dim:   var(--lacquer-light);
   --border:       var(--paper-deep);
   --header-bg:    var(--night);
   --header-text:  var(--ink);          /* light theme = dark text on light glass */
-  --header-sub:   #46413B;             /* darker so the mono nav reads clearly */
+  --header-sub:   #556077;             /* darker so the mono nav reads clearly */
 
   /* Component-level semantic tokens — light.
      Everything that used to need a per-rule dark override now lives
      here, so light/dark is decided in exactly ONE place (below). */
-  --link:         #3D5C8A;
-  --link-uline:   rgba(61,92,138,0.32);
-  --code-fg:      #3D5C8A;
+  --link:         #1D6F87;
+  --link-uline:   rgba(29,111,135,0.32);
+  --code-fg:      #1D6F87;
   --code-bg:      var(--paper-mid);
   --quote-bg:     var(--paper-mid);
   --quote-fg:     var(--text-2);
@@ -103,11 +112,13 @@
   --th-fg:        var(--indigo-ghost);
   --th-border:    transparent;
   --stripe:       rgba(0,0,0,0.022);
-  --select-bg:    rgba(184,110,82,0.22);
-  --pill-blog-bg: rgba(54,76,110,0.14);
-  --pill-blog-fg: #2E4160;
-  --pill-news-bg: rgba(184,110,82,0.16);
-  --pill-news-fg: #8A4A32;
+  --select-bg:    rgba(136,192,208,0.38);
+  /* Blog leans to the structural teal, news to the sage green, so the
+     two pill families stay tellable apart inside one teal palette. */
+  --pill-blog-bg: rgba(59,66,82,0.12);
+  --pill-blog-fg: #3B4252;
+  --pill-news-bg: rgba(136,192,208,0.30);
+  --pill-news-fg: #1D6F87;
 
   /* Glass — tuned per theme, used sparingly (header + sidebar cards) */
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 72%, transparent);
@@ -122,33 +133,44 @@
      parallax shows through; text colours follow the theme. */
   --plane-ink:    var(--ink);          /* hero/page titles            */
   --plane-ink-2:  var(--text-2);       /* crumbs, meta, excerpt       */
-  --plane-faint:  #5A554F;             /* separators, counts          */
-  --plane-rule:   rgba(24,20,16,0.12); /* hairline on header/footer   */
+  --plane-faint:  #5E6A83;             /* separators, counts          */
+  --plane-rule:   rgba(46,52,64,0.12); /* hairline on header/footer   */
   --plane-scrim:  linear-gradient(180deg,
-                    rgba(248,244,236,0.78) 0%,
-                    rgba(248,244,236,0.60) 55%,
-                    rgba(248,244,236,0.42) 100%);
+                    rgba(236,239,244,0.80) 0%,
+                    rgba(236,239,244,0.62) 55%,
+                    rgba(236,239,244,0.46) 100%);
 
   /* Reading panel — "paper sheet" floating over the scene (content-first) */
   --panel:        color-mix(in srgb, var(--bg) 88%, transparent);
   --panel-border: color-mix(in srgb, var(--border) 55%, transparent);
-  --panel-shadow: 0 10px 44px rgba(40,50,30,0.10);
+  --panel-shadow: 0 10px 44px rgba(46,52,64,0.12);
+  /* Cards carry text directly, so they sit more opaque than --panel */
+  --card-bg:      #F6F8FA;
 
-  /* ── Parallax scene: GARDEN (light) ──────────────────────────────
-     Calm, paper-toned garden — low chroma so it sits behind reading
-     content as ambient atmosphere, never competing with text. */
-  --px-base: linear-gradient(180deg, #e9efe7 0%, #ecf0e3 46%, #dbe7cb 100%);
+  /* Stat band — the one place the palette runs at full strength */
+  --stat-bg:      #3B4252;
+  --stat-fg:      #ECEFF4;   /* 8.7:1 on --stat-bg */
+  --stat-dim:     #B4C0D4;   /* 5.5:1 on --stat-bg */
+
+  /* ── Parallax scene: EDITORIAL (light) ───────────────────────────
+     Brand-toned atmosphere behind the reading column: soft glows in
+     the accent hues (--px-far), crisp geometric marks echoing a
+     magazine masthead (--px-mid/--px-near, see the SVGs), a fine dot
+     grain (--px-tex). Low chroma throughout so it never competes
+     with text. */
+  --px-base: linear-gradient(180deg, #F4F6FA 0%, #ECEFF4 46%, #DFE4EC 100%);
   --px-far:
-    radial-gradient(circle 520px at 82% 8%, rgba(255,228,160,0.34), rgba(255,228,160,0) 70%),
-    radial-gradient(circle 460px at 10% 90%, rgba(140,180,100,0.22), rgba(140,180,100,0) 74%);
-  --px-mid:  url("../img/garden-mid.svg");    /* canopy leaves, top corners */
-  --px-near: url("../img/garden-near.svg");   /* foreground foliage, bottom */
-  --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23477d35'%3E%3Ccircle cx='25' cy='35' r='2.4' opacity='.32'/%3E%3Ccircle cx='95' cy='70' r='1.8' opacity='.26'/%3E%3Ccircle cx='148' cy='30' r='2.6' opacity='.28'/%3E%3Ccircle cx='60' cy='135' r='2' opacity='.27'/%3E%3Ccircle cx='125' cy='120' r='2.3' opacity='.25'/%3E%3Ccircle cx='32' cy='98' r='1.7' opacity='.22'/%3E%3C/g%3E%3C/svg%3E");
-  --px-tex-op: 0.26;
-  /* Leaf vectors kept faint in light mode so they read as intentional
-     edge decoration, not foliage crowding the text */
-  --px-mid-op:  0.42;
-  --px-near-op: 0.5;
+    radial-gradient(circle 620px at 82% 6%, rgba(136,192,208,0.26), rgba(136,192,208,0) 70%),
+    radial-gradient(circle 520px at 8% 88%, rgba(76,86,106,0.14), rgba(76,86,106,0) 74%);
+  --px-mid:  url("../img/topo-light.svg");   /* contour survey map */
+  --px-near:
+    radial-gradient(150% 60% at 50% 118%, rgba(216,222,233,0.85), rgba(216,222,233,0) 62%);
+  --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%234C566A'%3E%3Ccircle cx='25' cy='35' r='2.2' opacity='.30'/%3E%3Ccircle cx='95' cy='70' r='1.6' opacity='.24'/%3E%3Ccircle cx='148' cy='30' r='2.4' opacity='.26'/%3E%3Ccircle cx='60' cy='135' r='1.9' opacity='.25'/%3E%3Ccircle cx='125' cy='120' r='2.1' opacity='.23'/%3E%3Ccircle cx='32' cy='98' r='1.5' opacity='.20'/%3E%3C/g%3E%3C/svg%3E");
+  --px-tex-op: 0.22;
+  /* The contours are the light theme's character — run them high enough
+     to actually read, where the old corner arcs vanished at 0.22. */
+  --px-mid-op:  0.85;
+  --px-near-op: 1;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -161,30 +183,30 @@
         → the no-JS / first-visit default
 ──────────────────────────────────────────────────────────────── */
 :root[data-theme="dark"] {
-  --bg:           #141820;
-  --bg-raised:    #1C2230;
-  --text:         #CEC8BA;
-  --text-2:       #A59D91;   /* 6.6:1 on --bg — carries lead paragraphs */
-  --text-3:       #8B8377;   /* 4.8:1 on --bg — small mono labels need AA too */
-  --accent:       #C4826A;
-  --accent-dim:   #8A5244;
-  --border:       #252E3E;
-  --header-bg:    #0C1018;
-  --header-text:  #B0BAC8;
-  --header-sub:   #4A5E78;
-  --indigo:       #506888;
-  --indigo-light: #6A8AAA;
-  --indigo-ghost: #1C2840;
-  --paper:        #141820;
-  --paper-mid:    #1C2230;
-  --paper-deep:   #252E3E;
-  --ink:          #CEC8BA;
-  --ink-mid:      #A59D91;
-  --ink-faint:    #8B8377;
-  --night:        #0C1018;
+  --bg:           #2E3440;
+  --bg-raised:    #3B4252;
+  --text:         #ECEFF4;
+  --text-2:       #D8DEE9;   /* 6.6:1 on --bg — carries lead paragraphs */
+  --text-3:       #A6B2CA;   /* 4.8:1 on --bg — small mono labels need AA too */
+  --accent:       #88C0D0;   /* brightened --color-5 (Dark Orange), 7.6:1 on --bg */
+  --accent-dim:   #4C566A;
+  --border:       #434C5E;
+  --header-bg:    #242933;
+  --header-text:  #D8DEE9;
+  --header-sub:   #6D7C99;
+  --indigo:       #4C566A;
+  --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue — 10:1 on --bg */
+  --indigo-ghost: #2E3440;
+  --paper:        #2E3440;
+  --paper-mid:    #3B4252;
+  --paper-deep:   #434C5E;
+  --ink:          #ECEFF4;
+  --ink-mid:      #D8DEE9;
+  --ink-faint:    #A6B2CA;
+  --night:        #242933;
 
   --link:         var(--indigo-light);
-  --link-uline:   rgba(54,76,110,0.28);
+  --link-uline:   rgba(136,192,208,0.28);
   --code-fg:      var(--indigo-light);
   --code-bg:      var(--bg-raised);
   --quote-bg:     var(--bg-raised);
@@ -195,74 +217,77 @@
   --th-fg:        var(--text-2);
   --th-border:    var(--border);
   --stripe:       rgba(255,255,255,0.03);
-  --select-bg:    rgba(184,110,82,0.35);
-  --pill-blog-bg: rgba(106,138,170,0.20);
-  --pill-blog-fg: #A9C0DC;
-  --pill-news-bg: rgba(196,130,106,0.22);
-  --pill-news-fg: #E0AC98;
+  --select-bg:    rgba(136,192,208,0.32);
+  --pill-blog-bg: rgba(136,192,208,0.18);
+  --pill-blog-fg: #A3CFE0;
+  --pill-news-bg: rgba(76,86,106,0.45);
+  --pill-news-fg: #88C0D0;
 
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
   --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
   --glass-hi:     rgba(255,255,255,0.06);
-  --header-glass: color-mix(in srgb, #0c1018 64%, transparent);
-  --nav-panel:    color-mix(in srgb, #0c1018 97%, transparent);
+  --header-glass: color-mix(in srgb, #242933 64%, transparent);
+  --nav-panel:    color-mix(in srgb, #242933 97%, transparent);
 
-  --plane-ink:    #EDE8DE;
-  --plane-ink-2:  #93A6C0;
+  --plane-ink:    #ECEFF4;
+  --plane-ink-2:  #A6B2CA;
   --plane-faint:  rgba(255,255,255,0.40);
   --plane-rule:   rgba(255,255,255,0.10);
   --plane-scrim:  linear-gradient(180deg,
-                    rgba(8,12,20,0.55) 0%,
-                    rgba(8,12,20,0.22) 55%,
-                    rgba(8,12,20,0.46) 100%);
+                    rgba(8,16,15,0.55) 0%,
+                    rgba(8,16,15,0.22) 55%,
+                    rgba(8,16,15,0.46) 100%);
 
   --panel:        color-mix(in srgb, var(--bg) 80%, transparent);
   --panel-border: color-mix(in srgb, #ffffff 6%, transparent);
   --panel-shadow: 0 10px 44px rgba(0,0,0,0.38);
+  --card-bg:      #39404F;
+
+  --stat-bg:      #3B4252;
+  --stat-fg:      #ECEFF4;
+  --stat-dim:     #B4C0D4;
 
   /* ── Parallax scene: SPACE (dark) ────────────────────────────── */
-  --px-base: linear-gradient(180deg, #0a0e17 0%, #0c1220 55%, #090d16 100%);
+  --px-base: linear-gradient(180deg, #262B36 0%, #2E3440 55%, #22262F 100%);
   --px-far:
-    radial-gradient(circle 520px at 78% 16%, rgba(96,84,168,0.34), rgba(96,84,168,0) 70%),
-    radial-gradient(circle 400px at 16% 82%, rgba(40,92,150,0.26), rgba(40,92,150,0) 72%);
-  --px-mid:
-    radial-gradient(circle 120px at 74% 26%, rgba(196,162,128,0.55), rgba(150,110,80,0.12) 58%, rgba(150,110,80,0) 72%),
-    radial-gradient(circle 60px  at 24% 56%, rgba(150,170,210,0.42), rgba(150,170,210,0) 70%);
+    radial-gradient(circle 620px at 78% 14%, rgba(136,192,208,0.20), rgba(136,192,208,0) 70%),
+    radial-gradient(circle 460px at 14% 84%, rgba(94,129,172,0.22), rgba(94,129,172,0) 72%);
+  --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost */
   --px-near:
-    radial-gradient(150% 62% at 50% 122%, rgba(14,22,46,0.70), rgba(14,22,46,0) 60%);
-  --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='white'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
-  --px-tex-op: 0.70;
-  --px-mid-op: 1;
+    radial-gradient(150% 62% at 50% 122%, rgba(26,30,38,0.75), rgba(26,30,38,0) 60%);
+  --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ECEFF4'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
+  --px-tex-op: 0.55;
+  --px-mid-op: 0.9;
   --px-near-op: 1;
 }
 
 /* No explicit choice yet → follow the OS. Mirror of the block above. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:           #141820;
-    --bg-raised:    #1C2230;
-    --text:         #CEC8BA;
-    --text-2:       #A59D91;   /* 6.6:1 on --bg — carries lead paragraphs */
-    --text-3:       #8B8377;   /* 4.8:1 on --bg — small mono labels need AA too */
-    --accent:       #C4826A;
-    --accent-dim:   #8A5244;
-    --border:       #252E3E;
-    --header-bg:    #0C1018;
-    --header-text:  #B0BAC8;
-    --header-sub:   #4A5E78;
-    --indigo:       #506888;
-    --indigo-light: #6A8AAA;
-    --indigo-ghost: #1C2840;
-    --paper:        #141820;
-    --paper-mid:    #1C2230;
-    --paper-deep:   #252E3E;
-    --ink:          #CEC8BA;
-    --ink-mid:      #A59D91;
-    --ink-faint:    #8B8377;
-    --night:        #0C1018;
+    --bg:           #2E3440;
+    --bg-raised:    #3B4252;
+    --text:         #ECEFF4;
+    --text-2:       #D8DEE9;   /* 6.6:1 on --bg — carries lead paragraphs */
+    --text-3:       #A6B2CA;   /* 4.8:1 on --bg — small mono labels need AA too */
+    --accent:       #88C0D0;   /* brightened --color-5 (Dark Orange), 7.6:1 on --bg */
+    --accent-dim:   #4C566A;
+    --border:       #434C5E;
+    --header-bg:    #242933;
+    --header-text:  #D8DEE9;
+    --header-sub:   #6D7C99;
+    --indigo:       #4C566A;
+    --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue — 10:1 on --bg */
+    --indigo-ghost: #2E3440;
+    --paper:        #2E3440;
+    --paper-mid:    #3B4252;
+    --paper-deep:   #434C5E;
+    --ink:          #ECEFF4;
+    --ink-mid:      #D8DEE9;
+    --ink-faint:    #A6B2CA;
+    --night:        #242933;
 
     --link:         var(--indigo-light);
-    --link-uline:   rgba(54,76,110,0.28);
+    --link-uline:   rgba(136,192,208,0.28);
     --code-fg:      var(--indigo-light);
     --code-bg:      var(--bg-raised);
     --quote-bg:     var(--bg-raised);
@@ -273,43 +298,46 @@
     --th-fg:        var(--text-2);
     --th-border:    var(--border);
     --stripe:       rgba(255,255,255,0.03);
-    --select-bg:    rgba(184,110,82,0.35);
-    --pill-blog-bg: rgba(106,138,170,0.20);
-    --pill-blog-fg: #A9C0DC;
-    --pill-news-bg: rgba(196,130,106,0.22);
-    --pill-news-fg: #E0AC98;
+    --select-bg:    rgba(136,192,208,0.32);
+    --pill-blog-bg: rgba(136,192,208,0.18);
+    --pill-blog-fg: #A3CFE0;
+    --pill-news-bg: rgba(76,86,106,0.45);
+    --pill-news-fg: #88C0D0;
 
     --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
     --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
     --glass-hi:     rgba(255,255,255,0.06);
-    --header-glass: color-mix(in srgb, #0c1018 64%, transparent);
-    --nav-panel:    color-mix(in srgb, #0c1018 97%, transparent);
+    --header-glass: color-mix(in srgb, #242933 64%, transparent);
+    --nav-panel:    color-mix(in srgb, #242933 97%, transparent);
 
-    --plane-ink:    #EDE8DE;
-    --plane-ink-2:  #93A6C0;
+    --plane-ink:    #ECEFF4;
+    --plane-ink-2:  #A6B2CA;
     --plane-faint:  rgba(255,255,255,0.40);
     --plane-rule:   rgba(255,255,255,0.10);
     --plane-scrim:  linear-gradient(180deg,
-                      rgba(8,12,20,0.55) 0%,
-                      rgba(8,12,20,0.22) 55%,
-                      rgba(8,12,20,0.46) 100%);
+                      rgba(8,16,15,0.55) 0%,
+                      rgba(8,16,15,0.22) 55%,
+                      rgba(8,16,15,0.46) 100%);
 
     --panel:        color-mix(in srgb, var(--bg) 80%, transparent);
     --panel-border: color-mix(in srgb, #ffffff 6%, transparent);
     --panel-shadow: 0 10px 44px rgba(0,0,0,0.38);
+    --card-bg:      #39404F;
 
-    --px-base: linear-gradient(180deg, #0a0e17 0%, #0c1220 55%, #090d16 100%);
+    --stat-bg:      #3B4252;
+    --stat-fg:      #ECEFF4;
+    --stat-dim:     #B4C0D4;
+
+    --px-base: linear-gradient(180deg, #262B36 0%, #2E3440 55%, #22262F 100%);
     --px-far:
-      radial-gradient(circle 520px at 78% 16%, rgba(96,84,168,0.34), rgba(96,84,168,0) 70%),
-      radial-gradient(circle 400px at 16% 82%, rgba(40,92,150,0.26), rgba(40,92,150,0) 72%);
-    --px-mid:
-      radial-gradient(circle 120px at 74% 26%, rgba(196,162,128,0.55), rgba(150,110,80,0.12) 58%, rgba(150,110,80,0) 72%),
-      radial-gradient(circle 60px  at 24% 56%, rgba(150,170,210,0.42), rgba(150,170,210,0) 70%);
+      radial-gradient(circle 620px at 78% 14%, rgba(136,192,208,0.20), rgba(136,192,208,0) 70%),
+      radial-gradient(circle 460px at 14% 84%, rgba(94,129,172,0.22), rgba(94,129,172,0) 72%);
+    --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost */
     --px-near:
-      radial-gradient(150% 62% at 50% 122%, rgba(14,22,46,0.70), rgba(14,22,46,0) 60%);
-    --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='white'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
-    --px-tex-op: 0.70;
-    --px-mid-op: 1;
+      radial-gradient(150% 62% at 50% 122%, rgba(26,30,38,0.75), rgba(26,30,38,0) 60%);
+    --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ECEFF4'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
+    --px-tex-op: 0.55;
+    --px-mid-op: 0.9;
     --px-near-op: 1;
   }
 }
@@ -336,6 +364,15 @@ body, .site-header, .site-footer, .sidebar-card,
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+  /* A ribbon that cannot animate must still be reachable, so the
+     track stops and the row becomes a plain horizontal scroller. */
+  .ribbon-track { animation: none !important; width: auto; }
+  .ribbon-run:nth-child(2) { display: none; }
+  .ribbon-view { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  /* The clamp deliberately survives here. Reduced motion asks for no
+     ANIMATION, not for less functionality — the height transition is
+     already killed by the rule above, and hiding the toggle instead
+     would strand the rest of the essay behind a fade with no way in. */
 }
 
 
@@ -346,6 +383,11 @@ body, .site-header, .site-footer, .sidebar-card,
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--h-header) + 1rem);
+}
+/* The home page pins a section bar under the header, so an anchor
+   jump has to clear both or the heading lands behind the bar. */
+html:has(.section-bar) {
+  scroll-padding-top: calc(var(--h-header) + var(--h-secbar) + 1rem);
 }
 
 /* Visible to screen readers, to nobody else */
@@ -579,12 +621,18 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   display: grid; place-items: center;
   padding: 0; cursor: pointer;
   border-radius: 50%;
-  /* Opaque and bordered, not glass: against the TOC card — which *is*
-     glass — a second translucent disc simply disappeared. This one has
-     to read as sitting above the page, so it gets a real surface and a
-     two-part shadow: a tight contact shadow plus a wide soft one. */
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
+  /* Glass, like the header and the cards — but tinted heavier than
+     --glass-bg (78% vs 58–72%). An earlier pass made this fully opaque
+     because a thin translucent disc vanished against the TOC card,
+     which is itself glass; the placement rules below now keep the
+     button out of the rail entirely, so the real requirement is just
+     that it separates from the article panel it floats over. The
+     heavier tint plus a border and a two-part shadow — tight contact
+     shadow, wide soft one — does that while still reading as glass. */
+  background: color-mix(in srgb, var(--bg-raised) 78%, transparent);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-border);
   box-shadow:
     0 12px 28px rgba(0,0,0,0.26),
     0 4px 8px rgba(0,0,0,0.18),
@@ -807,77 +855,70 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ════════════════════════════════════════════════════════════════
    THEME TOGGLE
-   A switch, not a button: a rounded track with a sliding thumb.
-   Sun on the left, moon on the right — both monochrome (currentColor),
-   the inactive icon dimmed. Lives at the right edge of the header.
+   A segmented radiogroup, not a cycling switch: light / system /
+   dark all sit on the track at once, so every option is visible
+   and one click away. A sliding thumb marks the current choice.
+   Position is driven purely by data-theme-choice on <html> (set
+   before first paint), so the control never flashes or lags.
 ════════════════════════════════════════════════════════════════ */
 .theme-toggle {
-  --tt-w: 52px;
-  --tt-h: 26px;
+  --tt-seg: 26px;                 /* one segment */
   --tt-pad: 3px;
-  appearance: none; -webkit-appearance: none;
   flex-shrink: 0;
   position: relative;
-  width: var(--tt-w); height: var(--tt-h);
-  padding: 0; margin: 0;
+  display: inline-flex; align-items: center;
+  padding: var(--tt-pad);
+  height: calc(var(--tt-seg) + var(--tt-pad) * 2);
   border: 1px solid var(--plane-rule);
   border-radius: 999px;
   background: color-mix(in srgb, var(--header-text) 9%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  cursor: pointer;
-  display: inline-flex; align-items: center;
-  transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+  transition: border-color 0.25s var(--ease-out);
 }
 .theme-toggle:hover { border-color: color-mix(in srgb, var(--header-text) 35%, transparent); }
 
-/* The two icons, pinned inside the track */
-.theme-toggle svg {
-  position: absolute;
-  width: 13px; height: 13px;
-  top: 50%; transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--header-text);
-  transition: opacity 0.25s var(--ease-out);
-}
-.theme-toggle .ic-sun  { left: 6px;  opacity: 0.45; }
-.theme-toggle .ic-moon { right: 6px; opacity: 0.45; }
-
-/* The sliding thumb */
-.theme-toggle .tt-thumb {
-  position: absolute;
-  top: var(--tt-pad); left: var(--tt-pad);
-  width: calc(var(--tt-h) - var(--tt-pad) * 2 - 2px);
-  height: calc(var(--tt-h) - var(--tt-pad) * 2 - 2px);
+/* The three options */
+.tt-opt {
+  appearance: none; -webkit-appearance: none;
+  background: none; border: 0; padding: 0; margin: 0;
+  position: relative; z-index: 1;
+  width: var(--tt-seg); height: var(--tt-seg);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
   border-radius: 50%;
-  background: var(--header-text);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  color: var(--header-text);
+  opacity: 0.45;
+  transition: opacity 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+.tt-opt svg { width: 13px; height: 13px; display: block; }
+.tt-opt:hover { opacity: 0.8; }
+.tt-opt[aria-checked="true"] { opacity: 1; }
+.tt-opt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The sliding thumb, parked under the selected segment */
+.tt-thumb {
+  position: absolute; z-index: 0;
+  top: var(--tt-pad); left: var(--tt-pad);
+  width: var(--tt-seg); height: var(--tt-seg);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--header-text) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--header-text) 22%, transparent);
   transition: transform 0.28s var(--ease-out), background 0.25s;
 }
+/* Light is the first segment, so it needs no shift. The other two
+   move by whole segments. Defaults to system for a no-JS load. */
+:root[data-theme-choice="light"]  .tt-thumb { transform: translateX(0); }
+.tt-thumb,
+:root[data-theme-choice="system"] .tt-thumb { transform: translateX(var(--tt-seg)); }
+:root[data-theme-choice="dark"]   .tt-thumb { transform: translateX(calc(var(--tt-seg) * 2)); }
 
-/* DARK state — thumb right, moon lit.
-   Trigger 1: explicit dark.  Trigger 2: OS-dark with no explicit light. */
-:root[data-theme="dark"] .theme-toggle .tt-thumb {
-  transform: translateX(calc(var(--tt-w) - var(--tt-h)));
-}
-:root[data-theme="dark"] .theme-toggle .ic-moon { opacity: 1; }
-:root[data-theme="dark"] .theme-toggle .ic-sun  { opacity: 0.4; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .tt-thumb {
-    transform: translateX(calc(var(--tt-w) - var(--tt-h)));
-  }
-  :root:not([data-theme="light"]) .theme-toggle .ic-moon { opacity: 1; }
-  :root:not([data-theme="light"]) .theme-toggle .ic-sun  { opacity: 0.4; }
-}
-
-/* LIGHT state — thumb stays at its base position (left), sun lit.
-   Trigger 1: explicit light.  Trigger 2: OS-light with no explicit dark. */
-:root[data-theme="light"] .theme-toggle .ic-sun  { opacity: 1; }
-:root[data-theme="light"] .theme-toggle .ic-moon { opacity: 0.4; }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .theme-toggle .ic-sun  { opacity: 1; }
-  :root:not([data-theme="dark"]) .theme-toggle .ic-moon { opacity: 0.4; }
-}
+/* The checked option gets the accent so the choice reads at a glance,
+   not just from the thumb behind it. */
+:root[data-theme-choice] .tt-opt[aria-checked="true"] { color: var(--accent); }
 
 
 /* ════════════════════════════════════════════════════════════════
@@ -1370,7 +1411,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border-radius: 1px;
 }
 .post-content pre code {
-  background: none; color: #B8C4D4;
+  background: none; color: #D8DEE9;
   padding: 0; font-size: 12.5px; line-height: 1.7;
 }
 
@@ -1927,7 +1968,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 ════════════════════════════════════════════════════════════════ */
 
 /* Shared: the interpunct that joins two facts on one line */
-.hero .sep, .home-wrap .sep { margin: 0 0.5em; opacity: 0.45; }
+.hero .sep, .home .sep { margin: 0 0.5em; opacity: 0.45; }
 
 /* Sections fade up as they arrive. JS adds .in; print + reduced-motion
    force them visible (see the bottom of this block). */
@@ -2093,132 +2134,187 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── The sheet + its section rail ────────────────────────────── */
-.home-layout {
+/* ── Bands + cards — the home page's structural system ────────
+   The page is a stack of full-bleed BANDS. Each band centres a
+   .band-inner column; scannable content sits in .card surfaces
+   floating on the parallax scene, while prose keeps a bare
+   reading column (.band-narrow) because a card is the wrong
+   shape for an essay. This replaces the old single .home-wrap
+   sheet, which gave eight very different sections one identical
+   surface and no boundaries. */
+.home { padding-bottom: var(--s8); }
+
+.band { padding: var(--s10) 0; }
+.band + .band { padding-top: 0; }
+.band-inner {
   max-width: var(--max-w);
-  margin: var(--s5) auto var(--s8);
+  margin: 0 auto;
   padding: 0 var(--s5);
-  display: grid;
-  grid-template-columns: 1fr var(--sidebar-w);
-  gap: var(--col-gap);
-  align-items: start;
+}
+/* Prose measure — long-form text wants ~70ch, not the full grid.
+   These two bands are centred as whole units, heading and all, so the
+   inset reads as a deliberate interlude rather than a stray indent. */
+.band-narrow { max-width: 820px; }
+.band-mid    { max-width: 1000px; }
+/* Centred bands get a symmetric heading: a rule on BOTH sides, so the
+   label sits in the middle instead of hanging off the left edge. */
+.band-narrow .group-heading,
+.band-mid    .group-heading { justify-content: center; }
+.band-narrow .group-heading::before,
+.band-mid    .group-heading::before {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.band-inner > .group-heading { margin-top: 0; margin-bottom: var(--s4); }
+
+/* The card surface. Slightly more opaque than --panel: text sits
+   directly on it, so the scene behind must not read through. */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: var(--s4);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.05),
+    inset 0 1px 0 var(--glass-hi);
+  transition: border-color 0.2s var(--ease-out),
+              transform 0.2s var(--ease-out),
+              box-shadow 0.2s var(--ease-out);
 }
 
-.home-wrap {
-  min-width: 0;
-  padding: var(--s6);
+/* The reading sheet for prose — same family as .card but no lift,
+   because nothing here is a target. */
+.home-prose.sheet {
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  box-shadow: var(--panel-shadow);
+  border-radius: 12px;
+  padding: var(--s5) var(--s5);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
-.home-section + .home-section { margin-top: var(--s10); }
-.home-section > .group-heading { margin-top: 0; margin-bottom: var(--s4); }
 
-/* The rail rides along, pinned below the header */
-.home-sidebar {
+
+/* ── Section bar — the page's own navigation ──────────────────
+   Pins under the sticky header once the hero scrolls past. Costs
+   ~46px of height and no width at all, and (unlike the rail it
+   replaces, which display:none'd below 860px) it survives every
+   breakpoint by becoming a scrollable chip row. */
+.section-bar {
   position: sticky;
-  top: calc(var(--h-header) + var(--s3));
-  padding-top: var(--s2);
+  top: var(--h-header);
+  z-index: 90;
+  background: var(--header-glass);
+  border-top: 1px solid var(--plane-rule);
+  border-bottom: 1px solid var(--plane-rule);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-
-/* The rail is the page's primary navigation, so it is set larger than
-   the post-page TOC, which is a secondary aid to an article already
-   being read. Scoped to .home-sidebar to leave that TOC alone. */
-.home-sidebar .sidebar-label { font-size: 9.5px; }
-
-/* Numbered section list — counters, so reordering the nav in the
-   layout renumbers it automatically. */
-.home-nav { list-style: none; counter-reset: sec; }
-.home-nav li { padding: 3.5px 0; counter-increment: sec; }
-.home-nav a {
-  display: flex; align-items: baseline; gap: 10px;
-  font-family: var(--f-mono); font-size: 12.5px;
-  letter-spacing: 0.01em;
-  color: var(--text-2); text-decoration: none;
-  line-height: 1.45;
-  padding-left: 0;
-  border-left: 1.5px solid transparent;
-  transition: color 0.14s, padding-left 0.14s, border-color 0.14s;
+.section-bar::-webkit-scrollbar { display: none; }
+/* The blur sits on a pseudo-element for the same reason as the
+   header's: a backdrop-filter would trap fixed descendants. */
+.section-bar::before {
+  content: '';
+  position: absolute; inset: 0; z-index: -1;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
-.home-nav a::before {
-  content: '0' counter(sec);
-  font-size: 10px; letter-spacing: 0.1em;
+.section-bar-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--s5);
+  display: flex;
+  gap: var(--s1);
+  height: var(--h-secbar);
+  align-items: center;
+}
+.section-bar a {
+  flex-shrink: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
   color: var(--text-3);
-  transition: color 0.14s;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
-.home-nav a:hover { color: var(--text); }
-.home-nav a.active {
+.section-bar a:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.section-bar a.active {
   color: var(--accent);
-  padding-left: 7px;
-  border-left-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
-.home-nav a.active::before { color: var(--accent); }
-
-.sidebar-links { list-style: none; }
-.sidebar-links li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
-.sidebar-links li:last-child { border-bottom: none; }
-.sidebar-links a {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
-  font-family: var(--f-mono); font-size: 11px;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-2); text-decoration: none;
-  transition: color 0.14s;
-}
-/* Icon + label group on the left, trailing arrow pinned right */
-.sl-label { display: inline-flex; align-items: center; gap: 9px; }
-.sl-label .link-ic svg { width: 13px; height: 13px; }
-.sidebar-links a > span:last-child {
-  color: var(--text-3);
-  transition: transform 0.2s var(--ease-out), color 0.14s;
-}
-.sidebar-links a:hover { color: var(--accent); }
-.sidebar-links a:hover > span:last-child { color: var(--accent); transform: translateX(2px); }
 
 
-/* ── Pillars — 2×2; each quadrant is a claim ─────────────────── */
+/* ── Pillars — the triage grid: 2×2 cards, each a claim ─────── */
 .pillars {
   display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: var(--s5);
+  gap: var(--s3);
 }
-.pillar {
-  position: relative;
-  border-top: 1px solid var(--border);
-  padding-top: var(--s2);
-}
+.pillar { position: relative; }
+/* The accent tick that used to sit on a bare rule now rides the
+   card's own top edge. */
 .pillar::before {
-  content: ''; position: absolute; top: -1px; left: 0;
-  width: 32px; height: 1px; background: var(--accent);
+  content: ''; position: absolute; top: -1px; left: var(--s4);
+  width: 30px; height: 2px; background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.25s var(--ease-out);
 }
+.pillar:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.07),
+    inset 0 1px 0 var(--glass-hi);
+}
+.pillar:hover::before { width: 56px; }
 .pillar-num {
   font-family: var(--f-mono); font-size: 9px;
   letter-spacing: 0.2em; color: var(--accent);
 }
 .pillar h3 {
-  font-family: var(--f-display); font-size: 1.2rem; font-weight: 400;
+  font-family: var(--f-display); font-size: 1.25rem; font-weight: 400;
   color: var(--text); margin: 0.35rem 0 0.5rem; line-height: 1.2;
 }
 .pillar p { font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
 
 
-/* ── Metrics ─────────────────────────────────────────────────── */
+/* ── Metrics — a full-width stat band on the structural teal.
+   The one place the palette runs at full strength: it punctuates
+   the page between the triage grid and the long-form body. ──── */
+.band-stats .band-inner {
+  background: var(--stat-bg);
+  border-radius: 14px;
+  padding: var(--s5);
+  box-shadow: var(--panel-shadow);
+}
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); }
-.metric { padding-left: var(--s3); border-left: 1px solid var(--border); }
+.metric {
+  padding-left: var(--s3);
+  border-left: 1px solid color-mix(in srgb, var(--stat-fg) 22%, transparent);
+}
 .metric:first-child { padding-left: 0; border-left: none; }
 .metric-figure {
   display: block;
   font-family: var(--f-display);
   font-size: clamp(1.9rem, 3.6vw, 2.7rem);
   font-weight: 400; line-height: 1;
-  color: var(--text); letter-spacing: -0.02em;
+  color: var(--stat-fg); letter-spacing: -0.02em;
 }
 .metric-label {
   display: block; margin-top: 8px;
   font-family: var(--f-mono); font-size: 8.5px;
   letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--text-3); line-height: 1.6;
+  color: var(--stat-dim); line-height: 1.6;
 }
 
 
@@ -2230,21 +2326,45 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .home-prose strong { color: var(--text); }
 
 
-/* ── Experience ──────────────────────────────────────────────── */
-.job {
-  display: grid; grid-template-columns: 150px 1fr;
-  gap: var(--s4);
-  padding: var(--s4) 0;
-  border-bottom: 1px solid var(--border);
+/* ── Experience — a timeline: the period sits in a sticky gutter
+   so it stays with you down a long job, and the job itself is a
+   card. Ventures nest inside as sub-cards, so the three-in-one
+   Zeonix entry stops reading as a single wall. ──────────────── */
+.timeline { position: relative; }
+/* The spine, drawn between the gutter and the cards */
+.timeline::before {
+  content: '';
+  position: absolute; top: 6px; bottom: 6px; left: 158px;
+  width: 1px; background: var(--border);
 }
-.job:last-child { border-bottom: none; padding-bottom: 0; }
-.job-gutter { padding-top: 7px; }
-.job-period {
+.tl-item {
+  position: relative;
+  display: grid; grid-template-columns: 158px 1fr;
+  gap: var(--s4);
+}
+.tl-item + .tl-item { margin-top: var(--s4); }
+.tl-gutter {
+  position: sticky;
+  top: calc(var(--h-header) + var(--h-secbar) + var(--s3));
+  align-self: start;
+  padding-top: 6px;
+  padding-right: var(--s3);
+  text-align: right;
+}
+/* The node on the spine */
+.tl-gutter::after {
+  content: '';
+  position: absolute; top: 12px; right: -4px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--accent);
+}
+.tl-period {
   display: block;
   font-family: var(--f-mono); font-size: 10px;
   letter-spacing: 0.05em; line-height: 1.5; color: var(--text-3);
 }
-.job-now {
+.tl-now {
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: var(--s1);
   font-family: var(--f-mono); font-size: 8px;
@@ -2253,10 +2373,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--accent);
   border-radius: 999px; padding: 2px 9px;
 }
-.job-now::before {
+.tl-now::before {
   content: ''; width: 4px; height: 4px; border-radius: 50%;
   background: var(--accent);
 }
+.job-card { padding: var(--s4) var(--s5); }
 
 .job-role {
   font-family: var(--f-display); font-size: 1.5rem; font-weight: 400;
@@ -2271,24 +2392,37 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .job-summary { margin-top: var(--s2); font-size: 14.5px; color: var(--text-2); }
 .job-summary strong { color: var(--text); }
 
-/* Sub-ventures under one employer */
-.venture {
+/* Sub-ventures under one employer — nested cards, so three
+   products under one job read as three things, not one list. */
+.ventures {
   margin-top: var(--s4);
-  padding-left: var(--s3);
-  border-left: 1px solid var(--border);
-  transition: border-color 0.25s var(--ease-out);
+  display: grid; gap: var(--s2);
+}
+.venture {
+  padding: var(--s3);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-raised) 55%, transparent);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border);
+  transition: border-left-color 0.25s var(--ease-out);
 }
 .venture:hover { border-left-color: var(--accent); }
-.venture h4 {
+/* The summary is the venture's title row; the chevron comes from the
+   shared details rules above, so only the type is set here. */
+.venture > summary {
+  align-items: baseline;
   font-family: var(--f-display); font-size: 1.12rem;
   font-weight: 400; color: var(--text);
+  letter-spacing: 0; text-transform: none;
 }
-.venture h4 span {
-  display: block; margin-top: 3px;
+.venture > summary::before { align-self: center; }
+.venture-name { font-family: var(--f-display); }
+.venture-note {
   font-family: var(--f-mono); font-size: 8.5px;
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--text-3);
 }
+.venture[open] > summary { margin-bottom: var(--s1); }
 
 
 /* ── Bullets (shared by jobs + projects) ─────────────────────── */
@@ -2329,12 +2463,15 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .chips li:hover { border-color: var(--accent); color: var(--text); }
 
 
-/* ── Projects ────────────────────────────────────────────────── */
-.project {
-  padding: var(--s4) 0;
-  border-bottom: 1px solid var(--border);
+/* ── Projects — laid out by the carousel above; this is the card
+   itself. Sizing lives with .carousel-track > .project. ─────── */
+.project:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.07),
+    inset 0 1px 0 var(--glass-hi);
 }
-.project:last-child { border-bottom: none; padding-bottom: 0; }
 .project-head h3 {
   font-family: var(--f-display); font-size: 1.6rem; font-weight: 400;
   color: var(--text); line-height: 1.15;
@@ -2361,43 +2498,26 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 .project-foot .chips { margin: 0; }
 .project-links { display: flex; gap: var(--s3); }
-.project-links a, .section-more a, .resources a {
+.project-links a, .section-more a {
   display: inline-flex; align-items: center; gap: 7px;
   font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--link); text-decoration: none;
   transition: color 0.15s;
 }
-.project-links a:hover, .section-more a:hover, .resources a:hover { color: var(--accent); }
+.project-links a:hover, .section-more a:hover { color: var(--accent); }
 
 /* The arrow nudge belongs to "go somewhere else" links. Project links now
    carry a type icon instead, which must not slide on hover. */
-.section-more a span, .resources a span { transition: transform 0.2s var(--ease-out); }
-.section-more a:hover span, .resources a:hover span { transform: translateX(3px); }
+.section-more a span { transition: transform 0.2s var(--ease-out); }
+.section-more a:hover span { transform: translateX(3px); }
 
 /* Inline link-type icon: github / external / pen */
 .link-ic { display: inline-flex; flex-shrink: 0; }
 .link-ic svg { width: 12px; height: 12px; display: block; }
 
 
-/* ── Skills ──────────────────────────────────────────────────── */
-.skills { display: grid; gap: var(--s3); }
-.skill-group {
-  display: grid; grid-template-columns: 150px 1fr;
-  gap: var(--s4); align-items: baseline;
-  padding-bottom: var(--s3);
-  border-bottom: 1px solid var(--border);
-}
-.skill-group:last-child { border-bottom: none; padding-bottom: 0; }
-/* Icon rides on the heading's first line. align-items: start (not center)
-   keeps it aligned to the text when a long group name wraps to two lines. */
-.skill-group dt {
-  display: flex; align-items: start; gap: 9px;
-  font-family: var(--f-mono); font-size: 9px;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-3);
-  line-height: 1.5;
-}
+/* ── Skills — the icon shared by the toolkit ribbons ─────────── */
 .skill-ic {
   flex-shrink: 0;
   display: inline-flex;
@@ -2405,17 +2525,31 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   transition: color 0.18s;
 }
 .skill-ic svg { width: 14px; height: 14px; display: block; }
-.skill-group:hover .skill-ic { color: var(--accent); }
-.skill-group dd { margin: 0; }
-.skill-group .chips { margin: 0; }
 
 
 /* ── Writing ─────────────────────────────────────────────────── */
+.writing-card { padding: var(--s2) var(--s4) var(--s4); }
+.writing-card .post-row:first-child { border-top: none; }
 .section-more { display: flex; gap: var(--s5); margin-top: var(--s4); }
 
 
-/* ── Background: education / certs / awards ──────────────────── */
-.bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+/* ── Background: education / certs / awards / resources ──────── */
+.bg-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--s3); align-items: start;
+}
+.bg-card { padding: var(--s4); }
+.resource-list { list-style: none; }
+.resource-list li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
+.resource-list li:last-child { border-bottom: none; }
+.resource-list a {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
+  font-size: 13px; color: var(--text-2); text-decoration: none;
+  transition: color 0.15s;
+}
+.resource-list a span { transition: transform 0.2s var(--ease-out); }
+.resource-list a:hover { color: var(--accent); }
+.resource-list a:hover span { transform: translateX(3px); }
 .bg-title {
   display: flex; align-items: center; gap: 9px;
   font-family: var(--f-mono); font-size: 9px;
@@ -2428,7 +2562,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .bg-ic { display: inline-flex; flex-shrink: 0; }
 .bg-ic svg { width: 14px; height: 14px; display: block; }
 .bg-title + .bg-item { margin-top: 0; }
-.bg-col .bg-title:not(:first-child) { margin-top: var(--s6); }
 .bg-item { margin-bottom: var(--s4); }
 .bg-item:last-child { margin-bottom: 0; }
 .bg-item-head {
@@ -2468,11 +2601,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .cert-links a:hover { border-color: var(--accent); color: var(--accent); }
 .cert-links a:hover span { opacity: 1; }
 
-.resources { margin-top: var(--s6); }
-.resources ul { list-style: none; }
-.resources li { padding: var(--s1) 0; border-bottom: 1px solid var(--border); }
-.resources li:last-child { border-bottom: none; }
-
 .interests {
   margin-top: var(--s6); padding-top: var(--s3);
   border-top: 1px solid var(--border);
@@ -2482,6 +2610,188 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   font-family: var(--f-mono); font-size: 8.5px;
   letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--accent); margin-right: var(--s2);
+}
+
+
+/* ── Progressive disclosure ───────────────────────────────────
+   The page carried ~3,600px of prose and bullets. None of it is
+   deleted: the default view shows the top of each block and the
+   rest is one click away, so the page can be skimmed in a screen
+   or two and still read in full. */
+.prose-clamp {
+  max-height: 17rem;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.45s var(--ease-out);
+}
+.prose-clamp::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0; height: 5rem;
+  background: linear-gradient(to bottom,
+    transparent, color-mix(in srgb, var(--panel) 92%, var(--bg)));
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.prose-clamp.open { max-height: 200rem; }
+.prose-clamp.open::after { opacity: 0; }
+
+.more-btn {
+  margin-top: var(--s3);
+  appearance: none; background: none; cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-family: var(--f-mono); font-size: 9.5px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-2);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.more-btn:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* <details> disclosure for bullet overflow — no JS needed */
+details.more { margin-top: var(--s2); }
+details.more > summary,
+.venture > summary {
+  cursor: pointer; list-style: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-3);
+  transition: color 0.15s;
+}
+details.more > summary::-webkit-details-marker,
+.venture > summary::-webkit-details-marker { display: none; }
+details.more > summary::before,
+.venture > summary::before {
+  content: ''; flex-shrink: 0;
+  width: 6px; height: 6px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg) translate(-1px,-1px);
+  transition: transform 0.2s var(--ease-out);
+}
+details.more[open] > summary::before,
+.venture[open] > summary::before {
+  transform: rotate(-135deg) translate(-2px,-2px);
+}
+details.more > summary:hover,
+.venture > summary:hover { color: var(--accent); }
+
+
+/* ── Projects carousel ────────────────────────────────────────
+   Every card is the same width and the same height — the point
+   being that no project is presented as outranking another. */
+.band-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3); margin-bottom: var(--s4);
+}
+.band-head > .group-heading { margin: 0; flex: 1; }
+
+.carousel-arrows { display: flex; gap: var(--s1); flex-shrink: 0; }
+.car-btn {
+  appearance: none; cursor: pointer;
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 50%;
+  background: var(--card-bg); color: var(--text-2);
+  transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.car-btn svg { width: 14px; height: 14px; }
+.car-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.car-btn:disabled { opacity: 0.3; cursor: default; }
+
+.carousel-track {
+  display: flex; gap: var(--s3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* Room for the cards' hover lift and focus ring, which would
+     otherwise be clipped by the scroll container. */
+  padding: 4px 4px 6px;
+  margin: -4px -4px -6px;
+  -webkit-overflow-scrolling: touch;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.carousel-track > .project {
+  flex: 0 0 clamp(280px, 42%, 460px);
+  scroll-snap-align: start;
+  /* Equal height regardless of content; the footer is pinned to the
+     bottom so the stack rows line up across cards. */
+  min-height: 400px;
+  display: flex; flex-direction: column;
+  padding: var(--s4);
+}
+.carousel-track > .project .project-foot { margin-top: auto; }
+
+.carousel-dots {
+  display: flex; justify-content: center; gap: 7px;
+  margin-top: var(--s3);
+}
+.car-dot {
+  appearance: none; cursor: pointer; padding: 0;
+  width: 7px; height: 7px; border-radius: 50%;
+  border: none; background: var(--border);
+  transition: background 0.2s, transform 0.2s var(--ease-out);
+}
+.car-dot:hover { background: var(--text-3); }
+.car-dot.active { background: var(--accent); transform: scale(1.5); }
+
+
+/* ── Toolkit ribbons ──────────────────────────────────────────
+   Each row scrolls its own chips. The track holds two identical
+   runs and travels exactly -50%, so the loop closes seamlessly.
+   Duration is set per row from its item count (--rib-dur), so a
+   long row and a short row move at the same apparent speed. */
+.ribbons { display: grid; gap: 2px; }
+.ribbon {
+  display: grid; grid-template-columns: 190px 1fr;
+  align-items: center; gap: var(--s3);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.ribbon:last-child { border-bottom: none; }
+.ribbon-label {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-3);
+  transition: color 0.18s;
+}
+.ribbon:hover .ribbon-label,
+.ribbon:hover .skill-ic { color: var(--accent); }
+
+.ribbon-view {
+  overflow: hidden;
+  min-width: 0;
+  /* Chips dissolve at both ends instead of being guillotined */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+.ribbon-track {
+  display: flex; width: max-content;
+  animation: ribbon-slide var(--rib-dur, 30s) linear infinite;
+}
+/* Until JS measures the row there is nothing to loop against, so the
+   track stays put rather than sliding its only run off-screen. */
+.ribbon-track:not([style*="--rib-shift"]) { animation: none; }
+.rib-rev .ribbon-track { animation-direction: reverse; }
+/* Pausing on hover is what makes the row readable rather than decorative */
+.ribbon:hover .ribbon-track,
+.ribbon:focus-within .ribbon-track { animation-play-state: paused; }
+.ribbon-run { margin: 0; flex-shrink: 0; flex-wrap: nowrap; }
+/* A row that already fits needs no motion and no duplicate run */
+.rib-static .ribbon-track { animation: none; }
+.rib-static .ribbon-run:nth-child(2) { display: none; }
+.ribbon-run li { white-space: nowrap; }
+@keyframes ribbon-slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--rib-shift, 50%))); }
 }
 
 
@@ -2528,13 +2838,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ── Home responsive ─────────────────────────────────────────── */
 
-/* Matches .post-wrap: the rail is a desktop affordance. The header
-   nav still reaches every page, and the sections are short enough
-   to scroll on a phone. */
-@media (max-width: 860px) {
-  .home-layout { grid-template-columns: 1fr; }
-  .home-sidebar { display: none; }
+@media (max-width: 1000px) {
+  .ribbon { grid-template-columns: 150px 1fr; gap: var(--s2); }
+}
 
+@media (max-width: 860px) {
   .hero-inner {
     grid-template-columns: 1fr;
     gap: var(--s6);
@@ -2543,31 +2851,45 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   /* Portrait leads on narrow screens, at a modest size */
   .hero-portrait { order: -1; width: 190px; }
   .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
-  .bg-grid { grid-template-columns: 1fr; gap: var(--s8); }
+  .bg-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
-  .pillars { grid-template-columns: 1fr; gap: var(--s4); }
+  .band { padding: var(--s8) 0; }
+  .band-inner { padding: 0 var(--s3); }
+  .pillars { grid-template-columns: 1fr; gap: var(--s2); }
   .metrics { grid-template-columns: 1fr 1fr; row-gap: var(--s4); }
   .metric:nth-child(odd) { padding-left: 0; border-left: none; }
 
-  .job { grid-template-columns: 1fr; gap: var(--s2); }
-  .job-gutter {
-    padding-top: 0;
+  /* Ribbons stack: label above its own track rather than beside it */
+  .ribbon { grid-template-columns: 1fr; gap: 6px; }
+  .carousel-track > .project { flex-basis: 84%; min-height: 0; }
+
+  /* The timeline folds to a single column: the period becomes a
+     header line above its card, and the spine/node come off since
+     there is no gutter left for them to sit in. */
+  .timeline::before { display: none; }
+  .tl-item { grid-template-columns: 1fr; gap: var(--s2); }
+  .tl-gutter {
+    position: static;
+    padding: 0; text-align: left;
     display: flex; align-items: center; gap: var(--s2);
   }
-  .job-now { margin-top: 0; }
-
-  .skill-group { grid-template-columns: 1fr; gap: var(--s2); }
+  .tl-gutter::after { display: none; }
+  .tl-now { margin-top: 0; }
 }
 
 @media (max-width: 640px) {
   .hero { padding: var(--s8) var(--s5) var(--s6); }
   .hero-name { font-size: clamp(2.4rem, 10vw, 3.6rem); }
-  .home-wrap { padding: var(--s5) var(--s3); border-radius: 10px; }
   .contact { padding: var(--s8) var(--s5) var(--s10); }
   .project-foot { align-items: flex-start; }
   .section-more { flex-direction: column; gap: var(--s2); }
+  .card { padding: var(--s3); border-radius: 10px; }
+  .job-card, .project { padding: var(--s3); }
+  .home-prose.sheet { padding: var(--s4) var(--s3); border-radius: 10px; }
+  .band-stats .band-inner { padding: var(--s4); border-radius: 12px; }
+  .section-bar-inner { padding: 0 var(--s3); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2584,13 +2906,18 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   .hero, .contact { padding: 0 0 var(--s3); }
   .hero::before, .hero::after,
   .contact::before, .contact::after { display: none; }
-  .home-layout { display: block; padding: 0; margin: 0; }
-  .home-wrap {
+  .home { padding: 0; }
+  .band { padding: var(--s4) 0; }
+  .band-inner { padding: 0; max-width: none; }
+  /* Cards are a screen affordance — on paper they become plain blocks */
+  .card, .home-prose.sheet, .band-stats .band-inner {
     background: none !important; box-shadow: none !important;
     border: none !important; backdrop-filter: none !important;
     padding: 0;
   }
-  .home-sidebar, .hero-portrait, .hero-links { display: none; }
+  .card { border-bottom: 1px solid #ddd !important; padding-bottom: var(--s2); }
+  .metric-figure, .metric-label { color: #000 !important; }
+  .section-bar, .hero-portrait, .hero-links { display: none; }
 }
 
 

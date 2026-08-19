@@ -3,6 +3,8 @@ layout: default
 ---
 
 {% assign p = page.profile %}
+{% assign n_blogs = site.categories.blogs | size %}
+{% assign n_news  = site.categories.news  | size %}
 
 <!-- ═══════════════════════════════════════════════════════════════
      HERO — sits on the parallax scene, same plane as .page-header
@@ -56,310 +58,360 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     THE DOCUMENT — one continuous paper sheet, sectioned by rules,
-     with a sticky section rail alongside (hidden ≤860px).
+     SECTION BAR — the page's own navigation, replacing the old rail.
+     Sticks under the header once the hero scrolls past. Unlike a
+     side rail this survives every breakpoint: on phones it becomes a
+     horizontally scrollable chip row rather than disappearing.
 ═══════════════════════════════════════════════════════════════ -->
-<div class="home-layout">
+<nav class="section-bar" id="section-bar" aria-label="Page sections">
+  <div class="section-bar-inner">
+    <a href="#pillars">Overview</a>
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Work</a>
+    <a href="#skills">Toolkit</a>
+    {% if n_blogs > 0 or n_news > 0 %}<a href="#writing">Writing</a>{% endif %}
+    <a href="#background">Background</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
 
-<div class="home-wrap">
 
-  <!-- ── Pillars ─────────────────────────────────────────────── -->
-  <section class="home-section reveal" id="pillars">
-    <div class="pillars">
-      {% for pil in page.pillars %}
-      <article class="pillar">
-        <span class="pillar-num">{{ forloop.index | prepend: '0' }}</span>
-        <h3>{{ pil.title }}</h3>
-        <p>{{ pil.body }}</p>
-      </article>
-      {% endfor %}
+<!-- ═══════════════════════════════════════════════════════════════
+     THE BANDS — each section is its own object on the parallax
+     scene rather than a stretch of one continuous sheet. Cards
+     carry the scannable content; prose keeps a bare reading column.
+═══════════════════════════════════════════════════════════════ -->
+<div class="home">
+
+  <!-- ── Pillars — the triage grid: four claims, four cards ──── -->
+  <section class="band reveal" id="pillars">
+    <div class="band-inner">
+      <div class="pillars">
+        {% for pil in page.pillars %}
+        <article class="card pillar">
+          <span class="pillar-num">{{ forloop.index | prepend: '0' }}</span>
+          <h3>{{ pil.title }}</h3>
+          <p>{{ pil.body }}</p>
+        </article>
+        {% endfor %}
+      </div>
     </div>
   </section>
 
-  <!-- ── Metrics ─────────────────────────────────────────────── -->
+  <!-- ── Metrics — a full-width stat band, punctuation between
+       the triage grid and the long-form body below ──────────── -->
   {% if page.metrics %}
-  <section class="home-section reveal" id="metrics">
-    <p class="group-heading">In numbers</p>
-    <div class="metrics">
-      {% for m in page.metrics %}
-      <div class="metric">
-        <span class="metric-figure">{{ m.figure }}</span>
-        <span class="metric-label">{{ m.label }}</span>
+  <section class="band band-stats reveal" id="metrics">
+    <div class="band-inner">
+      <div class="metrics">
+        {% for m in page.metrics %}
+        <div class="metric">
+          <span class="metric-figure">{{ m.figure }}</span>
+          <span class="metric-label">{{ m.label }}</span>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </section>
   {% endif %}
 
-  <!-- ── About (the markdown body of index.md) ────────────────── -->
-  <section class="home-section reveal" id="about">
-    <p class="group-heading">About</p>
-    <div class="home-prose">{{ content }}</div>
+  <!-- ── About — prose, so a reading column and no card ──────── -->
+  <section class="band reveal" id="about">
+    <div class="band-inner band-narrow">
+      <p class="group-heading">About</p>
+      <div class="home-prose sheet">
+        <div class="prose-clamp" id="about-clamp">{{ content }}</div>
+        <button type="button" class="more-btn" id="about-more"
+                aria-expanded="false" aria-controls="about-clamp">Read more</button>
+      </div>
+    </div>
   </section>
 
-  <!-- ── Experience ──────────────────────────────────────────── -->
-  <section class="home-section reveal" id="experience">
-    <p class="group-heading">Experience</p>
+  <!-- ── Experience — a timeline: period in the gutter, the job
+       itself a card, each venture a nested sub-card ─────────── -->
+  <section class="band reveal" id="experience">
+    <div class="band-inner">
+      <p class="group-heading">Experience</p>
 
-    {% for job in page.experience %}
-    <article class="job">
-      <div class="job-gutter">
-        <span class="job-period">{{ job.period }}</span>
-        {% if job.current %}<span class="job-now">Now</span>{% endif %}
+      <div class="timeline">
+        {% for job in page.experience %}
+        <article class="tl-item">
+          <div class="tl-gutter">
+            <span class="tl-period">{{ job.period }}</span>
+            {% if job.current %}<span class="tl-now">Now</span>{% endif %}
+          </div>
+
+          <div class="card job-card">
+            <h3 class="job-role">{{ job.role }}</h3>
+            <p class="job-company">
+              {{ job.company }}<span class="sep">·</span>{{ job.place }}
+              {% if job.legal %}<span class="job-legal">{{ job.legal }}</span>{% endif %}
+            </p>
+
+            {% if job.stack %}
+            <ul class="chips" aria-label="Stack">
+              {% for s in job.stack %}<li>{{ s }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if job.summary %}
+            <p class="job-summary">{{ job.summary | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
+            {% endif %}
+
+            {% if job.points %}
+            <ul class="points">
+              {% for pt in job.points limit: 2 %}
+              <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+              {% endfor %}
+            </ul>
+            {% assign rest = job.points.size | minus: 2 %}
+            {% if rest > 0 %}
+            <details class="more">
+              <summary>{{ rest }} more</summary>
+              <ul class="points">
+                {% for pt in job.points offset: 2 %}
+                <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+            {% endif %}
+
+            {% if job.ventures %}
+            <div class="ventures">
+              {% for v in job.ventures %}
+              <details class="venture"{% if forloop.first %} open{% endif %}>
+                <summary>
+                  <span class="venture-name">{{ v.name }}</span>
+                  <span class="venture-note">{{ v.note }}</span>
+                </summary>
+                <ul class="points">
+                  {% for pt in v.points %}
+                  <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                  {% endfor %}
+                </ul>
+              </details>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Projects — a carousel of equal-size cards. Equal size is
+       the point: every project is presented as carrying the same
+       weight, rather than one being visually "the real one". ──── -->
+  <section class="band reveal" id="projects">
+    <div class="band-inner">
+      <div class="band-head">
+        <p class="group-heading">Selected work</p>
+        <div class="carousel-arrows">
+          <button type="button" class="car-btn" data-car="prev" aria-label="Previous project">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>
+          </button>
+          <button type="button" class="car-btn" data-car="next" aria-label="Next project">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
       </div>
 
-      <div class="job-body">
-        <h3 class="job-role">{{ job.role }}</h3>
-        <p class="job-company">
-          {{ job.company }}<span class="sep">·</span>{{ job.place }}
-          {% if job.legal %}<span class="job-legal">{{ job.legal }}</span>{% endif %}
-        </p>
+      <div class="carousel" id="pj-carousel">
+        <div class="carousel-track" id="pj-track" tabindex="0"
+             role="group" aria-label="Projects, scrollable">
+          {% for pr in page.projects %}
+          <article class="card project">
+            <header class="project-head">
+              <h3>
+                {{ pr.name }}
+                {% if pr.year %}<span class="project-year">{{ pr.year }}</span>{% endif %}
+              </h3>
+              <p class="project-blurb">{{ pr.blurb }}<span class="sep">·</span><span class="project-lang">{{ pr.language }}</span></p>
+            </header>
 
-        {% if job.stack %}
-        <ul class="chips" aria-label="Stack">
-          {% for s in job.stack %}<li>{{ s }}</li>{% endfor %}
-        </ul>
-        {% endif %}
+            {% if pr.body %}
+            <p class="project-body">{{ pr.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
+            {% endif %}
 
-        {% if job.summary %}
-        <p class="job-summary">{{ job.summary | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
-        {% endif %}
+            {% if pr.points %}
+            <ul class="points">
+              {% for pt in pr.points limit: 2 %}
+              <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
 
-        {% if job.points %}
-        <ul class="points">
-          {% for pt in job.points %}
-          <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+            <footer class="project-foot">
+              {% if pr.stack %}
+              <ul class="chips" aria-label="Stack">
+                {% for s in pr.stack %}<li>{{ s }}</li>{% endfor %}
+              </ul>
+              {% endif %}
+              <div class="project-links">
+                {% for l in pr.links %}
+                {% assign ext = false %}
+                {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
+                <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+                  {% if l.icon %}<span class="link-ic">{% include icon.html name=l.icon %}</span>{% endif %}{{ l.label }}
+                </a>
+                {% endfor %}
+              </div>
+            </footer>
+          </article>
           {% endfor %}
-        </ul>
-        {% endif %}
+        </div>
+        <div class="carousel-dots" id="pj-dots" role="tablist" aria-label="Choose project"></div>
+      </div>
+    </div>
+  </section>
 
-        {% for v in job.ventures %}
-        <div class="venture">
-          <h4>{{ v.name }}<span>{{ v.note }}</span></h4>
-          <ul class="points">
-            {% for pt in v.points %}
-            <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-            {% endfor %}
-          </ul>
+  <!-- ── Toolkit — one ribbon per sub-category. Each track carries
+       a duplicate run of its own chips and slides by exactly half
+       its width, so the loop is seamless with no jump. Alternating
+       direction keeps twelve rows from reading as one block. ──── -->
+  <section class="band reveal" id="skills">
+    <div class="band-inner">
+      <p class="group-heading">Toolkit</p>
+      <div class="ribbons">
+        {% for sk in page.skills %}
+        <div class="ribbon{% cycle 'rib': '', ' rib-rev' %}">
+          <p class="ribbon-label">
+            {% if sk.icon %}<span class="skill-ic">{% include icon.html name=sk.icon %}</span>{% endif %}
+            {{ sk.group }}
+          </p>
+          <div class="ribbon-view">
+            <div class="ribbon-track">
+              <ul class="chips ribbon-run">
+                {% for i in sk.items %}<li>{{ i }}</li>{% endfor %}
+              </ul>
+            </div>
+          </div>
         </div>
         {% endfor %}
       </div>
-    </article>
-    {% endfor %}
-  </section>
-
-  <!-- ── Projects ────────────────────────────────────────────── -->
-  <section class="home-section reveal" id="projects">
-    <p class="group-heading">Selected work</p>
-
-    {% for pr in page.projects %}
-    <article class="project">
-      <header class="project-head">
-        <h3>
-          {{ pr.name }}
-          {% if pr.year %}<span class="project-year">{{ pr.year }}</span>{% endif %}
-        </h3>
-        <p class="project-blurb">{{ pr.blurb }}<span class="sep">·</span><span class="project-lang">{{ pr.language }}</span></p>
-      </header>
-
-      {% if pr.body %}
-      <p class="project-body">{{ pr.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
-      {% endif %}
-
-      {% if pr.points %}
-      <ul class="points">
-        {% for pt in pr.points %}
-        <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <footer class="project-foot">
-        {% if pr.stack %}
-        <ul class="chips" aria-label="Stack">
-          {% for s in pr.stack %}<li>{{ s }}</li>{% endfor %}
-        </ul>
-        {% endif %}
-        <div class="project-links">
-          {% for l in pr.links %}
-          {% assign ext = false %}
-          {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
-          <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
-            {% if l.icon %}<span class="link-ic">{% include icon.html name=l.icon %}</span>{% endif %}{{ l.label }}
-          </a>
-          {% endfor %}
-        </div>
-      </footer>
-    </article>
-    {% endfor %}
-  </section>
-
-  <!-- ── Skills ──────────────────────────────────────────────── -->
-  <section class="home-section reveal" id="skills">
-    <p class="group-heading">Toolkit</p>
-    <dl class="skills">
-      {% for sk in page.skills %}
-      <div class="skill-group">
-        <dt>
-          {% if sk.icon %}<span class="skill-ic">{% include icon.html name=sk.icon %}</span>{% endif %}
-          {{ sk.group }}
-        </dt>
-        <dd>
-          <ul class="chips">
-            {% for i in sk.items %}<li>{{ i }}</li>{% endfor %}
-          </ul>
-        </dd>
-      </div>
-      {% endfor %}
-    </dl>
+    </div>
   </section>
 
   <!-- ── Writing — pulled live from the blog + news collections ─ -->
-  {% assign n_blogs = site.categories.blogs | size %}
-  {% assign n_news  = site.categories.news  | size %}
   {% if n_blogs > 0 or n_news > 0 %}
-  <section class="home-section reveal" id="writing">
-    <p class="group-heading">Recent writing</p>
+  <section class="band reveal" id="writing">
+    <div class="band-inner band-mid">
+      <p class="group-heading">Recent writing</p>
 
-    {% for post in site.categories.blogs limit: 3 %}
-    <a class="post-row" href="{{ post.url | relative_url }}">
-      <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
-      <span>
-        <span class="post-row-title">{{ post.title }}</span>
-        {% if post.tags and post.tags.size > 0 %}
-        <div class="post-row-tags">
-          {% for tag in post.tags limit: 3 %}<span class="post-row-tag">{{ tag }}</span>{% endfor %}
-        </div>
-        {% endif %}
-      </span>
-      {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
-    </a>
-    {% endfor %}
+      <div class="card writing-card">
+        {% for post in site.categories.blogs limit: 3 %}
+        <a class="post-row" href="{{ post.url | relative_url }}">
+          <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
+          <span>
+            <span class="post-row-title">{{ post.title }}</span>
+            {% if post.tags and post.tags.size > 0 %}
+            <div class="post-row-tags">
+              {% for tag in post.tags limit: 3 %}<span class="post-row-tag">{{ tag }}</span>{% endfor %}
+            </div>
+            {% endif %}
+          </span>
+          {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
+        </a>
+        {% endfor %}
 
-    {% for post in site.categories.news limit: 2 %}
-    <a class="post-row news-item" href="{{ post.url | relative_url }}">
-      <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
-      <span>
-        <span class="post-row-title">{{ post.title }}</span>
-        {% if post.excerpt %}
-        <span class="post-row-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</span>
-        {% endif %}
-      </span>
-      {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
-    </a>
-    {% endfor %}
+        {% for post in site.categories.news limit: 2 %}
+        <a class="post-row news-item" href="{{ post.url | relative_url }}">
+          <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
+          <span>
+            <span class="post-row-title">{{ post.title }}</span>
+            {% if post.excerpt %}
+            <span class="post-row-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</span>
+            {% endif %}
+          </span>
+          {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
+        </a>
+        {% endfor %}
 
-    <p class="section-more">
-      <a href="{{ '/blogs/' | relative_url }}">All writing<span aria-hidden="true">→</span></a>
-      <a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>
-    </p>
+        <p class="section-more">
+          <a href="{{ '/blogs/' | relative_url }}">All writing<span aria-hidden="true">→</span></a>
+          <a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>
+        </p>
+      </div>
+    </div>
   </section>
   {% endif %}
 
-  <!-- ── Education · Certifications · Awards ──────────────────── -->
-  <section class="home-section reveal" id="background">
-    <p class="group-heading">Background</p>
+  <!-- ── Education · Certifications · Awards · Resources ──────── -->
+  <section class="band reveal" id="background">
+    <div class="band-inner">
+      <p class="group-heading">Background</p>
 
-    <div class="bg-grid">
-      <div class="bg-col">
-        <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='cap' %}</span>Education</h4>
-        {% for e in page.education %}
-        <div class="bg-item">
-          <p class="bg-item-head">{{ e.degree }}</p>
-          {% if e.detail %}<p class="bg-item-sub">{{ e.detail }}</p>{% endif %}
-          <p class="bg-item-meta">{{ e.school }}<span class="sep">·</span>{{ e.period }}</p>
-          {% if e.score %}<p class="bg-item-score">{{ e.score }}</p>{% endif %}
-          {% if e.note %}<p class="bg-item-note">{{ e.note }}</p>{% endif %}
-        </div>
-        {% endfor %}
-      </div>
-
-      <div class="bg-col">
-        <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='seal' %}</span>Certifications</h4>
-        {% for c in page.certifications %}
-        <div class="bg-item">
-          <p class="bg-item-head">
-            {% if c.url %}<a href="{{ c.url | escape }}" target="_blank" rel="noopener">{{ c.name }}</a>
-            {% else %}{{ c.name }}{% endif %}
-          </p>
-          <p class="bg-item-meta">{{ c.issuer }}</p>
-          {% if c.links %}
-          <div class="cert-links">
-            {% for l in c.links %}
-            <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
-            {% endfor %}
+      <div class="bg-grid">
+        <div class="card bg-card">
+          <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='cap' %}</span>Education</h4>
+          {% for e in page.education %}
+          <div class="bg-item">
+            <p class="bg-item-head">{{ e.degree }}</p>
+            {% if e.detail %}<p class="bg-item-sub">{{ e.detail }}</p>{% endif %}
+            <p class="bg-item-meta">{{ e.school }}<span class="sep">·</span>{{ e.period }}</p>
+            {% if e.score %}<p class="bg-item-score">{{ e.score }}</p>{% endif %}
+            {% if e.note %}<p class="bg-item-note">{{ e.note }}</p>{% endif %}
           </div>
-          {% endif %}
+          {% endfor %}
         </div>
-        {% endfor %}
 
-        <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='trophy' %}</span>Awards</h4>
-        {% for a in page.awards %}
-        <div class="bg-item">
-          <p class="bg-item-head">{{ a.name }}</p>
-          <p class="bg-item-note">{{ a.note }}</p>
+        <div class="card bg-card">
+          <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='seal' %}</span>Certifications</h4>
+          {% for c in page.certifications %}
+          <div class="bg-item">
+            <p class="bg-item-head">
+              {% if c.url %}<a href="{{ c.url | escape }}" target="_blank" rel="noopener">{{ c.name }}</a>
+              {% else %}{{ c.name }}{% endif %}
+            </p>
+            <p class="bg-item-meta">{{ c.issuer }}</p>
+            {% if c.links %}
+            <div class="cert-links">
+              {% for l in c.links %}
+              <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
+
+        <div class="card bg-card">
+          <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='trophy' %}</span>Awards</h4>
+          {% for a in page.awards %}
+          <div class="bg-item">
+            <p class="bg-item-head">{{ a.name }}</p>
+            <p class="bg-item-note">{{ a.note }}</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if page.resources %}
+        <div class="card bg-card">
+          <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='book' %}</span>Resources I've written</h4>
+          <ul class="resource-list">
+            {% for r in page.resources %}
+            <li><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.name }}<span aria-hidden="true">→</span></a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
       </div>
-    </div>
 
-    {% if page.resources %}
-    <div class="resources">
-      <h4 class="bg-title"><span class="bg-ic">{% include icon.html name='book' %}</span>Resources I've written</h4>
-      <ul>
-        {% for r in page.resources %}
-        <li><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.name }}<span aria-hidden="true">→</span></a></li>
-        {% endfor %}
-      </ul>
+      {% if page.interests %}
+      <p class="interests">
+        <span class="interests-label">Off-hours</span>
+        {% for i in page.interests %}{{ i }}{% unless forloop.last %} <span class="sep">·</span> {% endunless %}{% endfor %}
+      </p>
+      {% endif %}
     </div>
-    {% endif %}
-
-    {% if page.interests %}
-    <p class="interests">
-      <span class="interests-label">Off-hours</span>
-      {% for i in page.interests %}{{ i }}{% unless forloop.last %} <span class="sep">·</span> {% endunless %}{% endfor %}
-    </p>
-    {% endif %}
   </section>
 
-</div><!-- /.home-wrap -->
-
-  <!-- ── Section rail ────────────────────────────────────────── -->
-  <aside class="home-sidebar">
-    <nav class="sidebar-card" aria-label="Page sections">
-      <span class="sidebar-label">Sections</span>
-      <ul class="home-nav" id="home-nav">
-        <li><a href="#pillars">Overview</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#projects">Selected work</a></li>
-        <li><a href="#skills">Toolkit</a></li>
-        {% if n_blogs > 0 or n_news > 0 %}<li><a href="#writing">Writing</a></li>{% endif %}
-        <li><a href="#background">Background</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-
-    <div class="sidebar-card">
-      <span class="sidebar-label">Elsewhere</span>
-      <ul class="sidebar-links">
-        {% for l in page.links %}
-        {% assign ext = false %}
-        {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
-        <li>
-          <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
-            <span class="sl-label">
-              <span class="link-ic">{% include icon.html name=l.icon %}</span>{{ l.label }}
-            </span>
-            <span aria-hidden="true">{% if ext %}↗{% else %}→{% endif %}</span>
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </aside>
-
-</div><!-- /.home-layout -->
+</div><!-- /.home -->
 
 <!-- ═══════════════════════════════════════════════════════════════
      CONTACT — a closing plane, mirrors the hero
@@ -400,13 +452,178 @@ layout: default
     }
   }
 
-  // ── Section rail: highlight the section you're reading ─────
+  // ── About: clamp the essay, reveal the rest on request ─────
+  // The full text stays in the DOM (crawlers and Ctrl-F still see it);
+  // only its height is capped, so nothing is lost by collapsing it.
+  var clamp = document.getElementById('about-clamp');
+  var moreBtn = document.getElementById('about-more');
+  if (clamp && moreBtn) {
+    // Nothing to collapse if the prose already fits.
+    if (clamp.scrollHeight <= clamp.clientHeight + 8) {
+      clamp.classList.add('open');
+      moreBtn.hidden = true;
+    }
+    moreBtn.addEventListener('click', function () {
+      var open = clamp.classList.toggle('open');
+      moreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      moreBtn.textContent = open ? 'Show less' : 'Read more';
+      if (!open) clamp.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  // ── Projects carousel ──────────────────────────────────────
+  // Scroll-snap does the moving; this drives the arrows, the dots and
+  // the disabled states, so a no-JS visitor still gets a usable
+  // horizontal scroller.
+  //
+  // Paging is by VIEWPORT, not by card. Three 460px cards in a 1200px
+  // track leave only ~230px of scroll — less than one card — so a
+  // card-width step would jump straight to the end and strand the
+  // dots on the first one. Mapping the dots across the whole scroll
+  // range instead stays correct at every width, from three-up on a
+  // desktop down to one-up on a phone.
+  var track = document.getElementById('pj-track');
+  var dotsBox = document.getElementById('pj-dots');
+  if (track && dotsBox) {
+    var prevBtn = document.querySelector('[data-car="prev"]');
+    var nextBtn = document.querySelector('[data-car="next"]');
+    var dots = [];
+
+    var maxScroll = function () { return track.scrollWidth - track.clientWidth; };
+    var pages = function () {
+      var max = maxScroll();
+      return max <= 1 ? 1 : Math.ceil(max / track.clientWidth) + 1;
+    };
+    var page = function () {
+      var max = maxScroll();
+      if (max <= 1) return 0;
+      return Math.round(track.scrollLeft / max * (pages() - 1));
+    };
+    var goTo = function (i) {
+      var max = maxScroll(), n = pages() - 1;
+      if (n < 1) return;
+      i = Math.min(n, Math.max(0, i));
+      track.scrollTo({ left: i / n * max, behavior: reduce ? 'auto' : 'smooth' });
+    };
+
+    var buildDots = function (n) {
+      dotsBox.innerHTML = '';
+      dots = [];
+      for (var i = 0; i < n; i++) {
+        var d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'car-dot';
+        d.setAttribute('role', 'tab');
+        d.setAttribute('aria-label', 'View ' + (i + 1) + ' of ' + n);
+        (function (idx) {
+          d.addEventListener('click', function () { goTo(idx); });
+        })(i);
+        dotsBox.appendChild(d);
+        dots.push(d);
+      }
+    };
+
+    var sync = function () {
+      var n = pages();
+      if (dots.length !== n) buildDots(n);
+      var cur = page();
+      dots.forEach(function (d, i) {
+        d.classList.toggle('active', i === cur);
+        d.setAttribute('aria-selected', i === cur ? 'true' : 'false');
+      });
+      var max = maxScroll();
+      // The track is padded so the cards' hover lift is not clipped, and
+      // scroll-snap parks on the first card's edge INSIDE that padding —
+      // so a rested carousel sits at scrollLeft ≈ 4, never 0. Compare
+      // with a tolerance or "prev" never reads as disabled at the start.
+      var EDGE = 8;
+      if (prevBtn) prevBtn.disabled = track.scrollLeft <= EDGE;
+      if (nextBtn) nextBtn.disabled = track.scrollLeft >= max - EDGE;
+      // Nothing to page through — hide the controls rather than
+      // showing a dead single dot and two dim arrows.
+      var inert = max <= 1;
+      dotsBox.hidden = inert;
+      var arrows = document.querySelector('.carousel-arrows');
+      if (arrows) arrows.hidden = inert;
+    };
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(page() - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(page() + 1); });
+
+    track.addEventListener('scroll', function () {
+      if (!track._raf) {
+        track._raf = requestAnimationFrame(function () { track._raf = null; sync(); });
+      }
+    }, { passive: true });
+    window.addEventListener('resize', sync, { passive: true });
+
+    track.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(page() + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(page() - 1); }
+    });
+    sync();
+  }
+
+  // ── Toolkit ribbons ────────────────────────────────────────
+  // A marquee only loops seamlessly if the moving strip is at least
+  // twice the width of its window — otherwise the strip runs out and
+  // you watch empty space slide past. Row widths here vary wildly
+  // (Mobile has one chip, AI & LLM has eleven) and change with the
+  // viewport, so the number of copies is measured, not guessed: clone
+  // the run until it clears 2x the window, then shift by exactly one
+  // run's width so the seam always lands on identical content.
+  //
+  // Duration is derived from that width at a fixed px/sec, so every
+  // row moves at the same apparent speed regardless of its length.
+  var ribbons = Array.prototype.slice.call(document.querySelectorAll('.ribbon'));
+  if (ribbons.length && !reduce) {
+    var SPEED = 34;   // px per second
+
+    var layout = function (rib) {
+      var view = rib.querySelector('.ribbon-view');
+      var trk = rib.querySelector('.ribbon-track');
+      if (!view || !trk) return;
+
+      // Re-measure from a single pristine run each time.
+      var runs = trk.querySelectorAll('.ribbon-run');
+      for (var i = runs.length - 1; i > 0; i--) trk.removeChild(runs[i]);
+      var base = trk.firstElementChild;
+      if (!base) return;
+
+      var unit = base.offsetWidth;
+      var need = view.offsetWidth * 2;
+      if (!unit) return;
+
+      var copies = Math.max(2, Math.ceil(need / unit));
+      for (var c = 1; c < copies; c++) {
+        var clone = base.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        trk.appendChild(clone);
+      }
+      // Shift by one run = 100/copies percent of the whole track.
+      trk.style.setProperty('--rib-shift', (100 / copies) + '%');
+      trk.style.setProperty('--rib-dur', (unit / SPEED).toFixed(2) + 's');
+      rib.classList.remove('rib-static');
+    };
+
+    var layoutAll = function () { ribbons.forEach(layout); };
+    layoutAll();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutAll);
+
+    var rt = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(layoutAll, 180);
+    }, { passive: true });
+  }
+
+  // ── Section bar: highlight the section you're reading ──────
   // Scroll-position driven rather than IntersectionObserver, so exactly one
   // link is always active — no dead zones between tall sections.
-  var nav = document.getElementById('home-nav');
-  if (!nav) return;
+  var bar = document.getElementById('section-bar');
+  if (!bar) return;
 
-  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var links = Array.prototype.slice.call(bar.querySelectorAll('a'));
   var targets = links
     .map(function (a) {
       return { link: a, el: document.getElementById(a.getAttribute('href').slice(1)) };
@@ -418,7 +635,9 @@ layout: default
 
   function update() {
     raf = null;
-    var line = (document.querySelector('.site-header').offsetHeight || 54) + 120;
+    // The reading line sits just below the header + the bar itself.
+    var line = (document.querySelector('.site-header').offsetHeight || 54)
+               + bar.offsetHeight + 40;
     var active = targets[0];
 
     for (var i = 0; i < targets.length; i++) {
@@ -432,6 +651,16 @@ layout: default
     if (current) current.link.classList.remove('active');
     active.link.classList.add('active');
     current = active;
+
+    // Keep the active chip in view within the bar's own scroll box
+    // (phones), without dragging the page along.
+    var box = bar.getBoundingClientRect();
+    var chip = active.link.getBoundingClientRect();
+    if (chip.left < box.left + 8) {
+      bar.scrollLeft -= (box.left - chip.left) + 24;
+    } else if (chip.right > box.right - 8) {
+      bar.scrollLeft += (chip.right - box.right) + 24;
+    }
   }
 
   function schedule() { if (!raf) raf = requestAnimationFrame(update); }

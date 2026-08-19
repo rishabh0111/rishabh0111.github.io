@@ -5,15 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Theme: apply saved choice before first paint to avoid a flash.
-       No saved choice → leave unset so CSS follows prefers-color-scheme. -->
+       No saved choice (or 'system') → leave data-theme unset so CSS
+       follows prefers-color-scheme. data-theme-choice always reflects
+       the three-way toggle state (light/dark/system) so the control
+       itself never flashes either. -->
   <script>
     (function () {
+      var root = document.documentElement;
+      var choice = 'system';
       try {
         var t = localStorage.getItem('site-theme');
-        if (t === 'light' || t === 'dark') {
-          document.documentElement.setAttribute('data-theme', t);
-        }
+        if (t === 'light' || t === 'dark') choice = t;
       } catch (e) {}
+      root.setAttribute('data-theme-choice', choice);
+      if (choice !== 'system') root.setAttribute('data-theme', choice);
     })();
   </script>
   <!-- The home page sets page.title to the site title; without the guard it
@@ -23,6 +28,10 @@
   <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
        title is suppressed, because the em-dash form above is the one we want. -->
   {% seo title=false %}
+
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
+  <link rel="icon" type="image/x-icon" href="{{ '/assets/img/favicon.ico' | relative_url }}">
+  <link rel="apple-touch-icon" href="{{ '/assets/img/apple-touch-icon.png' | relative_url }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
@@ -71,21 +80,38 @@
           <span class="nav-ic">{% include icon.html name="news" %}</span>News</a>
       </nav>
 
-      <button type="button" class="theme-toggle" id="theme-toggle"
-              role="switch" aria-checked="false" aria-label="Toggle light and dark theme"
-              title="Toggle theme">
-        <!-- Sun -->
-        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-        </svg>
-        <!-- Moon -->
-        <svg class="ic-moon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
-        </svg>
+      <div class="theme-toggle" id="theme-toggle"
+           role="radiogroup" aria-label="Colour theme">
         <span class="tt-thumb" aria-hidden="true"></span>
-      </button>
+
+        <button type="button" class="tt-opt" data-theme-opt="light"
+                role="radio" aria-checked="false" title="Light theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+          <span class="sr-only">Light</span>
+        </button>
+
+        <button type="button" class="tt-opt" data-theme-opt="system"
+                role="radio" aria-checked="true" title="Follow system theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+            <path d="M8 20h8M12 16v4"></path>
+          </svg>
+          <span class="sr-only">System</span>
+        </button>
+
+        <button type="button" class="tt-opt" data-theme-opt="dark"
+                role="radio" aria-checked="false" title="Dark theme">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+          </svg>
+          <span class="sr-only">Dark</span>
+        </button>
+      </div>
 
       <!-- Hamburger: only rendered at ≤860px, see RESPONSIVE -->
       <button type="button" class="nav-toggle" id="nav-toggle"
@@ -127,11 +153,11 @@
   <footer class="site-footer">
     <p>{{ site.title }} &mdash; {{ 'now' | date: "%Y" }}</p>
     <div class="footer-palette" aria-hidden="true">
-      <div class="footer-dot" style="background:#F4EFE4;"></div>
-      <div class="footer-dot" style="background:#7A8BAB;"></div>
-      <div class="footer-dot" style="background:#3D5070;"></div>
-      <div class="footer-dot" style="background:#C4856A;"></div>
-      <div class="footer-dot" style="background:#0E1820;"></div>
+      <div class="footer-dot" style="background:#2E3440;"></div>
+      <div class="footer-dot" style="background:#3B4252;"></div>
+      <div class="footer-dot" style="background:#434C5E;"></div>
+      <div class="footer-dot" style="background:#4C566A;"></div>
+      <div class="footer-dot" style="background:#88C0D0;"></div>
     </div>
   </footer>
 
@@ -169,8 +195,18 @@
     }
 
     // ── Theme toggle ───────────────────────────────────────────
+    // A segmented radiogroup: light / system / dark, each directly
+    // selectable, with a sliding thumb marking the current one. All
+    // three are visible at once, so the available choices are legible
+    // without clicking — which a single cycling button cannot show.
+    //
+    // "system" means no localStorage entry and no data-theme attribute,
+    // so the CSS prefers-color-scheme block decides. The control's own
+    // visuals key off data-theme-choice, which is always set (see the
+    // pre-paint script in <head>), so it never flashes on load either.
     var root = document.documentElement;
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var THEME_ORDER = ['light', 'system', 'dark'];
     function currentTheme() {
       var set = root.getAttribute('data-theme');
       return set ? set : (mq.matches ? 'dark' : 'light');
@@ -178,24 +214,67 @@
 
     var toggle = document.getElementById('theme-toggle');
     if (toggle) {
-      function syncToggle() {
-        toggle.setAttribute('aria-checked', currentTheme() === 'dark' ? 'true' : 'false');
-      }
+      var opts = Array.prototype.slice.call(toggle.querySelectorAll('.tt-opt'));
+
+      var currentChoice = function () {
+        return root.getAttribute('data-theme-choice') || 'system';
+      };
+
+      var syncToggle = function () {
+        var choice = currentChoice();
+        opts.forEach(function (b) {
+          var on = b.getAttribute('data-theme-opt') === choice;
+          b.setAttribute('aria-checked', on ? 'true' : 'false');
+          // Roving tabindex: the group is one tab stop, arrows move
+          // within it — the expected behaviour for a radiogroup.
+          b.tabIndex = on ? 0 : -1;
+        });
+      };
+
+      var apply = function (choice, focus) {
+        root.setAttribute('data-theme-choice', choice);
+        if (choice === 'system') {
+          root.removeAttribute('data-theme');
+          try { localStorage.removeItem('site-theme'); } catch (e) {}
+        } else {
+          root.setAttribute('data-theme', choice);
+          try { localStorage.setItem('site-theme', choice); } catch (e) {}
+        }
+        syncToggle();
+        if (focus) {
+          var el = toggle.querySelector('[data-theme-opt="' + choice + '"]');
+          if (el) el.focus();
+        }
+        renderMermaid();
+      };
+
       syncToggle();
 
-      toggle.addEventListener('click', function () {
-        var next = currentTheme() === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('site-theme', next); } catch (e) {}
-        syncToggle();
-        renderMermaid();
+      opts.forEach(function (b) {
+        b.addEventListener('click', function () {
+          apply(b.getAttribute('data-theme-opt'), false);
+        });
       });
 
-      // If the user hasn't picked explicitly, follow OS changes live.
-      mq.addEventListener('change', function () {
-        try { if (!localStorage.getItem('site-theme')) syncToggle(); } catch (e) {}
-        renderMermaid();
+      toggle.addEventListener('keydown', function (e) {
+        var i = THEME_ORDER.indexOf(currentChoice());
+        if (i < 0) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          apply(THEME_ORDER[(i + 1) % THEME_ORDER.length], true);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          apply(THEME_ORDER[(i - 1 + THEME_ORDER.length) % THEME_ORDER.length], true);
+        } else if (e.key === 'Home') {
+          e.preventDefault(); apply(THEME_ORDER[0], true);
+        } else if (e.key === 'End') {
+          e.preventDefault(); apply(THEME_ORDER[THEME_ORDER.length - 1], true);
+        }
       });
+
+      // On "system" the control doesn't move when the OS flips, but the
+      // page re-themes, so diagrams still need re-rendering.
+      mq.addEventListener('change', function () { renderMermaid(); });
     }
 
     // ── Mermaid diagrams ─────────────────────────────────────────
