@@ -369,6 +369,11 @@ body, .site-header, .site-footer, .sidebar-card,
   .ribbon-track { animation: none !important; width: auto; }
   .ribbon-run:nth-child(2) { display: none; }
   .ribbon-view { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  /* The hero's pointer effects are decorative; JS also checks this
+     query and never binds, so these only cover the CSS-driven parts. */
+  .hero-inner .hero-rise { opacity: 1; transform: none; animation: none; }
+  .hero-name .ltr { transform: none !important; }
+  .portrait-plate, .portrait-plate img { transform: none !important; }
   /* The clamp deliberately survives here. Reduced motion asks for no
      ANIMATION, not for less functionality — the height transition is
      already killed by the rule above, and hiding the toggle instead
@@ -1980,10 +1985,16 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .reveal.in { opacity: 1; transform: none; }
 
 
-/* ── Hero ────────────────────────────────────────────────────── */
+/* ── Hero ──────────────────────────────────────────────────────
+   Two columns on desktop: the name block, and a portrait plate in a
+   4:5 portrait crop. The plate is deliberately NOT a square floating
+   beside the text — a square read as a stray thumbnail rather than
+   a designed pairing. It now runs taller than the tagline block and
+   is optically anchored to it, so the two read as one composition.
+──────────────────────────────────────────────────────────────── */
 .hero {
   background: transparent;
-  padding: var(--s12) var(--s5) var(--s10);
+  padding: var(--s10) var(--s5) var(--s8);
   position: relative; overflow: hidden;
 }
 .hero::before {
@@ -1999,24 +2010,18 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* The text column is capped rather than 1fr: a 1fr column swallows all the
    spare width, and since the tagline wraps at its own measure, that surplus
-   shows up as a dead band between the copy and the photo.
-
-   Capping it leaves surplus outside the pair, and `justify-content: center`
-   splits that surplus evenly so the hero reads as a centred composition.
-   The trade is that the hero's left edge no longer tracks the document
-   panel below it on wide screens — acceptable, because the hero is a
-   full-bleed plane with no edge of its own to align to. */
+   shows up as a dead band between the copy and the photo. */
 .hero-inner {
   max-width: var(--max-w); margin: 0 auto;
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 660px) 250px;
+  grid-template-columns: minmax(0, 640px) 300px;
   justify-content: center;
-  gap: var(--s5);
+  gap: var(--s6);
   align-items: center;
 }
 
-/* The name carries the page. Surname in italic lacquer. */
+/* The name carries the page. Surname in italic accent. */
 .hero-name {
   font-family: var(--f-display);
   font-size: clamp(3rem, 7vw, 5.5rem);
@@ -2027,8 +2032,18 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 .hero-name em { font-style: italic; color: var(--accent); }
 
-/* No ch cap: the column is already capped at 620px (~60ch), which is inside
-   a comfortable measure. Capping again here would re-open the dead band. */
+/* Per-letter wrappers, added by JS so the name can react to the
+   pointer. inline-block is what makes them transformable; the
+   negative margin cancels the sliver of space inline-block adds so
+   the kerning is unchanged when the effect is idle. */
+.hero-name .ltr {
+  display: inline-block;
+  will-change: transform;
+  transition: transform 0.5s var(--ease-out);
+}
+.hero-name.lit .ltr { transition: transform 0.12s linear; }
+.hero-name .ltr-sp { display: inline-block; width: 0.26em; }
+
 .hero-tagline {
   margin-top: var(--s3);
   font-size: 1.02rem; line-height: 1.7;
@@ -2054,7 +2069,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 0%, transparent); }
 }
 
-/* Link pills — mono, hairline, lacquer on hover */
+/* Link pills — mono, hairline, accent on hover. They also drift a few
+   px toward the pointer (see the magnetic handler in default.html). */
 .hero-links { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s5); }
 .hero-links a {
   display: inline-flex; align-items: center; gap: 8px;
@@ -2064,52 +2080,77 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   padding: 8px 15px;
   border: 1px solid var(--plane-rule);
   border-radius: 999px;
-  transition: color 0.18s, border-color 0.18s, transform 0.18s var(--ease-out);
+  position: relative; overflow: hidden;
+  will-change: transform;
+  transition: color 0.18s, border-color 0.18s,
+              transform 0.35s var(--ease-out), background 0.18s;
+}
+/* A tint that wipes in from the left rather than just switching on */
+.hero-links a::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease-out);
 }
 .hero-links a:hover {
   color: var(--plane-ink);
   border-color: var(--accent);
-  transform: translateY(-1px);
 }
+.hero-links a:hover::before { transform: scaleX(1); }
 .hero-link-ic { display: inline-flex; }
 .hero-link-ic svg { width: 12px; height: 12px; display: block; }
 
-/* Portrait: a plate with an offset lacquer frame behind it.
-
-   The PLATE owns the aspect ratio and the image is pinned inside it, rather
-   than the image sizing itself and the plate following. That way the box can
-   never inherit the photo's intrinsic height — drop in a taller or wider file
-   and the hero does not move.
-
-   1:1 matches the source photo (1182x1226, ratio 0.96). A taller box such as
-   5:6 makes `cover` scale the image up to reach the box height, which crops
-   the shoulders off both sides. */
-.hero-portrait { margin: 0; }
+/* ── Portrait ─────────────────────────────────────────────────
+   The PLATE owns the aspect ratio and the image is pinned inside it,
+   so the box can never inherit the photo's intrinsic height — drop in
+   a different file and the hero does not move. 4:5 rather than 1:1:
+   a portrait crop of a person reads as intentional where a square
+   read as an avatar dropped into a gap. */
+.hero-portrait { margin: 0; position: relative; }
 .portrait-plate {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--plane-rule);
+  box-shadow: var(--panel-shadow);
+  /* The tilt is applied by JS on pointer move; this is the rest state
+     and the spring back to it. */
+  transform: perspective(900px);
+  transition: transform 0.5s var(--ease-out), box-shadow 0.4s var(--ease-out);
 }
-.portrait-plate::after {
-  content: ''; position: absolute; inset: 0; z-index: 0;
-  transform: translate(14px, 14px);
-  border: 1px solid var(--accent);
-  border-radius: 4px; opacity: 0.5;
-  pointer-events: none;
+.hero-portrait:hover .portrait-plate {
+  box-shadow: 0 18px 50px rgba(0,0,0,0.22);
 }
 .portrait-plate img {
   position: absolute; inset: 0; z-index: 1;
   display: block;
   width: 100%; height: 100%;
   object-fit: cover;
-  object-position: 50% 20%;   /* bias the crop upward, keeping the face high */
-  border: 1px solid var(--plane-rule);
-  border-radius: 4px;
-  box-shadow: var(--panel-shadow);
-  filter: saturate(0.92) contrast(1.02);
+  object-position: 50% 18%;   /* bias the crop upward, keeping the face high */
+  filter: saturate(0.72) contrast(1.03);
+  transform: scale(1.02);
+  transition: filter 0.5s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.hero-portrait:hover .portrait-plate img {
+  filter: saturate(1) contrast(1.02);
+  transform: scale(1.06);
+}
+/* A thin accent edge that draws itself on hover, replacing the old
+   offset frame — that frame sat outside the plate and read as a
+   printing misregistration rather than a device. */
+.portrait-plate::after {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 0%, transparent);
+  transition: box-shadow 0.4s var(--ease-out);
+  pointer-events: none;
+}
+.hero-portrait:hover .portrait-plate::after {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
-/* Fallback when /assets/img/profile.png is absent.
-   Fills the plate the same way the image does, so the box is identical. */
+/* Fallback when the photo is absent. Fills the plate the same way. */
 .portrait-monogram { display: none; }
 .hero-portrait.no-img .portrait-plate img { display: none; }
 .hero-portrait.no-img .portrait-monogram {
@@ -2118,9 +2159,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   background: var(--panel);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border: 1px solid var(--plane-rule);
-  border-radius: 4px;
-  box-shadow: var(--panel-shadow);
   font-family: var(--f-display);
   font-size: 4.5rem; letter-spacing: 0.06em;
   color: var(--plane-ink-2);
@@ -2132,6 +2170,16 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--plane-faint);
 }
+
+/* ── Hero entrance ────────────────────────────────────────────
+   A short stagger down the column on load. Each child declares its
+   own delay so the order is readable here rather than in JS. */
+.hero-inner .hero-rise {
+  opacity: 0; transform: translateY(16px);
+  animation: hero-rise 0.7s var(--ease-out) forwards;
+  animation-delay: var(--rise-d, 0s);
+}
+@keyframes hero-rise { to { opacity: 1; transform: none; } }
 
 
 /* ── Bands + cards — the home page's structural system ────────
@@ -2843,13 +2891,23 @@ details.more > summary:hover,
 }
 
 @media (max-width: 860px) {
+  /* One column, and the portrait leads as a full-width opener rather
+     than a 190px square parked in the corner. At that size it read as
+     a stray thumbnail, left a dead band under its two-line caption,
+     and pushed the name most of a screen down the page. */
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: var(--s6);
-    justify-items: start;
+    gap: var(--s4);
+    justify-items: stretch;
   }
-  /* Portrait leads on narrow screens, at a modest size */
-  .hero-portrait { order: -1; width: 190px; }
+  /* Capped, not truly full-bleed: at 768px an uncapped plate came out
+     688x430 and pushed the name off the first screen. Below ~470px the
+     cap is never reached, so phones still get edge-to-edge. */
+  .hero-portrait { order: -1; width: 100%; max-width: 440px; justify-self: start; }
+  /* Wide crop: a 4:5 plate at full width would eat the whole viewport */
+  .hero-portrait .portrait-plate { aspect-ratio: 16 / 10; }
+  .hero-portrait .portrait-plate img { object-position: 50% 22%; }
+  .hero-portrait figcaption { margin-top: 10px; }
   .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
   .bg-grid { grid-template-columns: 1fr; }
 }
@@ -2880,8 +2938,11 @@ details.more > summary:hover,
 }
 
 @media (max-width: 640px) {
-  .hero { padding: var(--s8) var(--s5) var(--s6); }
-  .hero-name { font-size: clamp(2.4rem, 10vw, 3.6rem); }
+  .hero { padding: var(--s5) var(--s3) var(--s6); }
+  .hero-name { font-size: clamp(2.4rem, 11vw, 3.6rem); }
+  .hero-tagline { font-size: 0.97rem; }
+  /* The status line sat under the fixed bottom nav on short screens */
+  .hero-links { margin-top: var(--s4); }
   .contact { padding: var(--s8) var(--s5) var(--s10); }
   .project-foot { align-items: flex-start; }
   .section-more { flex-direction: column; gap: var(--s2); }
@@ -2918,6 +2979,7 @@ details.more > summary:hover,
   .card { border-bottom: 1px solid #ddd !important; padding-bottom: var(--s2); }
   .metric-figure, .metric-label { color: #000 !important; }
   .section-bar, .hero-portrait, .hero-links { display: none; }
+  .hero-inner .hero-rise { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
 
 

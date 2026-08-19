@@ -435,6 +435,136 @@ layout: default
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ── Hero: entrance stagger ─────────────────────────────────
+  // Added from JS rather than baked into the markup so a no-JS load
+  // simply shows the finished hero instead of an invisible one.
+  var heroInner = document.querySelector('.hero-inner');
+  if (heroInner && !reduce) {
+    [['.page-label', 0], ['.hero-name', 0.06], ['.hero-tagline', 0.14],
+     ['.hero-status', 0.2], ['.hero-links', 0.26], ['.hero-portrait', 0.1]
+    ].forEach(function (pair) {
+      var el = heroInner.querySelector(pair[0]);
+      if (!el) return;
+      el.style.setProperty('--rise-d', pair[1] + 's');
+      el.classList.add('hero-rise');
+    });
+  }
+
+  // ── Hero: the name reacts to the pointer ───────────────────
+  // Each letter is wrapped so it can be transformed on its own, then
+  // lifted by how close the pointer is to it — a travelling swell
+  // rather than a single hover state on the whole word.
+  //
+  // The heading keeps an aria-label and the letter spans are hidden
+  // from assistive tech, so it is still announced as one name and not
+  // spelled out character by character.
+  var heroName = document.querySelector('.hero-name');
+  if (heroName && !reduce && window.matchMedia('(pointer:fine)').matches) {
+    var full = heroName.textContent.replace(/\s+/g, ' ').trim();
+    heroName.setAttribute('aria-label', full);
+
+    // Walk the existing nodes so the <em> on the surname survives.
+    var wrapLetters = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          child.textContent.split('').forEach(function (ch) {
+            var span = document.createElement('span');
+            span.className = ch === ' ' ? 'ltr ltr-sp' : 'ltr';
+            span.textContent = ch === ' ' ? '' : ch;
+            frag.appendChild(span);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === 1) {
+          wrapLetters(child);
+        }
+      });
+    };
+    wrapLetters(heroName);
+    heroName.setAttribute('aria-hidden', 'false');
+    Array.prototype.slice.call(heroName.querySelectorAll('.ltr'))
+      .forEach(function (s) { s.setAttribute('aria-hidden', 'true'); });
+
+    var letters = Array.prototype.slice.call(heroName.querySelectorAll('.ltr'));
+    var boxes = [], nameRaf = null, px = 0, py = 0, active = false;
+
+    var measure = function () {
+      boxes = letters.map(function (l) {
+        var r = l.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      });
+    };
+
+    var RADIUS = 130;
+    var draw = function () {
+      nameRaf = null;
+      for (var i = 0; i < letters.length; i++) {
+        var b = boxes[i];
+        if (!b) continue;
+        var d = Math.hypot(b.x - px, b.y - py);
+        var k = active ? Math.max(0, 1 - d / RADIUS) : 0;
+        k = k * k * (3 - 2 * k);          // smoothstep, so the falloff is soft
+        letters[i].style.transform = k
+          ? 'translateY(' + (-13 * k).toFixed(2) + 'px) scale(' + (1 + 0.09 * k).toFixed(3) + ')'
+          : '';
+      }
+    };
+    var schedule = function () { if (!nameRaf) nameRaf = requestAnimationFrame(draw); };
+
+    heroName.addEventListener('pointerenter', function () {
+      measure(); active = true; heroName.classList.add('lit');
+    });
+    heroName.addEventListener('pointermove', function (e) {
+      px = e.clientX; py = e.clientY; schedule();
+    });
+    heroName.addEventListener('pointerleave', function () {
+      active = false; heroName.classList.remove('lit'); schedule();
+    });
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('scroll', function () { if (active) measure(); }, { passive: true });
+  }
+
+  // ── Hero: portrait tilt ────────────────────────────────────
+  // A small parallax tilt toward the pointer. Capped low on purpose —
+  // a portrait that swings far enough to notice looks like a gimmick.
+  var plate = document.querySelector('.portrait-plate');
+  if (plate && !reduce && window.matchMedia('(pointer:fine)').matches) {
+    var fig = plate.closest('.hero-portrait');
+    var pRaf = null, tx = 0, ty = 0;
+    var render = function () {
+      pRaf = null;
+      plate.style.transform =
+        'perspective(900px) rotateX(' + (-ty * 5).toFixed(2) + 'deg) rotateY(' +
+        (tx * 6).toFixed(2) + 'deg)';
+    };
+    fig.addEventListener('pointermove', function (e) {
+      var r = plate.getBoundingClientRect();
+      tx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+      ty = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+      if (!pRaf) pRaf = requestAnimationFrame(render);
+    });
+    fig.addEventListener('pointerleave', function () {
+      tx = 0; ty = 0;
+      plate.style.transform = 'perspective(900px)';
+    });
+  }
+
+  // ── Magnetic hero links ────────────────────────────────────
+  // The pill drifts a few px toward the cursor while it is over it,
+  // then springs back. Bounded to a third of the offset so it never
+  // detaches from where it actually is for click purposes.
+  if (!reduce && window.matchMedia('(pointer:fine)').matches) {
+    document.querySelectorAll('.hero-links a').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width / 2)) / 3;
+        var dy = (e.clientY - (r.top + r.height / 2)) / 3;
+        el.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+  }
+
   // ── Sections fade up as they enter ─────────────────────────
   var items = document.querySelectorAll('.reveal');
   if (items.length) {
