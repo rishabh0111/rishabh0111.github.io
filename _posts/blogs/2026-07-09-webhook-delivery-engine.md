@@ -16,15 +16,12 @@ warehouse got told to start packing, maybe your bank pinged your phone. You didn
 that. The payment happened in one system, but a handful of other systems found out about it
 almost instantly.
 
-How? The short answer is a webhook, and it's one of the quiet workhorses of the modern
-internet. The idea is simple: when something important happens in System A (a payment clears),
-System A sends a little message over the internet to System B (the email service) that basically
-says "hey, this just happened, here are the details." That's it. A webhook is one computer
-tapping another on the shoulder.
+How? A webhook. When something important happens in System A (a payment clears), System A
+sends a small message over the internet to System B (the email service) saying "hey, this just
+happened, here are the details." That's it. One computer tapping another on the shoulder.
 
-So far, so boring. I assumed it was a solved, one-line problem too. Just send a message to a
-URL. Then I actually tried to build one I could trust, and I ran straight into the part nobody
-puts on the brochure.
+So far, so boring, and I assumed it was a one-line problem too. Send a message to a URL. Then I
+tried to build one I could actually trust.
 
 ## The catch: that little message can quietly vanish
 
@@ -36,16 +33,30 @@ number of things can go wrong:
 - System A itself might crash in the half-second right after the payment, before it ever got the
   message out.
 
-And here's the cruel part, the part that turns "send a message" into a genuinely hard problem:
-when it fails, it usually fails silently. Nobody gets an error. The payment still went through,
-so the customer is happy. But the warehouse never heard about it, so the order never ships. The
-money moved, and the message about the money simply evaporated. No alarm, no log, no trace. Days
-later someone files a support ticket asking where their package is.
+The cruel part, and the thing that turns "send a message" into a hard problem, is that failure
+is usually silent. Nobody gets an error. The payment went through, so the customer is happy. But
+the warehouse never heard about it, so the order never ships. The money moved and the message
+about the money evaporated: no alarm, no log, no trace. Days later someone files a support
+ticket asking where their package is.
 
-That's the problem this whole project exists to kill: an event happens, but the news of it gets
-lost, and no one finds out until it's already a problem.
+That's what this project exists to kill. An event happens, the news of it is lost, and nobody
+finds out until the damage is already done.
 
-![The problem: an event happens, but the news of it gets lost silently](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/the-problem.png)
+```mermaid
+flowchart TD
+    Send[Payment clears in System A<br/>System A → System B] --> Delivered{Message<br/>delivered?}
+    Delivered -->|Yes| Success([Success<br/>email sent<br/>order ships])
+    Delivered -->|No| Lost([Message lost<br/>network issue · receiver down])
+    Lost --> Unnoticed([Nobody notices<br/>where is my order?])
+classDef error fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#991B1B
+classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
+classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E
+    class Send service
+    class Delivered warn
+    class Success ok
+    class Lost,Unnoticed error
+```
 
 The fix sounds easy. Just try again if it fails. But that innocent sentence hides a whole nest
 of follow-up questions. Try again how many times? What if it failed because the message was bad
@@ -53,28 +64,27 @@ and will never work? What if the retry causes the customer to get charged, or em
 What if your own server dies in the exact instant between recording the payment and sending the
 message, and now how would you even know there was a message you still owed?
 
-That last question is the rabbit hole. Answering it properly is the difference between a toy and
-a piece of infrastructure you can actually rely on.
+That last one is the rabbit hole, and I couldn't answer it, which is most of why I ended up
+building the thing.
 
-So I built one from scratch to force myself to confront every one of those questions: a
-self-hostable webhook delivery engine in Node.js, backed by Postgres and Redis, that makes a
-precise promise about every event it accepts and never lets one vanish silently.
+So: a self-hostable webhook delivery engine in Node.js, backed by Postgres and Redis, written
+from scratch so I'd have to answer every one of those questions out loud.
 
-What follows is the story of the decisions behind it. If you want the code first:
+What follows is why it's shaped the way it is. If you want the code first:
 [github.com/rishabh0111/webhook-delivery-engine][repo]. Around 2.5k lines, fully tested, runs
-on $0 of infrastructure.
+on $0 of infrastructure. It's also deployed, so you can poke at the running thing: the
+[operator dashboard][dashboard] and the [Swagger docs][docs].
 
 ---
 
 ## The promise the system makes
 
-Most of building this thing was about being able to state one sentence precisely and then never
-violating it:
+Most of the work was getting to one sentence I could state precisely and then never violate:
 
 > Once the API returns `202`, the event will reach exactly one terminal state, `delivered` or
 > `dead`, and every attempt in between is recorded and auditable.
 
-Unpacked, that's a specific set of delivery guarantees, and naming them mattered:
+Unpacked, that's three guarantees:
 
 - **Exactly-once acceptance.** The same event submitted twice (same idempotency key) is stored
   once. No duplicate work, no duplicate delivery.
@@ -82,27 +92,46 @@ Unpacked, that's a specific set of delivery guarantees, and naming them mattered
   acknowledges it, so receivers have to be idempotent, exactly like with Stripe or GitHub. I
   send a stable event ID on every attempt precisely so they can dedup.
 - **No silent loss.** Every accepted event is either `delivered`, or `dead` with a recorded
-  reason and a one-click replay path. There is no fourth state where an event quietly vanishes.
-  That third guarantee is the whole point, and it's the hardest one to keep.
-
-Everything below is in service of those three lines.
+  reason and a one-click replay path. There is no fourth state where an event just disappears.
+  That last one is the whole point, and it's by far the hardest to keep.
 
 ---
 
 ## The architecture, in one picture
 
-![Webhook Delivery Engine, system architecture](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/architecture-overview.png)
+```mermaid
+flowchart TD
+    Producer([Client / Producer]) -->|"POST /api/events<br/>raw bytes + headers"| API
+    Operator([Operator<br/>dashboard · /metrics]) -->|replay dead-letter| API
+    API[Express API<br/>subscriptions · events · replay<br/>metrics · health · docs]
+    API -->|"2 · enqueue jobId = event.id"| Redis
+    Reconciler[Reconciler<br/>~15 min repeatable] -->|re-enqueue| Redis
+    Redis[(Redis + BullMQ<br/>disposable scheduler)] -->|dequeue| Worker
+    Worker[BullMQ Worker<br/>concurrency 5] -->|"POST signed delivery<br/>HMAC-SHA256"| Receiver
+    Receiver([Receiver<br/>subscriber endpoint]) -.->|"2xx OK · 5xx/429/408/timeout retry · 4xx dead"| Worker
+    API -->|"1 · INSERT pending, COMMIT"| Postgres
+    Reconciler -->|scan stale events| Postgres
+    Worker -->|delivery_attempt + status| Postgres
+    Postgres[(PostgreSQL · authoritative<br/>subscription · event · delivery_attempt · dead_letter)]
+    classDef actor fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef gateway fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
+    classDef store fill:#CFFAFE,stroke:#0891B2,stroke-width:2px,color:#164E63
+    class Producer,Operator,Receiver actor
+    class API gateway
+    class Reconciler,Worker service
+    class Redis,Postgres store
+```
 
 There aren't many moving parts. The entire design hangs off a single decision about who is
 allowed to be the source of truth:
 
 > Postgres is authoritative for business state. Redis/BullMQ is a disposable scheduler.
 
-That reads like a throwaway line, but it's the load-bearing wall. It means I can lose my entire
-Redis instance, every queued job gone, and not lose a single event or violate the promise. The
-queue is just a fast, convenient way to schedule work. The truth of "has this been delivered?"
-lives only in a database I treat as sacred. Almost every good decision in this project is a
-corollary of that one.
+That reads like a throwaway line. It's the load-bearing wall. I can lose my entire Redis
+instance, every queued job gone, and still not lose an event or break the promise. The queue is
+a fast, convenient way to schedule work, nothing more. The answer to "has this been delivered?"
+lives in one place, and I treat that place as sacred.
 
 The pipeline is ingest, durably persist, commit, enqueue, deliver, with an Express API and a
 BullMQ worker in one Node process, a periodic reconciler as a safety net, and an operator-driven
@@ -129,7 +158,28 @@ loss, and it violates guarantee #3 on day one.
 The fix is the transactional outbox pattern, and the insight that made it click for me was being
 ruthless about which exact line is the point of no return:
 
-![Event ingestion, the outbox pattern](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/event-ingestion.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant P as Client / Producer
+    participant A as Express API
+    participant DB as PostgreSQL
+    participant Q as Redis + BullMQ
+    P->>A: POST /api/events<br/>exact raw payload bytes
+    A->>A: Validate X-Subscription-Id (UUID)<br/>and non-empty body
+    A->>DB: INSERT INTO event (status = pending)<br/>ON CONFLICT (idempotency_key) DO NOTHING
+    alt Row already existed
+        DB-->>A: 0 rows
+        A-->>P: 200 OK · existing event, enqueue nothing
+    else Row inserted
+        DB-->>A: 1 row
+        A->>DB: COMMIT
+        Note over A,DB: Durable point of no return
+        A->>Q: Enqueue job · jobId = event.id
+        Note over A,Q: Enqueue failure is non-fatal: logged,<br/>reconciler recovers later, duplicate jobId is a no-op
+        A-->>P: 202 Accepted
+    end
+```
 
 ```
 1. INSERT event (status = pending)  -- ON CONFLICT (idempotency_key) DO NOTHING
@@ -151,22 +201,47 @@ CONFLICT DO NOTHING`, returns the existing event (`200` instead of `202`), and n
 second delivery. So exactly-once acceptance and at-least-once delivery both fall out of one
 schema constraint plus one deliberate job ID.
 
-What this reframed for me: "durable" isn't really a property of a system, it's a property of a
-specific line. Find that line, name it out loud, and design everything after it on the
-assumption that it's allowed to crash.
+What this reframed for me: durability isn't a property of a system, it's a property of one
+specific line of code. Find that line, say it out loud, and everything after it is allowed to
+crash.
 
 ---
 
 ## Decision #2: not all failures deserve a retry
 
 The lazy move is to retry every failure. But hammering a `401 Unauthorized` five times over
-fifteen minutes is pointless. The receiver is telling you, unambiguously, that you're never
-getting in. A `503`, on the other hand, genuinely deserves another shot. Treating those two the
-same wastes work and delays the dead-letter that an operator actually needs to see.
+fifteen minutes accomplishes nothing. The receiver is telling you, unambiguously, that you are
+never getting in. A `503` deserves another shot. Treat the two the same and you waste work and
+delay the dead-letter an operator needs to see.
 
 So the worker classifies every outcome:
 
-![Delivery worker, outcome classification and retries](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/delivery-worker.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Q as Redis + BullMQ
+    participant W as BullMQ Worker
+    participant DB as PostgreSQL
+    participant R as Receiver
+    Q->>W: Job · event.id
+    W->>DB: Load event + subscription<br/>status = delivering
+    W->>W: HMAC-SHA256(secret, timestamp + '.' + raw_body)<br/>X-Webhook-Id / -Timestamp / -Signature
+    W->>R: POST raw_body to target_url<br/>timeout via AbortController
+    R-->>W: status code, or timeout / network error
+    W->>DB: Record delivery_attempt<br/>status_code · duration_ms · response_body · error
+    alt 2xx
+        W->>DB: status = delivered
+    else Permanent 4xx (except 408 / 429)
+        W->>DB: throw UnrecoverableError<br/>dead-letter now · status = dead
+    else Timeout / network / 429 / 408 / 5xx
+        alt Attempts remain (max 5)
+            W->>Q: throw Error · BullMQ retries<br/>backoff ~60s, 120s, 240s, 480s
+            Q-->>W: Redelivered after backoff
+        else Attempts exhausted
+            W->>DB: dead-letter · status = dead
+        end
+    end
+```
 
 | Outcome | Decision |
 | --- | --- |
@@ -174,10 +249,10 @@ So the worker classifies every outcome:
 | `5xx`, timeout, network error, `429`, `408` | transient: retry, exponential backoff (~60s, 120s, 240s, 480s, 5 attempts) |
 | any other `4xx` (`400`, `401`, `404`, ...) | permanent: dead-letter immediately, don't waste retries |
 
-The detail I'm proud of: `408` (Request Timeout) and `429` (Too Many Requests) are 4xx codes,
-but they're classified as transient. They mean "later," not "never." You only get that right by
-reading how the big providers actually behave, not by eyeballing the status-code ranges. In code
-it collapses onto BullMQ's two error types:
+`408` (Request Timeout) and `429` (Too Many Requests) are 4xx codes, but I classify them as
+transient. They mean "later," not "never." You only get that right by reading how the big
+providers behave, not by eyeballing the status-code ranges. In code the whole thing collapses
+onto BullMQ's two error types:
 
 ```js
 // Permanent client error -> dead-letter now, no further attempts.
@@ -188,24 +263,46 @@ if (statusCode !== null && isPermanentStatus(statusCode)) {
 throw new Error(errorText || `retryable response: status ${statusCode}`);
 ```
 
-Two lines hold the entire retry philosophy. And the failure mode I'm most glad I handled:
-timeouts use an `AbortController` with a hard per-attempt deadline. A receiver that accepts the
-connection and then hangs is the nastiest case there is. Without that deadline, a single dead
-endpoint can pin a worker indefinitely and starve every other delivery. Backpressure isn't
-optional here. It's the difference between one slow receiver and a dead queue.
+Two lines carry the whole retry policy. The failure mode I'm most glad I handled, though, is
+the hang: a receiver that accepts the connection and then never answers. Every timeout goes
+through an `AbortController` with a hard per-attempt deadline, because without one a single
+dead endpoint pins a worker forever and starves every other delivery behind it.
 
 ---
 
 ## Decision #3: the reconciler, a backstop for the gap I couldn't close
 
-The outbox shrinks the danger window but can't erase it. There's still a sliver between the
-`COMMIT` and the enqueue. If the process dies exactly there, the event is orphaned. Rare, but
-"rare" is not "never," and a system you can trust handles "never."
+The outbox shrinks the danger window, it doesn't erase it. There's still a sliver between the
+`COMMIT` and the enqueue, and a process that dies exactly there orphans the event. Rare. But
+"rare" is not "never," and I wanted the thing to handle "never."
 
-So I added the reconciler, a repeatable job (roughly every 15 minutes) that asks one question:
-are there non-terminal events with no live job?
+Hence the reconciler, a repeatable job (roughly every 15 minutes) that asks one question: are
+there non-terminal events with no live job?
 
-![Reconciler, outbox backstop](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/reconciler.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant S as Repeatable job<br/>~15 min
+    participant RC as Reconciler
+    participant DB as PostgreSQL
+    participant Q as Redis + BullMQ
+    Note over S,Q: Recovers what the queue cannot self-heal: a crash between<br/>COMMIT and enqueue, or loss of Redis data
+    S->>RC: Sweep fires
+    RC->>DB: Non-terminal events:<br/>pending past threshold OR delivering gone stale
+    DB-->>RC: Candidate events
+    loop For each event
+        RC->>Q: Look up job by id
+        alt Live job (waiting / active / delayed / paused)
+            Q-->>RC: Found
+            Note right of RC: Skip · queue already handling it
+        else No live job
+            Q-->>RC: Missing, or stale completed/failed
+            RC->>Q: Remove stale job, re-enqueue · jobId = event.id
+            Note right of RC: Event back in the queue
+        end
+    end
+    Note over S,DB: Infrequent by design, so the free-tier<br/>database can autosuspend between sweeps
+```
 
 It scans Postgres for events stuck `pending` past a threshold or `delivering` gone stale, looks
 each up in BullMQ, and re-enqueues anything with no live job. One mechanism covers two disasters:
@@ -215,23 +312,43 @@ each up in BullMQ, and re-enqueues anything with no live job. One mechanism cove
    queue from the source of truth. The system self-heals, which is the entire reason I was
    allowed to call Redis disposable in the first place.
 
-There's a constraint hidden in the cadence, too. The free-tier Postgres I targeted autosuspends
-when idle, and a chatty backstop polling every 30 seconds would keep it permanently awake.
-Fifteen minutes is a deliberate trade between recovery latency and letting the database sleep.
-
-A backstop you run constantly isn't really a backstop, it's a load generator. Design your safety
-nets to be quiet.
+There's a constraint hidden in that cadence. The free-tier Postgres I targeted autosuspends
+when idle, so a chatty backstop polling every 30 seconds would keep it awake around the clock
+and burn the quota doing nothing. Fifteen minutes is a deliberate trade of recovery latency for
+letting the database sleep. A backstop you run constantly is just a load generator wearing a
+useful hat.
 
 ---
 
 ## Decision #4: replay, without ever double-delivering
 
-When an event dead-letters, it's usually the receiver that was broken, not the engine. Once it's
-fixed, an operator should be able to say "try that one again." That's replay, and the danger is
-obvious the moment you picture an impatient operator double-clicking the button. You must not
-deliver twice, and two replays must not race.
+When an event dead-letters, the broken thing is usually the receiver, not the engine. Once it's
+fixed, an operator should be able to say "try that one again." That's replay. Picture an
+impatient operator double-clicking the button and the danger is obvious: you must not deliver
+twice, and two replays must not race.
 
-![Replay, recovering a dead-lettered event](https://rishabh0111.github.io/assets/img/blogs/webhook-delivery-engine/replay.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Operator
+    participant A as Express API
+    participant DB as PostgreSQL
+    participant Q as Redis + BullMQ
+    O->>A: POST /api/dead-letters/:id/replay<br/>after fixing the receiver
+    A->>DB: Look up dead_letter row to event_id
+    A->>DB: UPDATE event SET status = pending<br/>WHERE status = dead
+    alt 0 rows updated
+        DB-->>A: Not currently dead
+        A-->>O: 409 Conflict<br/>guards double-click / double-delivery
+    else 1 row updated
+        DB-->>A: Claimed
+        A->>Q: Remove stale failed job<br/>same jobId, else re-add no-ops
+        A->>Q: Re-enqueue delivery · jobId = event.id
+        A->>DB: Stamp dead_letter.replayed_at = now()
+        Note over A,DB: Stamped after enqueue, so a crash here is safe
+        A-->>O: 200 OK · event_id · status = pending
+    end
+```
 
 The guard is one atomic statement. No application locks, no race window:
 
@@ -245,41 +362,39 @@ database does the mutual exclusion. Then I remove the stale failed job, re-enque
 `replayed_at` last, so a crash mid-replay leaves a safe, retryable state rather than a
 half-finished one.
 
-This is the recurring theme of the whole project: let the database be the referee. Atomic
-conditional `UPDATE`s are a concurrency primitive I now reach for constantly and used to reach
-for never.
+Let the database be the referee. Atomic conditional `UPDATE`s are something I now reach for
+constantly and used to reach for never.
 
 ---
 
 ## Decision #5: signing the exact bytes, not a re-serialization
 
-If a receiver is going to act on a webhook, it has to know the webhook is really from me. The
-standard answer is an HMAC signature, and the part that's subtly, painfully easy to get wrong is
-which bytes you sign. My rule: sign the exact raw bytes that go over the wire.
+If a receiver is going to act on a webhook, it has to know the webhook came from me. The
+standard answer is an HMAC signature, and the part that is painfully easy to get wrong is which
+bytes you sign. My rule: sign the exact raw bytes that go over the wire.
 
 ```
 HMAC-SHA256(secret, timestamp + "." + raw_body)
 ```
 
-If I parsed the incoming JSON into an object and re-stringified it before signing, the receiver,
-who recomputes the HMAC over the raw body they received, could get a different hash from a single
-difference in whitespace, key order, or unicode escaping. The signature would fail for no real
-reason. So the API is shaped around this: routing metadata (subscription ID, idempotency key)
-rides in headers, leaving the body as the untouched payload, stored and signed and delivered
-byte-for-byte.
+Parse the incoming JSON into an object, re-stringify it, sign that, and the receiver (who
+recomputes the HMAC over the raw body they received) gets a different hash from one disagreement
+about whitespace, key order, or unicode escaping. The signature fails for no real reason. So the
+API is shaped around it: routing metadata, meaning subscription ID and idempotency key, rides in
+headers, and the body stays the untouched payload, stored and signed and delivered byte for
+byte.
 
 Each signed delivery carries a stable `X-Webhook-Id` (dedup across retries), an
 `X-Webhook-Timestamp` (so receivers can reject stale or replayed requests), and the
 `X-Webhook-Signature`. Verification uses a constant-time comparison to avoid timing attacks.
-Small details, but they're the line between "I added auth" and "I added auth that holds up."
+Skip any one of those and the signature is decoration.
 
 ---
 
 ## The constraint that made the project real: $0 of infrastructure
 
 This is where it stopped being a textbook exercise. I wanted it to deploy and stay running for
-free, which forced the architecture to bend around free-tier metering, and those bends taught me
-more about trade-offs than any unlimited sandbox could:
+free, which meant the architecture had to bend around free-tier metering:
 
 - **One process, two roles.** API and worker share a Node process because the target free host
   offers no separate worker dyno. This bugged me, since it's not how you'd scale, so the worker
@@ -291,8 +406,8 @@ more about trade-offs than any unlimited sandbox could:
   queue, low enough to fit the memory budget.
 - **An autosuspending database**, which is the reason the reconciler is lazy rather than eager.
 
-Being forced to design inside hard limits sharpened every "disposable vs. authoritative"
-decision, because the disposable thing could genuinely vanish at any moment.
+Designing inside hard limits sharpened every "disposable vs. authoritative" call, because on a
+free tier the disposable thing really can vanish at any moment.
 
 ---
 
@@ -313,16 +428,16 @@ The things that never make it into the tidy final diagram:
 - **Demoing time-delayed, async behavior is its own problem.** A real "retries exhausted ->
   dead-letter" takes around 15 minutes, and nobody watches a demo that long. So I built a runtime
   "fast mode" that compresses backoff to about 2s with no redeploy and no env change. It touches
-  only newly-enqueued jobs and leaves production timing untouched. Making the system demonstrable
-  was a genuine engineering task on its own.
+  only newly-enqueued jobs and leaves production timing alone. Making the system demonstrable
+  turned out to be its own engineering problem.
 
 ---
 
 ## What I deliberately left out, and why
 
-The most useful thing you can do on a portfolio project is be honest about its edges. This isn't
-a production webhook platform, and pretending otherwise would be the real red flag. So here's
-what I consciously scoped out, each a known, bounded piece of work rather than an oversight:
+This isn't a production webhook platform, and pretending otherwise would be the actual red
+flag. So here's what I scoped out on purpose, each one a known, bounded piece of work rather
+than an oversight:
 
 - **Auth / multi-tenancy.** The API is open. Production needs API keys or OAuth and per-tenant
   isolation. Omitted to keep the focus on delivery semantics.
@@ -337,9 +452,9 @@ what I consciously scoped out, each a known, bounded piece of work rather than a
 - **SSRF hardening.** Target URLs aren't yet validated against private or link-local ranges.
 - **Honoring `Retry-After` on `429`.** Currently retried with normal backoff.
 
-Writing this list was the most clarifying part of the whole project. It's where I learned to tell
-the difference between "a hard problem I solved well" and "a hard problem I'm choosing not to
-solve yet." Knowing that boundary is most of the job.
+Writing that list clarified more for me than most of the code did. Some of those items were
+hard problems I'd solved well. Others were hard problems I was quietly choosing not to solve,
+and until they were written down I wasn't being honest with myself about which was which.
 
 ---
 
@@ -355,7 +470,7 @@ solve yet." Knowing that boundary is most of the job.
    reason it has a point of view.
 
 It was the most fun I've had being paranoid about failure. If you build webhooks after reading
-this and remember to set a per-attempt timeout, my work here is done.
+this and remember to set a per-attempt timeout, that's enough for me.
 
 ---
 
@@ -367,9 +482,12 @@ this and remember to set a per-attempt timeout, my work here is done.
 | **Guarantees** | exactly-once acceptance, at-least-once delivery, no silent loss |
 | **Patterns** | transactional outbox, dead-letter + replay, reconciliation, HMAC signing |
 | **Code** | [github.com/rishabh0111/webhook-delivery-engine][repo], MIT |
-| **Live demo** | one-click walkthrough of every delivery outcome, Swagger docs, operator dashboard |
+| **Live demo** | [operator dashboard][dashboard], one-click walkthrough of every delivery outcome |
+| **API docs** | [Swagger][docs] |
 
 [repo]: https://github.com/rishabh0111/webhook-delivery-engine
+[dashboard]: https://webhook-delivery-engine-on21.onrender.com/dashboard
+[docs]: https://webhook-delivery-engine-on21.onrender.com/docs
 
-*Built and written by Rishabh Sharma. The repo ships a live dashboard, Swagger docs, and a
-self-contained demo of every delivery path: happy, retrying, timing out, and dying.*
+*Built and written by Rishabh Sharma. The [live dashboard][dashboard] runs a self-contained
+demo of every delivery path: happy, retrying, timing out, and dying.*

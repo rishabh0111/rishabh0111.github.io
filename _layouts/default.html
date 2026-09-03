@@ -285,6 +285,71 @@
     // container mermaid can render into, and keep the original source around
     // so a theme toggle can re-render in the new palette instead of leaving
     // stale-colored SVGs behind.
+    // A classDef in the diagram source compiles to `#<svg-id> .actor > * { fill: … !important }`.
+    // That selector carries an id, so nothing in style.css can outrank it — a palette written
+    // into the Markdown is therefore permanently light, whatever the page theme says. The
+    // dark/light switch below only ever reached what classDef left alone (arrows, edge labels,
+    // background), which is why light-mode pastels sat on the dark page unchanged.
+    // So the palette lives here instead: posts name a role, this picks the colors for the
+    // live theme. Roles match the ones the diagrams already use; anything else is left alone.
+    var MERMAID_PALETTE = {
+      light: {
+        actor:   'fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A',
+        gateway: 'fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95',
+        service: 'fill:#D1FAE5,stroke:#059669,color:#065F46',
+        store:   'fill:#CFFAFE,stroke:#0891B2,color:#164E63',
+        flow:    'fill:#F1F5F9,stroke:#475569,color:#1E293B',
+        warn:    'fill:#FEF3C7,stroke:#D97706,color:#92400E',
+        ok:      'fill:#DCFCE7,stroke:#16A34A,color:#14532D',
+        error:   'fill:#FEE2E2,stroke:#DC2626,color:#991B1B'
+      },
+      // Deep fills with a bright stroke and pale text: the same eight hues read as the
+      // same eight roles, without the pastel glare of light chips on a dark field.
+      dark: {
+        actor:   'fill:#1B3050,stroke:#60A5FA,color:#DBEAFE',
+        gateway: 'fill:#2B1D4A,stroke:#A78BFA,color:#EDE9FE',
+        service: 'fill:#123A2E,stroke:#34D399,color:#D1FAE5',
+        store:   'fill:#0E3540,stroke:#22D3EE,color:#CFFAFE',
+        flow:    'fill:#2A3038,stroke:#94A3B8,color:#E2E8F0',
+        warn:    'fill:#42310D,stroke:#FBBF24,color:#FEF3C7',
+        ok:      'fill:#14331F,stroke:#4ADE80,color:#DCFCE7',
+        error:   'fill:#431A1B,stroke:#F87171,color:#FEE2E2'
+      }
+    };
+
+    // classDef only reaches flowchart nodes. A sequence diagram is styled entirely
+    // through themeVariables, so the same eight roles are restated here in the terms
+    // mermaid uses for actors, signals, notes and activation bars — otherwise sequence
+    // diagrams would be the one kind that ignores the palette and renders stock.
+    var MERMAID_SEQUENCE_VARS = {
+      light: {
+        actorBkg: '#DBEAFE', actorBorder: '#2563EB', actorTextColor: '#1E3A8A',
+        actorLineColor: '#94A3B8', signalColor: '#334155', signalTextColor: '#1E293B',
+        labelBoxBkgColor: '#EDE9FE', labelBoxBorderColor: '#7C3AED', labelTextColor: '#4C1D95',
+        loopTextColor: '#4C1D95', noteBkgColor: '#FEF3C7', noteBorderColor: '#D97706',
+        noteTextColor: '#92400E', activationBkgColor: '#D1FAE5', activationBorderColor: '#059669',
+        sequenceNumberColor: '#FFFFFF'
+      },
+      dark: {
+        actorBkg: '#1B3050', actorBorder: '#60A5FA', actorTextColor: '#DBEAFE',
+        actorLineColor: '#64748B', signalColor: '#CBD5E1', signalTextColor: '#E2E8F0',
+        labelBoxBkgColor: '#2B1D4A', labelBoxBorderColor: '#A78BFA', labelTextColor: '#EDE9FE',
+        loopTextColor: '#EDE9FE', noteBkgColor: '#42310D', noteBorderColor: '#FBBF24',
+        noteTextColor: '#FEF3C7', activationBkgColor: '#123A2E', activationBorderColor: '#34D399',
+        sequenceNumberColor: '#0F172A'
+      }
+    };
+
+    // Rewrites `classDef <role> …` to the current theme's colors, leaving roles we
+    // don't know (and every other line) exactly as the author wrote them.
+    function themeClassDefs(src, dark) {
+      var palette = MERMAID_PALETTE[dark ? 'dark' : 'light'];
+      return src.replace(/^(\s*)classDef\s+(\w+)\s+.*$/gm, function (line, indent, role) {
+        if (!palette[role]) return line;
+        return indent + 'classDef ' + role + ' ' + palette[role] + ',stroke-width:2px';
+      });
+    }
+
     var mermaidBlocks = [];
     document.querySelectorAll('code.language-mermaid').forEach(function (codeEl) {
       var pre = codeEl.closest('pre') || codeEl.parentElement;
@@ -308,13 +373,14 @@
         startOnLoad: false,
         securityLevel: 'loose',
         theme: dark ? 'dark' : 'default',
+        themeVariables: MERMAID_SEQUENCE_VARS[dark ? 'dark' : 'light'],
         fontFamily: '"DM Mono", monospace'
       });
       mermaidBlocks.forEach(function (block) {
         var id = 'mermaid-diagram-' + (mermaidRenderCount++);
         block.el.removeAttribute('data-processed');
         block.el.innerHTML = '';
-        mermaid.render(id, block.src).then(function (result) {
+        mermaid.render(id, themeClassDefs(block.src, dark)).then(function (result) {
           block.el.innerHTML = result.svg;
         }).catch(function (err) {
           block.el.innerHTML = '';
