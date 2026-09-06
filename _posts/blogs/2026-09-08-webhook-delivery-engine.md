@@ -1,13 +1,25 @@
 ---
 layout: post
 title: "I built a webhook delivery engine to learn distributed systems the hard way"
-date: 2026-07-09 09:00:00 +0530
+date: 2026-09-08 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [distributed-systems, webhooks, reliability, postgres, engineering]
 read_time: 15
 permalink: /blogs/webhook-delivery-engine/
-excerpt: "A deep dive into durability, idempotency, and the surprisingly large gap between COMMIT and 'enqueue a job.'"
+excerpt: "Durability, idempotency, and the surprisingly large gap between COMMIT and 'enqueue a job.' It's deployed, so you can go and break it."
+---
+
+<p align="center">
+  <img src="/assets/img/webhook/exactly-once.jpg" width="460"
+       alt="Drake meme. Rejecting: exactly-once delivery. Approving: at-least-once delivery plus an idempotency key.">
+</p>
+
+**It's running:** [operator dashboard](https://webhook-delivery-engine-on21.onrender.com/dashboard)
+· [Swagger docs](https://webhook-delivery-engine-on21.onrender.com/docs)
+· [source](https://github.com/rishabh0111/webhook-delivery-engine). The dashboard has a demo mode
+that walks every delivery outcome, including the ones that fail.
+
 ---
 
 Think about the last time you bought something online. You hit Pay, and within a second or two
