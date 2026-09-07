@@ -14,6 +14,15 @@ author:
   name:  "Rishabh Sharma"
   email: "rishabhsharma8912@gmail.com"
 
+# ── Social share image ─────────────────────────────────────────
+# One card for every link. jekyll-seo-tag turns this into og:image /
+# twitter:image site-wide; individual posts do not set their own.
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/img/og-card.png
+
 # ── Timezone ───────────────────────────────────────────────────
 timezone: Asia/Kolkata
 
