@@ -2043,9 +2043,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   max-width: var(--max-w); margin: 0 auto;
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(240px, 23vw, 310px);
+  /* The text column hugs the name (max-content) rather than taking all
+     the spare width as 1fr — a 1fr column left a huge dead band between
+     the name and the photo. The pair is centred as one unit. */
+  grid-template-columns: max-content clamp(230px, 22vw, 310px);
   justify-content: center;
-  gap: clamp(var(--s5), 5vw, var(--s8));
+  column-gap: clamp(var(--s5), 4vw, var(--s6));
   align-items: center;
 }
 .hero-text { min-width: 0; }
@@ -2139,7 +2142,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* Link pills — mono, hairline, accent on hover. They also drift a few
    px toward the pointer (see the magnetic handler in default.html). */
-.hero-links { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s5); }
+.hero-links { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s4); }
 .hero-links a {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--f-mono); font-size: 9.5px;
@@ -2380,7 +2383,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      an opaque pill so it stays readable where it laps the card. */
   .drail a > span {
     margin-left: 11px;
-    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em;
+    font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em;
     text-transform: uppercase; white-space: nowrap;
     color: var(--text-3);
     background: var(--card-bg);
@@ -3341,11 +3344,11 @@ details.more > summary:hover,
    line so it costs a single row of height, not three. */
 .ds-heading {
   margin: 0 0 var(--s3);
-  font-family: var(--f-mono); font-size: 11px; font-weight: 400;
-  letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  font-family: var(--f-mono); font-size: 12.5px; font-weight: 400;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
 }
 .ds-heading small {
-  font-family: var(--f-serif); font-size: 11px; letter-spacing: 0;
+  font-family: var(--f-serif); font-size: 12.5px; letter-spacing: 0;
   text-transform: none; color: var(--text-3); margin-left: var(--s1);
 }
 @media (min-width: 1200px) { .ds-heading { display: none; } }
