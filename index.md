@@ -1,8 +1,10 @@
 ---
 # ═════════════════════════════════════════════════════════════════
 #  HOME — all of the page's content lives in this front matter.
-#  _layouts/home.html renders it as the dossier layout: a label
-#  column and a content column, one width top to bottom.
+#  _layouts/home.html renders it as the dossier layout: a stack of
+#  section cards, one content width top to bottom. A left-margin rail
+#  names the section you are reading (and a compact heading stands in
+#  for it on narrow screens).
 #
 #  Bullet strings accept inline Markdown (**bold**, `code`, [links](#)).
 #  Stack strings are matched against _data/tech_logos.json to pick a
@@ -39,7 +41,7 @@ links:
   - { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
-# ── Pillars — renders as "Position", the three claims ────────────
+# ── Pillars — the three claims, shown inside "About" ─────────────
 # Three claims, and only three. More would dilute each one.
 # "Full-stack" is deliberately not a pillar: it is evidence inside
 # the work below, where it is more convincing than as a claim.
@@ -75,12 +77,20 @@ metrics:
 #  PROJECTS — one section, however many entries. Add a project here
 #  and the page grows; nothing in _layouts/home.html needs touching.
 #
+#  Every project renders the same way, top to bottom:
+#    heading → horizontal strip of `shots` → the write-up
+#    (`promise`, `body`, `points`, `glance`) → `parts` as cards
+#    stacked one per row → `links`.
+#
 #  `promise` is the one sentence the thing guarantees. It renders as
-#  the pull quote, so keep it to a sentence.
+#            the pull quote, so keep it to a sentence.
+#  `body` / `points` carry the results. Follow the resume framing:
+#            accomplished [X] as measured by [Y] by doing [Z]. Put the
+#            numbers in the sentence, not in a separate stat strip.
 #  `glance`  is the summary table.
 #  `shots`   need `src`; add `src_dark` only if the image is unreadable
 #            on the dark theme.
-#  `parts`   renders as cards, for a project with separable pieces.
+#  `parts`   are the separable pieces of a bigger project, one card each.
 # ═════════════════════════════════════════════════════════════════
 projects:
   - name:     Nivara Desk
@@ -120,15 +130,19 @@ projects:
           Anything the model writes on its own can never reach a customer.
         points:
           - >-
-            The only way out is a reply built from a real document, so a made-up
-            answer is **impossible rather than unlikely**. A trained gate decides
-            when to answer and when to fetch a human — and money questions always
-            go to a human.
-        measured:
-          - { figure: "93.6%", label: right call, 595 of 600 }
-          - { figure: "94.2%", label: found the right document first }
-          - { figure: "6.8%",  label: sent to a human when it could have answered }
-          - { figure: "$0",    label: to re-run every test }
+            Made the right call on **93.6% of a 600-question eval** (595 of 600)
+            by routing every answer through a trained gate that decides when to
+            reply and when to fetch a human — money questions always go to a
+            human.
+          - >-
+            Put the right document first **94.2% of the time** with hybrid
+            retrieval over Qdrant, and every reply is built from one of those
+            real documents — so a made-up answer is **impossible rather than
+            unlikely**.
+          - >-
+            Held wrongful escalations to **6.8%** (sent to a human when it could
+            have answered) and kept the full eval **free to re-run ($0)** by
+            recording model responses once and replaying them.
 
       - id:    api
         label: API

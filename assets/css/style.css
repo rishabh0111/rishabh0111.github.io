@@ -68,7 +68,6 @@
   --page-pad:  var(--s3);
   --pill-w:    38px;      /* a collapsed rail */
   --h-header:  54px;
-  --h-secbar:  46px;      /* home page section bar, pinned under the header */
 
   /* Spacing: every unit is 8px */
   --s1:  0.5rem;   /*  8px */
@@ -386,11 +385,6 @@ body, .site-header, .site-footer, .sidebar-card,
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--h-header) + 1rem);
-}
-/* The home page pins a section bar under the header, so an anchor
-   jump has to clear both or the heading lands behind the bar. */
-html:has(.section-bar) {
-  scroll-padding-top: calc(var(--h-header) + var(--h-secbar) + 1rem);
 }
 
 /* Visible to screen readers, to nobody else */
@@ -2240,63 +2234,114 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── Section bar — the page's own navigation ──────────────────
-   Pins under the sticky header once the hero scrolls past. Costs
-   ~46px of height and no width at all, and (unlike the rail it
-   replaces, which display:none'd below 860px) it survives every
-   breakpoint by becoming a scrollable chip row. */
-.section-bar {
-  position: sticky;
-  top: var(--h-header);
-  z-index: 90;
-  background: var(--header-glass);
-  border-top: 1px solid var(--plane-rule);
-  border-bottom: 1px solid var(--plane-rule);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.section-bar::-webkit-scrollbar { display: none; }
-/* The blur sits on a pseudo-element for the same reason as the
-   header's: a backdrop-filter would trap fixed descendants. */
-.section-bar::before {
-  content: '';
-  position: absolute; inset: 0; z-index: -1;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-}
-.section-bar-inner {
-  max-width: var(--max-w);
-  margin: 0 auto;
-  padding: 0 var(--s5);
-  display: flex;
-  gap: var(--s1);
-  height: var(--h-secbar);
-  align-items: center;
-}
-.section-bar a {
-  flex-shrink: 0;
-  padding: 5px 11px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.15s, background 0.15s, border-color 0.15s;
-}
-.section-bar a:hover {
-  color: var(--text);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-.section-bar a.active {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+/* ── Dossier rail — navigation and section labels in one control ──
+   A column of small monochrome icons fixed in the left margin, each
+   ringed like a bead on a thread. The section you are reading lights
+   up, names itself in a pill that sits against its card, and a fill
+   line tracks how far down the page you are. This replaces two things
+   that used to duplicate each other: a chip bar pinned under the
+   header, and a label column inside every section.
+
+   Shown only from 1200px up, where the margin has room for it. Below
+   that it is `display:none` and each section carries its own compact
+   heading (.ds-heading). Without JS it is still a plain vertical nav;
+   JS adds `.is-ready` (past the hero) and `.is-active` (current dot). */
+.drail { display: none; }
+
+@media (min-width: 1200px) {
+  .drail {
+    display: flex; flex-direction: column;
+    position: fixed;
+    /* Hug the left edge of the viewport rather than tracking the
+       content margin, so the dots stay in the deep gutter and the
+       active label pill laps the card by as little as possible. */
+    left: clamp(12px, calc((100vw - 1180px) / 2 - 116px), 40px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 80;
+    padding: var(--s2) 0;
+    opacity: 0; visibility: hidden;
+    transition: opacity .4s var(--ease-out), visibility .4s;
+  }
+  .drail.is-ready { opacity: 1; visibility: visible; }
+
+  /* The spine: a hairline through the icon centres, filled from the
+     top down to wherever you have read to. */
+  .drail-line {
+    position: absolute; left: 9px; top: var(--s2); bottom: var(--s2);
+    width: 1px; background: var(--border);
+  }
+  .drail-line i {
+    position: absolute; inset: 0 0 auto 0; height: 0;
+    background: var(--accent);
+    transition: height .15s linear;
+  }
+
+  .drail a {
+    position: relative;
+    display: flex; align-items: center;
+    padding: 7px 0;
+    text-decoration: none;
+    z-index: 1;
+  }
+  /* The bead: a ringed icon that reads like a dot on the thread, and
+     masks the spine behind it. */
+  .drail-dot {
+    flex: none;
+    display: grid; place-items: center;
+    width: 19px; height: 19px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-3);
+    transition: border-color .18s, background .18s, color .18s, transform .18s;
+  }
+  .drail-dot svg { width: 11px; height: 11px; display: block; }
+  /* The section name. Hidden until the dot is active or hovered;
+     an opaque pill so it stays readable where it laps the card. */
+  .drail a > span {
+    margin-left: 11px;
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; white-space: nowrap;
+    color: var(--text-3);
+    background: var(--card-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 4px 11px;
+    opacity: 0; transform: translateX(-6px);
+    transition: opacity .18s var(--ease-out), transform .18s var(--ease-out), color .18s;
+    pointer-events: none;
+  }
+  .drail a:hover > span,
+  .drail a:focus-visible > span { opacity: 1; transform: none; color: var(--text); }
+  .drail a:hover .drail-dot { border-color: var(--accent); color: var(--accent); }
+
+  .drail a.is-active .drail-dot {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, var(--card-bg));
+    transform: scale(1.12);
+  }
+  /* A short bar from the lit icon to its label: the near end of the
+     line that runs on to the card's accented edge. */
+  .drail a.is-active::after {
+    content: ''; position: absolute; left: 20px;
+    top: 50%; margin-top: -0.5px;
+    width: 8px; height: 1px; background: var(--accent);
+  }
+  .drail a.is-active > span {
+    opacity: 1; transform: none;
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+  }
+
+  /* The current section's card takes an accent edge — the far end of
+     the line that starts at the lit dot. */
+  .ds-row.is-active {
+    box-shadow: 0 2px 18px rgba(0,0,0,0.05),
+                inset 2px 0 0 color-mix(in srgb, var(--accent) 75%, transparent);
+  }
 }
 
 
@@ -2663,7 +2708,6 @@ details.more > summary:hover,
   .card { padding: var(--s3); border-radius: 10px; }
   .job-card, .project { padding: var(--s3); }
   .band-stats .band-inner { padding: var(--s4); border-radius: 12px; }
-  .section-bar-inner { padding: 0 var(--s3); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2691,7 +2735,7 @@ details.more > summary:hover,
   }
   .card { border-bottom: 1px solid #ddd !important; padding-bottom: var(--s2); }
   .metric-figure, .metric-label { color: #000 !important; }
-  .section-bar, .hero-portrait, .hero-links { display: none; }
+  .drail, .hero-portrait, .hero-links { display: none; }
   .hero-inner .hero-rise { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
 
@@ -2942,17 +2986,19 @@ details.more > summary:hover,
   background: var(--card-bg);
 }
 /* One theme swap, used by screenshots and by company wordmarks that
-   only read on one ground each. */
-.shot-dark,
+   only read on one ground each. The `.shot img` selector sets
+   `display: block`, so the hiding rules are scoped `.shot img.…` to
+   match its specificity and still win. */
+.shot img.shot-dark,
 .co-logo .logo-dark { display: none; }
-:root[data-theme="dark"] .shot-light,
+:root[data-theme="dark"] .shot img.shot-light,
 :root[data-theme="dark"] .co-logo .logo-light { display: none; }
-:root[data-theme="dark"] .shot-dark,
+:root[data-theme="dark"] .shot img.shot-dark,
 :root[data-theme="dark"] .co-logo .logo-dark  { display: block; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .shot-light,
+  :root:not([data-theme="light"]) .shot img.shot-light,
   :root:not([data-theme="light"]) .co-logo .logo-light { display: none; }
-  :root:not([data-theme="light"]) .shot-dark,
+  :root:not([data-theme="light"]) .shot img.shot-dark,
   :root:not([data-theme="light"]) .co-logo .logo-dark  { display: block; }
 }
 .shot figcaption {
@@ -3010,12 +3056,13 @@ details.more > summary:hover,
 
 /* ── The parts of a bigger project, as cards ─────────────────────
    Nivara Desk is one product with three separable pieces. Cards say
-   that better than three bare columns: each is a thing you can pick
-   up on its own, and a reader aimed at one of the three roles can
-   see which card is theirs at a glance. */
-.comp-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: var(--s2);
+   that better than bare columns: each is a thing you can pick up on
+   its own. Stacked one per row — full width — so every project reads
+   the same way down the page and each card gets room for its points. */
+.parts-stack {
+  display: flex; flex-direction: column;
+  gap: var(--s3);
+  margin-top: var(--s3);
 }
 .comp {
   display: flex; flex-direction: column; gap: var(--s2);
@@ -3054,26 +3101,14 @@ details.more > summary:hover,
   padding: 1px 5px; border-radius: 4px;
 }
 .comp .points { margin-top: 0; }
-.comp .points li { font-size: 12.5px; line-height: 1.6; }
-.comp .chips { margin-top: auto; }
+.comp .points li { font-size: 13px; line-height: 1.65; }
+.comp .chips { margin-top: var(--s1); }
 .comp .chips li { font-size: 9.5px; }
 .comp-more {
   font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--accent); text-decoration: none;
 }
 .comp-more:hover { text-decoration: underline; }
-
-/* Measured strip — the AI layer's numbers, inline and small. */
-.measured { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); margin: 0; padding: 0; list-style: none; }
-.measured li { display: flex; flex-direction: column; gap: 2px; }
-.measured b {
-  font-family: var(--f-display); font-size: 1.5rem; font-weight: 400;
-  line-height: 1; color: var(--accent); letter-spacing: -0.02em;
-}
-.measured span {
-  font-family: var(--f-mono); font-size: 8.5px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--text-3);
-}
 
 /* ── Tech marks ──────────────────────────────────────────────────
    Real <img> elements, not CSS masks. A mask paints one colour by
@@ -3198,8 +3233,10 @@ details.more > summary:hover,
 
 /* ═════════════════════════════════════════════════════════════════
    LAYOUT B — DOSSIER
-   Every section is a label column + a content column on one grid.
-   Reads like a specification sheet. Densest of the three.
+   A stack of section cards, one content column each. The section
+   name is not printed on the card: from 1200px up the left-margin
+   rail (.drail) names whichever section you are reading; below that
+   each card shows a compact .ds-heading instead.
 ═════════════════════════════════════════════════════════════════ */
 /* ONE content width, everywhere. The old page ran bands at 1280px,
    then 820px for About, then 1000px for Writing — three spines as you
@@ -3216,8 +3253,6 @@ details.more > summary:hover,
    deliberately light: enough to separate, not enough to box the page
    in. */
 .ds-row {
-  display: grid; grid-template-columns: 168px 1fr;
-  gap: var(--s5);
   padding: var(--s5);
   margin-bottom: var(--s3);
   border-radius: 14px;
@@ -3226,17 +3261,24 @@ details.more > summary:hover,
   box-shadow: 0 2px 18px rgba(0,0,0,0.05);
   backdrop-filter: blur(10px) saturate(115%);
   -webkit-backdrop-filter: blur(10px) saturate(115%);
+  scroll-margin-top: calc(var(--h-header) + var(--s3));
 }
 .ds-row:last-child { margin-bottom: 0; }
-.ds-key { position: sticky; top: calc(var(--h-header) + var(--s3)); align-self: start; }
-.ds-key p {
-  margin: 0; font-family: var(--f-mono); font-size: 10px;
+
+/* Compact section heading, shown only where the rail is not (below
+   1200px). One mono line, the note trailing in serif on the same
+   line so it costs a single row of height, not three. */
+.ds-heading {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-mono); font-size: 11px; font-weight: 400;
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
 }
-.ds-key small {
-  display: block; margin-top: 6px; font-size: 11px;
-  color: var(--text-3); font-family: var(--f-serif); line-height: 1.5;
+.ds-heading small {
+  font-family: var(--f-serif); font-size: 11px; letter-spacing: 0;
+  text-transform: none; color: var(--text-3); margin-left: var(--s1);
 }
+@media (min-width: 1200px) { .ds-heading { display: none; } }
+
 .ds-val { min-width: 0; }
 /* ── One project inside the Projects section ─────────────────── */
 .proj + .proj,
@@ -3254,13 +3296,78 @@ details.more > summary:hover,
   font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3);
 }
-.proj > .points { margin-top: var(--s4); }
-.proj > .measured {
+.proj > .chips { margin-top: var(--s4); }
+.proj > .project-links { margin-top: var(--s4); }
+
+/* ── Common project layout ──────────────────────────────────────
+   heading → carousel → write-up → part cards → stack → links.
+   Every project runs this order, so the page reads the same way
+   whichever one you land on. */
+
+/* Screenshots as a horizontal strip you swipe or scroll through,
+   instead of a 2-up grid. Any number of shots fits without changing
+   the layout below it. Dots underneath jump between them. */
+.proj-shots { margin-top: var(--s4); }
+.proj-carousel {
+  display: flex;
+  gap: var(--s3);
+  padding: var(--s1) 2px var(--s2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 45%, transparent) transparent;
+}
+.proj-carousel .shot {
+  flex: 0 0 min(78%, 440px);
+  scroll-snap-align: start;
+}
+.proj-carousel .shot figcaption { font-size: 9px; }
+.proj-carousel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Dots — one per screenshot, the current one drawn as a pill. Built
+   by JS (so they only appear where they work); hidden if a project
+   has a single shot. */
+.proj-dots {
+  display: flex; justify-content: center; align-items: center;
+  gap: 7px;
+  margin-top: var(--s2);
+}
+.proj-dots:empty { display: none; }
+.proj-dot {
+  width: 7px; height: 7px; padding: 0;
+  border: none; border-radius: 999px;
+  background: color-mix(in srgb, var(--text-3) 55%, transparent);
+  cursor: pointer;
+  transition: width .2s var(--ease-out), background .2s var(--ease-out);
+}
+.proj-dot:hover { background: var(--text-3); }
+.proj-dot.is-on {
+  width: 20px;
+  background: var(--accent);
+}
+.proj-dot:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .proj-dot,
+  .drail, .drail-dot, .drail a > span, .drail-line i { transition: none; }
+}
+
+/* The write-up: promise, prose, results, then the glance table. */
+.proj-copy { margin-top: var(--s4); }
+.proj-copy > .project-body { margin-top: var(--s3); }
+.proj-copy > .points { margin-top: var(--s3); }
+.proj-copy > .glance {
   margin-top: var(--s4); padding-top: var(--s3);
   border-top: 1px solid var(--border);
 }
-.proj > .chips { margin-top: var(--s4); }
-.proj > .project-links { margin-top: var(--s4); }
+
 .ds-fhead { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s2); }
 .ds-fhead h2 { font-family: var(--f-display); font-size: 1.8rem; font-weight: 400; margin: 0; color: var(--text); }
 .ds-fhead .xp-when { margin-left: auto; }
@@ -3273,7 +3380,14 @@ details.more > summary:hover,
   border-radius: 999px; padding: 3px 9px;
 }
 
-/* ── Position: three claims, stacked, no card ─────────────────── */
+/* ── About: the essay, then the three claims it earns ──────────
+   Both used to be their own dossier rows (Background, Position).
+   Now one row: prose first, then the claims under a hairline. */
+.ds-claims {
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--border);
+}
 .ds-claim + .ds-claim { margin-top: var(--s3); }
 .ds-claim-title {
   margin: 0 0 4px;
@@ -3282,7 +3396,7 @@ details.more > summary:hover,
 }
 .ds-claim-body { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
 
-/* ── Background prose — a reading measure inside the wide column ─ */
+/* ── About prose — a reading measure inside the wide column ───── */
 .ds-prose p {
   font-size: 14px; line-height: 1.8; color: var(--text-2);
   margin: 0 0 var(--s2); max-width: 72ch;
@@ -3312,38 +3426,12 @@ details.more > summary:hover,
 .cred-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
 .cred-grid > div > .group-heading { margin-top: 0; }
 @media (max-width: 900px) { .cred-grid { grid-template-columns: 1fr; gap: var(--s4); } }
-.ds-split { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--s4); align-items: start; margin: var(--s3) 0; }
-.ds-thumbs { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s2); margin-top: var(--s3); }
-.ds-thumbs .shot figcaption { font-size: 9px; }
-
-/* The tail of a feature: measured numbers, then stack, then links.
-   Each needs its own air — without it the numbers read as a fourth
-   component column and the links look glued to the chips. */
-.ds-feature > .points { margin-top: var(--s4); }
-.ds-feature .comp-grid { margin-top: var(--s5); }
-.ds-feature > .measured {
-  margin-top: var(--s5);
-  padding-top: var(--s3);
-  border-top: 1px solid var(--border);
-}
-.ds-feature > .chips { margin-top: var(--s4); }
-.ds-feature > .project-links { margin-top: var(--s4); }
 
 /* ── Responsive ───────────────────────────────────────────────────
-   Every multi-column grid on the page collapses to one track. The
-   label rail stops sticking, because on a phone it would eat the
-   screen rather than orient anyone. */
+   Every multi-column grid on the page collapses to one track. */
 @media (max-width: 900px) {
-  .comp-grid,
-  .ds-split { grid-template-columns: 1fr; }
-  .ds-row {
-    grid-template-columns: 1fr;
-    gap: var(--s2);
-    padding: var(--s4) 0;
-  }
-  .ds-key { position: static; }
-  .ds-key small { display: inline; margin-left: var(--s1); }
-  .ds-thumbs { grid-template-columns: 1fr; }
+  .ds-row { padding: var(--s4) var(--s3); }
+  .proj-carousel .shot { flex-basis: 86%; }
   .xp { flex-direction: column; gap: var(--s2); }
   .xp-when { margin-left: 0; }
 }

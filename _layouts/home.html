@@ -55,21 +55,26 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION BAR — the page's own navigation. Sticks under the header
-     once the hero scrolls past, and becomes a scrollable chip row on
-     phones rather than disappearing.
+     DOSSIER RAIL — the page's navigation AND its section labels, in
+     one control. A column of dots in the left margin: the section
+     you are reading lights up and names itself, and a fill line
+     tracks how far down the page you are. Replaces a full-width chip
+     bar that repeated every section's own heading.
+
+     Shown from 1200px up (see .drail). Narrower than that it is
+     hidden and each section carries its own .ds-heading. Static
+     links, so it still works as a nav without JS; the script adds
+     the active-section tracking and the fill.
 ═══════════════════════════════════════════════════════════════ -->
-<nav class="section-bar" id="section-bar" aria-label="Page sections">
-  <div class="section-bar-inner">
-    <a href="#position">Position</a>
-    <a href="#about">Background</a>
-    <a href="#projects">Projects</a>
-    <a href="#experience">Experience</a>
-    <a href="#toolkit">Toolkit</a>
-    {% if n_blogs > 0 or n_news > 0 %}<a href="#writing">Writing</a>{% endif %}
-    <a href="#credentials">Credentials</a>
-    <a href="#contact">Contact</a>
-  </div>
+<nav class="drail" id="drail" aria-label="Sections">
+  <span class="drail-line" aria-hidden="true"><i id="drail-fill"></i></span>
+  <a href="#about"       data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="spark" %}</i><span>About</span></a>
+  <a href="#projects"    data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="layers" %}</i><span>Projects</span></a>
+  <a href="#experience"  data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="clock" %}</i><span>Experience</span></a>
+  <a href="#toolkit"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="cube" %}</i><span>Toolkit</span></a>
+  {% if n_blogs > 0 or n_news > 0 %}<a href="#writing" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="pen" %}</i><span>Writing</span></a>{% endif %}
+  <a href="#credentials" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="seal" %}</i><span>Credentials</span></a>
+  <a href="#contact"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="mail" %}</i><span>Contact</span></a>
 </nav>
 
 
@@ -95,38 +100,31 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     THE DOSSIER — every section is a sticky label on the left and
-     content on the right, on one grid. The left edge never moves,
-     so the page can be scanned by its labels and read only where it
-     earns it. One content width throughout (see .home .band-inner).
+     THE DOSSIER — a stack of section cards at one content width. The
+     section you are reading is named by the left-margin rail (.drail)
+     from 1200px up, and by a compact .ds-heading on the card itself
+     below that. One content width throughout (see .home .band-inner).
 ═══════════════════════════════════════════════════════════════ -->
   <section class="band">
     <div class="band-inner">
 
-      <!-- ── Position — the three claims ───────────────────────── -->
-      <div class="ds-row reveal" id="position">
-        <div class="ds-key">
-          <p>Position</p>
-          <small>what I am good at</small>
-        </div>
-        <div class="ds-val">
-          {% for pil in page.pillars %}
-          <div class="ds-claim">
-            <p class="ds-claim-title">{{ pil.title }}</p>
-            <p class="ds-claim-body">{{ pil.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- ── Background — the essay, now two paragraphs ────────── -->
+      <!-- ── About — how I got here, and what I am good at ─────────
+           Was two rows (Position, Background). One row now: the essay
+           first, then the three claims it earns. -->
       <div class="ds-row reveal" id="about">
-        <div class="ds-key">
-          <p>Background</p>
-          <small>how I got here</small>
-        </div>
-        <div class="ds-val ds-prose">
-          {{ page.about | markdownify }}
+        <p class="ds-heading">About <small>how I got here, and what I am good at</small></p>
+        <div class="ds-val">
+          <div class="ds-prose">
+            {{ page.about | markdownify }}
+          </div>
+          <div class="ds-claims">
+            {% for pil in page.pillars %}
+            <div class="ds-claim">
+              <p class="ds-claim-title">{{ pil.title }}</p>
+              <p class="ds-claim-body">{{ pil.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
+            </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
 
@@ -135,15 +133,24 @@ layout: default
            project with `parts` shows them as cards. Adding another
            means adding to `projects:` in index.md, nothing here. -->
       <div class="ds-row reveal" id="projects">
-        <div class="ds-key">
-          <p>Projects</p>
-          <small>built, shipped, and live</small>
-        </div>
+        <p class="ds-heading">Projects <small>built, shipped, and live</small></p>
         <div class="ds-val">
 
+          {% comment %}
+            One layout for every project, top to bottom:
+              1. heading   — name, kind, year
+              2. carousel  — a horizontal strip of screenshots
+              3. write-up  — promise, body, results (numbers live in
+                             the sentences, resume-style, not in a
+                             separate stat strip)
+              4. glance    — the summary table
+              5. parts     — separable pieces, one card per row
+              6. stack + links
+          {% endcomment %}
           {% for f in page.projects %}
           <article class="proj" id="{{ f.name | slugify }}">
 
+            <!-- 1 · heading -->
             <div class="ds-fhead">
               <h2>{{ f.name }}</h2>
               {% if f.kind %}<span class="kind-pill">{{ f.kind }}</span>{% endif %}
@@ -152,78 +159,85 @@ layout: default
 
             {% if f.blurb %}<p class="proj-blurb">{{ f.blurb }}</p>{% endif %}
 
-            <div class="ds-split">
-              <div>
-                {% if f.promise %}
-                <blockquote class="promise">
-                  {{ f.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-                </blockquote>
-                {% endif %}
-                {% if f.body %}
-                <p class="project-body">
-                  {{ f.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-                </p>
-                {% endif %}
-              </div>
-              <div>
-                {% if f.glance %}
-                <table class="glance">
-                  {% for g in f.glance %}
-                  <tr>
-                    <th>{{ g.k }}</th>
-                    <td>{{ g.v | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</td>
-                  </tr>
-                  {% endfor %}
-                </table>
-                {% endif %}
-              </div>
-            </div>
-
+            <!-- 2 · horizontal carousel of screenshots, with dots -->
             {% if f.shots %}
-            <div class="ds-thumbs">
-              {% for s in f.shots limit: 4 %}
-              {% comment %}
-                `src` is the image. `src_dark` is only for a shot that
-                needs a second version to read on the dark theme — the
-                same rule as company logos. A lone image carries no
-                theme class, or the dark theme would hide it.
-              {% endcomment %}
-              <figure class="shot">
-                <img{% if s.src_dark %} class="shot-light"{% endif %}
-                     src="{{ s.src | relative_url }}" alt="{{ s.alt }}" loading="lazy">
-                {% if s.src_dark %}
-                <img class="shot-dark" src="{{ s.src_dark | relative_url }}"
-                     alt="{{ s.alt }}" loading="lazy">
-                {% endif %}
-                <figcaption>{{ s.caption }}</figcaption>
-              </figure>
-              {% endfor %}
+            <div class="proj-shots">
+              <div class="proj-carousel" tabindex="0" role="group" aria-label="{{ f.name }} screenshots">
+                {% for s in f.shots %}
+                {% comment %}
+                  `src` is the image. `src_dark` is only for a shot that
+                  needs a second version to read on the dark theme — the
+                  same rule as company logos. A lone image carries no
+                  theme class, or the dark theme would hide it.
+                {% endcomment %}
+                <figure class="shot">
+                  <img{% if s.src_dark %} class="shot-light"{% endif %}
+                       src="{{ s.src | relative_url }}" alt="{{ s.alt }}" loading="lazy">
+                  {% if s.src_dark %}
+                  <img class="shot-dark" src="{{ s.src_dark | relative_url }}"
+                       alt="{{ s.alt }}" loading="lazy">
+                  {% endif %}
+                  <figcaption>{{ s.caption }}</figcaption>
+                </figure>
+                {% endfor %}
+              </div>
+              {% if f.shots.size > 1 %}
+              <div class="proj-dots" aria-label="{{ f.name }} screenshot navigation"></div>
+              {% endif %}
             </div>
             {% endif %}
 
-            {% if f.points %}
-            <ul class="points">
-              {% for pt in f.points %}
-              <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
+            <!-- 3 · the write-up -->
+            <div class="proj-copy">
+              {% if f.promise %}
+              <blockquote class="promise">
+                {{ f.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+              </blockquote>
+              {% endif %}
+              {% if f.body %}
+              <p class="project-body">
+                {{ f.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+              </p>
+              {% endif %}
+              {% if f.points %}
+              <ul class="points">
+                {% for pt in f.points %}
+                <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
 
+              <!-- 4 · project at a glance -->
+              {% if f.glance %}
+              <table class="glance">
+                {% for g in f.glance %}
+                <tr>
+                  <th>{{ g.k }}</th>
+                  <td>{{ g.v | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+            </div>
+
+            <!-- 5 · the separable pieces, one card per row -->
             {% if f.parts %}
-            <p class="proj-parts-label">Built as three separate pieces</p>
-            <div class="comp-grid">
+            <p class="proj-parts-label">Built as {{ f.parts | size }} separate pieces</p>
+            <div class="parts-stack">
               {% for c in f.parts %}
               <div class="comp">
                 <div class="comp-head">
                   <h3 class="comp-label">{{ c.label }}</h3>
                   <span class="comp-lang">{{ c.lang }}</span>
                 </div>
+                {% if c.promise %}
                 <p class="comp-promise">
                   {{ c.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
                 </p>
+                {% endif %}
                 {% if c.points %}
                 <ul class="points">
-                  {% for pt in c.points limit: 1 %}
+                  {% for pt in c.points %}
                   <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
                   {% endfor %}
                 </ul>
@@ -244,16 +258,7 @@ layout: default
             </div>
             {% endif %}
 
-            {% for c in f.parts %}
-              {% if c.measured %}
-              <ul class="measured">
-                {% for m in c.measured %}
-                <li><b>{{ m.figure }}</b><span>{{ m.label }}</span></li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-            {% endfor %}
-
+            <!-- 6 · stack, then links -->
             {% if f.stack %}
             <ul class="chips" aria-label="Stack">
               {% for s in f.stack %}
@@ -296,10 +301,7 @@ layout: default
 
       <!-- ── Experience ────────────────────────────────────────── -->
       <div class="ds-row reveal" id="experience">
-        <div class="ds-key">
-          <p>Experience</p>
-          <small>most recent first</small>
-        </div>
+        <p class="ds-heading">Experience <small>most recent first</small></p>
         <div class="ds-val">
           {% for e in page.experience %}
           <div class="xp">
@@ -383,10 +385,7 @@ layout: default
            Hover or keyboard focus pauses it; reduced-motion stops it
            and lets the row scroll by hand instead. -->
       <div class="ds-row reveal" id="toolkit">
-        <div class="ds-key">
-          <p>Toolkit</p>
-          <small>things I have actually used</small>
-        </div>
+        <p class="ds-heading">Toolkit <small>things I have actually used</small></p>
         <div class="ds-val">
           {% for sk in page.skills %}
           <div class="ribbon{% cycle 'dir': '', ' ribbon-rev' %}">
@@ -418,10 +417,7 @@ layout: default
       <!-- ── Writing — pulled live from the collections ────────── -->
       {% if n_blogs > 0 or n_news > 0 %}
       <div class="ds-row reveal" id="writing">
-        <div class="ds-key">
-          <p>Writing</p>
-          <small>most recent</small>
-        </div>
+        <p class="ds-heading">Writing <small>most recent</small></p>
         <div class="ds-val">
           {% for post in site.categories.blogs limit: 3 %}
           <a class="post-row" href="{{ post.url | relative_url }}">
@@ -461,10 +457,7 @@ layout: default
 
       <!-- ── Credentials — education, certs, awards, resources ─── -->
       <div class="ds-row reveal" id="credentials">
-        <div class="ds-key">
-          <p>Credentials</p>
-          <small>degree, certificates, awards</small>
-        </div>
+        <p class="ds-heading">Credentials <small>degree, certificates, awards</small></p>
         <div class="ds-val">
           <div class="cred-grid">
 
@@ -548,7 +541,10 @@ layout: default
       {% for l in page.links %}
       {% assign ext = false %}
       {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
-      <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>{{ l.label }}</a>
+      <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+        <span class="hero-link-ic">{% include icon.html name=l.icon %}</span>
+        {{ l.label }}
+      </a>
       {% endfor %}
     </nav>
   </div>
@@ -589,52 +585,133 @@ layout: default
     reveals.forEach(function (el) { io.observe(el); });
   }
 
-  // ── Section bar: highlight the section you're reading ──────
-  // Same question as the article TOC asks: which section heading is
-  // the last one above the reading line? Always exactly one answer,
-  // so the bar and the page cannot drift apart.
-  var bar = document.getElementById('section-bar');
-  if (!bar) return;
-  var links = Array.prototype.slice.call(bar.querySelectorAll('a'));
-  var targets = links.map(function (a) {
-    return document.querySelector(a.getAttribute('href'));
+  // ── Dossier rail: the section you're reading, and how far in ───
+  // Same question the article TOC asks — which section top is the
+  // last one above the reading line — so the rail and the page can't
+  // drift apart. The rail also stays hidden until the hero is behind
+  // you, and a fill line grows as you move through the page.
+  var rail = document.getElementById('drail');
+  if (rail) {
+    var railLinks = Array.prototype.slice.call(rail.querySelectorAll('a[data-drail]'));
+    var railTargets = railLinks.map(function (a) {
+      return document.querySelector(a.getAttribute('href'));
+    });
+    var dsRows = Array.prototype.slice.call(document.querySelectorAll('.ds-row'));
+    var lineEl = rail.querySelector('.drail-line');
+    var fill = document.getElementById('drail-fill');
+    var heroEl = document.querySelector('.hero');
+    var railActive = -1, railTick = false;
+
+    // A line ~28% down the viewport: a section counts as "current"
+    // once its heading has climbed into the top third, not only when
+    // it reaches the header.
+    var readingLine = function () {
+      var head = parseFloat(getComputedStyle(document.documentElement)
+                   .getPropertyValue('--h-header')) || 54;
+      return head + (document.documentElement.clientHeight - head) * 0.28;
+    };
+    var dotY = function (link) {
+      var d = link.querySelector('.drail-dot').getBoundingClientRect();
+      return d.top + d.height / 2 - lineEl.getBoundingClientRect().top;
+    };
+
+    function railSync() {
+      railTick = false;
+      if (!rail.getClientRects().length) return;   // hidden below 1200px
+      var doc = document.documentElement;
+      var line = readingLine();
+
+      var i = -1;
+      for (var n = 0; n < railTargets.length; n++) {
+        if (railTargets[n] && railTargets[n].getBoundingClientRect().top <= line) i = n;
+        else break;
+      }
+      var atBottom = doc.scrollHeight - (doc.scrollTop + doc.clientHeight) < 4;
+      if (atBottom) i = railTargets.length - 1;
+
+      // Appears once the hero is mostly behind you.
+      rail.classList.toggle('is-ready',
+        doc.scrollTop > (heroEl ? heroEl.offsetHeight * 0.55 : 400));
+
+      if (i !== railActive) {
+        railActive = i;
+        var id = i >= 0 ? railLinks[i].getAttribute('href').slice(1) : null;
+        railLinks.forEach(function (a, k) { a.classList.toggle('is-active', k === i); });
+        dsRows.forEach(function (r) { r.classList.toggle('is-active', r.id === id); });
+      }
+
+      if (fill) {
+        var h = 0;
+        if (i >= 0) {
+          var cur = railTargets[i], nxt = railTargets[i + 1];
+          var curTop = cur.getBoundingClientRect().top - line;
+          var nextTop = nxt ? nxt.getBoundingClientRect().top - line
+                            : cur.getBoundingClientRect().bottom - line;
+          var frac = nextTop > curTop
+            ? Math.min(1, Math.max(0, -curTop / (nextTop - curTop))) : 0;
+          if (atBottom) frac = 1;
+          var here = dotY(railLinks[i]);
+          var to = railLinks[i + 1] ? dotY(railLinks[i + 1]) : lineEl.clientHeight;
+          h = here + (to - here) * frac;
+        }
+        fill.style.height = Math.max(0, h) + 'px';
+      }
+    }
+
+    var railRequest = function () {
+      if (!railTick) { railTick = true; requestAnimationFrame(railSync); }
+    };
+    window.addEventListener('scroll', railRequest, { passive: true });
+    window.addEventListener('resize', railRequest, { passive: true });
+    railSync();
+  }
+
+  // ── Screenshot carousels: dots ────────────────────────────────
+  // One dot per shot, built here so they never show up where the
+  // script that drives them isn't running. Click a dot to jump; the
+  // lit dot also follows manual scrolling and swiping.
+  Array.prototype.forEach.call(document.querySelectorAll('.proj-shots'), function (shots) {
+    var track = shots.querySelector('.proj-carousel');
+    var dotWrap = shots.querySelector('.proj-dots');
+    if (!track || !dotWrap) return;
+    var figs = Array.prototype.slice.call(track.querySelectorAll('.shot'));
+    if (figs.length < 2) return;
+
+    var scrollTargetFor = function (fig) {
+      return fig.getBoundingClientRect().left
+             - track.getBoundingClientRect().left + track.scrollLeft;
+    };
+
+    var dots = figs.map(function (fig, k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'proj-dot';
+      b.setAttribute('aria-label', 'Show screenshot ' + (k + 1) + ' of ' + figs.length);
+      b.addEventListener('click', function () {
+        track.scrollTo({ left: scrollTargetFor(fig), behavior: reduce ? 'auto' : 'smooth' });
+      });
+      dotWrap.appendChild(b);
+      return b;
+    });
+
+    var cTick = false;
+    function cSync() {
+      cTick = false;
+      var origin = track.getBoundingClientRect().left;
+      var on = 0, best = Infinity;
+      figs.forEach(function (fig, k) {
+        var d = Math.abs(fig.getBoundingClientRect().left - origin);
+        if (d < best) { best = d; on = k; }
+      });
+      dots.forEach(function (d, k) {
+        d.classList.toggle('is-on', k === on);
+        d.setAttribute('aria-current', k === on ? 'true' : 'false');
+      });
+    }
+    var cReq = function () { if (!cTick) { cTick = true; requestAnimationFrame(cSync); } };
+    track.addEventListener('scroll', cReq, { passive: true });
+    window.addEventListener('resize', cReq, { passive: true });
+    cSync();
   });
-  var active = -1, ticking = false;
-
-  function sync() {
-    ticking = false;
-    var line = (parseFloat(getComputedStyle(document.documentElement)
-                  .getPropertyValue('--h-header')) || 54)
-               + (parseFloat(getComputedStyle(document.documentElement)
-                  .getPropertyValue('--h-secbar')) || 46) + 16;
-    var i = -1;
-    for (var n = 0; n < targets.length; n++) {
-      if (targets[n] && targets[n].getBoundingClientRect().top <= line) i = n;
-      else break;
-    }
-    var doc = document.documentElement;
-    if (doc.scrollHeight - (doc.scrollTop + doc.clientHeight) < 4) {
-      i = targets.length - 1;
-    }
-    if (i === active) return;
-    active = i;
-    links.forEach(function (a) { a.classList.remove('active'); });
-    if (links[i]) {
-      links[i].classList.add('active');
-      // Keep the active chip inside the bar's own scroll box on
-      // phones, without dragging the page along.
-      var box = bar.getBoundingClientRect();
-      var chip = links[i].getBoundingClientRect();
-      if (chip.left < box.left) bar.scrollLeft -= (box.left - chip.left) + 16;
-      else if (chip.right > box.right) bar.scrollLeft += (chip.right - box.right) + 16;
-    }
-  }
-
-  function request() {
-    if (!ticking) { ticking = true; requestAnimationFrame(sync); }
-  }
-  window.addEventListener('scroll', request, { passive: true });
-  window.addEventListener('resize', request, { passive: true });
-  sync();
 })();
 </script>
