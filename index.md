@@ -366,22 +366,17 @@ skills:
     items: [Solidity, Ethereum, Avalanche, Polygon, ERC-20, "Capacitor (iOS & Android)"]
 
 # ── About ────────────────────────────────────────────────────────
-# Was 4 paragraphs (~430 words) of body prose. Now 2 (~150), and it
-# moves into the front matter so the layout controls where it sits.
+# One short paragraph (~95 words), in the front matter so the layout
+# places it. How the AI track started, and how he still works.
 about: >-
-  My job title says AI Engineer. What I actually care about is how a system
-  behaves on its ten-thousandth request, at 3 a.m., when something it depends on
-  is down. I was asking that long before any of my work involved AI. Two years at
-  Zeonix taught me the expensive way, on payment flows and document checks where
-  a bug cost someone real money.
-
-
-  Then I built a fraud-detection feature on Google's Gemini, and the problem
-  changed shape. Ordinary software fails obviously. A system that *reasons*
-  fails convincingly — it gives you a wrong answer in a confident voice. So the
-  questions I spend my time on are rarely about wording a prompt. They are:
-  what is this thing allowed to do, who is asking, and what happens if it digs
-  up a document the person was never meant to see.
+  I started in security and moved into AI through the work, not a course. I spent
+  two years at Zeonix on payment and onboarding systems, and shipped my first
+  production LLM feature there: a document-authenticity check on Gemini, written
+  as fixed LangChain chains with retrieval grounding so a human verifier could
+  see why a document was flagged. The model advised and a person decided, and
+  that is still how I build. I care most about what a model can reach, whose
+  permissions it borrows, and whether I can reproduce every number I publish from
+  a clean clone.
 
 # ── Background — education, certs, awards compacted ───────────────
 education:

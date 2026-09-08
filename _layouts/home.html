@@ -15,18 +15,16 @@ layout: default
 
     <div class="hero-text">
       <p class="page-label">{{ p.role }}</p>
+      <p class="hero-hi">Hi <span class="hero-wave" role="img" aria-label="waving hand">👋</span>, I'm</p>
 
-      <h1 class="hero-name">{{ p.name }} <em>{{ p.surname }}</em></h1>
-
-      <p class="hero-tagline">
-        {{ p.tagline | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-      </p>
-
-      {% if p.status %}
-      <p class="hero-status">
-        <span class="status-dot" aria-hidden="true"></span>{{ p.status }}
-      </p>
-      {% endif %}
+      <!-- The name is rasterised into particles by home-fx.js. The <h1>
+           stays for SEO / screen readers / no-JS; .hero-fx-on (set by
+           the script) hides its fill and the canvas paints over it. -->
+      <div class="hero-name-wrap">
+        <h1 class="hero-name" id="hero-name"
+            data-first="{{ p.name }} " data-accent="{{ p.surname }}">{{ p.name }} <em>{{ p.surname }}</em></h1>
+        <canvas class="hero-name-fx" id="hero-name-fx" aria-hidden="true"></canvas>
+      </div>
 
       <nav class="hero-links" aria-label="Profile links">
         {% for l in page.links %}
@@ -109,13 +107,22 @@ layout: default
     <div class="band-inner">
 
       <!-- ── About — how I got here, and what I am good at ─────────
-           Was two rows (Position, Background). One row now: the essay
-           first, then the three claims it earns. -->
+           The positioning line and the "now" status used to sit in the
+           hero; they live here now. Then the essay, then the three
+           claims it earns. -->
       <div class="ds-row reveal" id="about">
         <p class="ds-heading">About <small>how I got here, and what I am good at</small></p>
         <div class="ds-val">
           <div class="ds-prose">
+            {% if p.tagline %}
+            <p class="ds-lede">
+              {{ p.tagline | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+            </p>
+            {% endif %}
             {{ page.about | markdownify }}
+            {% if p.status %}
+            <p class="ds-now"><span class="status-dot" aria-hidden="true"></span>{{ p.status }}</p>
+            {% endif %}
           </div>
           <div class="ds-claims">
             {% for pil in page.pillars %}
@@ -559,8 +566,8 @@ layout: default
   // simply shows the finished hero instead of an invisible one.
   var heroInner = document.querySelector('.hero-inner');
   if (heroInner && !reduce) {
-    [['.page-label', 0], ['.hero-name', 0.06], ['.hero-tagline', 0.14],
-     ['.hero-status', 0.2], ['.hero-links', 0.26], ['.hero-portrait', 0.1]
+    [['.page-label', 0], ['.hero-hi', 0.05], ['.hero-name-wrap', 0.1],
+     ['.hero-links', 0.24], ['.hero-portrait', 0.12]
     ].forEach(function (pair) {
       var el = heroInner.querySelector(pair[0]);
       if (!el) return;
@@ -715,3 +722,9 @@ layout: default
   });
 })();
 </script>
+
+<!-- Home-only visual effects. defer keeps them off the critical path and
+     preserves order (the vendored Bubble engine must define its global
+     before home-fx.js calls it). Both degrade to nothing without JS. -->
+<script defer src="{{ '/assets/js/vendor/canvas-ui-bubble.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/js/home-fx.js' | relative_url }}"></script>

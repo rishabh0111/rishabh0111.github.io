@@ -369,8 +369,10 @@ body, .site-header, .site-footer, .sidebar-card,
   /* The hero's pointer effects are decorative; JS also checks this
      query and never binds, so these only cover the CSS-driven parts. */
   .hero-inner .hero-rise { opacity: 1; transform: none; animation: none; }
-  .hero-name .ltr { transform: none !important; }
   .portrait-plate, .portrait-plate img { transform: none !important; }
+  /* No particle field either — home-fx.js bails on this query, so the
+     plain <h1> stays visible (.hero-fx-on is never set). */
+  .hero-name-fx { display: none; }
   /* The clamp deliberately survives here. Reduced motion asks for no
      ANIMATION, not for less functionality — the height transition is
      already killed by the rule above, and hiding the toggle instead
@@ -460,6 +462,29 @@ body::before {
   background-size: 180px 180px;
   opacity: var(--px-tex-op);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   PAGE BUBBLE — Canvas UI's Bubble effect (vendored) as a full-page
+   layer that trails the pointer. home-fx.js appends the canvas and
+   drives it; it renders only near the cursor and pauses off-screen.
+   Above the content, below the sticky header and the image viewer.
+   pointer-events:none so it never intercepts a click.
+════════════════════════════════════════════════════════════════ */
+#cui-bubble {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 90;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) #cui-bubble { mix-blend-mode: multiply; opacity: 0.5; }
+}
+:root[data-theme="light"] #cui-bubble { mix-blend-mode: multiply; opacity: 0.5; }
+@media (prefers-reduced-motion: reduce) { #cui-bubble { display: none; } }
 
 
 /* ════════════════════════════════════════════════════════════════
@@ -773,6 +798,16 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   transform: rotate(10deg);
   margin-left: 1px;
   font-style: normal;
+}
+/* Terminal cursor block after the slash — the same mark as the favicon
+   ("RISHABH SHARMA/" + a prompt cursor). Static, like the favicon. */
+.logo-cur {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.16em;
+  margin-left: 3px;
+  border-radius: 1px;
+  background: var(--accent);
 }
 
 /* Nav: generous gap, no box, just text. Active = lacquer underline. */
@@ -1986,7 +2021,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 ──────────────────────────────────────────────────────────────── */
 .hero {
   background: transparent;
-  padding: var(--s10) var(--s5) var(--s8);
+  padding: var(--s6) var(--s5);
   position: relative; overflow: hidden;
 }
 .hero::before {
@@ -2000,56 +2035,97 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
     var(--lacquer) 0%, var(--lacquer) 56px, transparent 56px);
 }
 
-/* The text column is capped rather than 1fr: a 1fr column swallows all the
-   spare width, and since the tagline wraps at its own measure, that surplus
-   shows up as a dead band between the copy and the photo. */
+/* Name block on the left, portrait plate on the right. The name runs
+   big and carries the text column alone, so the portrait bottom-aligns
+   with the link row — the two sit on one baseline instead of the photo
+   floating past the text top and bottom. */
 .hero-inner {
   max-width: var(--max-w); margin: 0 auto;
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 640px) 300px;
+  grid-template-columns: minmax(0, 1fr) clamp(240px, 23vw, 310px);
   justify-content: center;
-  gap: var(--s6);
+  gap: clamp(var(--s5), 5vw, var(--s8));
   align-items: center;
 }
+.hero-text { min-width: 0; }
 
-/* The name carries the page. Surname in italic accent. */
-.hero-name {
+/* Greeting between the eyebrow and the name, leading into it ("Hi 👋,
+   I'm" → Rishabh Sharma). Small, in the display face; the hand waves on
+   a loop with a long rest between waves. */
+.hero-text .page-label { margin-bottom: var(--s2); }
+.hero-hi {
+  margin: 0 0 10px;
   font-family: var(--f-display);
-  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  font-weight: 400;
+  color: var(--plane-ink-2);
+  letter-spacing: -0.01em;
+}
+.hero-wave {
+  display: inline-block;
+  margin-left: 2px;
+  transform-origin: 72% 78%;
+  animation: hero-wave 3s ease-in-out 0.6s infinite;
+}
+@keyframes hero-wave {
+  0%   { transform: rotate(0deg); }
+  6%   { transform: rotate(14deg); }
+  12%  { transform: rotate(-8deg); }
+  18%  { transform: rotate(14deg); }
+  24%  { transform: rotate(-4deg); }
+  30%  { transform: rotate(10deg); }
+  36%, 100% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-wave { animation: none; }
+}
+
+/* The name carries the page, and it carries it alone now — the
+   tagline and status moved to About. So it runs large. Surname in
+   italic accent. home-fx.js rasterises it into particles that spring
+   into place and scatter under the pointer; the <h1> underneath stays
+   for SEO / screen readers / no-JS. */
+.hero-name-wrap {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+}
+.hero-name {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(3.2rem, 9vw, 6.6rem);
   font-weight: 400;
   color: var(--plane-ink);
   letter-spacing: -0.03em;
-  line-height: 0.95;
+  line-height: 0.92;
+  /* literal colours (not var()) so the canvas can read them back */
+  --fx-ink: #2E3440;
+  --fx-accent: #1E768F;
 }
 .hero-name em { font-style: italic; color: var(--accent); }
-
-/* Per-letter wrappers, added by JS so the name can react to the
-   pointer. inline-block is what makes them transformable; the
-   negative margin cancels the sliver of space inline-block adds so
-   the kerning is unchanged when the effect is idle. */
-.hero-name .ltr {
-  display: inline-block;
-  will-change: transform;
-  transition: transform 0.5s var(--ease-out);
+:root[data-theme="dark"] .hero-name { --fx-ink: #ECEFF4; --fx-accent: #88C0D0; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hero-name { --fx-ink: #ECEFF4; --fx-accent: #88C0D0; }
 }
-.hero-name.lit .ltr { transition: transform 0.12s linear; }
-.hero-name .ltr-sp { display: inline-block; width: 0.26em; }
 
-.hero-tagline {
-  margin-top: var(--s3);
-  font-size: 1.02rem; line-height: 1.7;
-  color: var(--plane-ink-2);
+/* Canvas overlay, exactly over the <h1> box. */
+.hero-name-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
-.hero-tagline strong { color: var(--plane-ink); font-weight: 700; }
+/* Set by home-fx.js once the particle field is built: drop the live
+   text's fill and let the canvas paint the name. The canvas is sized
+   (and squeezed on narrow screens) to fit inside .hero-text; the now-
+   invisible text stays one line and .hero (overflow:hidden) clips it. */
+.hero-fx-on .hero-name,
+.hero-fx-on .hero-name em { color: transparent; }
+.hero-fx-on .hero-name { white-space: nowrap; }
 
-.hero-status {
-  display: flex; align-items: center;
-  margin-top: var(--s4);
-  font-family: var(--f-mono); font-size: 10.5px;
-  letter-spacing: 0.04em; line-height: 1.5;
-  color: var(--plane-ink-2);
-}
 .status-dot {
   width: 6px; height: 6px; border-radius: 50%;
   background: var(--accent);
@@ -2101,15 +2177,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .hero-portrait { margin: 0; position: relative; }
 .portrait-plate {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 5 / 6;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--plane-rule);
   box-shadow: var(--panel-shadow);
-  /* The tilt is applied by JS on pointer move; this is the rest state
-     and the spring back to it. */
-  transform: perspective(900px);
-  transition: transform 0.5s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  transition: box-shadow 0.4s var(--ease-out);
 }
 .hero-portrait:hover .portrait-plate {
   box-shadow: 0 18px 50px rgba(0,0,0,0.22);
@@ -2156,11 +2229,17 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--plane-ink-2);
 }
 
+/* Photo credit, set into the bottom-left of the plate rather than
+   dangling below it (that dangle was most of why the portrait read as
+   an afterthought). */
 .hero-portrait figcaption {
-  margin-top: var(--s2);
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  padding: 22px 12px 9px;
   font-family: var(--f-mono); font-size: 8.5px;
   letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--plane-faint);
+  color: #ECEFF4;
+  background: linear-gradient(to top, rgba(20,24,31,0.62), transparent);
+  pointer-events: none;
 }
 
 /* ── Hero entrance ────────────────────────────────────────────
@@ -2664,23 +2743,17 @@ details.more > summary:hover,
 }
 
 @media (max-width: 860px) {
-  /* One column, and the portrait leads as a full-width opener rather
-     than a 190px square parked in the corner. At that size it read as
-     a stray thumbnail, left a dead band under its two-line caption,
-     and pushed the name most of a screen down the page. */
+  /* One column. The name leads (it is the hook now); the portrait
+     follows it, kept as a portrait crop rather than the squished
+     landscape band it used to become. */
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: var(--s4);
-    justify-items: stretch;
+    gap: var(--s5);
+    justify-items: start;
   }
-  /* Capped, not truly full-bleed: at 768px an uncapped plate came out
-     688x430 and pushed the name off the first screen. Below ~470px the
-     cap is never reached, so phones still get edge-to-edge. */
-  .hero-portrait { order: -1; width: 100%; max-width: 440px; justify-self: start; }
-  /* Wide crop: a 4:5 plate at full width would eat the whole viewport */
-  .hero-portrait .portrait-plate { aspect-ratio: 16 / 10; }
-  .hero-portrait .portrait-plate img { object-position: 50% 22%; }
-  .hero-portrait figcaption { margin-top: 10px; }
+  .hero-portrait { width: 100%; max-width: 300px; }
+  .hero-portrait .portrait-plate { aspect-ratio: 4 / 5; }
+  .hero-portrait .portrait-plate img { object-position: 50% 16%; }
   .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
 }
 
@@ -2699,9 +2772,7 @@ details.more > summary:hover,
 
 @media (max-width: 640px) {
   .hero { padding: var(--s5) var(--s3) var(--s6); }
-  .hero-name { font-size: clamp(2.4rem, 11vw, 3.6rem); }
-  .hero-tagline { font-size: 0.97rem; }
-  /* The status line sat under the fixed bottom nav on short screens */
+  .hero-name { font-size: clamp(2.6rem, 13vw, 4rem); }
   .hero-links { margin-top: var(--s4); }
   .contact { padding: var(--s8) var(--s5) var(--s10); }
   .section-more { flex-direction: column; gap: var(--s2); }
@@ -3380,13 +3451,21 @@ details.more > summary:hover,
   border-radius: 999px; padding: 3px 9px;
 }
 
-/* ── About: the essay, then the three claims it earns ──────────
+/* ── About: the essay and the three claims it earns, side by side ─
    Both used to be their own dossier rows (Background, Position).
-   Now one row: prose first, then the claims under a hairline. */
+   The essay holds a ~34rem reading measure; on its own that left the
+   card half empty on wide screens, so the claims take the right
+   column, split off by a hairline. Below 1000px they stack, essay
+   first, and the hairline moves to the top (see the responsive
+   block). */
+#about .ds-val {
+  display: grid;
+  grid-template-columns: minmax(0, 34rem) 1fr;
+  column-gap: var(--s6);
+}
 .ds-claims {
-  margin-top: var(--s5);
-  padding-top: var(--s4);
-  border-top: 1px solid var(--border);
+  padding-left: var(--s6);
+  border-left: 1px solid var(--border);
 }
 .ds-claim + .ds-claim { margin-top: var(--s3); }
 .ds-claim-title {
@@ -3396,13 +3475,29 @@ details.more > summary:hover,
 }
 .ds-claim-body { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
 
-/* ── About prose — a reading measure inside the wide column ───── */
+/* ── About prose — the reading measure is set by the grid column ── */
 .ds-prose p {
   font-size: 14px; line-height: 1.8; color: var(--text-2);
-  margin: 0 0 var(--s2); max-width: 72ch;
+  margin: 0 0 var(--s2);
 }
 .ds-prose p:last-child { margin-bottom: 0; }
 .ds-prose em { color: var(--text-3); }
+
+/* The positioning line (from the hero) opens the essay as its first
+   paragraph — one passage, not a separate standfirst. Ink rather than
+   the body grey, so it still leads. */
+#about .ds-lede { color: var(--text); }
+#about .ds-lede strong { font-weight: 700; color: var(--accent); }
+
+/* The "now" line, also from the hero — a mono footnote under the essay. */
+#about .ds-now {
+  display: flex; align-items: center;
+  margin: var(--s4) 0 0;
+  font-family: var(--f-mono); font-size: 10.5px;
+  letter-spacing: 0.04em; line-height: 1.5;
+  color: var(--text-3);
+}
+#about .ds-now .status-dot { margin-right: 9px; }
 
 /* ── Smaller projects — a line each ──────────────────────────── */
 .minor { padding: var(--s2) 0; border-bottom: 1px solid var(--border); }
@@ -3429,6 +3524,18 @@ details.more > summary:hover,
 
 /* ── Responsive ───────────────────────────────────────────────────
    Every multi-column grid on the page collapses to one track. */
+/* About: below 1000px the two columns don't both fit a usable width,
+   so stack them, essay first, and move the hairline back to the top. */
+@media (max-width: 1000px) {
+  #about .ds-val { display: block; }
+  .ds-claims {
+    margin-top: var(--s5);
+    padding: var(--s4) 0 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
 @media (max-width: 900px) {
   .ds-row { padding: var(--s4) var(--s3); }
   .proj-carousel .shot { flex-basis: 86%; }

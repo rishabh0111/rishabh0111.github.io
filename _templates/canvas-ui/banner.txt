@@ -1,0 +1,7 @@
+/*!
+ * Bubble effect vendored from Canvas UI — https://github.com/DavidHDev/canvas-ui
+ * (c) David Haz. MIT + Commons Clause. Used unmodified except for TypeScript
+ * type-stripping and IIFE wrapping. Source: src/lib/Bubble/BubbleVanilla.ts +
+ * src/lib/rect-cache.ts. Rebuild: see _templates/canvas-ui/build.sh
+ * Exposes window.CanvasUIBubble = { createBubble, supportsHtmlInCanvas }.
+ */

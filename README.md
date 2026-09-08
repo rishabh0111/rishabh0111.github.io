@@ -21,10 +21,12 @@ To change the page, change that file.
 
 | Key | What it becomes |
 | --- | --- |
-| `profile`, `links` | The hero |
+| `profile.name` / `.surname` / `.role` / `.avatar` | The hero (name, eyebrow, portrait) |
+| `profile.tagline`, `profile.status` | **About** — the standfirst line and the "now" line (moved out of the hero) |
+| `links` | The link pills, in the hero and the closing plane |
 | `metrics` | The four-figure stat band |
-| `pillars` | **Position** — the three claims |
-| `about` | **Background** — the essay, as two paragraphs |
+| `pillars` | **About** — the three claims, right column |
+| `about` | **About** — the essay |
 | `projects` | **Projects** — one section, however many entries. Each has `promise` (a pull quote), `glance` (a table), `shots`, optional `parts` (rendered as cards), and `links` |
 | `projects_small` | Smaller ones, a line each |
 | `experience` | **Experience**, with `ventures` nested |
@@ -45,6 +47,20 @@ Two conventions worth knowing:
   uses it for its AI layer, API and front ends.
 
 Adding a project means adding to `projects:` — the layout does not change.
+
+### Home page effects
+
+The home page has two GPU/canvas touches, in `assets/js/` (loaded `defer`, home only):
+
+- `assets/js/home-fx.js` — the hero name as particles, plus the page-wide bubble init.
+- `assets/js/vendor/canvas-ui-bubble.js` — the [Canvas UI](https://github.com/DavidHDev/canvas-ui)
+  `Bubble` effect, vendored and compiled to a plain script. Rebuild with
+  `_templates/canvas-ui/build.sh` (needs Node + npx; esbuild is fetched on demand). The two
+  TypeScript source files it bundles are checked in next to that script.
+
+Both are progressive enhancement — with JS off, `prefers-reduced-motion`, or no WebGL2, the
+plain hero and page render unchanged. Append `?fxsnap` to the home URL to skip the name's
+intro animation and draw it settled (useful for screenshots).
 
 ### Tech marks
 
