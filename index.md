@@ -1,38 +1,37 @@
 ---
 # ═════════════════════════════════════════════════════════════════
-#  HOME — the whole portfolio lives in this file.
+#  HOME — all of the page's content lives in this front matter.
+#  _layouts/home.html renders it as the dossier layout: a label
+#  column and a content column, one width top to bottom.
 #
-#  Everything below the front matter is the "About" prose.
-#  Everything inside it is structured data rendered by _layouts/home.html.
 #  Bullet strings accept inline Markdown (**bold**, `code`, [links](#)).
+#  Stack strings are matched against _data/tech_logos.json to pick a
+#  brand mark; a name with no mark renders as initials, on purpose.
+#  Adding a tool? Add it here, then re-run:
+#      python _templates/logos/build_logos.py
 #
-#  To change the page, change this file. Nothing else.
+#  To change the page, change this file.
 # ═════════════════════════════════════════════════════════════════
 layout: home
 title: Rishabh Sharma
 description: >-
-  Engineer working across AI agents, backends, and full-stack product.
-  Currently running a live LLM agent over an HRIS platform at Kleeto.
-  Previously shipped three B2B platforms end to end.
+  AI engineer. I build assistants companies can trust: a live one inside
+  Kleeto's HR platform, a shared help desk that keeps every company's data
+  apart, and three business platforms before those.
 permalink: /
 
 profile:
   name:      Rishabh
   surname:   Sharma
-  # Shown as the small label above the name. Keep it short.
-  role:      AI · Backend · Full-stack
+  role:      AI · Backend · Security
   location:  Gurugram, India
-  # Drop your photo at this path. Until it exists, an "RS" monogram renders.
-  # The plate is a 1:1 crop, so a roughly square source works best.
   avatar:    /assets/img/profile.jpg
   avatar_caption: Gurugram, 2026
-  status:    Building the live agent layer over Kleeto's HRIS platform
+  status:    Building the AI assistant inside Kleeto's HR platform
   tagline: >-
-    **Engineer first.** AI is where I'm pointed right now: a live agent
-    running over an entire HRIS platform. Under it sits the part that
-    actually transfers, which is durable backends and two years of shipping
-    full-stack product. I came up through Information Security, so I ask
-    what breaks before I ask what ships.
+    I build **AI assistants that companies can actually trust**, and the
+    backends underneath them. I trained in security, so I ask how something
+    breaks before I ask when it ships.
 
 links:
   - { label: GitHub,   url: "https://github.com/rishabh0111",       icon: github }
@@ -40,101 +39,202 @@ links:
   - { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
-# ── What I want to be believed about. Rendered as a 2×2 grid. ────
+# ── Pillars — renders as "Position", the three claims ────────────
+# Three claims, and only three. More would dilute each one.
+# "Full-stack" is deliberately not a pillar: it is evidence inside
+# the work below, where it is more convincing than as a claim.
 pillars:
-  - title: Agents in production
-    body: >-
-      A live LLM agent over Kleeto's HRIS platform, covering the whole
-      employee lifecycle. Five hundred people depend on it during their
-      working day, which changes how you build the thing.
-  - title: Security by design
-    body: >-
-      An Information Security specialization and CEH v11, spent on
-      architecture. Guardrail-by-contract, approval-gated actions,
-      RBAC-scoped retrieval. Five roles behind SSO at Zeonix, no access
-      incidents in eighteen months.
-  - title: Durable distributed backends
-    body: >-
-      Outbox pattern, idempotency, dead-lettering, HMAC signing, reconciler
-      backstops. I design for the crash, on the theory that the happy path
-      takes care of itself.
-  - title: Full-stack, end to end
-    body: >-
-      Three B2B platforms owned from API design through Angular and React
-      frontends, integrations, deployment, backups, and client onboarding.
-      Some Solidity, a Selenium bot, a Capacitor mobile build. I don't hand
-      off at the boundary.
-
-# ── The numbers. Deliberately spanning all four pillars. ─────────
-metrics:
-  - { figure: "500+", label: employees served by the live agent }
-  - { figure: "3",    label: B2B platforms shipped end-to-end }
-  - { figure: "70%",  label: faster data ingestion at ZeoCRM }
-  - { figure: "0",    label: successful prompt injections }
-
-# ── Skills ───────────────────────────────────────────────────────
-# `icon` picks an inline SVG from the {% case %} in _layouts/home.html.
-# Valid: code · spark · chip · shield · server · database · window ·
-#        cube · link · check · blocks · phone
-skills:
-  - group: Languages
-    icon:  code
-    items: [Python, JavaScript (ES6+), TypeScript, Node.js, C/C++, SQL]
-
-  - group: AI & LLM Engineering
+  - title: AI that real people use
     icon:  spark
-    items: [LangGraph, Model Context Protocol, RAG, LangChain, Qdrant, Embeddings,
-            Prompt engineering, Eval harnesses, Guardrails, Langfuse, Multi-model routing]
-
-  - group: Models
-    icon:  chip
-    items: [Anthropic Claude, OpenAI, Google Gemini, Groq, "Ollama (Llama, Qwen, Gemma, Kimi)"]
-
-  - group: Security
+    body: >-
+      An assistant inside Kleeto's HR platform, used by 500+ employees across
+      six parts of the system. Plus Nivara Desk, where the AI hands the question
+      to a person rather than guess at it.
+  - title: Security built in, not added later
     icon:  shield
-    items: [CEH v11, OWASP LLM Top 10, Prompt-injection resistance, HMAC signing,
-            JWT + RBAC, Adversarial testing, Rate limiting]
-
-  - group: Backend
+    body: >-
+      A security degree and a CEH certificate, used on design rather than
+      audits. I prefer making a mistake impossible over writing a rule that
+      asks people not to make it.
+  - title: Backends that survive a bad day
     icon:  server
-    items: [FastAPI, Express.js, NestJS, GraphQL, Microservices, Outbox pattern,
-            Idempotent processing, BullMQ, Redis, WSO2 SSO, OpenAPI]
+    body: >-
+      Retries, duplicate protection, signed requests, jobs that resume after a
+      crash. I design for the thing going wrong, because the version where
+      everything works takes care of itself.
 
-  - group: Data
-    icon:  database
-    items: [PostgreSQL, MongoDB, MySQL, Redis, Neon, Supabase, Schema design, Query optimization]
+# ── Metrics ──────────────────────────────────────────────────────
+# Deliberately one per pillar, plus the track record.
+metrics:
+  - { figure: "500+",  label: employees using the assistant }
+  - { figure: "93.6%", label: right call on a test of 600 questions }
+  - { figure: "0",     label: attempts to trick the AI that worked }
+  - { figure: "4",     label: platforms shipped start to finish }
 
-  - group: Frontend
-    icon:  window
-    items: [React, Redux, Next.js, Angular, Tailwind CSS, RxJS, Material UI]
+# ═════════════════════════════════════════════════════════════════
+#  PROJECTS — one section, however many entries. Add a project here
+#  and the page grows; nothing in _layouts/home.html needs touching.
+#
+#  `promise` is the one sentence the thing guarantees. It renders as
+#  the pull quote, so keep it to a sentence.
+#  `glance`  is the summary table.
+#  `shots`   need `src`; add `src_dark` only if the image is unreadable
+#            on the dark theme.
+#  `parts`   renders as cards, for a project with separable pieces.
+# ═════════════════════════════════════════════════════════════════
+projects:
+  - name:     Nivara Desk
+    year:     "2026"
+    kind:     Flagship
+    blurb:    A help desk that many companies share, where the AI answers only when it should
+    languages: [Python, TypeScript]
 
-  - group: Infrastructure
-    icon:  cube
-    items: [Docker, Kubernetes, GitHub Actions, Jenkins, Nginx, Linux,
-            "AWS (EC2, S3, RDS, Lambda, IAM)", "Azure (App Service, Blob)"]
+    promise: >-
+      Four ways to log in, one set of rules — so *"is this person allowed to see
+      this ticket?"* has the same answer everywhere.
 
-  - group: Integrations
-    icon:  link
-    items: [Razorpay, ICICI Payments, Digilocker, Gmail API, Google Calendar,
-            Microsoft Graph, Slack Bolt, Selenium, Metabase]
+    body: >-
+      Someone asks a question from a chat box on their supplier's website. It
+      becomes a real ticket in the support queue with a response clock running.
+      The AI answers if it is confident; otherwise a person picks it up.
 
-  - group: Testing & Quality
-    icon:  check
-    items: [Postman, Selenium WebDriver, Integration testing, Deterministic agent testing,
-            In-memory fakes, Golden-task eval harnesses]
+    shots:
+      - { src: /assets/img/nivara/queue.light.png,       src_dark: /assets/img/nivara/queue.dark.png,       alt: "Support queue with response clocks",  caption: "The support queue" }
+      - { src: /assets/img/nivara/ticket.light.png,      src_dark: /assets/img/nivara/ticket.dark.png,      alt: "A ticket showing the AI's answer",    caption: "One ticket, and how the AI answered it" }
+      - { src: /assets/img/nivara/widget.host.light.png, src_dark: /assets/img/nivara/widget.host.dark.png, alt: "Chat widget on another company's page", caption: "The chat box, on someone else's site" }
+      - { src: /assets/img/nivara/analytics.light.png,   src_dark: /assets/img/nivara/analytics.dark.png,   alt: "Analytics dashboard",                 caption: "Analytics, behind its own permission" }
 
-  - group: Blockchain & Web3
-    icon:  blocks
-    items: [Solidity, Ethereum, Avalanche C-Chain, Polygon, ERC-20, zkSNARK circuits, MetaMask]
+    glance:
+      - { k: Guarantee, v: "One company can never see another's data — the database enforces it, not the code" }
+      - { k: Built with, v: "Postgres row-level security · a trained answer gate · replayable tests" }
+      - { k: Size,      v: "4 apps · 3 services · 18 permissions · 550 labelled test questions" }
+      - { k: Runs on,   v: "Free hosting, and `docker compose up` with no API keys" }
 
-  - group: Mobile
-    icon:  phone
-    items: ["Capacitor (iOS & Android)"]
+    parts:
+      - id:    ai
+        label: AI layer
+        lang:  Python
+        stack: [FastAPI, Hybrid RAG, Qdrant, MCP, Langfuse, pytest]
+        blog:  /blogs/nivara-desk-part-four/
+        promise: >-
+          Anything the model writes on its own can never reach a customer.
+        points:
+          - >-
+            The only way out is a reply built from a real document, so a made-up
+            answer is **impossible rather than unlikely**. A trained gate decides
+            when to answer and when to fetch a human — and money questions always
+            go to a human.
+        measured:
+          - { figure: "93.6%", label: right call, 595 of 600 }
+          - { figure: "94.2%", label: found the right document first }
+          - { figure: "6.8%",  label: sent to a human when it could have answered }
+          - { figure: "$0",    label: to re-run every test }
 
-# ── Experience ───────────────────────────────────────────────────
+      - id:    api
+        label: API
+        lang:  TypeScript
+        stack: [NestJS, Prisma, PostgreSQL RLS, PgBouncer, Socket.IO, Redis]
+        blog:  /blogs/nivara-desk-part-two/
+        promise: >-
+          Forget the company filter on a query and you get nothing back — never
+          someone else's data.
+        points:
+          - >-
+            Postgres itself blocks the rows, so a mistake in the code cannot leak
+            them. Asking for another company's ticket returns **404, not 403** —
+            saying "forbidden" would confirm the ticket exists.
+
+      - id:    web
+        label: Front ends
+        lang:  TypeScript
+        stack: [Next.js 15, React 19, Tailwind v4, TanStack, Shadow DOM, Playwright]
+        blog:  /blogs/nivara-desk-part-three/
+        promise: >-
+          Every screenshot above was taken from the running app by a script.
+        points:
+          - >-
+            Four apps share one codebase: the agent dashboard, the customer
+            portal, the analytics view, and a chat box that drops into any
+            website **under 60 KB** without picking up that site's styling.
+
+    links:
+      - { label: Live app, icon: external, url: "https://nivara-web-nextjs.vercel.app/dashboard" }
+      - { label: Product,  icon: external, url: "https://nivara-landing-iota.vercel.app" }
+      - { label: API docs, icon: external, url: "https://nivara-api-nestjs.onrender.com/docs" }
+      - { label: Chat box, icon: external, url: "https://rishabh0111.github.io/nivara-web-nextjs/" }
+      - { label: Source,   icon: github,   url: "https://github.com/rishabh0111?tab=repositories&q=nivara" }
+      - { label: Write-up, icon: pen,      url: "/blogs/nivara-desk-part-one/" }
+
+  - name:     Webhook Delivery Engine
+    year:     "2026"
+    kind:     Systems
+    blurb:    Sends webhooks and never loses one, even when things break
+    languages: [Node.js]
+
+    promise: >-
+      Once the API says `202`, the event is either delivered or recorded as
+      failed — and every attempt in between is written down.
+
+    body: >-
+      There is no fourth outcome where an event quietly disappears. That is the
+      whole point, and the hardest part to keep true.
+
+    # A light UI, and readable on both themes, so no `src_dark`.
+    shots:
+      - { src: /assets/img/webhook/dashboard.png, alt: "Operator dashboard showing live counters and demo controls", caption: "The operator dashboard" }
+      - { src: /assets/img/webhook/events.png,    alt: "Event list showing a dead-lettered event and two retrying",  caption: "Every attempt, including the failures" }
+
+    glance:
+      - { k: Guarantee, v: "Accepted once · delivered at least once · never silently lost" }
+      - { k: Built with, v: "Outbox pattern · dead-letter queue with replay · signed requests" }
+      - { k: Runs on,   v: "$0 of hosting" }
+
+    points:
+      - >-
+        **Postgres holds the truth; Redis is only a scheduler.** That sounds
+        minor and it is the whole design — the entire Redis instance can be wiped
+        without losing a single event.
+      - >-
+        A process can die between saving an event and queueing it. A **sweeper**
+        runs every few minutes and picks up anything left stranded in that gap.
+
+    stack: [Express, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
+    links:
+      - { label: Live demo, icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/dashboard" }
+      - { label: API docs,  icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/docs" }
+      - { label: Source,    icon: github,   url: "https://github.com/rishabh0111/webhook-delivery-engine" }
+      - { label: Write-up,  icon: pen,      url: "/blogs/webhook-delivery-engine/" }
+
+# ── Smaller projects — a line each ───────────────────────────────
+projects_small:
+  - name: MoviesWave
+    language: JavaScript
+    line: >-
+      A film browser. Caching in the browser cut repeat calls to the film
+      database by **about half** in a normal browsing session.
+    links:
+      - { label: Source, icon: github,   url: "https://github.com/rishabh0111/MoviesWave" }
+      - { label: Live,   icon: external, url: "https://movieswave.netlify.app" }
+  - name: MetaMask ETH Bank
+    language: Solidity
+    line: >-
+      A smart contract for deposits and withdrawals, using a crypto wallet to
+      sign in. No server involved.
+    links:
+      - { label: Source, icon: github, url: "https://github.com/rishabh0111/MetaMask-ETH-Bank" }
+
+# ═════════════════════════════════════════════════════════════════
+#  EXPERIENCE — three bullets at Kleeto, two per Zeonix venture.
+#  `logo` is the company mark; add `logo_dark` only for a wordmark
+#  that needs a second version to read on the dark theme.
+# ═════════════════════════════════════════════════════════════════
 experience:
   - company: Kleeto
     legal:   Next Gen Paper Solutions Pvt. Ltd.
+    # A wordmark, so it needs both grounds: the colour mark is
+    # invisible on the dark theme and the white one on the light.
+    logo:      /assets/img/logos/kleeto.light.png
+    logo_dark: /assets/img/logos/kleeto.dark.png
     role:    AI Engineer
     period:  May 2026 — Present
     place:   Gurugram
@@ -142,178 +242,157 @@ experience:
     stack:   [Python, FastAPI, MCP, LangGraph, RAG, Claude, OpenAI]
     points:
       - >-
-        Own the design and delivery of the **live AI agent layer over Kleeto's
-        HRIS platform**, covering recruitment, onboarding, attendance, payroll,
-        and offboarding, plus a separate document management system. Every
-        module became natural-language self-service.
+        I own the **AI assistant inside Kleeto's HR platform** — hiring,
+        onboarding, attendance, payroll, leaving, and the document system. Staff
+        now ask for things in plain English instead of hunting through screens:
+        **500+ employees, 6 parts of the platform, 18 actions the assistant can take**.
       - >-
-        Architected the agent in **Python/FastAPI** as an **MCP tool surface**
-        over platform modules, driven by a **LangGraph** orchestrator for
-        planning and tool routing, with **RAG** grounding responses in HR
-        knowledge and policy content.
+        Built in **Python and FastAPI**. The assistant plans what to do, looks
+        up the relevant HR policy, and answers from it rather than from memory.
+        Security came first: it asks for approval before anything sensitive, and
+        **it can never see or do more than the person asking it**.
       - >-
-        Engineered security in from day one: least-privilege tool access,
-        approval gates on sensitive actions, and RBAC-scoped retrieval. The
-        agent can never see or do more than the requesting user could.
-      - >-
-        Held quality and cost to measured targets: **85%+ eval-verified task
-        completion**, **zero successful prompt injections** across a 50+ case
-        adversarial suite, **p95 ~6s** at **~$0.02 per resolved query**,
-        traced end-to-end in Langfuse.
-      - >-
-        Routine HR queries now resolve **same-day through self-service**. The
-        same question used to cost a 1–2 day ticket-and-reply cycle.
+        Measured, not assumed: **85%+ of tasks completed correctly**, **no
+        successful attempt** to trick it out of 50+ tries, answers in about
+        **6 seconds** for roughly **2 cents each**. Everyday HR questions are
+        now answered **the same day** instead of taking one to two.
 
   - company: Zeonix Global Pvt. Ltd.
+    # The full wordmark. "nix Global" is near-black, so it needs a
+    # lifted version to stay readable on the dark theme.
+    logo:      /assets/img/logos/zeonix.light.png
+    logo_dark: /assets/img/logos/zeonix.dark.png
     role:    Software Developer
     period:  Jun 2024 — Apr 2026
     place:   Chandigarh
     stack:   [Node.js, Express, PostgreSQL, GraphQL, Angular, WSO2]
     summary: >-
-      Designed and shipped **three production B2B platforms**, owning services
-      end-to-end: API design, security, integrations, deployment, backups, and
-      client onboarding.
+      Built and shipped **three business platforms**, owning each one from the
+      API through to security, integrations, deployment, backups and getting
+      clients set up.
     ventures:
       - name: ZeoCRM
         note: University management · all 40+ Australian universities
         points:
           - >-
-            Cut university data-ingestion time **70%**, from ~3 hours of manual
-            entry to under an hour per intake cycle, with a Node.js Excel
-            pipeline that parsed, validated, and bulk-inserted 10,000+ records
-            into PostgreSQL.
+            Replaced manual data entry with a spreadsheet importer that checks
+            and loads **10,000+ records** at once, cutting the job from about
+            **three hours to under one**.
           - >-
-            Improved average API response time **40% (~1.5s → ~900ms)** on the
-            platform's highest-traffic endpoints (~10K requests/day) via
-            server-side pagination, GraphQL query optimization, and DB indexing.
-          - >-
-            Secured 5 distinct user roles with product-module RBAC, WSO2 SSO, and
-            JWT middleware. **Zero unauthorized-access incidents across 500+
-            users over 18 months** post-launch.
-          - >-
-            Eliminated **4–6 hours/week** of repetitive admissions work with a
-            Selenium bot, and cut commission processing from **2 days to
-            same-day** by automating payouts across 100+ agent partners.
-
+            Made the busiest pages **40% faster (1.5s → 0.9s)** on ~10K requests a
+            day, and set up single sign-on with five permission levels —
+            **no unauthorised access in 18 months across 500+ users**.
       - name: ZeoVerify
         note: Document verification & digital onboarding
         points:
           - >-
-            Reduced manual verification effort **60% (~25 → ~10 minutes per
-            application)** across hundreds of applications/month by integrating
-            ICICI Payments, Razorpay, and Digilocker into an end-to-end digital
-            onboarding flow.
+            Cut document checking from about **25 minutes to 10** per
+            application. Instead of accepting an uploaded scan, the system asks
+            permission and **fetches the document from the government directly**,
+            so there is nothing to forge.
           - >-
-            Built an AI fraud-detection module on the **Google Gemini API**,
-            generating analytical reports for suspect documents with
-            user-feedback weighting. *My first production LLM feature, and the
-            start of the AI track.*
-
+            Built the document-checking service on **Google's Gemini**, kept
+            deliberately simple and predictable so a reviewer could see exactly
+            why it flagged something. The model advised; a person still decided.
+            *This is where my AI work started.*
       - name: ZeoForex
         note: Financial remittance & currency exchange
         points:
           - >-
-            Reduced remittance order errors **35% (error rate ~8% → ~5%)** on
-            live financial transactions by enforcing multi-step validation,
-            tax-calculation logic, and atomic DB transactions across Multimoney
-            API workflows.
-          - >-
-            Designed a multi-node invoicing system with a parent-child hierarchy
-            supporting complex commission structures across agent networks.
+            Cut mistakes on live money transfers by **a third (8% → 5%)** with
+            step-by-step checks and tax rules, and by making each transfer either
+            complete fully or not at all.
 
-# ── Projects ─────────────────────────────────────────────────────
-projects:
-  - name:     Webhook Delivery Engine
-    year:     "2026"
-    language: Node.js
-    blurb:    Durable at-least-once delivery
-    stack:    [Express, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
-    body: >-
-      A self-hostable webhook delivery engine. Every accepted event reaches one
-      of two terminal states: **delivered**, or an **explicit, replayable
-      failure**. Nothing is silently lost.
-    points:
-      - >-
-        Implemented the **outbox pattern**: the event is persisted and committed
-        *before* enqueue, and `jobId = event.id` makes duplicate enqueues no-ops.
-        A failed enqueue is therefore harmless.
-      - >-
-        Made **Postgres authoritative** for business status with Redis/BullMQ as
-        a disposable scheduler. The system survives total Redis data loss.
-      - >-
-        Closed the crash-after-commit gap with a **reconciler backstop** that
-        re-enqueues non-terminal events with no live job.
-      - >-
-        Signed every delivery **Stripe-style (HMAC-SHA256)** over exact raw
-        bytes, with constant-time comparison and a replay window.
-      - >-
-        Documented the conscious production gaps (authN, fan-out, FIFO ordering,
-        SSRF hardening, KMS secret encryption) as scoped decisions with argued
-        trade-offs.
-    # link icons: github · external (live demo) · pen (write-up)
-    links:
-      - { label: Source,   icon: github,   url: "https://github.com/rishabh0111/webhook-delivery-engine" }
-      - { label: Write-up, icon: pen,      url: "/blogs/webhook-delivery-engine" }
+# ═════════════════════════════════════════════════════════════════
+#  SKILLS — rendered as a logo grid. Each item is looked up in
+#  _data/tech_logos.json; anything with no brand mark renders as an
+#  initialled badge on purpose. Add an item, then re-run
+#  `python _templates/logos/build_logos.py` to pull its mark in.
+# ═════════════════════════════════════════════════════════════════
+skills:
+  - group: Languages
+    icon:  code
+    items: [Python, TypeScript, JavaScript, Node.js, SQL, C/C++]
+  - group: AI & LLM Engineering
+    icon:  spark
+    items: [LangGraph, MCP, RAG, LangChain, Qdrant, Embeddings, Eval harnesses,
+            Guardrails, Langfuse, Prompt engineering, Multi-model routing]
+  - group: Models
+    icon:  chip
+    items: [Anthropic Claude, OpenAI, Google Gemini, Groq, "Ollama (Llama, Qwen, Gemma)"]
+  - group: Security
+    icon:  shield
+    items: [CEH v11, OWASP LLM Top 10, Postgres RLS, Prompt-injection resistance,
+            HMAC signing, JWT + RBAC, Adversarial testing]
+  - group: Backend
+    icon:  server
+    items: [FastAPI, NestJS, Express.js, GraphQL, Outbox pattern, Idempotency,
+            BullMQ, Redis, Socket.IO, WSO2 SSO, OpenAPI]
+  - group: Data
+    icon:  database
+    items: [PostgreSQL, MongoDB, MySQL, Redis, Qdrant, Prisma, Schema design,
+            Query optimization]
+  - group: Frontend
+    icon:  window
+    items: [React, Next.js, Angular, Redux, TanStack Query, Tailwind CSS, RxJS]
+  - group: Infrastructure
+    icon:  cube
+    items: [Docker, Kubernetes, GitHub Actions, Jenkins, Nginx, Linux,
+            "AWS (EC2, S3, RDS, Lambda, IAM)", "Azure (App Service, Blob)"]
+  - group: Testing & Quality
+    icon:  check
+    items: [pytest, Jest, Vitest, Playwright, Supertest, MSW, Selenium, Postman]
+  - group: Integrations
+    icon:  link
+    items: [Razorpay, ICICI Payments, Digilocker, Slack Bolt, Gmail API,
+            Google Calendar, Microsoft Graph, Metabase]
+  # Tailor-only in the résumé; kept here because a portfolio can afford range.
+  - group: Blockchain & Mobile
+    icon:  blocks
+    items: [Solidity, Ethereum, Avalanche, Polygon, ERC-20, "Capacitor (iOS & Android)"]
 
-  - name:     MoviesWave
-    language: JavaScript
-    blurb:    Movie discovery app
-    stack:    [React, Redux, Material UI, TMDb API]
-    body: >-
-      A movie discovery client built around aggressive client-side caching.
-    points:
-      - >-
-        Cut redundant TMDb API calls **~50% in typical browse sessions**
-        (measured via network-panel comparison) with Redux global state and
-        client-side caching.
-    links:
-      - { label: Source, icon: github,   url: "https://github.com/rishabh0111/MoviesWave" }
-      - { label: Live,   icon: external, url: "https://movieswave.netlify.app" }
+# ── About ────────────────────────────────────────────────────────
+# Was 4 paragraphs (~430 words) of body prose. Now 2 (~150), and it
+# moves into the front matter so the layout controls where it sits.
+about: >-
+  My job title says AI Engineer. What I actually care about is how a system
+  behaves on its ten-thousandth request, at 3 a.m., when something it depends on
+  is down. I was asking that long before any of my work involved AI. Two years at
+  Zeonix taught me the expensive way, on payment flows and document checks where
+  a bug cost someone real money.
 
-  - name:     MetaMask ETH Bank
-    language: Solidity
-    blurb:    Decentralized banking
-    stack:    [Ethereum, MetaMask]
-    body: >-
-      A smart contract supporting trustless deposits and withdrawals with
-      MetaMask wallet auth and zero centralized backend.
-    links:
-      - { label: Source, icon: github, url: "https://github.com/rishabh0111/MetaMask-ETH-Bank" }
 
-# ── Education ────────────────────────────────────────────────────
+  Then I built a fraud-detection feature on Google's Gemini, and the problem
+  changed shape. Ordinary software fails obviously. A system that *reasons*
+  fails convincingly — it gives you a wrong answer in a confident voice. So the
+  questions I spend my time on are rarely about wording a prompt. They are:
+  what is this thing allowed to do, who is asking, and what happens if it digs
+  up a document the person was never meant to see.
+
+# ── Background — education, certs, awards compacted ───────────────
 education:
   - degree: B.E. Computer Science Engineering
     detail: Specialization in Information Security
     school: Chandigarh University, Mohali
     period: Aug 2020 — May 2024
     score:  CGPA 8.02 / 10
-    note: >-
-      Cryptography & Network Security, DSA, Operating Systems, Computer
-      Networks, DBMS, Cloud Computing, Compiler Design.
-
   - degree: Higher Secondary (12th) — Science
     detail: PCM + Computer Science
     school: Govt. Sr. Sec. School, Chotta Shimla
     period: Mar 2019
     score:  90% (HPBoSE)
 
-# ── Certifications & awards ──────────────────────────────────────
-# `url` makes the whole title a link. `links` renders a row of verify
-# links underneath, for certs that are really several credentials.
 certifications:
   - name: Certified Ethical Hacker (CEH) v11
     issuer: EC-Council · 2023–2026
     url: "https://aspen.eccouncil.org/VerifyBadge?type=certification&a=BO+LGPmvJfn9LVa/anUsUrQ9C3Ks8fH8j61tvvbF1TI="
-
   - name: React Basics & Advanced React
     issuer: Meta, via Coursera · 2023
     links:
       - { label: React Basics,   url: "https://www.coursera.org/account/accomplishments/verify/NNUZXDBFEGST" }
       - { label: Advanced React, url: "https://www.coursera.org/account/accomplishments/verify/ZYSRTRLQL85M" }
-
-  # On-chain credentials, minted as Solana NFTs. Links resolve on Solscan.
   - name: ETH Proof · ETH+AVAX Proof · Poly Proof
-    issuer: Metacrafters · Ethereum, Avalanche, Polygon
+    issuer: Metacrafters · on-chain, Solana-minted
     links:
       - { label: ETH Proof,      url: "https://solscan.io/token/8vacs7DZRxNhrJihCsJMiHgLYtNw3mxBkAAtfRUK7Xrj" }
       - { label: ETH+AVAX Proof, url: "https://solscan.io/token/QDyELxrS3XqEfiXjB8seWTUEpVeumqBTbqBHsAs7JJL" }
@@ -321,11 +400,10 @@ certifications:
 
 awards:
   - name: Top 5 nationally — Intel oneAPI Hackathon
-    note: Intel × IIT Roorkee. A compute-optimized solution built on Intel's oneAPI parallel-computing toolkit.
+    note: Intel × IIT Roorkee.
   - name: District Rank 1 — Mathematics Olympiad
     note: National Science Congress.
 
-# ── Teaching / resources ─────────────────────────────────────────
 resources:
   - { name: "DBMS — a full tutorial", url: "https://iamrishabhsharma.notion.site/DataBase-Management-System-DBMS-98f325fc3e1c44e1976d7d1773525ec4" }
   - { name: "Computer Networking — a full tutorial", url: "https://iamrishabhsharma.notion.site/Computer-Networking-6673ce922d3b4685abdb77ad0a1fef94" }
@@ -341,35 +419,7 @@ contact:
   email: rishabhsharma8912@gmail.com
 ---
 
-My title says AI Engineer. It's accurate, and it's mostly beside the point. What
-I care about is what a system does on its ten-thousandth call, at 3 a.m., with a
-dependency down. I was asking that question years before any of it involved a
-model.
-
-It came from two years at Zeonix, shipping B2B platforms end to end: commission
-engines, remittance flows, document verification. The failure modes were
-financial and the users were real. I wrote the Postgres schemas and the Angular
-reactive forms. I designed the GraphQL layer, then got paged when it was slow. I
-built the Selenium bot that ate the admissions busywork, wired up the payment
-gateways, owned the deploys, and wrote backup scripts I hoped never to need.
-Somewhere in there I shipped a fraud-detection module on the Gemini API, and the
-problem changed shape. A system that *reasons* fails in a way a system that
-computes never does. It fails plausibly, and it sounds confident while doing it.
-
-That's where the work sits now. At Kleeto I own the agent layer over an entire
-HRIS platform, and the questions worth arguing about are almost never about
-prompts. What is this tool allowed to do? Who is asking? What happens when
-retrieval hands back a document the user was never cleared to see, and how would
-I prove afterwards that it didn't? My Information Security specialization and the
-CEH turned out to be prerequisites. An agent holding tools is an attack surface
-that argues back.
-
-Engineer is the only label I'm attached to. The LLM stack is the current
-chapter, and I expect it to age the way every stack I've learned has aged. What
-survives is knowing where state lives, what happens when the network lies, who is
-allowed to do what, and how to ship a whole thing instead of the interesting
-half. Hand me a Solidity contract, a Redux store, or a Postgres query plan and
-I'll be just as happy.
-
-Away from the terminal: chess, where I keep losing arguments with my own opening
-repertoire.
+<!--
+  The essay now lives in the `about:` key above so the layout can place
+  it in the dossier grid. Nothing is rendered from the body.
+-->

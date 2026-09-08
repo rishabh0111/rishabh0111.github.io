@@ -2,14 +2,63 @@
 
 Personal site built with Jekyll on GitHub Pages.
 
-- **Home** (`index.md`) — the whole portfolio. Structured data in the front matter,
-  "About" prose in the body. Rendered by `_layouts/home.html`. Not covered here.
+- **Home** (`index.md`) — the whole portfolio, all of it in the front matter.
+  Rendered by `_layouts/home.html` as a *dossier*: a sticky label column on the
+  left and content on the right, one width top to bottom. See below.
 - **Blog** (`/blogs/`) — original long-form articles, standalone or grouped into a series.
 - **News** (`/news/`) — bi-weekly annotated-reading digests.
 
-This file documents the format every file in `_posts/` must follow, so the layouts render
-it correctly. It is listed under `exclude:` in `_config.yml`, so it is never built or
-served — safe to keep at the repo root.
+Most of this file documents the format every file in `_posts/` must follow, so the
+layouts render it correctly. It is listed under `exclude:` in `_config.yml`, so it is
+never built or served — safe to keep at the repo root.
+
+---
+
+## The home page
+
+Everything the page shows lives in `index.md`'s front matter; the body is empty.
+To change the page, change that file.
+
+| Key | What it becomes |
+| --- | --- |
+| `profile`, `links` | The hero |
+| `metrics` | The four-figure stat band |
+| `pillars` | **Position** — the three claims |
+| `about` | **Background** — the essay, as two paragraphs |
+| `projects` | **Projects** — one section, however many entries. Each has `promise` (a pull quote), `glance` (a table), `shots`, optional `parts` (rendered as cards), and `links` |
+| `projects_small` | Smaller ones, a line each |
+| `experience` | **Experience**, with `ventures` nested |
+| `skills` | **Toolkit** — a logo grid |
+| `education`, `certifications`, `awards`, `resources` | **Credentials** |
+| `contact` | The closing plane |
+
+Two conventions worth knowing:
+
+- **`promise`** is the one sentence a system makes and never violates — the same
+  device the webhook write-up opens with. It is the hook; the blog post carries
+  the argument. Keep it to a sentence.
+- **`shots`** need a `src`. Add `src_dark` **only** if the image is unreadable on
+  the dark theme — a screenshot of a light UI usually is not. A lone image gets
+  no theme class; tagging it would hide it on the dark theme and leave a gap.
+  Same rule as `logo` / `logo_dark` in `experience`.
+- **`parts`** turns a project into cards, one per separable piece. Nivara Desk
+  uses it for its AI layer, API and front ends.
+
+Adding a project means adding to `projects:` — the layout does not change.
+
+### Tech marks
+
+Strings in any `stack:` list, and every item under `skills:`, are looked up in
+`_data/tech_logos.json` to find a brand mark. A name with no mark renders as an
+initialled badge — deliberately, not as a fallback. After adding a tool, run:
+
+```
+python _templates/logos/build_logos.py
+```
+
+See `_templates/logos/README.md` for where the marks come from, why some names
+will never have one, and why the script fails rather than silently skipping a
+name it does not recognise.
 
 ---
 
@@ -247,12 +296,37 @@ Tables get striped rows; keep them narrow — they scroll on mobile but wide tab
 
 - Push to `master`. GitHub Pages builds with the plugins in `_config.yml`
   (`jekyll-feed`, `jekyll-seo-tag`, `jekyll-sitemap`) — all natively supported.
-- `_config.yml` `exclude:` keeps `README.md`, `master_profile.md`, `Gemfile*`, `vendor`,
-  `dump` and `_templates` out of the build. Don't remove `master_profile.md` from that
-  list — it contains private contact/salary data.
-- Local preview: `bundle exec jekyll serve` (add `--future` if you're testing a
-  future-dated post and have overridden the config).
+- `_config.yml` `exclude:` keeps `README.md`, `Gemfile*`, `vendor`, `dump`,
+  `_templates` and `_preview` out of the build. Anything private belongs outside
+  this directory entirely — the repo is public, so an ignore rule is a weaker
+  guarantee than the file simply not being here.
 - `_site/` is the build output — never edit it, never commit changes to it by hand.
+
+### Local preview
+
+```
+bundle install                                   # first time only
+bundle exec jekyll serve --port 4001 --watch     # http://127.0.0.1:4001/
+```
+
+Add `--future` if you're testing a future-dated post and have overridden the
+config. `--incremental` speeds up rebuilds but occasionally misses a change to a
+layout — drop it if a save doesn't show up.
+
+The `Gemfile` uses the **`github-pages`** gem rather than plain `jekyll`, so the
+local build is Jekyll 3.10 — the version Pages actually runs. Installing
+`jekyll` on its own would give you Jekyll 4, which differs in enough small ways
+that a green local build would not prove much.
+
+On Windows this needs **Ruby with DevKit** (MSYS2), because several gems compile
+native extensions:
+
+```
+winget install RubyInstallerTeam.RubyWithDevKit.3.2
+```
+
+`vendor/`, `.bundle/` and `Gemfile.lock` are gitignored — GitHub Pages resolves
+its own versions and ignores a committed lockfile anyway.
 
 ## Quick checklist for a new post
 

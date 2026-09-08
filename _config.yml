@@ -55,6 +55,6 @@ exclude:
   - vendor
   - dump
   - _templates
-  # Private source-of-truth: has a phone number and salary floor in it.
-  # Without this line Jekyll copies it verbatim to /master_profile.md.
+  - _preview
+  # Working notes, not for publication.
   - master_profile.md

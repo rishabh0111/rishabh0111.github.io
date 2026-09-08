@@ -1,0 +1,326 @@
+{
+  "_generated_by": "_templates/logos/build_logos.py",
+  "_sources": "devicon (MIT), simple-icons (CC0)",
+  "icons": {
+    "Angular": {
+      "file": "/assets/img/logos/tech/angular.svg",
+      "source": "devicon",
+      "title": "Angular"
+    },
+    "Anthropic Claude": {
+      "file": "/assets/img/logos/tech/claude.svg",
+      "source": "simple-icons",
+      "title": "Claude"
+    },
+    "Azure (App Service, Blob)": {
+      "file": "/assets/img/logos/tech/azure.svg",
+      "source": "devicon",
+      "title": "Azure (App Service, Blob)"
+    },
+    "C/C++": {
+      "file": "/assets/img/logos/tech/cplusplus.svg",
+      "source": "devicon",
+      "title": "C/C++"
+    },
+    "Capacitor (iOS & Android)": {
+      "file": "/assets/img/logos/tech/capacitor.svg",
+      "source": "devicon",
+      "title": "Capacitor (iOS & Android)"
+    },
+    "Claude": {
+      "file": "/assets/img/logos/tech/claude.svg",
+      "source": "simple-icons",
+      "title": "Claude"
+    },
+    "Docker": {
+      "file": "/assets/img/logos/tech/docker.svg",
+      "source": "devicon",
+      "title": "Docker"
+    },
+    "Ethereum": {
+      "file": "/assets/img/logos/tech/ethereum.svg",
+      "source": "simple-icons",
+      "title": "Ethereum"
+    },
+    "Express": {
+      "file": "/assets/img/logos/tech/express.svg",
+      "source": "devicon",
+      "title": "Express"
+    },
+    "Express.js": {
+      "file": "/assets/img/logos/tech/express.svg",
+      "source": "devicon",
+      "title": "Express.js"
+    },
+    "FastAPI": {
+      "file": "/assets/img/logos/tech/fastapi.svg",
+      "source": "devicon",
+      "title": "FastAPI"
+    },
+    "GitHub Actions": {
+      "file": "/assets/img/logos/tech/githubactions.svg",
+      "source": "devicon",
+      "title": "GitHub Actions"
+    },
+    "Gmail API": {
+      "file": "/assets/img/logos/tech/gmail.svg",
+      "source": "simple-icons",
+      "title": "Gmail"
+    },
+    "Google Calendar": {
+      "file": "/assets/img/logos/tech/googlecalendar.svg",
+      "source": "simple-icons",
+      "title": "Google Calendar"
+    },
+    "Google Gemini": {
+      "file": "/assets/img/logos/tech/googlegemini.svg",
+      "source": "simple-icons",
+      "title": "Google Gemini"
+    },
+    "GraphQL": {
+      "file": "/assets/img/logos/tech/graphql.svg",
+      "source": "devicon",
+      "title": "GraphQL"
+    },
+    "Hybrid RAG": {
+      "file": "/assets/img/logos/tech/qdrant.svg",
+      "source": "simple-icons",
+      "title": "Qdrant"
+    },
+    "JWT + RBAC": {
+      "file": "/assets/img/logos/tech/jsonwebtokens.svg",
+      "source": "simple-icons",
+      "title": "JSON Web Tokens"
+    },
+    "JavaScript": {
+      "file": "/assets/img/logos/tech/javascript.svg",
+      "source": "devicon",
+      "title": "JavaScript"
+    },
+    "Jenkins": {
+      "file": "/assets/img/logos/tech/jenkins.svg",
+      "source": "devicon",
+      "title": "Jenkins"
+    },
+    "Jest": {
+      "file": "/assets/img/logos/tech/jest.svg",
+      "source": "devicon",
+      "title": "Jest"
+    },
+    "Kubernetes": {
+      "file": "/assets/img/logos/tech/kubernetes.svg",
+      "source": "devicon",
+      "title": "Kubernetes"
+    },
+    "LangChain": {
+      "file": "/assets/img/logos/tech/langchain.svg",
+      "source": "simple-icons",
+      "title": "LangChain"
+    },
+    "LangGraph": {
+      "file": "/assets/img/logos/tech/langgraph.svg",
+      "source": "simple-icons",
+      "title": "LangGraph"
+    },
+    "Linux": {
+      "file": "/assets/img/logos/tech/linux.svg",
+      "source": "devicon",
+      "title": "Linux"
+    },
+    "MCP": {
+      "file": "/assets/img/logos/tech/modelcontextprotocol.svg",
+      "source": "simple-icons",
+      "title": "Model Context Protocol"
+    },
+    "MSW": {
+      "file": "/assets/img/logos/tech/mockserviceworker.svg",
+      "source": "simple-icons",
+      "title": "Mock Service Worker"
+    },
+    "Metabase": {
+      "file": "/assets/img/logos/tech/metabase.svg",
+      "source": "simple-icons",
+      "title": "Metabase"
+    },
+    "MongoDB": {
+      "file": "/assets/img/logos/tech/mongodb.svg",
+      "source": "devicon",
+      "title": "MongoDB"
+    },
+    "MySQL": {
+      "file": "/assets/img/logos/tech/mysql.svg",
+      "source": "devicon",
+      "title": "MySQL"
+    },
+    "NestJS": {
+      "file": "/assets/img/logos/tech/nestjs.svg",
+      "source": "devicon",
+      "title": "NestJS"
+    },
+    "Next.js": {
+      "file": "/assets/img/logos/tech/nextjs.svg",
+      "source": "devicon",
+      "title": "Next.js"
+    },
+    "Next.js 15": {
+      "file": "/assets/img/logos/tech/nextjs.svg",
+      "source": "devicon",
+      "title": "Next.js 15"
+    },
+    "Nginx": {
+      "file": "/assets/img/logos/tech/nginx.svg",
+      "source": "devicon",
+      "title": "Nginx"
+    },
+    "Node.js": {
+      "file": "/assets/img/logos/tech/nodejs.svg",
+      "source": "devicon",
+      "title": "Node.js"
+    },
+    "OWASP LLM Top 10": {
+      "file": "/assets/img/logos/tech/owasp.svg",
+      "source": "simple-icons",
+      "title": "OWASP"
+    },
+    "Ollama (Llama, Qwen, Gemma)": {
+      "file": "/assets/img/logos/tech/ollama.svg",
+      "source": "simple-icons",
+      "title": "Ollama"
+    },
+    "OpenAPI": {
+      "file": "/assets/img/logos/tech/swagger.svg",
+      "source": "devicon",
+      "title": "OpenAPI"
+    },
+    "PgBouncer": {
+      "file": "/assets/img/logos/tech/postgresql.svg",
+      "source": "devicon",
+      "title": "PgBouncer"
+    },
+    "Playwright": {
+      "file": "/assets/img/logos/tech/playwright.svg",
+      "source": "devicon",
+      "title": "Playwright"
+    },
+    "Polygon": {
+      "file": "/assets/img/logos/tech/polygon.svg",
+      "source": "devicon",
+      "title": "Polygon"
+    },
+    "PostgreSQL": {
+      "file": "/assets/img/logos/tech/postgresql.svg",
+      "source": "devicon",
+      "title": "PostgreSQL"
+    },
+    "PostgreSQL RLS": {
+      "file": "/assets/img/logos/tech/postgresql.svg",
+      "source": "devicon",
+      "title": "PostgreSQL RLS"
+    },
+    "Postgres RLS": {
+      "file": "/assets/img/logos/tech/postgresql.svg",
+      "source": "devicon",
+      "title": "Postgres RLS"
+    },
+    "Postman": {
+      "file": "/assets/img/logos/tech/postman.svg",
+      "source": "devicon",
+      "title": "Postman"
+    },
+    "Prisma": {
+      "file": "/assets/img/logos/tech/prisma.svg",
+      "source": "devicon",
+      "title": "Prisma"
+    },
+    "Python": {
+      "file": "/assets/img/logos/tech/python.svg",
+      "source": "devicon",
+      "title": "Python"
+    },
+    "Qdrant": {
+      "file": "/assets/img/logos/tech/qdrant.svg",
+      "source": "simple-icons",
+      "title": "Qdrant"
+    },
+    "Razorpay": {
+      "file": "/assets/img/logos/tech/razorpay.svg",
+      "source": "simple-icons",
+      "title": "Razorpay"
+    },
+    "React": {
+      "file": "/assets/img/logos/tech/react.svg",
+      "source": "devicon",
+      "title": "React"
+    },
+    "React 19": {
+      "file": "/assets/img/logos/tech/react.svg",
+      "source": "devicon",
+      "title": "React 19"
+    },
+    "Redis": {
+      "file": "/assets/img/logos/tech/redis.svg",
+      "source": "devicon",
+      "title": "Redis"
+    },
+    "Redux": {
+      "file": "/assets/img/logos/tech/redux.svg",
+      "source": "devicon",
+      "title": "Redux"
+    },
+    "RxJS": {
+      "file": "/assets/img/logos/tech/rxjs.svg",
+      "source": "devicon",
+      "title": "RxJS"
+    },
+    "Selenium": {
+      "file": "/assets/img/logos/tech/selenium.svg",
+      "source": "devicon",
+      "title": "Selenium"
+    },
+    "Socket.IO": {
+      "file": "/assets/img/logos/tech/socketio.svg",
+      "source": "devicon",
+      "title": "Socket.IO"
+    },
+    "Solidity": {
+      "file": "/assets/img/logos/tech/solidity.svg",
+      "source": "devicon",
+      "title": "Solidity"
+    },
+    "Tailwind CSS": {
+      "file": "/assets/img/logos/tech/tailwindcss.svg",
+      "source": "devicon",
+      "title": "Tailwind CSS"
+    },
+    "Tailwind v4": {
+      "file": "/assets/img/logos/tech/tailwindcss.svg",
+      "source": "devicon",
+      "title": "Tailwind v4"
+    },
+    "TanStack": {
+      "file": "/assets/img/logos/tech/tanstack.svg",
+      "source": "simple-icons",
+      "title": "TanStack"
+    },
+    "TanStack Query": {
+      "file": "/assets/img/logos/tech/tanstack.svg",
+      "source": "simple-icons",
+      "title": "TanStack"
+    },
+    "TypeScript": {
+      "file": "/assets/img/logos/tech/typescript.svg",
+      "source": "devicon",
+      "title": "TypeScript"
+    },
+    "Vitest": {
+      "file": "/assets/img/logos/tech/vitest.svg",
+      "source": "devicon",
+      "title": "Vitest"
+    },
+    "pytest": {
+      "file": "/assets/img/logos/tech/pytest.svg",
+      "source": "devicon",
+      "title": "pytest"
+    }
+  }
+}
