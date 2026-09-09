@@ -405,8 +405,12 @@ html {
 }
 
 body {
+  /* The .px scene (fixed, z-index -1) is what the page actually sits on;
+     this gradient only shows in the overscroll rubber-band. It used to be
+     background-attachment: fixed, which forces the browser to repaint a
+     full-viewport image on every scroll frame — the main cause of the
+     laggy scroll on phones — for a surface that is almost never visible. */
   background: var(--px-base);
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--f-serif);
   font-size: 17px;
@@ -452,6 +456,13 @@ body::before {
   background-size: cover;
   will-change: transform;
   transition: opacity 0.6s var(--ease-out);
+}
+/* The layers only ever move on pointer drift, which JS binds on a fine
+   pointer only. On a touch device nothing animates them, so promoting
+   four near-full-viewport layers to their own GPU surfaces just burns
+   memory and compositor time while scrolling. */
+@media (pointer: coarse) {
+  .px-layer { will-change: auto; }
 }
 .px-far  { background-image: var(--px-far); }
 .px-mid  { background-image: var(--px-mid);  background-position: top center;    opacity: var(--px-mid-op, 1); }
@@ -2553,7 +2564,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .project-body { margin-top: var(--s2); font-size: 14.5px; color: var(--text-2); }
 .project-body strong { color: var(--text); }
 .project-foot .chips { margin: 0; }
-.project-links { display: flex; gap: var(--s3); }
+.project-links { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); }
 .project-links a, .section-more a {
   display: inline-flex; align-items: center; gap: 7px;
   font-family: var(--f-mono); font-size: 9.5px;
@@ -3221,6 +3232,10 @@ details.more > summary:hover,
 .ribbon-rev .ribbon-track { animation-direction: reverse; }
 .ribbon:hover .ribbon-track,
 .ribbon:focus-within .ribbon-track { animation-play-state: paused; }
+/* JS parks this on rows that are scrolled off screen — a stopped
+   animation is not composited every frame, so the ~11 marquee rows
+   cost nothing while you are reading any other section. */
+.ribbon.is-offscreen .ribbon-track { animation-play-state: paused; }
 @keyframes ribbon-slide {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
@@ -3540,7 +3555,17 @@ details.more > summary:hover,
 }
 
 @media (max-width: 900px) {
-  .ds-row { padding: var(--s4) var(--s3); }
+  .ds-row {
+    padding: var(--s4) var(--s3);
+    /* Each dossier card ran its own blur(10px) backdrop-filter. Seven of
+       them stacked down the page meant the compositor re-blurred a large
+       area every scroll frame — a big part of the phone scroll lag. Drop
+       the blur here and lean on a more opaque fill instead; it reads the
+       same at this width. */
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
   .proj-carousel .shot { flex-basis: 86%; }
   .xp { flex-direction: column; gap: var(--s2); }
   .xp-when { margin-left: 0; }

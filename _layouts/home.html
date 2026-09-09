@@ -673,6 +673,21 @@ layout: default
     railSync();
   }
 
+  // ── Toolkit ribbons: only animate the ones on screen ──────────
+  // Each ribbon runs an infinite CSS marquee. Left to itself every row
+  // is composited on every frame for the whole session, even scrolled
+  // away — which showed up as scroll lag on phones. Park the ones that
+  // aren't visible.
+  var ribbons = document.querySelectorAll('.ribbon');
+  if (ribbons.length && 'IntersectionObserver' in window) {
+    var ribbonIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        en.target.classList.toggle('is-offscreen', !en.isIntersecting);
+      });
+    }, { rootMargin: '200px 0px' });
+    ribbons.forEach(function (r) { r.classList.add('is-offscreen'); ribbonIO.observe(r); });
+  }
+
   // ── Screenshot carousels: dots ────────────────────────────────
   // One dot per shot, built here so they never show up where the
   // script that drives them isn't running. Click a dot to jump; the

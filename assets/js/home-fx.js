@@ -303,6 +303,10 @@
   /* ── 2 · Page-wide Bubble (Canvas UI, vendored) ──────────────── */
   function pageBubble() {
     if (reduce) return;
+    // It trails the pointer — there isn't one on a touch screen, and the
+    // full-page blend canvas is a real cost to composite on every scroll
+    // frame. Phones get the plain page.
+    if (!window.matchMedia("(pointer: fine)").matches) return;
     if (!window.CanvasUIBubble || !window.CanvasUIBubble.createBubble) return;
     if (!window.WebGL2RenderingContext) return;
 
