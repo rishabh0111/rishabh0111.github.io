@@ -68,6 +68,7 @@
   --page-pad:  var(--s3);
   --pill-w:    38px;      /* a collapsed rail */
   --h-header:  54px;
+  --float-radius: 999px;  /* the floating header + tab bar are capsules, like the iOS 26 bars */
 
   /* Spacing: every unit is 8px */
   --s1:  0.5rem;   /*  8px */
@@ -119,12 +120,29 @@
   --pill-news-bg: rgba(136,192,208,0.30);
   --pill-news-fg: #1D6F87;
 
-  /* Glass — tuned per theme, used sparingly (header + sidebar cards) */
+  /* ── Glass — one material, three deliberate weights ──────────────
+     Calibrated against iOS 26 "Liquid Glass". The navigation plane
+     (floating header + tab bar) gets the heavy blur; overlays that
+     briefly sit above content get the 12px "readable sweet spot";
+     the scrim weight is a faint frost behind a surface that is
+     already almost opaque. --glass-fx is the saturate/brightness lift
+     that puts back the contrast the blur eats — kept far below the
+     180% that smears a near-grey palette and drags the hero's teal
+     glow unevenly across the bar. Glass is for the navigation layer:
+     the content cards below carry a plain surface, not a blur. */
+  --glass-blur:       12px;   /* overlays: FAB, TOC rail, fig button  */
+  --glass-blur-nav:   22px;   /* the floating header + mobile tab bar */
+  --glass-blur-scrim:  3px;   /* whisper behind a near-opaque panel   */
+  --glass-fx:         saturate(1.25);
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 72%, transparent);
   --glass-border: color-mix(in srgb, var(--border) 70%, transparent);
-  --glass-blur:   10px;
   --glass-hi:     rgba(255,255,255,0.55);   /* top inner-light edge */
-  --header-glass: color-mix(in srgb, var(--paper) 84%, transparent);
+  /* A light frost, not a slab. The readability wash sits on the fixed
+     scene (.px::after) behind BOTH the header and the hero, so the tint
+     here only has to unify the two — the wash already supplies the
+     value. Kept transparent enough that the scene reads through. */
+  --header-glass: color-mix(in srgb, var(--paper) 64%, transparent);
+  --header-glass-solid: #ECEFF4;   /* reduced-transparency fallback   */
   /* Mobile nav panel: near-opaque — it covers body text, unlike the header bar */
   --nav-panel:    color-mix(in srgb, var(--paper) 97%, transparent);
 
@@ -134,10 +152,19 @@
   --plane-ink-2:  var(--text-2);       /* crumbs, meta, excerpt       */
   --plane-faint:  #5E6A83;             /* separators, counts          */
   --plane-rule:   rgba(46,52,64,0.12); /* hairline on header/footer   */
+  /* The readability wash over the parallax. It now lives on the fixed
+     scene itself (.px::after), not on each plane's ::before — so the
+     floating header frosts exactly the same backdrop the hero sits on,
+     at every scroll position. Weighted to the top and bottom of the
+     viewport (where the planes are) and clear through the middle so the
+     contour texture still reads behind the content column. */
   --plane-scrim:  linear-gradient(180deg,
-                    rgba(236,239,244,0.80) 0%,
-                    rgba(236,239,244,0.62) 55%,
-                    rgba(236,239,244,0.46) 100%);
+                    rgba(236,239,244,0.82) 0%,
+                    rgba(236,239,244,0.52) 15%,
+                    rgba(236,239,244,0)    34%,
+                    rgba(236,239,244,0)    66%,
+                    rgba(236,239,244,0.50) 86%,
+                    rgba(236,239,244,0.80) 100%);
 
   /* Reading panel — "paper sheet" floating over the scene (content-first) */
   --panel:        color-mix(in srgb, var(--bg) 88%, transparent);
@@ -225,7 +252,9 @@
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
   --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
   --glass-hi:     rgba(255,255,255,0.06);
-  --header-glass: color-mix(in srgb, #242933 64%, transparent);
+  --glass-fx:     saturate(1.2) brightness(1.06);
+  --header-glass: color-mix(in srgb, #1B212B 52%, transparent);
+  --header-glass-solid: #1C222C;
   --nav-panel:    color-mix(in srgb, #242933 97%, transparent);
 
   --plane-ink:    #ECEFF4;
@@ -233,9 +262,12 @@
   --plane-faint:  rgba(255,255,255,0.40);
   --plane-rule:   rgba(255,255,255,0.10);
   --plane-scrim:  linear-gradient(180deg,
-                    rgba(8,16,15,0.55) 0%,
-                    rgba(8,16,15,0.22) 55%,
-                    rgba(8,16,15,0.46) 100%);
+                    rgba(6,10,16,0.62) 0%,
+                    rgba(6,10,16,0.34) 15%,
+                    rgba(6,10,16,0)    34%,
+                    rgba(6,10,16,0)    66%,
+                    rgba(6,10,16,0.34) 86%,
+                    rgba(6,10,16,0.55) 100%);
 
   --panel:        color-mix(in srgb, var(--bg) 80%, transparent);
   --panel-border: color-mix(in srgb, #ffffff 6%, transparent);
@@ -306,7 +338,9 @@
     --glass-bg:     color-mix(in srgb, var(--bg-raised) 58%, transparent);
     --glass-border: color-mix(in srgb, #ffffff 8%, transparent);
     --glass-hi:     rgba(255,255,255,0.06);
-    --header-glass: color-mix(in srgb, #242933 64%, transparent);
+    --glass-fx:     saturate(1.2) brightness(1.06);
+    --header-glass: color-mix(in srgb, #1B212B 52%, transparent);
+    --header-glass-solid: #1C222C;
     --nav-panel:    color-mix(in srgb, #242933 97%, transparent);
 
     --plane-ink:    #ECEFF4;
@@ -314,9 +348,12 @@
     --plane-faint:  rgba(255,255,255,0.40);
     --plane-rule:   rgba(255,255,255,0.10);
     --plane-scrim:  linear-gradient(180deg,
-                      rgba(8,16,15,0.55) 0%,
-                      rgba(8,16,15,0.22) 55%,
-                      rgba(8,16,15,0.46) 100%);
+                      rgba(6,10,16,0.62) 0%,
+                      rgba(6,10,16,0.34) 15%,
+                      rgba(6,10,16,0)    34%,
+                      rgba(6,10,16,0)    66%,
+                      rgba(6,10,16,0.34) 86%,
+                      rgba(6,10,16,0.55) 100%);
 
     --panel:        color-mix(in srgb, var(--bg) 80%, transparent);
     --panel-border: color-mix(in srgb, #ffffff 6%, transparent);
@@ -449,6 +486,16 @@ body::before {
   pointer-events: none;
   contain: layout paint;
 }
+/* Readability wash, painted over the parallax layers as part of the
+   fixed scene. Because it is viewport-fixed, anything floating in front
+   of the scene — the sticky header above all — sits on exactly the same
+   wash as the hero does, so the two never read as different surfaces. */
+.px::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--plane-scrim);
+  pointer-events: none;
+}
 .px-layer {
   position: absolute; inset: -14%;
   background-repeat: no-repeat;
@@ -517,8 +564,8 @@ body::before {
   position: fixed; inset: 0; z-index: 200;
   display: flex; flex-direction: column;
   background: color-mix(in srgb, var(--bg) 93%, transparent);
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
 }
 .lightbox[hidden] { display: none; }
 
@@ -617,8 +664,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border-radius: 7px;
   color: var(--text-2);
   cursor: zoom-in;
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
   box-shadow: 0 2px 8px rgba(0,0,0,0.14);
   opacity: 0; transform: translateY(-3px);
   transition: opacity 0.16s, transform 0.16s var(--ease-out),
@@ -663,8 +710,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      heavier tint plus a border and a two-part shadow — tight contact
      shadow, wide soft one — does that while still reading as glass. */
   background: color-mix(in srgb, var(--bg-raised) 78%, transparent);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
   border: 1px solid var(--glass-border);
   box-shadow:
     0 12px 28px rgba(0,0,0,0.26),
@@ -763,7 +810,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ════════════════════════════════════════════════════════════════
    HEADER
-   A full-bleed dark plane — like the title block of a printed journal.
+   The navigation plane, floating: a glass capsule held clear of every
+   edge with the page sliding under it — the iOS 26 model, where the
+   nav layer sits on its own material and the content peeks through.
    Three things happen here: wordmark, nav, nothing else.
 ════════════════════════════════════════════════════════════════ */
 .site-header {
@@ -774,18 +823,44 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      window on phones — is one of them. A pseudo-element has no
      descendants to capture, so the glass survives without the trap. */
   height: var(--h-header);
-  padding: 0 var(--s5);
+  padding: 0 var(--s4);
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s3);
-  position: sticky; top: 0; z-index: 100;
-  /* A single hairline separates header from page (theme-aware) */
-  border-bottom: 1px solid var(--plane-rule);
+  /* Floats free of the top and side edges. Sticky, not fixed, so it
+     still reserves its own height in normal flow — nothing below needs
+     a manual offset — and because the top margin equals the stick point
+     (--s1) it settles there with no jump as the page starts to move. */
+  position: sticky;
+  top: var(--s1); z-index: 100;
+  /* 24px clear of each side — the same inset the mobile nav bar uses,
+     so the two floating bars line up. Capped and centred past --max-w. */
+  width: calc(100% - var(--s3) * 2);
+  max-width: var(--max-w);
+  margin: var(--s1) auto 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--float-radius);
+  /* The glass tell: a specular top edge inside, a soft cast outside. */
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    0 4px 20px rgba(46,52,64,0.14),
+    0 1px 3px rgba(46,52,64,0.08);
 }
 .site-header::before {
   content: '';
   position: absolute; inset: 0; z-index: -1;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: inherit;
+  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+}
+
+/* OS "Reduce Transparency" / "Increase Contrast": the navigation plane
+   goes to a solid material, the way iOS drops Liquid Glass for an opaque
+   fill under the same settings. The mobile tab bar is handled in its own
+   ≤860 block. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .site-header, .site-footer { background: var(--header-glass-solid); }
+  .site-header::before,
+  .site-footer { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* Wordmark: mono, uppercase, with slash in lacquer.
@@ -808,21 +883,27 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   display: inline-block;
   transform: rotate(10deg);
   margin-left: 1px;
+  /* Eat the trailing letter-spacing after the slash so the cursor can
+     sit right under it, the way it does in the favicon. */
+  margin-right: -0.16em;
   font-style: normal;
 }
 /* Terminal cursor block after the slash — the same mark as the favicon
-   ("RISHABH SHARMA/" + a prompt cursor). Static, like the favicon. */
+   ("RISHABH SHARMA/" + a prompt cursor). Static, like the favicon: the
+   block tucks up close under the slash, not spaced off it. */
 .logo-cur {
   display: inline-block;
   width: 0.5em;
   height: 0.16em;
-  margin-left: 3px;
+  margin-left: 1px;
   border-radius: 1px;
   background: var(--accent);
 }
 
-/* Nav: generous gap, no box, just text. Active = lacquer underline. */
-.site-nav { display: flex; align-items: center; gap: var(--s1); }
+/* Nav: generous gap, no box, just text. Active = a glass pill behind
+   the tab (the iOS 26 model), the same material as the theme-toggle
+   thumb it sits next to. */
+.site-nav { display: flex; align-items: center; gap: 2px; }
 .site-nav a {
   font-family: var(--f-mono);
   font-size: 10px;
@@ -844,18 +925,26 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a:hover .nav-ic,
 .site-nav a.active .nav-ic { opacity: 1; }
 
-/* Underline grows from centre on hover */
+/* The selection pill — sits behind the label, brightens in on hover,
+   fills on active. z-index -1 drops it below the text but keeps it
+   above the header's own glass (the sticky header is a stacking
+   context, so -1 lands between its blur and its content). */
 .site-nav a::after {
   content: '';
-  position: absolute; bottom: 0;
-  left: 50%; right: 50%;
-  height: 1.5px;
-  background: var(--accent);
-  transition: left 0.22s var(--ease-out), right 0.22s var(--ease-out);
+  position: absolute; inset: 8px 2px;
+  z-index: -1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--header-text) 13%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 0 0 1px color-mix(in srgb, var(--header-text) 10%, transparent);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s var(--ease-out), transform 0.2s var(--ease-out);
 }
 .site-nav a:hover { color: var(--header-text); }
-.site-nav a:hover::after,
-.site-nav a.active::after { left: var(--s2); right: var(--s2); }
+.site-nav a:hover::after  { opacity: 0.5; transform: scale(1); }
+.site-nav a.active::after { opacity: 1; transform: scale(1); }
 .site-nav a.active { color: var(--accent); }
 
 /* Header right cluster: nav + theme switch + hamburger */
@@ -914,9 +1003,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   height: calc(var(--tt-seg) + var(--tt-pad) * 2);
   border: 1px solid var(--plane-rule);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--header-text) 9%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* No blur of its own — it sits on the header's glass, and glass on
+     glass muddies both. A plain tint, concentric with the capsule. */
+  background: color-mix(in srgb, var(--header-text) 10%, transparent);
   transition: border-color 0.25s var(--ease-out);
 }
 .theme-toggle:hover { border-color: color-mix(in srgb, var(--header-text) 35%, transparent); }
@@ -972,8 +1061,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 ════════════════════════════════════════════════════════════════ */
 .site-footer {
   background: var(--header-glass);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
   padding: var(--s4) var(--s5);
   margin-top: var(--s5);        /* the last band never sits on the footer */
   display: flex; align-items: center; justify-content: space-between;
@@ -1009,12 +1098,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   overflow: hidden;
 }
 
-/* Readability scrim over the parallax — theme-aware, keeps the title crisp */
-.page-header::before {
-  content: '';
-  position: absolute; inset: 0; pointer-events: none;
-  background: var(--plane-scrim);
-}
+/* The readability wash now lives on the fixed scene (.px::after), so the
+   header and this plane share one surface — no per-plane ::before. */
 
 /* Bottom rule: a measured lacquer line, not full-width */
 .page-header::after {
@@ -1099,8 +1184,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--panel-border);
   border-radius: 14px;
   box-shadow: var(--panel-shadow);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(var(--glass-blur-scrim));
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim));
 }
 
 .group-heading {
@@ -1226,12 +1311,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   position: relative; overflow: hidden;
 }
 
-/* Readability scrim over the parallax — theme-aware */
-.post-hero::before {
-  content: '';
-  position: absolute; inset: 0; pointer-events: none;
-  background: var(--plane-scrim);
-}
+/* Readability wash is on the fixed scene now (.px::after) — see .page-header. */
 
 /* A thin lacquer line across the hero foot — marks the plane change */
 .post-hero::after {
@@ -1372,8 +1452,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--panel-border);
   border-radius: 14px;
   box-shadow: var(--panel-shadow);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(var(--glass-blur-scrim));
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim));
 }
 
 /* First paragraph: lead-in size — a gentle entry */
@@ -1633,8 +1713,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      entries themselves — and vertically it is TOC rows lost. */
   padding: var(--s2) var(--s2);
   margin-bottom: var(--s2);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
   box-shadow:
     0 1px 3px rgba(0,0,0,0.06),
     inset 0 1px 0 var(--glass-hi);   /* hairline top highlight = the "glass" tell */
@@ -2035,10 +2115,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   padding: var(--s6) var(--s5);
   position: relative; overflow: hidden;
 }
-.hero::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: var(--plane-scrim);
-}
+/* Readability wash is on the fixed scene now (.px::after). */
 .hero::after {
   content: ''; position: absolute; bottom: 0; left: var(--s5); right: var(--s5);
   height: 1px;
@@ -2236,8 +2313,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   position: absolute; inset: 0; z-index: 1;
   display: grid; place-items: center;
   background: var(--panel);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(var(--glass-blur-scrim));
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim));
   font-family: var(--f-display);
   font-size: 4.5rem; letter-spacing: 0.06em;
   color: var(--plane-ink-2);
@@ -2305,8 +2382,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   padding: var(--s4);
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
   box-shadow:
     0 1px 3px rgba(0,0,0,0.05),
     inset 0 1px 0 var(--glass-hi);
@@ -2322,8 +2399,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   padding: var(--s5) var(--s5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(var(--glass-blur-scrim));
+  -webkit-backdrop-filter: blur(var(--glass-blur-scrim));
 }
 
 
@@ -2715,10 +2792,7 @@ details.more > summary:hover,
   padding: var(--s10) var(--s5) var(--s12);
   position: relative; overflow: hidden;
 }
-.contact::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: var(--plane-scrim);
-}
+/* Readability wash is on the fixed scene now (.px::after). */
 .contact::after {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(to right,
@@ -2935,22 +3009,38 @@ details.more > summary:hover,
 
   .site-nav {
     position: fixed;
-    left: 0; right: 0; bottom: 0; top: auto;
+    /* The iOS 26 tab bar: a glass capsule held clear of all three
+       edges. Fixed height so the FAB and the page padding can clear it
+       by an exact amount. The bottom offset stacks the home-indicator
+       inset on top of its own gap. */
+    left: var(--s3); right: var(--s3); top: auto;
+    bottom: calc(var(--s2) + env(safe-area-inset-bottom, 0px));
+    height: 56px;
     z-index: 95;
     flex-direction: row; align-items: stretch;
     gap: 0;
-    /* The inset keeps the bar clear of the iOS home indicator */
-    padding: 0 0 env(safe-area-inset-bottom, 0px);
-    /* Same glass as the header and the footer: the bar is the third of
-     the site's dark planes, not a surface of its own. */
+    padding: 0;
+    /* The same material as the header — the two floating bars are one
+       navigation plane, just in two places. */
     background: var(--header-glass);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border-top: 1px solid var(--plane-rule);
-    box-shadow: 0 -8px 24px rgba(0,0,0,0.22);
+    backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+    -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--float-radius);
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      0 8px 28px rgba(46,52,64,0.22),
+      0 2px 8px rgba(46,52,64,0.14);
+    overflow: hidden;      /* clip the tab marker + glass to the capsule */
     /* Always on — there is no open/closed state left to animate */
     opacity: 1; visibility: visible; transform: none;
     transition: none;
+  }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .site-nav {
+      background: var(--header-glass-solid);
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
   }
 
   /* Icon over label, each link an equal share of the bar */
@@ -2964,16 +3054,18 @@ details.more > summary:hover,
   }
   .site-nav a .nav-ic { opacity: 0.85; }
   .site-nav a .nav-ic svg { width: 18px; height: 18px; }
-  .site-nav a.active { color: var(--header-text); }
+  .site-nav a.active .nav-ic { opacity: 1; }
 
-  /* The active marker moves to the bar's top edge, where the eye is */
-  .site-nav a::after { top: 0; bottom: auto; }
-  .site-nav a:hover::after,
-  .site-nav a.active::after { left: 24%; right: 24%; }
+  /* Same selection pill as the header, sized to the taller icon+label
+     tab. Inherits the fill, border, highlight and transitions. */
+  .site-nav a::after { inset: 6px 12px; }
 
-  /* Nothing may end up underneath the bar */
-  body { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
-  .scroll-top { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+  /* The tab bar's footprint from the window floor: home-indicator inset
+     + its 16px gap + its 56px height = --nav-floor. Content clears that
+     plus a breathing gap; the FAB parks one --s2 above its top edge. */
+  :root { --nav-floor: calc(env(safe-area-inset-bottom, 0px) + var(--s2) + 56px); }
+  body { padding-bottom: calc(var(--nav-floor) + var(--s3)); }
+  .scroll-top { bottom: calc(var(--nav-floor) + var(--s2)); }
 }
 
 @media (max-width: 640px) {
@@ -3007,12 +3099,11 @@ details.more > summary:hover,
   /* Phones give up more of the gutter — every band narrows with it */
   :root { --page-pad: var(--s2); }
 
-  /* Closer to the corner, and still a comfortable thumb target. The
-     bottom offset has to keep clearing the nav bar, so it restates the
-     calc rather than falling back to a flat --s2. */
+  /* Closer to the corner, and a touch smaller. The bottom offset is
+     inherited from the ≤860 rule (--nav-floor + --s2), so it keeps its
+     gap above the tab bar without restating the calc. */
   .scroll-top {
     right: var(--s2);
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     width: 54px; height: 54px;
   }
   .scroll-top-arrow { width: 19px; height: 19px; }
@@ -3345,11 +3436,14 @@ details.more > summary:hover,
   padding: var(--s5);
   margin-bottom: var(--s3);
   border-radius: 14px;
-  background: color-mix(in srgb, var(--card-bg) 62%, transparent);
+  /* Content layer — a plain, near-opaque surface, not glass. Glass is
+     reserved for the navigation plane (header + tab bar); seven blurred
+     cards stacked down the page both muddied the reading and cost the
+     compositor a large re-blur on every scroll frame. The scene still
+     shows in the margins and the gaps between cards. */
+  background: color-mix(in srgb, var(--card-bg) 95%, transparent);
   border: 1px solid var(--panel-border);
   box-shadow: 0 2px 18px rgba(0,0,0,0.05);
-  backdrop-filter: blur(10px) saturate(115%);
-  -webkit-backdrop-filter: blur(10px) saturate(115%);
   scroll-margin-top: calc(var(--h-header) + var(--s3));
 }
 .ds-row:last-child { margin-bottom: 0; }
@@ -3555,17 +3649,7 @@ details.more > summary:hover,
 }
 
 @media (max-width: 900px) {
-  .ds-row {
-    padding: var(--s4) var(--s3);
-    /* Each dossier card ran its own blur(10px) backdrop-filter. Seven of
-       them stacked down the page meant the compositor re-blurred a large
-       area every scroll frame — a big part of the phone scroll lag. Drop
-       the blur here and lean on a more opaque fill instead; it reads the
-       same at this width. */
-    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  .ds-row { padding: var(--s4) var(--s3); }
   .proj-carousel .shot { flex-basis: 86%; }
   .xp { flex-direction: column; gap: var(--s2); }
   .xp-when { margin-left: 0; }
