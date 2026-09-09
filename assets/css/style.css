@@ -2134,7 +2134,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   /* The text column hugs the name (max-content) rather than taking all
      the spare width as 1fr — a 1fr column left a huge dead band between
      the name and the photo. The pair is centred as one unit. */
-  grid-template-columns: max-content clamp(230px, 22vw, 310px);
+  grid-template-columns: max-content clamp(196px, 17vw, 262px);
   justify-content: center;
   column-gap: clamp(var(--s5), 4vw, var(--s6));
   align-items: center;
@@ -2265,18 +2265,19 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    a different file and the hero does not move. 4:5 rather than 1:1:
    a portrait crop of a person reads as intentional where a square
    read as an avatar dropped into a gap. */
-.hero-portrait { margin: 0; position: relative; }
+.hero-portrait { margin: 0; position: relative; isolation: isolate; }
 .portrait-plate {
-  position: relative;
+  position: relative; z-index: 1;
   aspect-ratio: 5 / 6;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid var(--plane-rule);
-  box-shadow: var(--panel-shadow);
+  /* No crisp border — the photo's edge is drawn by the innermost
+     contour line (.pc-0) so the frame joins the survey-line family. */
+  box-shadow: 0 18px 40px -18px rgba(46,52,64,0.24);
   transition: box-shadow 0.4s var(--ease-out);
 }
 .hero-portrait:hover .portrait-plate {
-  box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+  box-shadow: 0 24px 48px -16px rgba(46,52,64,0.3);
 }
 .portrait-plate img {
   position: absolute; inset: 0; z-index: 1;
@@ -2292,19 +2293,30 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   filter: saturate(1) contrast(1.02);
   transform: scale(1.06);
 }
-/* A thin accent edge that draws itself on hover, replacing the old
-   offset frame — that frame sat outside the plate and read as a
-   printing misregistration rather than a device. */
-.portrait-plate::after {
-  content: ''; position: absolute; inset: 0; z-index: 2;
-  border-radius: 6px;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 0%, transparent);
-  transition: box-shadow 0.4s var(--ease-out);
+
+/* ── The frame, as a survey line ────────────────────────────────
+   Three outlines drawn as one family: .pc-0 traces the photo's own
+   edge, .pc-1 and .pc-2 step out from it with wider corners. A shared
+   turbulence-displacement filter gives all three the same hand-drawn
+   wobble as the topographic contour lines in the parallax, and warps
+   them together so they never cross. Inner line strongest, outer
+   faintest — the way elevation lines read on a hill. Clipped by the
+   hero edge, so they carry on into the scene. */
+.portrait-contours {
+  position: absolute; inset: 0; z-index: 2;
+  overflow: visible;
   pointer-events: none;
+  color: var(--plane-ink-2);
 }
-.hero-portrait:hover .portrait-plate::after {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent);
+.portrait-contours rect {
+  fill: none; stroke: currentColor;
+  vector-effect: non-scaling-stroke;
 }
+.pc-0 { stroke-width: 1.6; opacity: 0.7; transition: stroke 0.4s var(--ease-out), opacity 0.4s var(--ease-out); }
+.pc-1 { stroke-width: 1.3; opacity: 0.4; }
+.pc-2 { stroke-width: 1.2; opacity: 0.22; }
+/* The frame line picks up the accent on hover. */
+.hero-portrait:hover .pc-0 { stroke: var(--accent); opacity: 0.75; }
 
 /* Fallback when the photo is absent. Fills the plate the same way. */
 .portrait-monogram { display: none; }
@@ -2839,7 +2851,7 @@ details.more > summary:hover,
     gap: var(--s5);
     justify-items: start;
   }
-  .hero-portrait { width: 100%; max-width: 300px; }
+  .hero-portrait { width: 100%; max-width: 288px; }
   .hero-portrait .portrait-plate { aspect-ratio: 4 / 5; }
   .hero-portrait .portrait-plate img { object-position: 50% 16%; }
   .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
@@ -3436,17 +3448,29 @@ details.more > summary:hover,
   padding: var(--s5);
   margin-bottom: var(--s3);
   border-radius: 14px;
-  /* Content layer — a plain, near-opaque surface, not glass. Glass is
-     reserved for the navigation plane (header + tab bar); seven blurred
-     cards stacked down the page both muddied the reading and cost the
-     compositor a large re-blur on every scroll frame. The scene still
-     shows in the margins and the gaps between cards. */
-  background: color-mix(in srgb, var(--card-bg) 95%, transparent);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 2px 18px rgba(0,0,0,0.05);
+  /* Home only (this selector never renders on the listing pages). The
+     dossier cards take the SAME glass as the floating bars — same tint,
+     same heavy blur — so the whole page reads as one material and the
+     contour lines behind melt to a smooth frost instead of showing
+     through as detail. */
+  background: var(--header-glass);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    0 2px 18px rgba(0,0,0,0.06);
+  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
   scroll-margin-top: calc(var(--h-header) + var(--s3));
 }
 .ds-row:last-child { margin-bottom: 0; }
+/* Under Reduce Transparency / Increase Contrast the cards go solid,
+   like the bars do. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .ds-row {
+    background: var(--card-bg);
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}
 
 /* Compact section heading, shown only where the rail is not (below
    1200px). One mono line, the note trailing in serif on the same

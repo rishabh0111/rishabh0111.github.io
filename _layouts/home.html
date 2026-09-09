@@ -38,13 +38,29 @@ layout: default
       </nav>
     </div>
 
-    <!-- Portrait plate. If the image is missing, an RS monogram takes over. -->
+    <!-- Portrait plate. If the image is missing, an RS monogram takes over.
+         The photo's frame and two contours around it are one family of
+         hand-drawn survey lines — a turbulence filter gives the same
+         wobble as the topographic lines in the parallax. -->
     <figure class="hero-portrait" id="portrait">
       <div class="portrait-plate">
         <img src="{{ p.avatar | relative_url }}" alt="{{ p.name }} {{ p.surname }}"
              onerror="this.closest('.hero-portrait').classList.add('no-img')">
         <span class="portrait-monogram" aria-hidden="true">RS</span>
       </div>
+      <svg class="portrait-contours" viewBox="0 0 260 312"
+           preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <filter id="pc-wobble" x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="1" seed="4" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="4.5"
+                             xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <g fill="none" stroke="currentColor" filter="url(#pc-wobble)">
+          <rect class="pc-2" x="-29" y="-29" width="318" height="370" rx="32"/>
+          <rect class="pc-1" x="-13" y="-13" width="286" height="338" rx="18"/>
+          <rect class="pc-0" x="1"   y="1"   width="258" height="310" rx="7"/>
+        </g>
+      </svg>
       {% if p.avatar_caption %}<figcaption>{{ p.avatar_caption }}</figcaption>{% endif %}
     </figure>
 
