@@ -3065,21 +3065,12 @@ details.more > summary:hover,
     z-index: 95;
     flex-direction: row; align-items: stretch;
     gap: 0;
-    /* The same material as the header — the two floating bars are one
-       navigation plane, just in two places. */
-    background: var(--header-glass);
-    backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
-    -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--float-radius);
-    /* The glass tell: a specular edge along the top inside, a faint
-       shade along the bottom, a soft cast outside. */
-    box-shadow:
-      inset 0 1px 0 var(--glass-hi),
-      inset 0 -1px 0 rgba(46,52,64,0.06),
-      0 8px 28px rgba(46,52,64,0.22),
-      0 2px 8px rgba(46,52,64,0.14);
-    overflow: hidden;      /* clip the lens + glass to the capsule */
+    /* No material on the nav itself — the glass is .nav-shell below.
+       The nav's own box never changes size, so minimising costs no
+       layout: the shell is the one thing that resizes, and it is a
+       leaf; everything else moves by transform and opacity, which
+       stay on the compositor while the page scrolls underneath. */
+    background: none; border: 0; box-shadow: none;
     /* The bar is not a scroll surface: a finger sliding along it is
        scrubbing the lens, and the browser must not claim it for a pan. */
     touch-action: none;
@@ -3087,36 +3078,58 @@ details.more > summary:hover,
     opacity: 1; visibility: visible;
     transition: none;
   }
+
+  /* The glass. Same material as the header — the two floating bars are
+     one navigation plane, just in two places. Centred on the nav so it
+     can shrink to a circle about the middle. */
+  .nav-shell {
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    width: var(--shell-w, 100%);
+    transform: translateX(-50%);
+    background: var(--header-glass);
+    backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+    -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--float-radius);
+    overflow: hidden;
+    /* The glass tell: a specular edge along the top inside, a faint
+       shade along the bottom, a soft cast outside. */
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      inset 0 -1px 0 rgba(46,52,64,0.06),
+      0 8px 28px rgba(46,52,64,0.22),
+      0 2px 8px rgba(46,52,64,0.14);
+    /* Ease-out, no overshoot: a width can't undershoot a circle */
+    transition: width 0.42s var(--ease-out);
+  }
   /* A sheen down from the top edge — the light catching the glass. */
-  .site-nav::before {
+  .nav-shell::before {
     content: '';
-    position: absolute; inset: 0; z-index: 2;
+    position: absolute; inset: 0;
     border-radius: inherit;
     background: linear-gradient(180deg, var(--glass-hi), transparent 48%);
     opacity: 0.45;
     pointer-events: none;
   }
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-    .site-nav {
+    .nav-shell {
       background: var(--header-glass-solid);
       backdrop-filter: none; -webkit-backdrop-filter: none;
     }
-    .site-nav::before, body::after { display: none; }
+    .nav-shell::before, body::after { display: none; }
   }
 
   /* Icon over label, each tab a fixed width — so the lens can be placed
-     by index, and so the capsule's width follows the tabs as they
-     collapse and grow back. */
+     by index. Tabs never change size; folding away is a transform. */
   .site-nav a {
-    position: relative; z-index: 1;       /* above the lens */
+    position: relative; z-index: 1;       /* above the lens and shell */
     flex: 0 0 auto; width: var(--tab-w); min-width: 0;
     height: auto; padding: 0;
     flex-direction: column; justify-content: center; align-items: center;
     gap: 3px;
     font-size: 9px; letter-spacing: 0.1em;
-    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
-    transition: width 0.45s var(--spring), opacity 0.2s, color 0.2s;
+    transition: transform 0.45s var(--spring), opacity 0.2s, color 0.2s;
   }
   .site-nav a .nav-ic {
     opacity: 0.85;
@@ -3127,14 +3140,20 @@ details.more > summary:hover,
   /* Press: the glyph gives a little under the finger */
   .site-nav a:active .nav-ic { transform: scale(0.86); }
   .site-nav a .nav-lb {
-    max-height: 14px;
-    transition: opacity 0.15s, max-height 0.3s var(--spring);
+    transition: opacity 0.15s, transform 0.3s var(--ease-out);
   }
 
   /* No-JS fallback: the header's selection pill, filling the tab. The
      JS replaces it with the sliding lens and hides it. */
   .site-nav a::after { inset: 0; }
   .site-nav.has-lens a::after { display: none; }
+  /* Without the script there is no shell either; the nav carries the
+     material itself so the bar is never a set of bare links. */
+  .site-nav:not(.has-lens) {
+    background: var(--header-glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--float-radius);
+  }
 
   /* The lens. One element, positioned by --lens-x/--lens-w from the
      script; transform-only movement so the slide stays on the
@@ -3157,21 +3176,30 @@ details.more > summary:hover,
     transition:
       transform 0.45s var(--spring),
       width 0.45s var(--spring),
-      opacity 0.25s 0.18s;     /* fades back in once the tabs have room */
+      opacity 0.25s 0.15s;     /* fades back in once the shell has room */
     will-change: transform;
     pointer-events: none;
   }
   .site-nav.no-active .nav-lens { opacity: 0; }
 
-  /* Minimised: the other tabs fold to nothing, the label tucks away,
-     and what is left is a circle around the current tab's icon. */
-  .site-nav.is-min a:not(.active) { width: 0; opacity: 0; }
-  .site-nav.is-min a.active {
-    width: calc(var(--tab-h) - var(--tab-pad) * 2 - 2px);   /* minus the border */
-    gap: 0;
+  /* Minimised: the shell closes to a circle, the other tabs shrink
+     away, the label tucks under and the current glyph slides to the
+     middle and drops to the centre line. Nothing here is layout. */
+  .site-nav.is-min .nav-shell { width: var(--tab-h); }
+  .site-nav.is-min a:not(.active) {
+    opacity: 0; transform: scale(0.6);
+    transition: transform 0.3s var(--ease-out), opacity 0.15s;
   }
-  .site-nav.is-min .nav-lb { max-height: 0; opacity: 0; }
-  .site-nav.is-min .nav-lens { opacity: 0; transition-delay: 0s; transition-duration: 0.12s; }
+  .site-nav.is-min a.active { transform: translateX(var(--min-dx, 0px)); }
+  .site-nav.is-min a.active .nav-ic { transform: translateY(7px); }
+  .site-nav.is-min a.active:active .nav-ic { transform: translateY(7px) scale(0.86); }
+  .site-nav.is-min .nav-lb { opacity: 0; transform: translateY(6px) scale(0.7); }
+  .site-nav.is-min .nav-lens { opacity: 0; transition: opacity 0.12s; }
+  /* Only the circle takes taps while minimised; the rest of the nav's
+     (now empty) box lets them through to the page. */
+  .site-nav.is-min { pointer-events: none; }
+  .site-nav.is-min .nav-shell,
+  .site-nav.is-min a.active { pointer-events: auto; }
 
   /* The scroll-edge effect: the page softens into the bar instead of
      scrolling hard against it. One narrow fixed strip with a masked
@@ -3181,11 +3209,11 @@ details.more > summary:hover,
   body::after {
     content: '';
     position: fixed; left: 0; right: 0; bottom: 0;
-    height: calc(var(--nav-floor) + var(--s3));
+    height: calc(var(--nav-floor) + var(--s2));
     z-index: 94;
     pointer-events: none;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     mask-image: linear-gradient(to top, #000 30%, transparent);
     -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
   }
@@ -3196,6 +3224,19 @@ details.more > summary:hover,
   :root { --nav-floor: calc(env(safe-area-inset-bottom, 0px) + var(--s2) + var(--tab-h)); }
   body { padding-bottom: calc(var(--nav-floor) + var(--s3)); }
   .scroll-top { bottom: calc(var(--nav-floor) + var(--s2)); }
+
+  /* The bar is a capsule now, not a strip, so where the screen has
+     room the button comes down to sit beside it on the same line — two
+     floating controls, the way iOS parks its search button next to the
+     tab bar. The script sets the class only when the gap beside the bar
+     can take the button; on a narrow screen, or with more tabs, it
+     stays parked above the bar as before. Centred on the bar's line,
+     since the two are not the same height at every width. */
+  :root { --fab-size: 60px; }
+  body.fab-beside .scroll-top {
+    bottom: calc(var(--s2) + env(safe-area-inset-bottom, 0px)
+                 + (var(--tab-h) - var(--fab-size)) / 2);
+  }
 }
 
 @media (max-width: 640px) {
@@ -3232,9 +3273,10 @@ details.more > summary:hover,
   /* Closer to the corner, and a touch smaller. The bottom offset is
      inherited from the ≤860 rule (--nav-floor + --s2), so it keeps its
      gap above the tab bar without restating the calc. */
+  :root { --fab-size: 54px; }
   .scroll-top {
     right: var(--s2);
-    width: 54px; height: 54px;
+    width: var(--fab-size); height: var(--fab-size);
   }
   .scroll-top-arrow { width: 19px; height: 19px; }
   .post-more-grid { grid-auto-flow: row; grid-auto-columns: auto; }

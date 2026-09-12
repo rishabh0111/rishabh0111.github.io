@@ -905,30 +905,66 @@
         siteNav.style.setProperty('--lens-x', (tabs.indexOf(tab) * w) + 'px');
         siteNav.style.setProperty('--lens-w', w + 'px');
       };
+      // How far the current tab slides to reach the middle of the bar
+      // when it minimises — by index again, so it is a pure transform.
+      var placeMin = function () {
+        if (!activeTab) return;
+        var idx = tabs.indexOf(activeTab);
+        siteNav.style.setProperty('--min-dx',
+          (((tabs.length - 1) / 2 - idx) * tabW()) + 'px');
+      };
 
-      // Positioned before it enters the DOM, so its first computed style
-      // is already the right one. Set afterwards, the lens transitioned
-      // in from the first tab on every page load — the getComputedStyle
-      // above forces a style pass, and that pass would see it unplaced.
+      // Positioned before they enter the DOM, so their first computed
+      // style is already the right one. Set afterwards, the lens
+      // transitioned in from the first tab on every page load — the
+      // getComputedStyle above forces a style pass, and that pass would
+      // see it unplaced.
       lensTo(activeTab);
+      placeMin();
+      // The glass sits on its own leaf so minimising resizes one
+      // childless box and nothing else has to lay out.
+      var shell = document.createElement('span');
+      shell.className = 'nav-shell';
+      shell.setAttribute('aria-hidden', 'true');
       var lens = document.createElement('span');
       lens.className = 'nav-lens';
       lens.setAttribute('aria-hidden', 'true');
       siteNav.insertBefore(lens, siteNav.firstChild);
+      siteNav.insertBefore(shell, lens);
       siteNav.classList.add('has-lens');
       siteNav.classList.toggle('no-active', !activeTab);
 
+      // The back-to-top button parks above the bar unless there is
+      // room beside it — then it comes down onto the bar's line. Judged
+      // from the expanded width, which never changes, so the button
+      // does not hop when the bar minimises.
+      var fab = document.getElementById('scroll-top');
+      var placeFab = function () {
+        if (!fab) return;
+        var beside = false;
+        if (tabMq.matches) {
+          var cs = getComputedStyle(fab);
+          var room = (window.innerWidth - siteNav.offsetWidth) / 2;
+          beside = room >= fab.offsetWidth + (parseFloat(cs.right) || 0) + 8;
+        }
+        document.body.classList.toggle('fab-beside', beside);
+      };
+      placeFab();
+      window.addEventListener('resize', placeFab, { passive: true });
+
       // ── Minimise on scroll ──
-      var isMin = false;
+      var isMin = false, lastToggle = 0;
       var setMin = function (m) {
         if (m === isMin) return;
         isMin = m;
+        lastToggle = performance.now();
         siteNav.classList.toggle('is-min', m);
       };
       // Direction is decided on accumulated travel, not a single event,
-      // so a finger settling after a fling doesn't flip the bar; and the
+      // so a finger settling after a fling doesn't flip the bar; the
       // rubber-band past either end is ignored, since that is not the
-      // reader going anywhere.
+      // reader going anywhere; and a fresh toggle waits for the last
+      // one's motion to finish rather than reversing it midway.
       var lastY = window.pageYOffset, travel = 0, minTick = false;
       var judgeScroll = function () {
         minTick = false;
@@ -940,8 +976,9 @@
         if (y <= 4) { setMin(false); travel = 0; return; }
         if (y < 0 || y > max) return;
         travel = ((dy > 0) === (travel > 0)) ? travel + dy : dy;
-        if (travel > 32) setMin(true);
-        else if (travel < -32) setMin(false);
+        if (performance.now() - lastToggle < 450) return;
+        if (travel > 48) setMin(true);
+        else if (travel < -48) setMin(false);
       };
       window.addEventListener('scroll', function () {
         if (!minTick) { minTick = true; requestAnimationFrame(judgeScroll); }
@@ -1014,6 +1051,8 @@
       tabMq.addEventListener('change', function () {
         setMin(false);
         lensTo(activeTab);
+        placeMin();
+        placeFab();
       });
     }
 
