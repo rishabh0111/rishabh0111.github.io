@@ -566,6 +566,7 @@ body::before {
   background: color-mix(in srgb, var(--bg) 93%, transparent);
   backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
   -webkit-backdrop-filter: blur(var(--glass-blur-scrim)) var(--glass-fx);
+  touch-action: none;   /* nothing here scrolls or zooms the page under it */
 }
 .lightbox[hidden] { display: none; }
 
@@ -634,6 +635,7 @@ body.lb-open { overflow: hidden; }
   max-width: none;
   max-height: none;
   user-select: none; -webkit-user-drag: none;
+  -webkit-touch-callout: none;      /* no save-image sheet on a long press */
 }
 /* Mermaid flowchart labels are HTML inside <foreignObject>, so they
    inherit line-height from here — a zeroed one collapsed every label.

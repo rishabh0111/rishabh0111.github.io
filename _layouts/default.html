@@ -453,7 +453,7 @@
     var lbZoom = document.getElementById('lightbox-zoom');
 
     if (lb && lbStage && lbContent) {
-      var scale = 1, tx = 0, ty = 0, lastFocus = null;
+      var scale = 1, tx = 0, ty = 0, fitScale = 1, lastFocus = null;
       var MIN = 0.2, MAX = 8;
 
       var draw = function () {
@@ -498,6 +498,7 @@
           var k = Math.min(st.width / f.width, st.height / f.height) * 0.98;
           scale = Math.min(MAX, Math.max(MIN, k));
         }
+        fitScale = scale;
         draw();
       };
 
@@ -613,6 +614,7 @@
         });
 
       lb.addEventListener('click', function (e) {
+        if (lb.hidden) return;
         var btn = e.target.closest('[data-lb]');
         if (btn) {
           var act = btn.getAttribute('data-lb');
@@ -622,39 +624,154 @@
           else close();
           return;
         }
-        // Clicking the empty stage around the figure dismisses it.
-        if (!lbContent.contains(e.target)) close();
+        // Clicking the toolbar's empty space dismisses. The stage decides
+        // for itself below, from the pointer — a drag that starts on the
+        // figure and ends over bare stage is a pan, not a dismissal.
+        if (!lbStage.contains(e.target)) close();
       });
 
+      // Zoom on the wheel. A mouse wheel arrives in big notches (100px,
+      // or 3 lines in Firefox); a trackpad's two-finger scroll streams
+      // small pixel deltas at a high rate; and a trackpad pinch comes
+      // through as a wheel with ctrlKey set (Chrome, Edge, Firefox) and
+      // a delta that tracks the fingers. A fixed step per event suited
+      // the first and ran away with the other two, so the step follows
+      // the delta now, capped so one notch can't jump the scale.
       lbStage.addEventListener('wheel', function (e) {
         if (lb.hidden) return;
         e.preventDefault();
-        zoomTo(scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX, e.clientY);
+        var d = e.deltaY;
+        if (e.deltaMode === 1) d *= 16;                       // lines → px
+        else if (e.deltaMode === 2) d *= lbStage.clientHeight; // pages → px
+        var k = e.ctrlKey ? 0.01 : 0.0012;                    // pinch is finer
+        var exp = Math.max(-0.4, Math.min(0.4, -d * k));
+        zoomTo(scale * Math.exp(exp), e.clientX, e.clientY);
       }, { passive: false });
 
-      lbContent.addEventListener('dblclick', function (e) {
-        zoomTo(scale * 1.8, e.clientX, e.clientY);
+      // Safari reports a trackpad pinch through its own gesture events
+      // instead — e.scale is the ratio since gesturestart. iOS fires
+      // these too, on top of the touch pointers handled below, so they
+      // only act when no second finger is being tracked.
+      var gestureBase = 1;
+      lbStage.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+        gestureBase = scale;
       });
+      lbStage.addEventListener('gesturechange', function (e) {
+        e.preventDefault();
+        if (pts.length >= 2) return;
+        zoomTo(gestureBase * e.scale, e.clientX, e.clientY);
+      });
+      lbStage.addEventListener('gestureend', function (e) { e.preventDefault(); });
 
-      // Drag to pan. Pointer events cover mouse, pen and single touch.
-      var dragging = false, lastX = 0, lastY = 0;
-      lbContent.addEventListener('pointerdown', function (e) {
-        dragging = true; lastX = e.clientX; lastY = e.clientY;
-        lbContent.setPointerCapture(e.pointerId);
+      // iOS ignores the body's overflow lock: the page can still
+      // rubber-band (or pinch-zoom) under the viewer. Pointer events
+      // can't cancel that; only the touch event itself can.
+      lb.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+      }, { passive: false });
+      // Firefox starts a native image drag on a mouse pan otherwise.
+      lbStage.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+      // Drag to pan, pinch to zoom. Pointer events cover mouse, pen and
+      // touch alike; every active pointer is tracked, so a second finger
+      // turns the drag into a pinch — the scale follows the distance
+      // between the fingers and the point midway between them stays
+      // under them as they move. Bound to the stage rather than the
+      // figure so a finger that lands beside the figure still counts.
+      var pts = [];                       // active pointers, in press order
+      var lastX = 0, lastY = 0, lastDist = 0;
+      var downX = 0, downY = 0, downOnContent = false;
+      var gestureMoved = false, lastPointerType = 'mouse';
+
+      var findPt = function (id) {
+        for (var i = 0; i < pts.length; i++) if (pts[i].id === id) return i;
+        return -1;
+      };
+      var pinch = function () {
+        var a = pts[0], b = pts[1];
+        return {
+          x: (a.x + b.x) / 2, y: (a.y + b.y) / 2,
+          d: Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y))
+        };
+      };
+
+      lbStage.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        pts.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
+        lbStage.setPointerCapture(e.pointerId);
+        lastPointerType = e.pointerType;
+        if (pts.length === 1) {
+          lastX = downX = e.clientX; lastY = downY = e.clientY;
+          downOnContent = lbContent.contains(e.target);
+          gestureMoved = false;
+        } else if (pts.length === 2) {
+          var p = pinch();
+          lastX = p.x; lastY = p.y; lastDist = p.d;
+          gestureMoved = true;
+        }
         lbContent.classList.add('dragging');
       });
-      lbContent.addEventListener('pointermove', function (e) {
-        if (!dragging) return;
-        tx += e.clientX - lastX; ty += e.clientY - lastY;
-        lastX = e.clientX; lastY = e.clientY;
+
+      lbStage.addEventListener('pointermove', function (e) {
+        var i = findPt(e.pointerId);
+        if (i < 0) return;
+        pts[i].x = e.clientX; pts[i].y = e.clientY;
+        if (pts.length === 1) {
+          // A finger never holds perfectly still; only real travel
+          // stops the release from counting as a tap.
+          if (Math.abs(e.clientX - downX) > 6 || Math.abs(e.clientY - downY) > 6) {
+            gestureMoved = true;
+          }
+          tx += e.clientX - lastX; ty += e.clientY - lastY;
+          lastX = e.clientX; lastY = e.clientY;
+        } else {
+          var p = pinch();              // a third finger is simply ignored
+          if (lastDist) zoomTo(scale * (p.d / lastDist), p.x, p.y);
+          tx += p.x - lastX; ty += p.y - lastY;
+          lastX = p.x; lastY = p.y; lastDist = p.d;
+        }
         draw();
       });
-      var endDrag = function () {
-        dragging = false;
-        lbContent.classList.remove('dragging');
+
+      // dblclick is not dependable from a touch screen, so a double-tap
+      // is detected by hand: two clean taps within a third of a second.
+      // It toggles — out to a closer look, back to the fit — which is
+      // what a double-tap does everywhere else on a phone.
+      var lastTap = 0;
+      var toggleZoom = function (x, y) {
+        if (scale > fitScale * 1.05) fit();
+        else zoomTo(scale * 2.5, x, y);
       };
-      lbContent.addEventListener('pointerup', endDrag);
-      lbContent.addEventListener('pointercancel', endDrag);
+
+      var endPointer = function (e) {
+        var i = findPt(e.pointerId);
+        if (i < 0) return;
+        pts.splice(i, 1);
+        if (pts.length === 1) {
+          // Pinch back down to a drag without the figure jumping.
+          lastX = pts[0].x; lastY = pts[0].y; lastDist = 0;
+          return;
+        }
+        if (pts.length) return;
+        lbContent.classList.remove('dragging');
+        if (gestureMoved || e.type !== 'pointerup') return;
+        if (!downOnContent) { close(); return; }   // tap beside the figure
+        if (e.pointerType !== 'touch') return;
+        var now = Date.now();
+        if (now - lastTap < 320) {
+          lastTap = 0;
+          toggleZoom(e.clientX, e.clientY);
+        } else lastTap = now;
+      };
+      lbStage.addEventListener('pointerup', endPointer);
+      lbStage.addEventListener('pointercancel', endPointer);
+
+      lbStage.addEventListener('dblclick', function (e) {
+        // Touch is handled above; some browsers synthesise this as well.
+        if (lastPointerType === 'touch' || !downOnContent) return;
+        zoomTo(scale * 1.8, e.clientX, e.clientY);
+      });
 
       window.addEventListener('resize', function () {
         if (!lb.hidden) fit();
