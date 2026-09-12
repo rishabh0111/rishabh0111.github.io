@@ -2847,26 +2847,25 @@ details.more > summary:hover,
 }
 
 @media (max-width: 860px) {
-  /* One column. The name leads (it is the hook now); the portrait
-     follows it, kept as a portrait crop rather than the squished
-     landscape band it used to become. */
+  /* One column, portrait first. Stacked under the links at near full
+     width, the photo outgrew the name and the whole hero — a 288×360
+     block on a 390px screen, and in a different crop from the desktop
+     plate on top of that. It now leads the column as a small plate
+     above the eyebrow, the way a profile card opens: the same 5:6 crop
+     and the same upward bias as the desktop, so the face sits where it
+     does there, at a size that pairs with the name rather than
+     overpowering it. */
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: var(--s5);
+    gap: var(--s4);
     justify-items: start;
   }
   .hero-portrait {
-    width: 100%; max-width: 288px;
-    /* Clear the contour bleed off the WRITING pill above it. */
-    margin-top: var(--s2);
+    order: -1;
+    width: clamp(132px, 38vw, 164px);
+    margin-top: var(--s1);
   }
-  .hero-portrait .portrait-plate { aspect-ratio: 4 / 5; }
-  .hero-portrait .portrait-plate img { object-position: 50% 16%; }
-  .hero-portrait.no-img .portrait-monogram { font-size: 3rem; }
-  /* Tuck the outer contours in — on one narrow column the wide bleed
-     runs into the links and the screen edges. */
-  .pc-1 { x: -7px;  y: -7px;  width: 274px; height: 326px; rx: 13px; }
-  .pc-2 { x: -14px; y: -14px; width: 288px; height: 340px; rx: 20px; }
+  .hero-portrait.no-img .portrait-monogram { font-size: 2.4rem; }
 }
 
 @media (max-width: 700px) {

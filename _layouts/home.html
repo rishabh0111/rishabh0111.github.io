@@ -582,8 +582,10 @@ layout: default
   // simply shows the finished hero instead of an invisible one.
   var heroInner = document.querySelector('.hero-inner');
   if (heroInner && !reduce) {
+    // On phones the portrait leads the column, so it rises first there.
+    var portraitDelay = window.matchMedia('(max-width: 860px)').matches ? 0 : 0.12;
     [['.page-label', 0], ['.hero-hi', 0.05], ['.hero-name-wrap', 0.1],
-     ['.hero-links', 0.24], ['.hero-portrait', 0.12]
+     ['.hero-links', 0.24], ['.hero-portrait', portraitDelay]
     ].forEach(function (pair) {
       var el = heroInner.querySelector(pair[0]);
       if (!el) return;
