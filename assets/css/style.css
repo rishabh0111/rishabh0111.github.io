@@ -948,6 +948,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a:hover::after  { opacity: 0.5; transform: scale(1); }
 .site-nav a.active::after { opacity: 1; transform: scale(1); }
 .site-nav a.active { color: var(--accent); }
+/* The tab bar's sliding lens (see the ≤860 block); inert up here */
+.nav-lens { display: none; }
 
 /* Header right cluster: nav + theme switch + hamburger */
 .header-right { display: flex; align-items: center; gap: var(--s1); }
@@ -3021,27 +3023,49 @@ details.more > summary:hover,
   .post-more-item:nth-child(n+3) { display: none; }
   .post-more-item:nth-child(2) { border-right: none; padding-right: 0; }
 
-  /* Navigation docks to the bottom of the screen: three destinations,
+  /* Navigation docks to the bottom of the screen: every destination
      always visible, within thumb reach. That is one tap instead of two
      (open the menu, then choose), and it puts the controls where a hand
      holding a phone already is. The hamburger has nothing left to open,
      so it goes; the theme switch stays in the header, where it is one
-     tap and not navigation. */
+     tap and not navigation.
+
+     Modelled on the iOS 26 tab bar, which does four things ours now
+     does too:
+       · the capsule hugs its tabs and sits centred — with two or three
+         destinations a bar stretched edge to edge read as empty space
+       · the selected tab is a coloured glyph AND a glass "lens" behind
+         it; the lens slides between tabs and follows a scrubbing finger
+         (the JS moves it — the ::after pill below is the no-JS fallback)
+       · scrolling down minimises the bar to a circle holding only the
+         current tab's icon; scrolling up, reaching the top, or tapping
+         it brings the bar back
+       · content dissolves into a soft blur where it meets the bar,
+         rather than running into a hard edge under it */
   .nav-toggle { display: none; }
+
+  :root {
+    --tab-h:   54px;   /* the capsule                              */
+    --tab-pad: 4px;    /* lens inset from the capsule edge         */
+    --tab-w:   78px;   /* one tab; the JS reads this to place lens */
+    /* One spring for the lens, the tabs and the minimise — a touch of
+       overshoot, the way iOS's interactive springs settle. */
+    --spring: cubic-bezier(0.34, 1.28, 0.64, 1);
+  }
 
   .site-nav {
     position: fixed;
-    /* The iOS 26 tab bar: a glass capsule held clear of all three
-       edges. Fixed height so the FAB and the page padding can clear it
-       by an exact amount. The bottom offset stacks the home-indicator
-       inset on top of its own gap. */
-    left: var(--s3); right: var(--s3); top: auto;
+    /* Centred and only as wide as its tabs: a capsule, not a strip.
+       The bottom offset stacks the home-indicator inset on its gap. */
+    left: 50%; right: auto; top: auto;
     bottom: calc(var(--s2) + env(safe-area-inset-bottom, 0px));
-    height: 56px;
+    transform: translateX(-50%);
+    height: var(--tab-h);
+    max-width: calc(100% - var(--s3) * 2);
+    padding: var(--tab-pad);
     z-index: 95;
     flex-direction: row; align-items: stretch;
     gap: 0;
-    padding: 0;
     /* The same material as the header — the two floating bars are one
        navigation plane, just in two places. */
     background: var(--header-glass);
@@ -3049,43 +3073,128 @@ details.more > summary:hover,
     -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
     border: 1px solid var(--glass-border);
     border-radius: var(--float-radius);
+    /* The glass tell: a specular edge along the top inside, a faint
+       shade along the bottom, a soft cast outside. */
     box-shadow:
       inset 0 1px 0 var(--glass-hi),
+      inset 0 -1px 0 rgba(46,52,64,0.06),
       0 8px 28px rgba(46,52,64,0.22),
       0 2px 8px rgba(46,52,64,0.14);
-    overflow: hidden;      /* clip the tab marker + glass to the capsule */
+    overflow: hidden;      /* clip the lens + glass to the capsule */
+    /* The bar is not a scroll surface: a finger sliding along it is
+       scrubbing the lens, and the browser must not claim it for a pan. */
+    touch-action: none;
     /* Always on — there is no open/closed state left to animate */
-    opacity: 1; visibility: visible; transform: none;
+    opacity: 1; visibility: visible;
     transition: none;
+  }
+  /* A sheen down from the top edge — the light catching the glass. */
+  .site-nav::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 2;
+    border-radius: inherit;
+    background: linear-gradient(180deg, var(--glass-hi), transparent 48%);
+    opacity: 0.45;
+    pointer-events: none;
   }
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
     .site-nav {
       background: var(--header-glass-solid);
       backdrop-filter: none; -webkit-backdrop-filter: none;
     }
+    .site-nav::before, body::after { display: none; }
   }
 
-  /* Icon over label, each link an equal share of the bar */
+  /* Icon over label, each tab a fixed width — so the lens can be placed
+     by index, and so the capsule's width follows the tabs as they
+     collapse and grow back. */
   .site-nav a {
-    flex: 1 1 0; min-width: 0;
-    height: auto;
-    padding: 9px 4px 10px;
-    flex-direction: column; justify-content: center;
-    gap: 4px;
-    font-size: 8.5px; letter-spacing: 0.1em;
+    position: relative; z-index: 1;       /* above the lens */
+    flex: 0 0 auto; width: var(--tab-w); min-width: 0;
+    height: auto; padding: 0;
+    flex-direction: column; justify-content: center; align-items: center;
+    gap: 3px;
+    font-size: 9px; letter-spacing: 0.1em;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    transition: width 0.45s var(--spring), opacity 0.2s, color 0.2s;
   }
-  .site-nav a .nav-ic { opacity: 0.85; }
-  .site-nav a .nav-ic svg { width: 18px; height: 18px; }
+  .site-nav a .nav-ic {
+    opacity: 0.85;
+    transition: transform 0.3s var(--spring), opacity 0.2s;
+  }
+  .site-nav a .nav-ic svg { width: 21px; height: 21px; }
   .site-nav a.active .nav-ic { opacity: 1; }
+  /* Press: the glyph gives a little under the finger */
+  .site-nav a:active .nav-ic { transform: scale(0.86); }
+  .site-nav a .nav-lb {
+    max-height: 14px;
+    transition: opacity 0.15s, max-height 0.3s var(--spring);
+  }
 
-  /* Same selection pill as the header, sized to the taller icon+label
-     tab. Inherits the fill, border, highlight and transitions. */
-  .site-nav a::after { inset: 6px 12px; }
+  /* No-JS fallback: the header's selection pill, filling the tab. The
+     JS replaces it with the sliding lens and hides it. */
+  .site-nav a::after { inset: 0; }
+  .site-nav.has-lens a::after { display: none; }
+
+  /* The lens. One element, positioned by --lens-x/--lens-w from the
+     script; transform-only movement so the slide stays on the
+     compositor. --lens-s swells it slightly while a finger is down. */
+  .nav-lens {
+    display: block;
+    position: absolute;
+    top: var(--tab-pad); bottom: var(--tab-pad); left: var(--tab-pad);
+    width: var(--lens-w, var(--tab-w));
+    transform: translateX(var(--lens-x, 0px)) scale(var(--lens-s, 1));
+    transform-origin: center;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, var(--glass-hi), transparent 58%),
+      color-mix(in srgb, var(--header-text) 11%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--header-text) 8%, transparent),
+      0 1px 3px rgba(46,52,64,0.10);
+    opacity: 1;
+    transition:
+      transform 0.45s var(--spring),
+      width 0.45s var(--spring),
+      opacity 0.25s 0.18s;     /* fades back in once the tabs have room */
+    will-change: transform;
+    pointer-events: none;
+  }
+  .site-nav.no-active .nav-lens { opacity: 0; }
+
+  /* Minimised: the other tabs fold to nothing, the label tucks away,
+     and what is left is a circle around the current tab's icon. */
+  .site-nav.is-min a:not(.active) { width: 0; opacity: 0; }
+  .site-nav.is-min a.active {
+    width: calc(var(--tab-h) - var(--tab-pad) * 2 - 2px);   /* minus the border */
+    gap: 0;
+  }
+  .site-nav.is-min .nav-lb { max-height: 0; opacity: 0; }
+  .site-nav.is-min .nav-lens { opacity: 0; transition-delay: 0s; transition-duration: 0.12s; }
+
+  /* The scroll-edge effect: the page softens into the bar instead of
+     scrolling hard against it. One narrow fixed strip with a masked
+     blur — cheap next to the stacked card blurs that were cut for
+     jank, and it is what makes the bar read as floating over content
+     rather than pasted on top of it. */
+  body::after {
+    content: '';
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: calc(var(--nav-floor) + var(--s3));
+    z-index: 94;
+    pointer-events: none;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    mask-image: linear-gradient(to top, #000 30%, transparent);
+    -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
+  }
 
   /* The tab bar's footprint from the window floor: home-indicator inset
-     + its 16px gap + its 56px height = --nav-floor. Content clears that
+     + its 16px gap + its height = --nav-floor. Content clears that
      plus a breathing gap; the FAB parks one --s2 above its top edge. */
-  :root { --nav-floor: calc(env(safe-area-inset-bottom, 0px) + var(--s2) + 56px); }
+  :root { --nav-floor: calc(env(safe-area-inset-bottom, 0px) + var(--s2) + var(--tab-h)); }
   body { padding-bottom: calc(var(--nav-floor) + var(--s3)); }
   .scroll-top { bottom: calc(var(--nav-floor) + var(--s2)); }
 }

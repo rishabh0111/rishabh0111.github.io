@@ -71,13 +71,19 @@
       <nav class="site-nav" id="site-nav" aria-label="Site navigation">
         <a href="{{ '/' | relative_url }}"
            {% if page.url == '/' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="home" %}</span>Home</a>
+          <span class="nav-ic">{% include icon.html name="home" %}</span><span class="nav-lb">Home</span></a>
         <a href="{{ '/blogs/' | relative_url }}"
            {% if page.url contains '/blogs' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="article" %}</span>Blog</a>
+          <span class="nav-ic">{% include icon.html name="article" %}</span><span class="nav-lb">Blog</span></a>
+        {%- comment -%}
+          News is parked: _config.yml excludes news/ and _posts/news/, so
+          the category is empty and the tab stays out until they return.
+        {%- endcomment -%}
+        {% if site.categories.news.size > 0 %}
         <a href="{{ '/news/' | relative_url }}"
            {% if page.url contains '/news' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="news" %}</span>News</a>
+          <span class="nav-ic">{% include icon.html name="news" %}</span><span class="nav-lb">News</span></a>
+        {% endif %}
       </nav>
 
       <div class="theme-toggle" id="theme-toggle"
@@ -871,6 +877,144 @@
       // The rail's own height depends on the viewport, so re-centre when
       // it changes and the current item may have fallen out of view.
       window.addEventListener('resize', centreCurrent, { passive: true });
+    }
+
+    // ── Tab bar (phones) ───────────────────────────────────────
+    // Below 860px the nav is a floating tab bar, and this gives it the
+    // iOS 26 behaviour the CSS only lays the ground for: a glass lens
+    // that slides to the selected tab and follows a scrubbing finger,
+    // and a bar that minimises to the current tab's icon as you scroll
+    // down — coming back when you scroll up, reach the top, or tap it.
+    // Everything here is guarded on the same breakpoint the CSS uses,
+    // so on a desktop the nav is left exactly as it was.
+    var tabMq = window.matchMedia('(max-width: 860px)');
+    if (siteNav && siteNav.querySelector('a')) {
+      var tabs = Array.prototype.slice.call(siteNav.querySelectorAll('a'));
+      var activeTab = siteNav.querySelector('a.active');
+
+      // Tabs are a fixed width, so the lens is placed by index rather
+      // than by measuring — measuring mid-animation (the bar collapsing
+      // or growing back) would land it on a moving target.
+      var tabW = function () {
+        return parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue('--tab-w')) || 78;
+      };
+      var lensTo = function (tab) {
+        if (!tab) return;
+        var w = tabW();
+        siteNav.style.setProperty('--lens-x', (tabs.indexOf(tab) * w) + 'px');
+        siteNav.style.setProperty('--lens-w', w + 'px');
+      };
+
+      // Positioned before it enters the DOM, so its first computed style
+      // is already the right one. Set afterwards, the lens transitioned
+      // in from the first tab on every page load — the getComputedStyle
+      // above forces a style pass, and that pass would see it unplaced.
+      lensTo(activeTab);
+      var lens = document.createElement('span');
+      lens.className = 'nav-lens';
+      lens.setAttribute('aria-hidden', 'true');
+      siteNav.insertBefore(lens, siteNav.firstChild);
+      siteNav.classList.add('has-lens');
+      siteNav.classList.toggle('no-active', !activeTab);
+
+      // ── Minimise on scroll ──
+      var isMin = false;
+      var setMin = function (m) {
+        if (m === isMin) return;
+        isMin = m;
+        siteNav.classList.toggle('is-min', m);
+      };
+      // Direction is decided on accumulated travel, not a single event,
+      // so a finger settling after a fling doesn't flip the bar; and the
+      // rubber-band past either end is ignored, since that is not the
+      // reader going anywhere.
+      var lastY = window.pageYOffset, travel = 0, minTick = false;
+      var judgeScroll = function () {
+        minTick = false;
+        if (!tabMq.matches) return;
+        var y = window.pageYOffset;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var dy = y - lastY;
+        lastY = y;
+        if (y <= 4) { setMin(false); travel = 0; return; }
+        if (y < 0 || y > max) return;
+        travel = ((dy > 0) === (travel > 0)) ? travel + dy : dy;
+        if (travel > 32) setMin(true);
+        else if (travel < -32) setMin(false);
+      };
+      window.addEventListener('scroll', function () {
+        if (!minTick) { minTick = true; requestAnimationFrame(judgeScroll); }
+      }, { passive: true });
+
+      // A keyboard user tabbing onto a folded-away link gets the bar back.
+      siteNav.addEventListener('focusin', function () { setMin(false); });
+
+      // ── Press, scrub, release ──
+      // The lens jumps to the tab under the finger on press, tracks it
+      // as the finger slides along the bar, and the tab under the finger
+      // on release is the one followed. Lifting off the bar cancels.
+      var scrub = null, swallowClick = false, swallowTimer = null;
+      var swallowNext = function () {
+        // The click that trails a pointerup is what would double up the
+        // navigation, so it is eaten — but only the next one, and only
+        // briefly, in case no click ever comes.
+        swallowClick = true;
+        clearTimeout(swallowTimer);
+        swallowTimer = setTimeout(function () { swallowClick = false; }, 400);
+      };
+      var tabAt = function (x) {
+        for (var i = 0; i < tabs.length; i++) {
+          var r = tabs[i].getBoundingClientRect();
+          if (r.width && x >= r.left && x <= r.right) return tabs[i];
+        }
+        return null;
+      };
+
+      siteNav.addEventListener('pointerdown', function (e) {
+        if (!tabMq.matches || e.button !== 0) return;
+        if (isMin) {
+          // The minimised bar is one button: tapping it re-expands.
+          setMin(false);
+          swallowNext();
+          return;
+        }
+        var t = e.target.closest('a');
+        if (!t) return;
+        scrub = t;
+        siteNav.setPointerCapture(e.pointerId);
+        siteNav.style.setProperty('--lens-s', '1.06');
+        lensTo(t);
+      });
+      siteNav.addEventListener('pointermove', function (e) {
+        if (!scrub) return;
+        var t = tabAt(e.clientX);
+        if (t && t !== scrub) { scrub = t; lensTo(t); }
+      });
+      var endScrub = function (e) {
+        if (!scrub) return;
+        scrub = null;
+        siteNav.style.setProperty('--lens-s', '1');
+        var t = e.type === 'pointerup' ? tabAt(e.clientX) : null;
+        if (t) {
+          swallowNext();
+          window.location.href = t.href;
+        } else {
+          lensTo(activeTab);            // cancelled: settle back
+        }
+      };
+      siteNav.addEventListener('pointerup', endScrub);
+      siteNav.addEventListener('pointercancel', endScrub);
+      siteNav.addEventListener('click', function (e) {
+        if (swallowClick) { swallowClick = false; e.preventDefault(); }
+      });
+
+      // Crossing the breakpoint either way: nothing minimised, lens
+      // squared up to the current tab.
+      tabMq.addEventListener('change', function () {
+        setMin(false);
+        lensTo(activeTab);
+      });
     }
 
     // ── Back to top, with progress on its ring ─────────────────

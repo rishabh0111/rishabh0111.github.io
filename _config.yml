@@ -58,3 +58,8 @@ exclude:
   - _preview
   # Working notes, not for publication.
   - master_profile.md
+  # News is parked for now — not publishing digests yet. Dropping both the
+  # listing page and the posts keeps them out of the nav, the home page,
+  # the feed and the sitemap. Remove these two lines to bring it back.
+  - news
+  - _posts/news

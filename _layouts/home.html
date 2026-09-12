@@ -472,7 +472,7 @@ layout: default
 
           <p class="section-more">
             <a href="{{ '/blogs/' | relative_url }}">All writing<span aria-hidden="true">→</span></a>
-            <a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>
+            {% if n_news > 0 %}<a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>{% endif %}
           </p>
         </div>
       </div>
