@@ -89,7 +89,7 @@ with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 | hero name | Warp Text | the name as a pane of glass: slow undulation, a lens under the pointer, a hair of RGB split — on raw WebGL2. Split Text (letters rising in) where it can't run |
 | "Hi, I'm" | Blur Text | words from above, out of a blur |
 | role eyebrow | Rotating Text | the three words take turns |
-| portrait | Profile Card | the photo as a card: tilt, glare, a Nord-palette sheen, a glass strip with handle · location · email (no mini avatar — the strip sits on the photo) |
+| portrait | Profile Card | the photo as a card: tilt, glare, a Nord-palette sheen, a glass strip with handle · location |
 | link pills | Magnet | pull toward a nearby pointer |
 | everywhere | Click Spark | a burst of lines on click |
 | header nav | Pill Nav | a disc rises to fill the pill on hover |
@@ -110,7 +110,7 @@ with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 | projects band | Dot Grid | dots that tint and get shoved by a fast pointer |
 | current job | Electric Border | a live, turbulent edge |
 | contact plane | Magnet Lines | needles that point at the pointer |
-| buttons | Specular Button | a highlight that follows the pointer |
+| "All N projects" | Specular Button | a highlight that follows the pointer |
 | off-hours | True Focus | a frame hopping word to word |
 | toolkit loops | Scroll Velocity | speed up with the scroll |
 | viewport foot | Gradual Blur | the page dissolves at the bottom edge |

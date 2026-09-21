@@ -41,9 +41,9 @@ layout: default
     <!-- The portrait as a Profile Card (React Bits): the photo fills a
          card that tilts toward the pointer, with a glare and a soft
          holographic sheen in the site's own palette, and a glass strip
-         along the foot carrying the handle, where I am, and a way to
-         write (the component's mini avatar is left out — the strip
-         already sits on the photo). The two contours around it are the same family of
+         along the foot carrying the handle and where I am (the
+         component's mini avatar and contact button are left out — the
+         strip sits on the photo, and the links are right beside it). The two contours around it are the same family of
          hand-drawn survey lines as the topographic scene. If the image
          is missing, an RS monogram takes over. -->
     {% assign gh = page.links | where: "icon", "github" | first %}
@@ -66,7 +66,6 @@ layout: default
               <span class="pcard-status"><i class="status-dot" aria-hidden="true"></i>{{ p.location }}</span>
             </span>
           </div>
-          <a class="pcard-contact specular" href="mailto:{{ page.contact.email }}"><span>Email</span></a>
         </div>
       </div>
       <svg class="portrait-contours" viewBox="0 0 260 312"

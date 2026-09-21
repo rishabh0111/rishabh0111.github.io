@@ -925,17 +925,17 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* Pill Nav hover (React Bits): a disc rises from the floor of the pill
    and fills it. clip-path keeps the disc inside the pill's shape
    without changing the link's box. */
-.site-nav a { clip-path: inset(8px 2px round 999px); }
-.site-nav a::before {
-  content: '';
-  position: absolute; left: 50%; bottom: -10px;
-  width: 150%; aspect-ratio: 1; border-radius: 50%;
-  background: var(--accent);
-  transform: translate(-50%, 100%) scale(0.2);
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: -1;
-}
-@media (hover: hover) {
+@media (min-width: 861px) and (hover: hover) {
+  .site-nav a { clip-path: inset(8px 2px round 999px); }
+  .site-nav a::before {
+    content: '';
+    position: absolute; left: 50%; bottom: -10px;
+    width: 150%; aspect-ratio: 1; border-radius: 50%;
+    background: var(--accent);
+    transform: translate(-50%, 100%) scale(0.2);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
   .site-nav a:hover::before { transform: translate(-50%, 30%) scale(1.15); }
   .site-nav a:hover { color: var(--bg); }
   .site-nav a:hover .nav-ic { opacity: 1; }
@@ -2417,8 +2417,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   position: absolute; z-index: 5; pointer-events: auto;
   --ui-inset: 12px;
   left: var(--ui-inset); right: var(--ui-inset); bottom: var(--ui-inset);
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 9px 8px 9px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
   border-radius: calc(var(--pcard-radius) - var(--ui-inset) + 6px);
   background: rgba(20, 24, 31, 0.42);
   border: 1px solid rgba(255,255,255,0.14);
@@ -2439,16 +2439,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .pcard-status .status-dot { margin: 0; }
-.pcard-contact {
-  flex-shrink: 0;
-  font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
-  text-transform: uppercase; text-decoration: none; color: #ECEFF4;
-  padding: 7px 11px; border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.06);
-  transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
-}
-.pcard-contact:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, transparent); transform: translateY(-1px); }
 @media (pointer: coarse) {
   .pcard-info { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(20, 24, 31, 0.7); }
 }
@@ -2824,7 +2814,7 @@ body.has-tc, body.has-tc a, body.has-tc button, body.has-tc summary { cursor: no
   transform: translateY(0);
   transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.odo-strip i { display: grid; place-items: center; height: 1.12em; line-height: 1; font-style: normal; }
+.odo-strip i { display: grid; place-items: center; height: 1.12em; line-height: 1; font-style: normal; overflow: hidden; }
 .odo-sep { display: inline-block; height: 1.12em; line-height: 1.12; }
 
 /* ── Text Type — the now line ─────────────────────────────────────*/
@@ -2901,6 +2891,7 @@ body.has-tc, body.has-tc a, body.has-tc button, body.has-tc summary { cursor: no
   transition: transform 0.12s linear;
 }
 .contact-inner { position: relative; z-index: 1; }
+@media (hover: none) { .magnet-lines { display: none; } }
 
 /* ── Specular Button ──────────────────────────────────────────────
    A radial highlight at the pointer and a rim that catches it. */
@@ -4427,7 +4418,7 @@ details.more > summary:hover,
 }
 
 @media (max-width: 900px) {
-  .ds-row { padding: var(--s4) var(--s3); }
+  .ds-row { padding: var(--s5) 0; }
   .proj-carousel .shot { flex-basis: 86%; }
 }
 
