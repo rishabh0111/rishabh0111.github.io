@@ -3041,26 +3041,25 @@ details.more > summary:hover,
      so it goes; the theme switch stays in the header, where it is one
      tap and not navigation.
 
-     Modelled on the iOS 26 tab bar, which does three things ours now
-     does too (the fourth, a blurred scroll-edge under the bar, was
-     tried and cut: it read as a smear over the text and it was one
-     more per-frame backdrop-filter on a phone):
+     Modelled on the iOS 26 tab bar, which does two things ours now
+     does too:
        · the capsule hugs its tabs and sits centred — with two or three
          destinations a bar stretched edge to edge read as empty space
        · the selected tab is a coloured glyph AND a glass "lens" behind
          it; the lens slides between tabs and follows a scrubbing finger
          (the JS moves it — the ::after pill below is the no-JS fallback)
-       · scrolling down minimises the bar to a circle holding only the
-         current tab's icon; scrolling up, reaching the top, or tapping
-         it brings the bar back */
+     Two more were tried and cut: minimising the bar to a circle on
+     scroll (the bar should just stay a pill) and a blurred scroll-edge
+     under it (a smear over the text, and one more per-frame
+     backdrop-filter on a phone). */
   .nav-toggle { display: none; }
 
   :root {
     --tab-h:   54px;   /* the capsule                              */
     --tab-pad: 4px;    /* lens inset from the capsule edge         */
     --tab-w:   78px;   /* one tab; the JS reads this to place lens */
-    /* One spring for the lens, the tabs and the minimise — a touch of
-       overshoot, the way iOS's interactive springs settle. */
+    /* One spring for the lens and the tabs — a touch of overshoot, the
+       way iOS's interactive springs settle. */
     --spring: cubic-bezier(0.34, 1.28, 0.64, 1);
   }
 
@@ -3077,11 +3076,9 @@ details.more > summary:hover,
     z-index: 95;
     flex-direction: row; align-items: stretch;
     gap: 0;
-    /* No material on the nav itself — the glass is .nav-shell below.
-       The nav's own box never changes size, so minimising costs no
-       layout: the shell is the one thing that resizes, and it is a
-       leaf; everything else moves by transform and opacity, which
-       stay on the compositor while the page scrolls underneath. */
+    /* No material on the nav itself — the glass is .nav-shell below,
+       a leaf of its own; the lens and tabs move by transform and
+       opacity, which stay on the compositor. */
     background: none; border: 0; box-shadow: none;
     /* The bar is not a scroll surface: a finger sliding along it is
        scrubbing the lens, and the browser must not claim it for a pan. */
@@ -3092,12 +3089,9 @@ details.more > summary:hover,
   }
 
   /* The glass. Same material as the header — the two floating bars are
-     one navigation plane, just in two places. Centred on the nav so it
-     can shrink to a circle about the middle. */
+     one navigation plane, just in two places. */
   .nav-shell {
-    position: absolute; top: 0; bottom: 0; left: 50%;
-    width: var(--shell-w, 100%);
-    transform: translateX(-50%);
+    position: absolute; inset: 0;
     background: var(--header-glass);
     backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
     -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
@@ -3111,8 +3105,6 @@ details.more > summary:hover,
       inset 0 -1px 0 rgba(46,52,64,0.06),
       0 8px 28px rgba(46,52,64,0.22),
       0 2px 8px rgba(46,52,64,0.14);
-    /* Ease-out, no overshoot: a width can't undershoot a circle */
-    transition: width 0.42s var(--ease-out);
   }
   /* A sheen down from the top edge — the light catching the glass. */
   .nav-shell::before {
@@ -3193,25 +3185,6 @@ details.more > summary:hover,
     pointer-events: none;
   }
   .site-nav.no-active .nav-lens { opacity: 0; }
-
-  /* Minimised: the shell closes to a circle, the other tabs shrink
-     away, the label tucks under and the current glyph slides to the
-     middle and drops to the centre line. Nothing here is layout. */
-  .site-nav.is-min .nav-shell { width: var(--tab-h); }
-  .site-nav.is-min a:not(.active) {
-    opacity: 0; transform: scale(0.6);
-    transition: transform 0.3s var(--ease-out), opacity 0.15s;
-  }
-  .site-nav.is-min a.active { transform: translateX(var(--min-dx, 0px)); }
-  .site-nav.is-min a.active .nav-ic { transform: translateY(7px); }
-  .site-nav.is-min a.active:active .nav-ic { transform: translateY(7px) scale(0.86); }
-  .site-nav.is-min .nav-lb { opacity: 0; transform: translateY(6px) scale(0.7); }
-  .site-nav.is-min .nav-lens { opacity: 0; transition: opacity 0.12s; }
-  /* Only the circle takes taps while minimised; the rest of the nav's
-     (now empty) box lets them through to the page. */
-  .site-nav.is-min { pointer-events: none; }
-  .site-nav.is-min .nav-shell,
-  .site-nav.is-min a.active { pointer-events: auto; }
 
   /* The tab bar's footprint from the window floor: home-indicator inset
      + its 16px gap + its height = --nav-floor. Content clears that

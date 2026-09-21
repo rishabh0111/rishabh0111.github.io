@@ -882,10 +882,10 @@
     // ── Tab bar (phones) ───────────────────────────────────────
     // Below 860px the nav is a floating tab bar, and this gives it the
     // iOS 26 behaviour the CSS only lays the ground for: a glass lens
-    // that slides to the selected tab and follows a scrubbing finger,
-    // and a bar that minimises to the current tab's icon as you scroll
-    // down — coming back when you scroll up, reach the top, or tap it.
-    // Everything here is guarded on the same breakpoint the CSS uses,
+    // that slides to the selected tab and follows a scrubbing finger.
+    // (It used to minimise to a circle on scroll as well; that was cut —
+    // the bar stays a pill.) Everything here is guarded on the same
+    // breakpoint the CSS uses,
     // so on a desktop the nav is left exactly as it was.
     var tabMq = window.matchMedia('(max-width: 860px)');
     if (siteNav && siteNav.querySelector('a')) {
@@ -893,8 +893,8 @@
       var activeTab = siteNav.querySelector('a.active');
 
       // Tabs are a fixed width, so the lens is placed by index rather
-      // than by measuring — measuring mid-animation (the bar collapsing
-      // or growing back) would land it on a moving target.
+      // than by measuring — measuring mid-animation would land it on a
+      // moving target.
       var tabW = function () {
         return parseFloat(getComputedStyle(document.documentElement)
           .getPropertyValue('--tab-w')) || 78;
@@ -905,24 +905,13 @@
         siteNav.style.setProperty('--lens-x', (tabs.indexOf(tab) * w) + 'px');
         siteNav.style.setProperty('--lens-w', w + 'px');
       };
-      // How far the current tab slides to reach the middle of the bar
-      // when it minimises — by index again, so it is a pure transform.
-      var placeMin = function () {
-        if (!activeTab) return;
-        var idx = tabs.indexOf(activeTab);
-        siteNav.style.setProperty('--min-dx',
-          (((tabs.length - 1) / 2 - idx) * tabW()) + 'px');
-      };
-
       // Positioned before they enter the DOM, so their first computed
       // style is already the right one. Set afterwards, the lens
       // transitioned in from the first tab on every page load — the
       // getComputedStyle above forces a style pass, and that pass would
       // see it unplaced.
       lensTo(activeTab);
-      placeMin();
-      // The glass sits on its own leaf so minimising resizes one
-      // childless box and nothing else has to lay out.
+      // The glass sits on its own leaf, under the tabs and the lens.
       var shell = document.createElement('span');
       shell.className = 'nav-shell';
       shell.setAttribute('aria-hidden', 'true');
@@ -935,9 +924,7 @@
       siteNav.classList.toggle('no-active', !activeTab);
 
       // The back-to-top button parks above the bar unless there is
-      // room beside it — then it comes down onto the bar's line. Judged
-      // from the expanded width, which never changes, so the button
-      // does not hop when the bar minimises.
+      // room beside it — then it comes down onto the bar's line.
       var fab = document.getElementById('scroll-top');
       var placeFab = function () {
         if (!fab) return;
@@ -951,41 +938,6 @@
       };
       placeFab();
       window.addEventListener('resize', placeFab, { passive: true });
-
-      // ── Minimise on scroll ──
-      var isMin = false, lastToggle = 0;
-      var setMin = function (m) {
-        if (m === isMin) return;
-        isMin = m;
-        lastToggle = performance.now();
-        siteNav.classList.toggle('is-min', m);
-      };
-      // Direction is decided on accumulated travel, not a single event,
-      // so a finger settling after a fling doesn't flip the bar; the
-      // rubber-band past either end is ignored, since that is not the
-      // reader going anywhere; and a fresh toggle waits for the last
-      // one's motion to finish rather than reversing it midway.
-      var lastY = window.pageYOffset, travel = 0, minTick = false;
-      var judgeScroll = function () {
-        minTick = false;
-        if (!tabMq.matches) return;
-        var y = window.pageYOffset;
-        var max = document.documentElement.scrollHeight - window.innerHeight;
-        var dy = y - lastY;
-        lastY = y;
-        if (y <= 4) { setMin(false); travel = 0; return; }
-        if (y < 0 || y > max) return;
-        travel = ((dy > 0) === (travel > 0)) ? travel + dy : dy;
-        if (performance.now() - lastToggle < 450) return;
-        if (travel > 48) setMin(true);
-        else if (travel < -48) setMin(false);
-      };
-      window.addEventListener('scroll', function () {
-        if (!minTick) { minTick = true; requestAnimationFrame(judgeScroll); }
-      }, { passive: true });
-
-      // A keyboard user tabbing onto a folded-away link gets the bar back.
-      siteNav.addEventListener('focusin', function () { setMin(false); });
 
       // ── Press, scrub, release ──
       // The lens jumps to the tab under the finger on press, tracks it
@@ -1010,12 +962,6 @@
 
       siteNav.addEventListener('pointerdown', function (e) {
         if (!tabMq.matches || e.button !== 0) return;
-        if (isMin) {
-          // The minimised bar is one button: tapping it re-expands.
-          setMin(false);
-          swallowNext();
-          return;
-        }
         var t = e.target.closest('a');
         if (!t) return;
         scrub = t;
@@ -1046,12 +992,10 @@
         if (swallowClick) { swallowClick = false; e.preventDefault(); }
       });
 
-      // Crossing the breakpoint either way: nothing minimised, lens
-      // squared up to the current tab.
+      // Crossing the breakpoint either way: lens squared up to the
+      // current tab.
       tabMq.addEventListener('change', function () {
-        setMin(false);
         lensTo(activeTab);
-        placeMin();
         placeFab();
       });
     }
