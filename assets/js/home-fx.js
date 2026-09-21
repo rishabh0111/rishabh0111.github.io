@@ -567,10 +567,11 @@
           var dx = last.clientX - cx, dy = last.clientY - cy;
           if (Math.abs(dx) < r.width / 2 + PAD && Math.abs(dy) < r.height / 2 + PAD) {
             el.classList.add("is-near");
-            el.style.transform = "translate3d(" + (dx / STRENGTH).toFixed(1) + "px," + (dy / STRENGTH).toFixed(1) + "px,0)";
+            el.style.setProperty("--mx", (dx / STRENGTH).toFixed(1) + "px");
+            el.style.setProperty("--my", (dy / STRENGTH).toFixed(1) + "px");
           } else if (el.classList.contains("is-near")) {
             el.classList.remove("is-near");
-            el.style.transform = "";
+            el.style.setProperty("--mx", "0px"); el.style.setProperty("--my", "0px");
           }
         });
       });

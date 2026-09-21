@@ -2751,8 +2751,204 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .page-label.has-rt .rt-w.is-out { transform: translateY(-110%); opacity: 0; }
 
 /* Magnet — a pill pulls toward a pointer that comes within reach */
-.magnet { transition: transform 0.5s ease-in-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+.magnet {
+  transform: translate3d(var(--mx, 0px), var(--my, 0px), 0) scale(var(--dock-s, 1));
+  transform-origin: 50% 100%;
+  transition: transform 0.5s ease-in-out, color 0.2s, border-color 0.2s, background-color 0.2s;
+}
 .magnet.is-near { transition: transform 0.3s ease-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+/* Dock: the pills grow toward the pointer (--dock-s from home-bits.js). */
+.hero-links.is-dock a { transition: transform 0.18s ease-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+.hero-links.is-dock a.is-near { transition: transform 0.18s ease-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+
+/* ── Line Sidebar, on the rail's own beads ────────────────────────
+   --effect (0..1, from home-bits.js) is how near the pointer is —
+   or 1 for the active section. The bead swells and takes the accent
+   with it, and the label pill slides out in proportion, so the rail
+   answers the pointer before it arrives. */
+@media (min-width: 1200px) {
+  .drail.is-near a { --effect: 0; }
+  .drail.is-near .drail-dot {
+    transform: scale(calc(1 + var(--effect) * 0.14));
+    border-color: color-mix(in srgb, var(--accent) calc(var(--effect) * 100%), var(--border));
+    color: color-mix(in srgb, var(--accent) calc(var(--effect) * 100%), var(--text-3));
+  }
+  .drail.is-near a > span {
+    opacity: var(--effect);
+    transform: translateX(calc(-6px + var(--effect) * 6px));
+    transition: color .18s;
+  }
+  .drail.is-near a.is-active > span { opacity: 1; transform: none; }
+}
+
+/* ── Target Cursor ────────────────────────────────────────────────
+   (after React Bits TargetCursor) The dot follows the pointer; the
+   four corners turn slowly, and over a target fly to its corners. */
+body.has-tc, body.has-tc a, body.has-tc button, body.has-tc summary { cursor: none; }
+.tc {
+  position: fixed; left: 0; top: 0; width: 0; height: 0;
+  pointer-events: none; z-index: 2147483000;
+  mix-blend-mode: difference;
+}
+.tc-dot {
+  position: absolute; left: -2px; top: -2px; width: 4px; height: 4px;
+  border-radius: 50%; background: #fff;
+  transition: transform 0.15s;
+}
+.tc.is-down .tc-dot { transform: scale(0.6); }
+.tc-c {
+  position: absolute; left: 0; top: 0; width: 12px; height: 12px;
+  border: 2px solid #fff;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.tc-tl { border-right: none; border-bottom: none; }
+.tc-tr { border-left: none; border-bottom: none; }
+.tc-br { border-left: none; border-top: none; }
+.tc-bl { border-right: none; border-top: none; }
+/* Free: the corners turn together as a frame around the dot. */
+.tc:not(.is-on) { animation: tc-spin 3s linear infinite; }
+.tc.is-on { animation: none; }
+.tc.is-away { opacity: 0; }
+@keyframes tc-spin { to { rotate: 360deg; } }
+
+/* ── Counter — rolling digits for the metrics ─────────────────────*/
+.metric-figure.odo { display: inline-flex; align-items: flex-start; line-height: 1.12; }
+.odo-col {
+  display: inline-block; position: relative; overflow: hidden;
+  width: 0.6em; height: 1.12em;
+}
+.odo-strip {
+  position: absolute; left: 0; top: 0; width: 100%;
+  display: flex; flex-direction: column;
+  transform: translateY(0);
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.odo-strip i { display: grid; place-items: center; height: 1.12em; line-height: 1; font-style: normal; }
+.odo-sep { display: inline-block; height: 1.12em; line-height: 1.12; }
+
+/* ── Text Type — the now line ─────────────────────────────────────*/
+.tt-cursor { display: inline-block; margin-left: 2px; color: var(--accent); animation: tt-blink 0.9s steps(2, start) infinite; }
+.tt-cursor.is-done { animation: none; opacity: 0; transition: opacity 0.6s; }
+@keyframes tt-blink { to { visibility: hidden; } }
+
+/* ── Accordion Gallery — project covers ───────────────────────────
+   Panels share the cover's width; the active one takes most of it.
+   Inactive panels are greyed and dimmed; the caption rides on the
+   active panel. Each panel shows its image full-height, centred. */
+.proj .proj-carousel.ag {
+  display: flex; gap: 3px; overflow: hidden;
+  aspect-ratio: 16 / 9; padding: 0;
+  scroll-snap-type: none;
+}
+.proj .proj-carousel.ag .shot {
+  position: relative; flex: 1 1 0; min-width: 0;
+  transition: flex-grow 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer; overflow: hidden;
+}
+.proj .proj-carousel.ag .shot.is-active { flex-grow: 3.4; }
+.proj .proj-carousel.ag .shot img {
+  position: absolute; left: 50%; top: 0; height: 100%; width: auto; max-width: none;
+  min-width: 100%; aspect-ratio: auto; object-fit: cover; object-position: left top;
+  transform: translateX(-50%);
+  border: none; border-radius: 0; box-shadow: none;
+  filter: grayscale(1) brightness(0.72);
+  transition: filter 0.55s;
+}
+.proj .proj-carousel.ag .shot.is-active img { filter: none; }
+.proj .proj-carousel.ag .shot::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent 55%, rgba(20, 24, 31, 0.6) 100%);
+  opacity: 1; transition: opacity 0.4s;
+}
+.proj .proj-carousel.ag .shot figcaption {
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity 0.4s 0.15s, transform 0.4s 0.15s;
+}
+.proj .proj-carousel.ag .shot.is-active figcaption { opacity: 1; transform: none; }
+.proj .proj-carousel.ag .shot:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.proj .proj-carousel.ag-single .shot { flex: 1; }
+@media (max-width: 520px) {
+  .proj .proj-carousel.ag .shot:not(.is-active) { flex: 0 0 20px; }
+}
+
+/* ── Pixel Card — the cover plates ────────────────────────────────*/
+.proj-plate { isolation: isolate; }
+.proj-plate .pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.proj-plate > *:not(.pixel-canvas) { position: relative; z-index: 1; }
+.proj-plate .proj-plate-lang { position: absolute; }
+
+/* ── Dot Grid — the projects band ─────────────────────────────────*/
+#projects > .dot-grid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+/* ── Magnet Lines — behind the closing plane ──────────────────────*/
+.contact { position: relative; }
+.magnet-lines {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  display: grid;
+  grid-template-columns: repeat(var(--columns, 22), 1fr);
+  grid-template-rows: repeat(var(--rows, 8), 1fr);
+  justify-items: center; align-items: center;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 78%);
+}
+.magnet-lines span {
+  display: block; width: 1px; height: 18px; border-radius: 1px;
+  background: var(--plane-ink-2);
+  transform-origin: center; will-change: transform;
+  transform: rotate(var(--rotate, 0deg));
+  transition: transform 0.12s linear;
+}
+.contact-inner { position: relative; z-index: 1; }
+
+/* ── Specular Button ──────────────────────────────────────────────
+   A radial highlight at the pointer and a rim that catches it. */
+.specular { position: relative; overflow: hidden; isolation: isolate; --sx: 50%; --sy: 0%; }
+.specular::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  background: radial-gradient(120px circle at var(--sx) var(--sy), rgba(255,255,255,0.28), transparent 60%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.specular::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  border-radius: inherit; padding: 1px;
+  background: radial-gradient(90px circle at var(--sx) var(--sy), rgba(255,255,255,0.9), transparent 70%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: exclude;
+  opacity: 0; transition: opacity 0.25s;
+}
+.specular:hover::before, .specular:hover::after { opacity: 1; }
+.specular > span { position: relative; z-index: 1; }
+
+/* ── True Focus — the off-hours words ─────────────────────────────*/
+.interests.is-focus { position: relative; }
+.focus-word { display: inline-block; transition: filter 0.3s ease, color 0.3s ease; filter: blur(1.5px); color: var(--text-3); }
+.focus-word.is-active { filter: blur(0); color: var(--text); }
+.focus-frame {
+  position: absolute; left: 0; top: 0; pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.focus-frame .fc {
+  position: absolute; width: 9px; height: 9px;
+  border: 2px solid var(--accent); border-radius: 2px;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+.fc-tl { top: -7px; left: -8px; border-right: none; border-bottom: none; }
+.fc-tr { top: -7px; right: -8px; border-left: none; border-bottom: none; }
+.fc-bl { bottom: -7px; left: -8px; border-right: none; border-top: none; }
+.fc-br { bottom: -7px; right: -8px; border-left: none; border-top: none; }
+
+/* ── Scroll Velocity — the loops are moved by script ──────────────*/
+.ribbon.is-jsloop .ribbon-track { animation: none; will-change: transform; }
+
+/* ── Gradual Blur — the bottom of the viewport ────────────────────*/
+.gradual-blur {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 110px;
+  pointer-events: none; z-index: 60; isolation: isolate;
+}
+.gradual-blur i { position: absolute; inset: 0; display: block; }
+@media (max-width: 900px) { .gradual-blur { display: none; } }
 
 /* ── Tiles — the one card surface the home's components share ───
    Pillars, project posters, timeline cards, credential panels: each section
@@ -2883,26 +3079,19 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .tl-card { padding: var(--s3); }
-/* Star Border (React Bits) on the current job: two soft lights travel
-   the card's top and bottom edges, seen through a 1.5px gap between
-   the card's edge and its ground. */
-.tl-card.star-border { position: relative; overflow: hidden; background: transparent; }
-.tl-card.star-border::before {
-  content: ''; position: absolute; inset: 1.5px; z-index: 1;
-  border-radius: 11px; background: var(--card-bg);
-}
-.tl-card.star-border > * { position: relative; z-index: 2; }
-.tl-card.star-border > .sb {
-  position: absolute; z-index: 0; width: 300%; height: 50%;
-  border-radius: 50%; opacity: 0.8;
-  background: radial-gradient(circle, var(--accent), transparent 10%);
-  animation: 7s linear infinite alternate;
-}
-.tl-card.star-border > .sb-bottom { bottom: -12px; right: -250%; animation-name: sb-bottom; }
-.tl-card.star-border > .sb-top    { top: -12px; left: -250%;   animation-name: sb-top; }
-@keyframes sb-bottom { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(-100%, 0); opacity: 0; } }
-@keyframes sb-top    { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(100%, 0);  opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .tl-card.star-border > .sb { animation: none; } }
+/* Electric Border (React Bits) on the current job: a canvas past the
+   card's edge traces its outline with drifting noise; two blurred
+   rings and a wash behind it are the glow. */
+.tl-card.electric { position: relative; overflow: visible; isolation: isolate; }
+.tl-card.electric > .eb-layers { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0; }
+.tl-card.electric > *:not(.eb-layers) { position: relative; z-index: 1; }
+.eb-canvas { position: absolute; left: -40px; top: -40px; display: block; z-index: 2; }
+.eb-glow-1, .eb-glow-2, .eb-bg-glow { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+.eb-glow-1 { border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); filter: blur(1px); }
+.eb-glow-2 { border: 2px solid var(--accent); filter: blur(4px); opacity: 0.7; }
+.eb-bg-glow { z-index: -1; transform: scale(1.06); filter: blur(28px); opacity: 0.22;
+  background: linear-gradient(-30deg, var(--accent), transparent, var(--accent)); }
+@media (prefers-reduced-motion: reduce) { .eb-canvas, .eb-glow-2 { display: none; } }
 .tl-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 .tl-head .co-logo { height: 46px; min-width: 46px; max-width: 132px; padding: 0 10px; }
 .tl-head .co-logo img { max-height: 30px; max-width: 108px; }
@@ -3767,9 +3956,13 @@ details.more > summary:hover,
    being cut off against a hard edge. */
 .ribbon-view {
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 clamp(24px, 8%, 120px), #000 calc(100% - clamp(24px, 8%, 120px)), transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 clamp(24px, 8%, 120px), #000 calc(100% - clamp(24px, 8%, 120px)), transparent);
+  --fade-0: 0px; --fade: clamp(24px, 8%, 120px);
+  -webkit-mask-image: linear-gradient(90deg, transparent var(--fade-0), #000 var(--fade), #000 calc(100% - var(--fade)), transparent calc(100% - var(--fade-0)));
+  mask-image: linear-gradient(90deg, transparent var(--fade-0), #000 var(--fade), #000 calc(100% - var(--fade)), transparent calc(100% - var(--fade-0)));
 }
+/* Where the rail is shown, the loop is clear under the rail and fades
+   in past it — and the same on the right, so the band stays centred. */
+@media (min-width: 1200px) { .ribbon-view { --fade-0: 170px; --fade: 290px; } }
 .ribbon-track {
   display: flex; width: max-content;
   animation: ribbon-slide 46s linear infinite;
@@ -4225,7 +4418,6 @@ details.more > summary:hover,
 .cred-foot { margin: auto 0 0; padding-top: var(--s1); }
 .cred-foot.cert-links { margin-top: auto; }
 .cred-score { font-family: var(--f-mono); font-size: 10px; color: var(--accent); white-space: nowrap; }
-}
 
 /* ── Responsive ───────────────────────────────────────────────────
    Every multi-column grid on the page collapses to one track. */

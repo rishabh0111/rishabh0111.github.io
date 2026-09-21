@@ -66,7 +66,7 @@ layout: default
               <span class="pcard-status"><i class="status-dot" aria-hidden="true"></i>{{ p.location }}</span>
             </span>
           </div>
-          <a class="pcard-contact" href="mailto:{{ page.contact.email }}">Email</a>
+          <a class="pcard-contact specular" href="mailto:{{ page.contact.email }}"><span>Email</span></a>
         </div>
       </div>
       <svg class="portrait-contours" viewBox="0 0 260 312"
@@ -126,7 +126,7 @@ layout: default
       <div class="metrics" data-stagger>
         {% for m in page.metrics %}
         <div class="tile metric" data-anim="up">
-          <span class="metric-label">{{ m.label }}</span>
+          <span class="metric-label" data-decrypt>{{ m.label }}</span>
           <span class="metric-figure" data-count="{{ m.figure }}">{{ m.figure }}</span>
         </div>
         {% endfor %}
@@ -163,7 +163,7 @@ layout: default
             </p>
             {% endif %}
             {% if p.status %}
-            <p class="ds-now"><span class="status-dot" aria-hidden="true"></span>{{ p.status }}</p>
+            <p class="ds-now" data-typewrite><span class="status-dot" aria-hidden="true"></span>{{ p.status }}</p>
             {% endif %}
           </div>
 
@@ -204,12 +204,14 @@ layout: default
           {% for f in page.projects %}
           <article class="tile proj glow" id="{{ f.name | slugify }}" data-anim="up">
 
-            <!-- 1 · the cover: screenshots, one at a time, with dots.
-                 No shots: a plate with the initial, so every card has
-                 the same silhouette. -->
+            <!-- 1 · the cover: the screenshots as an accordion (React
+                 Bits Accordion Gallery) — the hovered or tapped shot
+                 grows, the rest narrow. No shots: a plate with the
+                 first stack mark that fills with pixels on hover (Pixel
+                 Card), so every card has the same silhouette. -->
             {% if f.shots %}
             <div class="proj-shots">
-              <div class="proj-carousel" tabindex="0" role="group" aria-label="{{ f.name }} screenshots">
+              <div class="proj-carousel ag" role="group" aria-label="{{ f.name }} screenshots">
                 {% for s in f.shots %}
                 {% comment %}
                   `src` is the image. `src_dark` is only for a shot that
@@ -228,9 +230,6 @@ layout: default
                 </figure>
                 {% endfor %}
               </div>
-              {% if f.shots.size > 1 %}
-              <div class="proj-dots" aria-label="{{ f.name }} screenshot navigation"></div>
-              {% endif %}
             </div>
             {% else %}
             {% comment %}
@@ -252,7 +251,7 @@ layout: default
             <!-- 2 · heading and the one line -->
             <div class="ds-fhead">
               <h2>{{ f.name }}</h2>
-              {% if f.kind %}<span class="kind-pill">{{ f.kind }}</span>{% endif %}
+              {% if f.kind %}<span class="kind-pill" data-decrypt>{{ f.kind }}</span>{% endif %}
               {% if f.year %}<span class="xp-when">{{ f.year }}</span>{% endif %}
             </div>
             {% if f.blurb %}<p class="proj-blurb">{{ f.blurb }}</p>{% endif %}
@@ -371,7 +370,7 @@ layout: default
           {% endcomment %}
           {% if page.projects.size > 4 %}
           <p class="section-more proj-grid-more" hidden>
-            <button type="button" class="proj-grid-btn" data-more="All {{ page.projects.size }} projects" data-less="Fewer projects">All {{ page.projects.size }} projects<span aria-hidden="true">→</span></button>
+            <button type="button" class="proj-grid-btn specular" data-more="All {{ page.projects.size }} projects" data-less="Fewer projects">All {{ page.projects.size }} projects<span aria-hidden="true">→</span></button>
           </p>
           {% endif %}
 
@@ -383,9 +382,9 @@ layout: default
            The period sits in a gutter, a spine runs down the middle
            with a dot per job (the current one lit), and each job is
            a card: mark, name, role, one line, the ventures as tiles,
-           the stack. The current job's card carries a slow light
-           around its edge (React Bits Star Border). The bullets are
-           folded inside the card. -->
+           the stack. The current job's card has a live, turbulent edge
+           (React Bits Electric Border) — the same family of wobble as
+           the survey lines. The bullets are folded inside the card. -->
       <section class="ds-row" id="experience">
         <div class="band-inner">
         <p class="ds-heading">Experience <small>most recent first</small></p>
@@ -393,11 +392,11 @@ layout: default
           <ol class="tl">
           {% for e in page.experience %}
           <li class="tl-item{% if e.current %} is-current{% endif %}" data-anim="left">
-            <span class="tl-when">{{ e.period }}</span>
+            <span class="tl-when" data-decrypt>{{ e.period }}</span>
             <span class="tl-spine" aria-hidden="true"><i class="tl-dot"></i></span>
 
-            <div class="tile tl-card{% if e.current %} star-border{% endif %}">
-              {% if e.current %}<i class="sb sb-top" aria-hidden="true"></i><i class="sb sb-bottom" aria-hidden="true"></i>{% endif %}
+            <div class="tile tl-card{% if e.current %} electric{% endif %}">
+              {% if e.current %}<div class="eb-layers" aria-hidden="true"><canvas class="eb-canvas"></canvas><i class="eb-glow-1"></i><i class="eb-glow-2"></i><i class="eb-bg-glow"></i></div>{% endif %}
               <div class="tl-head">
                 {% comment %}
                   The company mark. `logo_dark` is only needed for a mark
@@ -502,7 +501,7 @@ layout: default
         <div class="ds-val">
           {% for sk in page.skills %}
           <div class="ribbon{% cycle 'dir': '', ' ribbon-rev' %}" data-anim="fade" style="--anim-i: {{ forloop.index0 }}">
-            <div class="band-inner"><p class="ribbon-label">{{ sk.group }}</p></div>
+            <div class="band-inner"><p class="ribbon-label" data-decrypt>{{ sk.group }}</p></div>
             <div class="ribbon-view">
               <div class="ribbon-track">
                 {% for pass in (1..2) %}
@@ -588,7 +587,7 @@ layout: default
           <div class="cred-stack" data-stagger>
 
             <div class="tile cred-panel" data-anim="up">
-              <p class="cred-panel-title">Education</p>
+              <p class="cred-panel-title" data-decrypt>Education</p>
               <ul class="cred-grid">
                 {% for e in page.education %}
                 <li class="cred-card cred-card--w3">
@@ -605,7 +604,7 @@ layout: default
             </div>
 
             <div class="tile cred-panel" data-anim="up">
-              <p class="cred-panel-title">Certifications &amp; awards</p>
+              <p class="cred-panel-title" data-decrypt>Certifications &amp; awards</p>
               <ul class="cred-grid">
                 {% for c in page.certifications %}
                 <li class="cred-card cred-card--w2">
@@ -640,7 +639,7 @@ layout: default
           </div>
 
           {% if page.interests %}
-          <p class="interests" data-anim="fade">
+          <p class="interests" data-anim="fade" data-truefocus>
             <span class="interests-label">Off-hours</span>
             {% for i in page.interests %}{{ i }}{% unless forloop.last %} <span class="sep">·</span> {% endunless %}{% endfor %}
           </p>
@@ -656,8 +655,9 @@ layout: default
      CONTACT — a closing plane, mirrors the hero
 ═══════════════════════════════════════════════════════════════ -->
 <section class="contact" id="contact">
+  <div class="magnet-lines" aria-hidden="true"></div>
   <div class="contact-inner" data-anim="up">
-    <p class="page-label">Get in touch</p>
+    <p class="page-label" data-decrypt>Get in touch</p>
     <a class="contact-email shiny" href="mailto:{{ page.contact.email }}">{{ page.contact.email }}</a>
     <nav class="hero-links" aria-label="Profile links">
       {% for l in page.links %}
@@ -737,33 +737,6 @@ layout: default
         });
       });
     }, { passive: true });
-  }
-
-  // ── Figures count up as they come into view ───────────────────
-  // After React Bits CountUp. The figure string is kept as written
-  // ("500+", "93.6%"): the number in it is what animates, the rest is
-  // put back around it. Eased over ~1.6s; once.
-  var counters = document.querySelectorAll('[data-count]');
-  if (counters.length && !reduce && canObserve) {
-    var countIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        countIO.unobserve(en.target);
-        var el = en.target, raw = el.getAttribute('data-count');
-        var m = raw.match(/^([^\d]*)([\d.,]+)(.*)$/);
-        if (!m) return;
-        var target = parseFloat(m[2].replace(/,/g, '')), decimals = (m[2].split('.')[1] || '').length;
-        var t0 = null, dur = 1600;
-        function frame(t) {
-          if (t0 === null) t0 = t;
-          var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-          el.textContent = m[1] + (target * e).toFixed(decimals) + m[3];
-          if (p < 1) requestAnimationFrame(frame); else el.textContent = raw;
-        }
-        requestAnimationFrame(frame);
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(function (el) { countIO.observe(el); });
   }
 
   // ── The lede reveals word by word as you scroll through it ────
@@ -1008,3 +981,4 @@ layout: default
 <!-- Home-only motion (see the file's header for what it carries).
      defer keeps it off the critical path; it degrades to nothing. -->
 <script defer src="{{ '/assets/js/home-fx.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/js/home-bits.js' | relative_url }}"></script>

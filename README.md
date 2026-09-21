@@ -77,7 +77,7 @@ Adding a project means adding to `projects:` — the layout does not change.
 
 ### Home page motion
 
-`assets/js/home-fx.js` (loaded `defer`, home only) carries the page's motion,
+`assets/js/home-fx.js` and `assets/js/home-bits.js` (loaded `defer`, home only) carry the page's motion,
 every piece a plain-JS port of a [React Bits](https://reactbits.dev) component
 fetched from its shadcn registry (`reactbits.dev/r/<Name>-JS-CSS`). To browse
 that registry through the shadcn MCP, add a local, untracked `components.json`
@@ -94,12 +94,26 @@ with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 | everywhere | Click Spark | a burst of lines on click |
 | header nav | Pill Nav | a disc rises to fill the pill on hover |
 | tile marks | Glass Icons | a frosted front over a turned, tinted back |
-| current job | Star Border | a slow light around the card's edge |
 | projects | Magic Bento | border glow per card, one soft light over the band |
 | metrics | Count Up | figures count up on arrival |
 | about lede | Scroll Reveal | words focus as the paragraph climbs |
 | contact | Shiny Text | a sheen across the address |
 | all cards | Animated Content | rise in with a stagger |
+| the rail | Line Sidebar | the beads and labels reach for the pointer |
+| the cursor | Target Cursor | corner brackets that snap around links and cards |
+| metrics | Counter | rolling odometer digits |
+| mono labels | Decrypted Text | scramble into place on arrival |
+| the "now" line | Text Type | types itself out |
+| hero pills | Dock | magnify near the pointer |
+| project covers | Accordion Gallery | shots as expanding panels |
+| cover plates | Pixel Card | a pixel field on hover |
+| projects band | Dot Grid | dots that tint and get shoved by a fast pointer |
+| current job | Electric Border | a live, turbulent edge |
+| contact plane | Magnet Lines | needles that point at the pointer |
+| buttons | Specular Button | a highlight that follows the pointer |
+| off-hours | True Focus | a frame hopping word to word |
+| toolkit loops | Scroll Velocity | speed up with the scroll |
+| viewport foot | Gradual Blur | the page dissolves at the bottom edge |
 
 No GSAP, motion, ogl or React; CSS keyframes and a few hundred lines of
 script. Reduced motion, a coarse pointer or no JS leave the page still.
