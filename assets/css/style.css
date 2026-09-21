@@ -3038,8 +3038,10 @@ details.more > summary:hover,
      so it goes; the theme switch stays in the header, where it is one
      tap and not navigation.
 
-     Modelled on the iOS 26 tab bar, which does four things ours now
-     does too:
+     Modelled on the iOS 26 tab bar, which does three things ours now
+     does too (the fourth, a blurred scroll-edge under the bar, was
+     tried and cut: it read as a smear over the text and it was one
+     more per-frame backdrop-filter on a phone):
        · the capsule hugs its tabs and sits centred — with two or three
          destinations a bar stretched edge to edge read as empty space
        · the selected tab is a coloured glyph AND a glass "lens" behind
@@ -3047,9 +3049,7 @@ details.more > summary:hover,
          (the JS moves it — the ::after pill below is the no-JS fallback)
        · scrolling down minimises the bar to a circle holding only the
          current tab's icon; scrolling up, reaching the top, or tapping
-         it brings the bar back
-       · content dissolves into a soft blur where it meets the bar,
-         rather than running into a hard edge under it */
+         it brings the bar back */
   .nav-toggle { display: none; }
 
   :root {
@@ -3125,7 +3125,7 @@ details.more > summary:hover,
       background: var(--header-glass-solid);
       backdrop-filter: none; -webkit-backdrop-filter: none;
     }
-    .nav-shell::before, body::after { display: none; }
+    .nav-shell::before { display: none; }
   }
 
   /* Icon over label, each tab a fixed width — so the lens can be placed
@@ -3209,23 +3209,6 @@ details.more > summary:hover,
   .site-nav.is-min { pointer-events: none; }
   .site-nav.is-min .nav-shell,
   .site-nav.is-min a.active { pointer-events: auto; }
-
-  /* The scroll-edge effect: the page softens into the bar instead of
-     scrolling hard against it. One narrow fixed strip with a masked
-     blur — cheap next to the stacked card blurs that were cut for
-     jank, and it is what makes the bar read as floating over content
-     rather than pasted on top of it. */
-  body::after {
-    content: '';
-    position: fixed; left: 0; right: 0; bottom: 0;
-    height: calc(var(--nav-floor) + var(--s2));
-    z-index: 94;
-    pointer-events: none;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    mask-image: linear-gradient(to top, #000 30%, transparent);
-    -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
-  }
 
   /* The tab bar's footprint from the window floor: home-indicator inset
      + its 16px gap + its height = --nav-floor. Content clears that
@@ -3846,4 +3829,32 @@ details.more > summary:hover,
   .proj-carousel .shot { flex-basis: 86%; }
   .xp { flex-direction: column; gap: var(--s2); }
   .xp-when { margin-left: 0; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   TOUCH DEVICES — no blur on content
+   Last in the file on purpose: these undo backdrop-filters declared
+   all through the sheet at the same specificity, so they must come
+   after every one of them.
+════════════════════════════════════════════════════════════════ */
+@media (pointer: coarse) {
+  /* Every backdrop-filter is a
+     texture the compositor re-blurs on each scroll frame, and a phone
+     GPU can't keep several of them at 60fps — the article panel alone
+     is a viewport-wide one that never leaves the screen. The panels
+     are 80–88% opaque already, so their 3px scrim was nearly invisible
+     and goes for free; the glass cards trade their blur for a heavier
+     tint so the scene's texture doesn't print through the text. The
+     two navigation bars keep their glass — it's the material of the
+     design and they are small — at a lighter radius. */
+  :root { --glass-blur-nav: 14px; }
+  .post-content, .listing-wrap, .card, .home-prose.sheet,
+  .hero-portrait.no-img .portrait-monogram,
+  .sidebar-card, .scroll-top, .site-footer {
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .sidebar-card { background: color-mix(in srgb, var(--bg-raised) 92%, transparent); }
+  .site-footer  { background: var(--header-glass-solid); }
+  .scroll-top   { background: color-mix(in srgb, var(--bg-raised) 94%, transparent); }
 }
