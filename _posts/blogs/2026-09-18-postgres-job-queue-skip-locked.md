@@ -4,6 +4,9 @@ title: "A job queue in Postgres with FOR UPDATE SKIP LOCKED, and a Redis that's 
 date: 2026-09-18 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
+series: "Building a Multi-Tenant Support AI Agent"
+series_order: 2
+series_total: 5
 tags: [postgres, backend, queues, redis, api-design, nestjs]
 read_time: 11
 permalink: /blogs/postgres-job-queue-skip-locked/

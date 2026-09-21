@@ -4,6 +4,9 @@ title: "Postgres row-level security for multitenancy, and the leak you build by 
 date: 2026-09-16 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
+series: "Building a Multi-Tenant Support AI Agent"
+series_order: 1
+series_total: 5
 tags: [postgres, rls, multitenancy, pgbouncer, prisma, security]
 read_time: 13
 permalink: /blogs/postgres-rls-multitenancy/

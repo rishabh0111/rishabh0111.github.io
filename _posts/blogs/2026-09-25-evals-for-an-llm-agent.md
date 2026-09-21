@@ -4,6 +4,9 @@ title: "Evals for an LLM agent that can't grade itself: replayed recordings, Coh
 date: 2026-09-25 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
+series: "Building a Multi-Tenant Support AI Agent"
+series_order: 5
+series_total: 5
 tags: [evals, llm, ai-engineering, observability, langfuse, testing]
 read_time: 14
 permalink: /blogs/evals-for-an-llm-agent/

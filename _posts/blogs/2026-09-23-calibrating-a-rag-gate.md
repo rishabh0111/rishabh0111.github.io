@@ -4,6 +4,9 @@ title: "Calibrating a RAG gate: answer, clarify or escalate, decided by signals 
 date: 2026-09-23 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
+series: "Building a Multi-Tenant Support AI Agent"
+series_order: 4
+series_total: 5
 tags: [rag, llm, retrieval, qdrant, ai-engineering, evals]
 read_time: 12
 permalink: /blogs/calibrating-a-rag-gate/

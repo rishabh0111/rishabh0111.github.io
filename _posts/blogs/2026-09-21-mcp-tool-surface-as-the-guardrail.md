@@ -4,6 +4,9 @@ title: "MCP as the guardrail: an agent whose only route to a customer is a tool 
 date: 2026-09-21 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
+series: "Building a Multi-Tenant Support AI Agent"
+series_order: 3
+series_total: 5
 tags: [mcp, llm, agents, ai-engineering, api-design, security]
 read_time: 12
 permalink: /blogs/mcp-tool-surface-as-the-guardrail/
