@@ -3020,10 +3020,13 @@ details.more > summary:hover,
 
   .post-hero { padding: var(--s6) var(--s5) var(--s5); }
   /* The parts list survives — on a phone it is the only way to reach the
-     rest of the series. One column, capped so it can't push the article
-     off screen. */
-  .post-rail:not(.collapsed) #series-card { max-height: 44vh; }
-  .post-rail .series-list { display: block; overflow-y: auto; }
+     rest of the series. One column, and it lies flat: it used to be a
+     44vh scroll box, and a nested scroller under a thumb is a trap — the
+     list has overscroll-behavior: contain (right for a sticky rail), so
+     a swipe that landed on the card scrolled the list, or nothing, and
+     never the page. The card can be collapsed to a pill instead. */
+  .post-rail:not(.collapsed) #series-card { max-height: none; overflow: visible; }
+  .post-rail .series-list { display: block; overflow: visible; }
   .post-nav { grid-template-columns: 1fr; }
   .post-content h2::before { display: none; }
 
