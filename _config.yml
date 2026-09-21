@@ -56,6 +56,8 @@ exclude:
   - dump
   - _templates
   - _preview
+  # Local shadcn MCP registry config (React Bits), untracked; not a page.
+  - components.json
   # Working notes, not for publication.
   - master_profile.md
   # News is parked for now — not publishing digests yet. Dropping both the

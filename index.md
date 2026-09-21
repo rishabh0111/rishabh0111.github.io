@@ -453,10 +453,6 @@ awards:
 interests: [Chess, Technical writing, 10-finger typing, Infrastructure spelunking]
 
 contact:
-  line: >-
-    Open to AI, backend, and full-stack engineering roles at product companies
-    and funded startups. Bangalore, Delhi NCR, Gurugram, Pune, Mumbai,
-    Chandigarh, remote, or relocation-sponsored.
   email: rishabhsharma8912@gmail.com
 ---
 

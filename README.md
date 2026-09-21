@@ -75,35 +75,34 @@ Two conventions worth knowing:
 
 Adding a project means adding to `projects:` — the layout does not change.
 
-### Home page effects
+### Home page motion
 
-The home page has two GPU/canvas touches, in `assets/js/` (loaded `defer`, home only):
+`assets/js/home-fx.js` (loaded `defer`, home only) carries the page's motion,
+every piece a plain-JS port of a [React Bits](https://reactbits.dev) component
+fetched from its shadcn registry (`reactbits.dev/r/<Name>-JS-CSS`). To browse
+that registry through the shadcn MCP, add a local, untracked `components.json`
+with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 
-- `assets/js/home-fx.js` — the hero name as particles, plus the page-wide bubble init.
-- `assets/js/vendor/canvas-ui-bubble.js` — the [Canvas UI](https://github.com/DavidHDev/canvas-ui)
-  `Bubble` effect, vendored and compiled to a plain script. Rebuild with
-  `_templates/canvas-ui/build.sh` (needs Node + npx; esbuild is fetched on demand). The two
-  TypeScript source files it bundles are checked in next to that script.
+| Where | React Bits | What it does |
+| --- | --- | --- |
+| the scene | Topography | the contour map, alive — the shader on raw WebGL2, no library; still SVG on touch / reduced motion |
+| hero name | Warp Text | the name as a pane of glass: slow undulation, a lens under the pointer, a hair of RGB split — on raw WebGL2. Split Text (letters rising in) where it can't run |
+| "Hi, I'm" | Blur Text | words from above, out of a blur |
+| role eyebrow | Rotating Text | the three words take turns |
+| portrait | Profile Card | the photo as a card: tilt, glare, a Nord-palette sheen, a glass strip with handle · location · email (no mini avatar — the strip sits on the photo) |
+| link pills | Magnet | pull toward a nearby pointer |
+| everywhere | Click Spark | a burst of lines on click |
+| header nav | Pill Nav | a disc rises to fill the pill on hover |
+| tile marks | Glass Icons | a frosted front over a turned, tinted back |
+| current job | Star Border | a slow light around the card's edge |
+| projects | Magic Bento | border glow per card, one soft light over the band |
+| metrics | Count Up | figures count up on arrival |
+| about lede | Scroll Reveal | words focus as the paragraph climbs |
+| contact | Shiny Text | a sheen across the address |
+| all cards | Animated Content | rise in with a stagger |
 
-Both are progressive enhancement — with JS off, `prefers-reduced-motion`, or no WebGL2, the
-plain hero and page render unchanged. Append `?fxsnap` to the home URL to skip the name's
-intro animation and draw it settled (useful for screenshots).
-
-### Tech marks
-
-Strings in any `stack:` list, and every item under `skills:`, are looked up in
-`_data/tech_logos.json` to find a brand mark. A name with no mark renders as an
-initialled badge — deliberately, not as a fallback. After adding a tool, run:
-
-```
-python _templates/logos/build_logos.py
-```
-
-See `_templates/logos/README.md` for where the marks come from, why some names
-will never have one, and why the script fails rather than silently skipping a
-name it does not recognise.
-
----
+No GSAP, motion, ogl or React; CSS keyframes and a few hundred lines of
+script. Reduced motion, a coarse pointer or no JS leave the page still.
 
 ## Where posts live
 

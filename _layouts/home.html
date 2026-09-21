@@ -17,13 +17,13 @@ layout: default
       <p class="page-label">{{ p.role }}</p>
       <p class="hero-hi">Hi <span class="hero-wave" role="img" aria-label="waving hand">👋</span>, I'm</p>
 
-      <!-- The name is rasterised into particles by home-fx.js. The <h1>
-           stays for SEO / screen readers / no-JS; .hero-fx-on (set by
-           the script) hides its fill and the canvas paints over it. -->
+      <!-- home-fx.js draws the name as glass that bends under the
+           pointer (React Bits Warp Text; letters rising in, Split Text,
+           where WebGL can't run), and turns the eyebrow above into
+           words that take turns (Rotating Text). The plain <h1> is
+           what search engines, readers and no-JS get. -->
       <div class="hero-name-wrap">
-        <h1 class="hero-name" id="hero-name"
-            data-first="{{ p.name }} " data-accent="{{ p.surname }}">{{ p.name }} <em>{{ p.surname }}</em></h1>
-        <canvas class="hero-name-fx" id="hero-name-fx" aria-hidden="true"></canvas>
+        <h1 class="hero-name" id="hero-name">{{ p.name }} <em>{{ p.surname }}</em></h1>
       </div>
 
       <nav class="hero-links" aria-label="Profile links">
@@ -38,15 +38,36 @@ layout: default
       </nav>
     </div>
 
-    <!-- Portrait plate. If the image is missing, an RS monogram takes over.
-         The photo's frame and two contours around it are one family of
-         hand-drawn survey lines — a turbulence filter gives the same
-         wobble as the topographic lines in the parallax. -->
-    <figure class="hero-portrait" id="portrait">
-      <div class="portrait-plate">
-        <img src="{{ p.avatar | relative_url }}" alt="{{ p.name }} {{ p.surname }}"
-             onerror="this.closest('.hero-portrait').classList.add('no-img')">
-        <span class="portrait-monogram" aria-hidden="true">RS</span>
+    <!-- The portrait as a Profile Card (React Bits): the photo fills a
+         card that tilts toward the pointer, with a glare and a soft
+         holographic sheen in the site's own palette, and a glass strip
+         along the foot carrying the handle, where I am, and a way to
+         write (the component's mini avatar is left out — the strip
+         already sits on the photo). The two contours around it are the same family of
+         hand-drawn survey lines as the topographic scene. If the image
+         is missing, an RS monogram takes over. -->
+    {% assign gh = page.links | where: "icon", "github" | first %}
+    {% assign handle = gh.url | split: "/" | last %}
+    <figure class="hero-portrait pcard-wrap" id="portrait">
+      <div class="pcard-behind" aria-hidden="true"></div>
+      <div class="pcard" id="pcard">
+        <div class="pcard-inside" aria-hidden="true"></div>
+        <div class="pcard-avatar">
+          <img src="{{ p.avatar | relative_url }}" alt="{{ p.name }} {{ p.surname }}"
+               onerror="this.closest('.hero-portrait').classList.add('no-img')">
+          <span class="portrait-monogram" aria-hidden="true">RS</span>
+        </div>
+        <div class="pcard-shine" aria-hidden="true"></div>
+        <div class="pcard-glare" aria-hidden="true"></div>
+        <div class="pcard-info">
+          <div class="pcard-user">
+            <span class="pcard-text">
+              <b>@{{ handle }}</b>
+              <span class="pcard-status"><i class="status-dot" aria-hidden="true"></i>{{ p.location }}</span>
+            </span>
+          </div>
+          <a class="pcard-contact" href="mailto:{{ page.contact.email }}">Email</a>
+        </div>
       </div>
       <svg class="portrait-contours" viewBox="0 0 260 312"
            preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -61,7 +82,6 @@ layout: default
           <rect class="pc-0" x="1"   y="1"   width="258" height="310" rx="7"/>
         </g>
       </svg>
-      {% if p.avatar_caption %}<figcaption>{{ p.avatar_caption }}</figcaption>{% endif %}
     </figure>
 
   </div>
@@ -150,7 +170,7 @@ layout: default
           <div class="pillar-grid" data-stagger>
             {% for pil in page.pillars %}
             <div class="tile pillar spot" data-anim="up">
-              <span class="tile-ic" aria-hidden="true">{% include icon.html name=pil.icon %}</span>
+              <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name=pil.icon %}</i></span>
               <p class="pillar-title">{{ pil.title }}</p>
               <p class="pillar-body">{{ pil.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
             </div>
@@ -363,7 +383,9 @@ layout: default
            The period sits in a gutter, a spine runs down the middle
            with a dot per job (the current one lit), and each job is
            a card: mark, name, role, one line, the ventures as tiles,
-           the stack. The bullets are folded inside the card. -->
+           the stack. The current job's card carries a slow light
+           around its edge (React Bits Star Border). The bullets are
+           folded inside the card. -->
       <section class="ds-row" id="experience">
         <div class="band-inner">
         <p class="ds-heading">Experience <small>most recent first</small></p>
@@ -374,7 +396,8 @@ layout: default
             <span class="tl-when">{{ e.period }}</span>
             <span class="tl-spine" aria-hidden="true"><i class="tl-dot"></i></span>
 
-            <div class="tile tl-card">
+            <div class="tile tl-card{% if e.current %} star-border{% endif %}">
+              {% if e.current %}<i class="sb sb-top" aria-hidden="true"></i><i class="sb sb-bottom" aria-hidden="true"></i>{% endif %}
               <div class="tl-head">
                 {% comment %}
                   The company mark. `logo_dark` is only needed for a mark
@@ -551,28 +574,31 @@ layout: default
       {% endif %}
 
       <!-- ── Credentials — a tinted band, two panels ──────────────
-           Education in one panel, certifications and awards in the
-           other. Each entry is a row with the mark of its kind (a cap,
-           a seal, a trophy), its name, and where it came from — a
-           list, in the shape of shadcn's Item. -->
+           Education, then certifications and awards, each a full-width
+           panel on the same six-column grid: a row of two cards spans
+           3 + 3, a row of three spans 2 + 2 + 2, so every row is full
+           and the two subsections share one geometry.
+           Every card: the mark of its kind (a cap, a seal, a trophy),
+           the name, where it came from, and a score or verify chips
+           along its foot. -->
       <section class="ds-row ds-band" id="credentials">
         <div class="band-inner">
         <p class="ds-heading">Credentials <small>degree, certificates, awards</small></p>
         <div class="ds-val">
-          <div class="cred-split" data-stagger>
+          <div class="cred-stack" data-stagger>
 
             <div class="tile cred-panel" data-anim="up">
               <p class="cred-panel-title">Education</p>
-              <ul class="cred-list">
+              <ul class="cred-grid">
                 {% for e in page.education %}
-                <li class="cred-item">
-                  <span class="tile-ic" aria-hidden="true">{% include icon.html name="cap" %}</span>
+                <li class="cred-card cred-card--w3">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="cap" %}</i></span>
                   <div class="cred-body">
                     <p class="cred-head">{{ e.degree }}</p>
                     {% if e.detail %}<p class="cred-sub">{{ e.detail }}</p>{% endif %}
                     <p class="cred-meta">{{ e.school }}<span class="sep">·</span>{{ e.period }}</p>
+                    {% if e.score %}<p class="cred-foot"><span class="cred-score">{{ e.score }}</span></p>{% endif %}
                   </div>
-                  {% if e.score %}<span class="cred-score">{{ e.score }}</span>{% endif %}
                 </li>
                 {% endfor %}
               </ul>
@@ -580,30 +606,28 @@ layout: default
 
             <div class="tile cred-panel" data-anim="up">
               <p class="cred-panel-title">Certifications &amp; awards</p>
-              <ul class="cred-list">
+              <ul class="cred-grid">
                 {% for c in page.certifications %}
-                <li class="cred-item">
-                  <span class="tile-ic" aria-hidden="true">{% include icon.html name="seal" %}</span>
+                <li class="cred-card cred-card--w2">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="seal" %}</i></span>
                   <div class="cred-body">
                     <p class="cred-head">{{ c.name }}</p>
                     <p class="cred-meta">{{ c.issuer }}</p>
+                    <div class="cred-foot cert-links">
+                      {% if c.links %}
+                      {% for l in c.links %}
+                      <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
+                      {% endfor %}
+                      {% elsif c.url %}
+                      <a href="{{ c.url | escape }}" target="_blank" rel="noopener">Verify<span aria-hidden="true">↗</span></a>
+                      {% endif %}
+                    </div>
                   </div>
-                  {% if c.links %}
-                  <div class="cert-links">
-                    {% for l in c.links %}
-                    <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
-                    {% endfor %}
-                  </div>
-                  {% elsif c.url %}
-                  <div class="cert-links">
-                    <a href="{{ c.url | escape }}" target="_blank" rel="noopener">Verify<span aria-hidden="true">↗</span></a>
-                  </div>
-                  {% endif %}
                 </li>
                 {% endfor %}
                 {% for a in page.awards %}
-                <li class="cred-item">
-                  <span class="tile-ic" aria-hidden="true">{% include icon.html name="trophy" %}</span>
+                <li class="cred-card cred-card--w3">
+                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="trophy" %}</i></span>
                   <div class="cred-body">
                     <p class="cred-head">{{ a.name }}</p>
                     {% if a.note %}<p class="cred-meta">{{ a.note }}</p>{% endif %}
@@ -635,7 +659,6 @@ layout: default
   <div class="contact-inner" data-anim="up">
     <p class="page-label">Get in touch</p>
     <a class="contact-email shiny" href="mailto:{{ page.contact.email }}">{{ page.contact.email }}</a>
-    <p class="contact-line">{{ page.contact.line }}</p>
     <nav class="hero-links" aria-label="Profile links">
       {% for l in page.links %}
       {% assign ext = false %}
@@ -982,8 +1005,6 @@ layout: default
 })();
 </script>
 
-<!-- Home-only visual effects. defer keeps them off the critical path and
-     preserves order (the vendored Bubble engine must define its global
-     before home-fx.js calls it). Both degrade to nothing without JS. -->
-<script defer src="{{ '/assets/js/vendor/canvas-ui-bubble.js' | relative_url }}"></script>
+<!-- Home-only motion (see the file's header for what it carries).
+     defer keeps it off the critical path; it degrades to nothing. -->
 <script defer src="{{ '/assets/js/home-fx.js' | relative_url }}"></script>

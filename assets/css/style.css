@@ -188,7 +188,12 @@
   --px-far:
     radial-gradient(circle 620px at 82% 6%, rgba(136,192,208,0.26), rgba(136,192,208,0) 70%),
     radial-gradient(circle 520px at 8% 88%, rgba(76,86,106,0.14), rgba(76,86,106,0) 74%);
-  --px-mid:  url("../img/topo-light.svg");   /* contour survey map */
+  --px-mid:  url("../img/topo-light.svg");   /* contour survey map (still) */
+  /* The living map (home, fine pointer): line colours low→high. */
+  --topo-low:  #B8C4D6;
+  --topo-mid:  #6E9CB8;
+  --topo-high: #1E768F;
+  --topo-opacity: 0.5;
   --px-near:
     radial-gradient(150% 60% at 50% 118%, rgba(216,222,233,0.85), rgba(216,222,233,0) 62%);
   --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%234C566A'%3E%3Ccircle cx='25' cy='35' r='2.2' opacity='.30'/%3E%3Ccircle cx='95' cy='70' r='1.6' opacity='.24'/%3E%3Ccircle cx='148' cy='30' r='2.4' opacity='.26'/%3E%3Ccircle cx='60' cy='135' r='1.9' opacity='.25'/%3E%3Ccircle cx='125' cy='120' r='2.1' opacity='.23'/%3E%3Ccircle cx='32' cy='98' r='1.5' opacity='.20'/%3E%3C/g%3E%3C/svg%3E");
@@ -283,7 +288,11 @@
   --px-far:
     radial-gradient(circle 620px at 78% 14%, rgba(136,192,208,0.20), rgba(136,192,208,0) 70%),
     radial-gradient(circle 460px at 14% 84%, rgba(94,129,172,0.22), rgba(94,129,172,0) 72%);
-  --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost */
+  --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost (still) */
+  --topo-low:  #3B4252;
+  --topo-mid:  #5E81AC;
+  --topo-high: #88C0D0;
+  --topo-opacity: 0.6;
   --px-near:
     radial-gradient(150% 62% at 50% 122%, rgba(26,30,38,0.75), rgba(26,30,38,0) 60%);
   --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ECEFF4'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
@@ -368,7 +377,11 @@
     --px-far:
       radial-gradient(circle 620px at 78% 14%, rgba(136,192,208,0.20), rgba(136,192,208,0) 70%),
       radial-gradient(circle 460px at 14% 84%, rgba(94,129,172,0.22), rgba(94,129,172,0) 72%);
-    --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost */
+    --px-mid:  url("../img/topo-dark.svg");   /* the same contours, in frost (still) */
+  --topo-low:  #3B4252;
+  --topo-mid:  #5E81AC;
+  --topo-high: #88C0D0;
+  --topo-opacity: 0.6;
     --px-near:
       radial-gradient(150% 62% at 50% 122%, rgba(26,30,38,0.75), rgba(26,30,38,0) 60%);
     --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ECEFF4'%3E%3Ccircle cx='12' cy='20' r='1.1' opacity='.9'/%3E%3Ccircle cx='48' cy='60' r='.7' opacity='.6'/%3E%3Ccircle cx='96' cy='28' r='.9' opacity='.75'/%3E%3Ccircle cx='150' cy='80' r='1.2' opacity='.85'/%3E%3Ccircle cx='30' cy='120' r='.6' opacity='.5'/%3E%3Ccircle cx='74' cy='140' r='1' opacity='.7'/%3E%3Ccircle cx='165' cy='150' r='.7' opacity='.6'/%3E%3Ccircle cx='120' cy='115' r='.5' opacity='.45'/%3E%3Ccircle cx='20' cy='80' r='.5' opacity='.5'/%3E%3Ccircle cx='140' cy='42' r='.6' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
@@ -406,10 +419,7 @@ body, .site-header, .site-footer, .sidebar-card,
   /* The hero's pointer effects are decorative; JS also checks this
      query and never binds, so these only cover the CSS-driven parts. */
   .hero-inner .hero-rise { opacity: 1; transform: none; animation: none; }
-  .portrait-plate, .portrait-plate img { transform: none !important; }
-  /* No particle field either — home-fx.js bails on this query, so the
-     plain <h1> stays visible (.hero-fx-on is never set). */
-  .hero-name-fx { display: none; }
+  .pcard, .pcard-avatar img { transform: none !important; }
   /* The clamp deliberately survives here. Reduced motion asks for no
      ANIMATION, not for less functionality — the height transition is
      already killed by the rule above, and hiding the toggle instead
@@ -520,30 +530,20 @@ body::before {
   background-size: 180px 180px;
   opacity: var(--px-tex-op);
 }
-
-/* ════════════════════════════════════════════════════════════════
-   PAGE BUBBLE — Canvas UI's Bubble effect (vendored) as a full-page
-   layer that trails the pointer. home-fx.js appends the canvas and
-   drives it; it renders only near the cursor and pauses off-screen.
-   Above the content, below the sticky header and the image viewer.
-   pointer-events:none so it never intercepts a click.
-════════════════════════════════════════════════════════════════ */
-#cui-bubble {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 90;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0.85;
+/* The living contour map (React Bits Topography, drawn by home-fx.js
+   on WebGL2). It takes the still map's place in the stack; the still
+   SVG stays for touch screens, reduced motion and no WebGL. */
+.px-topo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; display: block;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) #cui-bubble { mix-blend-mode: multiply; opacity: 0.5; }
-}
-:root[data-theme="light"] #cui-bubble { mix-blend-mode: multiply; opacity: 0.5; }
-@media (prefers-reduced-motion: reduce) { #cui-bubble { display: none; } }
+.px.has-topo .px-mid { display: none; }
 
+/* ── Click Spark — a burst of short lines at every click ────────── */
+.click-spark {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 95;
+}
 
 /* ════════════════════════════════════════════════════════════════
    READING PROGRESS — single hairline, lacquer
@@ -922,6 +922,24 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* Nav icons: same monochrome set as everywhere else, so they take the
    link's colour through every theme and hover state for free. */
 .site-nav a { gap: 7px; }
+/* Pill Nav hover (React Bits): a disc rises from the floor of the pill
+   and fills it. clip-path keeps the disc inside the pill's shape
+   without changing the link's box. */
+.site-nav a { clip-path: inset(8px 2px round 999px); }
+.site-nav a::before {
+  content: '';
+  position: absolute; left: 50%; bottom: -10px;
+  width: 150%; aspect-ratio: 1; border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, 100%) scale(0.2);
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+@media (hover: hover) {
+  .site-nav a:hover::before { transform: translate(-50%, 30%) scale(1.15); }
+  .site-nav a:hover { color: var(--bg); }
+  .site-nav a:hover .nav-ic { opacity: 1; }
+}
 .nav-ic { display: grid; place-items: center; opacity: 0.75; transition: opacity 0.2s; }
 .nav-ic svg { width: 13px; height: 13px; display: block; }
 .site-nav a:hover .nav-ic,
@@ -2182,7 +2200,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   /* The text column hugs the name (max-content) rather than taking all
      the spare width as 1fr — a 1fr column left a huge dead band between
      the name and the photo. The pair is centred as one unit. */
-  grid-template-columns: max-content clamp(196px, 17vw, 262px);
+  grid-template-columns: max-content clamp(230px, 20vw, 300px);
   justify-content: center;
   column-gap: clamp(var(--s5), 4vw, var(--s6));
   align-items: center;
@@ -2239,9 +2257,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--plane-ink);
   letter-spacing: -0.03em;
   line-height: 0.92;
-  /* literal colours (not var()) so the canvas can read them back */
-  --fx-ink: #2E3440;
-  --fx-accent: #1E768F;
 }
 .hero-name em { font-style: italic; color: var(--accent); }
 :root[data-theme="dark"] .hero-name { --fx-ink: #ECEFF4; --fx-accent: #88C0D0; }
@@ -2249,21 +2264,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   :root:not([data-theme="light"]) .hero-name { --fx-ink: #ECEFF4; --fx-accent: #88C0D0; }
 }
 
-/* Canvas overlay, exactly over the <h1> box. */
-.hero-name-fx {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-/* Set by home-fx.js once the particle field is built: drop the live
-   text's fill and let the canvas paint the name. The canvas is sized
-   (and squeezed on narrow screens) to fit inside .hero-text; the now-
-   invisible text stays one line and .hero (overflow:hidden) clips it. */
-.hero-fx-on .hero-name,
-.hero-fx-on .hero-name em { color: transparent; }
-.hero-fx-on .hero-name { white-space: nowrap; }
 
 .status-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -2314,32 +2314,143 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    a portrait crop of a person reads as intentional where a square
    read as an avatar dropped into a gap. */
 .hero-portrait { margin: 0; position: relative; isolation: isolate; }
-.portrait-plate {
+/* ── The portrait as a Profile Card (after React Bits ProfileCard) ─
+   The pointer's place on the card arrives as custom properties from
+   home-fx.js (see profileCard()). The card tilts on them, a glare and
+   a sheen slide over the photo, and the photo itself shifts a few
+   pixels against the frame. The sheen is the component's holographic
+   layer with the six rainbow pillars swapped for the Nord palette,
+   so it reads as a cool sheen on the site's own colours. Everything
+   below the pointer properties is inert until the script sets them,
+   and the still card is what touch and reduced motion get. */
+.pcard-wrap {
+  --pointer-x: 50%; --pointer-y: 50%;
+  --pointer-from-center: 0; --pointer-from-top: 0.5; --pointer-from-left: 0.5;
+  --card-opacity: 0; --rotate-x: 0deg; --rotate-y: 0deg;
+  --background-x: 50%; --background-y: 50%;
+  --pcard-radius: 18px;
+  --sp-1: #8FBCBB; --sp-2: #88C0D0; --sp-3: #81A1C1;
+  --sp-4: #5E81AC; --sp-5: #B48EAD; --sp-6: #A3BE8C;
+  perspective: 600px;
+  transform: translate3d(0, 0, 0.1px);
+}
+.pcard-wrap.active { --card-opacity: 1; }
+.pcard-behind {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  border-radius: var(--pcard-radius);
+  background: radial-gradient(circle at var(--pointer-x) var(--pointer-y),
+    color-mix(in srgb, var(--accent) 55%, transparent) 0%, transparent 45%);
+  filter: blur(40px) saturate(1.1);
+  opacity: calc(0.8 * var(--card-opacity));
+  transition: opacity 0.3s ease;
+}
+.pcard {
   position: relative; z-index: 1;
   aspect-ratio: 5 / 6;
-  border-radius: 8px;
+  display: grid;
+  border-radius: var(--pcard-radius);
   overflow: hidden;
-  /* No crisp border — the photo's edge is drawn by the innermost
-     contour line (.pc-0) so the frame joins the survey-line family. */
-  box-shadow: 0 18px 40px -18px rgba(46,52,64,0.24);
-  transition: box-shadow 0.4s var(--ease-out);
+  background: var(--card-bg);
+  box-shadow: 0 18px 40px -18px rgba(46,52,64,0.3);
+  transform: translateZ(0) rotateX(0deg) rotateY(0deg);
+  transition: transform 1s ease, box-shadow 0.4s var(--ease-out);
+  backface-visibility: hidden;
 }
-.hero-portrait:hover .portrait-plate {
-  box-shadow: 0 24px 48px -16px rgba(46,52,64,0.3);
+.pcard-wrap.active .pcard {
+  transition: transform 0.1s ease-out, box-shadow 0.4s var(--ease-out);
+  transform: translateZ(0) rotateX(var(--rotate-y)) rotateY(var(--rotate-x));
+  box-shadow:
+    calc((var(--pointer-from-left) * 12px) - 6px) calc((var(--pointer-from-top) * 22px) - 8px)
+    28px -8px rgba(20,24,31,0.55);
 }
-.portrait-plate img {
+.pcard > * { grid-area: 1 / -1; border-radius: var(--pcard-radius); pointer-events: none; }
+.pcard-inside {
   position: absolute; inset: 0; z-index: 1;
-  display: block;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: 50% 18%;   /* bias the crop upward, keeping the face high */
-  filter: saturate(0.72) contrast(1.03);
-  transform: scale(1.02);
-  transition: filter 0.5s var(--ease-out), transform 0.7s var(--ease-out);
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--accent) 22%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 6%, transparent) 100%);
 }
-.hero-portrait:hover .portrait-plate img {
-  filter: saturate(1) contrast(1.02);
-  transform: scale(1.06);
+.pcard-avatar { position: relative; z-index: 2; overflow: hidden; }
+.pcard-avatar img {
+  position: absolute; inset: 0; display: block;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 18%;
+  filter: saturate(0.78) contrast(1.03);
+  transform: translate(calc((var(--pointer-from-left) - 0.5) * -8px), calc((var(--pointer-from-top) - 0.5) * -8px)) scale(1.06);
+  transition: transform 0.12s ease-out, filter 0.5s var(--ease-out);
+}
+.pcard-wrap.active .pcard-avatar img { filter: saturate(1) contrast(1.02); }
+/* The sheen: the component's holographic layer, in the Nord palette.
+   Two repeating gradients slide against each other on the pointer. */
+.pcard-shine {
+  z-index: 3; overflow: hidden;
+  --space: 5%; --angle: -45deg;
+  background-image:
+    repeating-linear-gradient(0deg,
+      var(--sp-1) calc(var(--space) * 1), var(--sp-2) calc(var(--space) * 2),
+      var(--sp-3) calc(var(--space) * 3), var(--sp-4) calc(var(--space) * 4),
+      var(--sp-5) calc(var(--space) * 5), var(--sp-6) calc(var(--space) * 6),
+      var(--sp-1) calc(var(--space) * 7)),
+    repeating-linear-gradient(var(--angle),
+      #0e152e 0%, hsl(200, 10%, 60%) 3.8%, hsl(200, 29%, 66%) 4.5%,
+      hsl(200, 10%, 60%) 5.2%, #0e152e 10%, #0e152e 12%),
+    radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
+      hsla(0, 0%, 0%, 0.1) 12%, hsla(0, 0%, 0%, 0.15) 20%, hsla(0, 0%, 0%, 0.25) 120%);
+  background-position: 0 var(--background-y), var(--background-x) var(--background-y), center;
+  background-blend-mode: color, hard-light;
+  background-size: 500% 500%, 300% 300%, 200% 200%;
+  mix-blend-mode: color-dodge;
+  filter: brightness(0.6) contrast(1.3) saturate(0.3) opacity(0.28);
+  transition: filter 0.8s ease;
+}
+.pcard-wrap.active .pcard-shine { filter: brightness(0.75) contrast(1.4) saturate(0.45) opacity(0.4); }
+.pcard-glare {
+  z-index: 4;
+  background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
+    hsl(210, 25%, 80%) 12%, hsla(207, 40%, 30%, 0.8) 90%);
+  mix-blend-mode: overlay;
+  filter: brightness(0.8) contrast(1.2);
+  opacity: 0.6;
+}
+/* The identity strip: glass along the card's foot. */
+.pcard-info {
+  position: absolute; z-index: 5; pointer-events: auto;
+  --ui-inset: 12px;
+  left: var(--ui-inset); right: var(--ui-inset); bottom: var(--ui-inset);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 8px 9px 12px;
+  border-radius: calc(var(--pcard-radius) - var(--ui-inset) + 6px);
+  background: rgba(20, 24, 31, 0.42);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.pcard-user { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.pcard-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pcard-text b {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 400;
+  letter-spacing: 0.08em; color: #ECEFF4; line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pcard-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--f-mono); font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(236,239,244,0.7); line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pcard-status .status-dot { margin: 0; }
+.pcard-contact {
+  flex-shrink: 0;
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; text-decoration: none; color: #ECEFF4;
+  padding: 7px 11px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+.pcard-contact:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, transparent); transform: translateY(-1px); }
+@media (pointer: coarse) {
+  .pcard-info { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(20, 24, 31, 0.7); }
 }
 
 /* ── The frame, as a survey line ────────────────────────────────
@@ -2368,7 +2479,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* Fallback when the photo is absent. Fills the plate the same way. */
 .portrait-monogram { display: none; }
-.hero-portrait.no-img .portrait-plate img { display: none; }
+.hero-portrait.no-img .pcard-avatar img { display: none; }
 .hero-portrait.no-img .portrait-monogram {
   position: absolute; inset: 0; z-index: 1;
   display: grid; place-items: center;
@@ -2378,19 +2489,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   font-family: var(--f-display);
   font-size: 4.5rem; letter-spacing: 0.06em;
   color: var(--plane-ink-2);
-}
-
-/* Photo credit, set into the bottom-left of the plate rather than
-   dangling below it (that dangle was most of why the portrait read as
-   an afterthought). */
-.hero-portrait figcaption {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
-  padding: 22px 12px 9px;
-  font-family: var(--f-mono); font-size: 8.5px;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: #ECEFF4;
-  background: linear-gradient(to top, rgba(20,24,31,0.62), transparent);
-  pointer-events: none;
 }
 
 /* ── Hero entrance ────────────────────────────────────────────
@@ -2600,6 +2698,62 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 @media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); } }
 
 
+/* ── Warp Text — the name as glass (after React Bits WarpText) ────
+   home-fx.js draws the name into a canvas laid over the h1, grown by
+   a margin so bent glyphs have room, and the h1 goes transparent
+   underneath — still there for layout, readers and search. */
+.hero-name-wrap { position: relative; }
+.hero-name-warp {
+  position: absolute; display: block; pointer-events: none;
+  opacity: 0; transition: opacity 0.9s var(--ease-out);
+}
+.hero-name-wrap.is-warp .hero-name-warp { opacity: 1; }
+.hero-name-wrap.is-warp .hero-name,
+.hero-name-wrap.is-warp .hero-name em { color: transparent; }
+@media print { .hero-name-warp { display: none; } .hero-name-wrap.is-warp .hero-name { color: inherit; } }
+
+/* ── Split Text — the hero name, letter by letter ─────────────────
+   home-fx.js wraps each letter; each rises out of a blur with its own
+   delay. With no split (reduced motion, no JS) the h1 is simply set. */
+.hero-name.is-split .st-ch {
+  display: inline-block;
+  animation: st-in 0.9s var(--ease-out) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 45ms);
+}
+@keyframes st-in {
+  from { opacity: 0; transform: translateY(0.35em); filter: blur(10px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+/* Blur Text — "Hi, I'm", word by word, from above */
+.hero-hi.is-blur .bt-w {
+  display: inline-block;
+  animation: bt-in 0.7s var(--ease-out) both;
+  animation-delay: calc(0.05s + var(--i, 0) * 120ms);
+}
+@keyframes bt-in {
+  0%   { opacity: 0; transform: translateY(-0.6em); filter: blur(10px); }
+  50%  { opacity: 0.6; transform: translateY(0.1em); filter: blur(4px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+/* Rotating Text — the role eyebrow, one word at a time. All the words
+   sit in one grid cell so the stage is as wide as the widest of them;
+   the current one slides up in, the last one slides up out. */
+.page-label.has-rt .rt {
+  display: inline-grid; vertical-align: bottom;
+  overflow: hidden; line-height: 1.5;
+}
+.page-label.has-rt .rt-w {
+  grid-area: 1 / 1; white-space: nowrap;
+  transform: translateY(110%); opacity: 0;
+  transition: transform 0.45s var(--ease-out), opacity 0.3s;
+}
+.page-label.has-rt .rt-w.is-in  { transform: none; opacity: 1; }
+.page-label.has-rt .rt-w.is-out { transform: translateY(-110%); opacity: 0; }
+
+/* Magnet — a pill pulls toward a pointer that comes within reach */
+.magnet { transition: transform 0.5s ease-in-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+.magnet.is-near { transition: transform 0.3s ease-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
+
 /* ── Tiles — the one card surface the home's components share ───
    Pillars, project posters, timeline cards, credential panels: each section
    has its own shape, but they are cut from the same material so
@@ -2662,6 +2816,37 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--accent);
 }
 .tile-ic svg { width: 18px; height: 18px; }
+/* Glass Icons (React Bits): a tinted back plate turned a few degrees
+   behind a frosted front; on hover the back turns further and the
+   front lifts. The plain plate above is what no-hover devices keep. */
+.glass-ic {
+  background: none; perspective: 24em; transform-style: preserve-3d;
+  position: relative;
+}
+.glass-ic .gi-back, .glass-ic .gi-front {
+  position: absolute; inset: 0; border-radius: 10px;
+  transition: transform 0.3s cubic-bezier(0.83, 0, 0.17, 1);
+}
+.glass-ic .gi-back {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 45%, var(--bg)));
+  transform: rotate(12deg); transform-origin: 100% 100%;
+  box-shadow: 0.35em -0.35em 0.6em rgba(0,0,0,0.12);
+}
+.glass-ic .gi-front {
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--card-bg) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #fff 28%, transparent) inset;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transform-origin: 80% 50%; color: var(--text);
+}
+.glass-ic .gi-front svg { width: 17px; height: 17px; }
+@media (hover: hover) {
+  .tile:hover .glass-ic .gi-back  { transform: rotate(22deg) translate3d(-0.3em, -0.3em, 0.3em); }
+  .tile:hover .glass-ic .gi-front { transform: translate3d(0, 0, 1.6em); }
+}
+@media (pointer: coarse) {
+  .glass-ic .gi-front { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--card-bg) 80%, transparent); }
+}
 
 /* ── Experience — a timeline ─────────────────────────────────────
    Three tracks: the period in a gutter, a spine with a dot per
@@ -2698,6 +2883,26 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .tl-card { padding: var(--s3); }
+/* Star Border (React Bits) on the current job: two soft lights travel
+   the card's top and bottom edges, seen through a 1.5px gap between
+   the card's edge and its ground. */
+.tl-card.star-border { position: relative; overflow: hidden; background: transparent; }
+.tl-card.star-border::before {
+  content: ''; position: absolute; inset: 1.5px; z-index: 1;
+  border-radius: 11px; background: var(--card-bg);
+}
+.tl-card.star-border > * { position: relative; z-index: 2; }
+.tl-card.star-border > .sb {
+  position: absolute; z-index: 0; width: 300%; height: 50%;
+  border-radius: 50%; opacity: 0.8;
+  background: radial-gradient(circle, var(--accent), transparent 10%);
+  animation: 7s linear infinite alternate;
+}
+.tl-card.star-border > .sb-bottom { bottom: -12px; right: -250%; animation-name: sb-bottom; }
+.tl-card.star-border > .sb-top    { top: -12px; left: -250%;   animation-name: sb-top; }
+@keyframes sb-bottom { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(-100%, 0); opacity: 0; } }
+@keyframes sb-top    { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(100%, 0);  opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tl-card.star-border > .sb { animation: none; } }
 .tl-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 .tl-head .co-logo { height: 46px; min-width: 46px; max-width: 132px; padding: 0 10px; }
 .tl-head .co-logo img { max-height: 30px; max-width: 108px; }
@@ -2942,11 +3147,6 @@ details.more > summary:hover,
   transition: background-size 0.4s var(--ease-out), color 0.2s;
 }
 .contact-email:hover { color: var(--accent); background-size: 100% 1px; }
-.contact-line {
-  margin-top: var(--s3);
-  font-size: 14px; font-style: italic;
-  color: var(--plane-ink-2); max-width: 460px;
-}
 .contact .hero-links { justify-content: center; margin-top: var(--s5); }
 
 
@@ -2972,9 +3172,10 @@ details.more > summary:hover,
   }
   .hero-portrait {
     order: -1;
-    width: clamp(132px, 38vw, 164px);
+    width: clamp(190px, 56vw, 250px);
     margin-top: var(--s1);
   }
+  .pcard-info { --ui-inset: 9px; padding: 7px 7px 7px 9px; }
   .hero-portrait.no-img .portrait-monogram { font-size: 2.4rem; }
 }
 
@@ -3004,6 +3205,7 @@ details.more > summary:hover,
 @media (prefers-reduced-motion: reduce) {
   .status-dot { animation: none; }
   .anim { opacity: 1; transform: none; transition: none; }
+  .hero-name.is-split .st-ch, .hero-hi.is-blur .bt-w { animation: none; }
   .ds-lede.is-split .w { opacity: 1; filter: none; }
   .contact-email.shiny { animation: none; }
   /* The ring still tracks progress — it just stops easing there */
@@ -3793,6 +3995,23 @@ details.more > summary:hover,
   border-top: 1px solid var(--border);
 }
 
+/* Magic Bento's second half: one large soft light that follows the
+   pointer across the whole projects band. */
+#projects { position: relative; overflow: hidden; }
+.grid-spotlight {
+  position: absolute; left: var(--x, 50%); top: var(--y, 50%);
+  width: 720px; height: 720px; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 16%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 7%, transparent) 30%,
+    transparent 68%);
+  pointer-events: none; opacity: 0; z-index: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+.grid-spotlight.is-on { opacity: 1; }
+#projects > .band-inner { position: relative; z-index: 1; }
+
 /* ── Projects — a grid of poster cards ──────────────────────────
    One tile per project: the screenshots as a cover that bleeds to
    the card's edges, then the name, one line, chips, links. The
@@ -3959,31 +4178,40 @@ details.more > summary:hover,
 .tk-group + .tk-group { margin-top: var(--s5); }
 .tk-group > .group-heading { margin: 0 0 var(--s2); }
 
-/* ── Credentials — two panels of rows ───────────────────────────
-   Education on the left, certifications and awards on the right.
-   Each row: the mark of its kind, the name and where it came from,
-   and a score or verify chip at the end. */
-.cred-split {
-  display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-  gap: var(--s3); align-items: start;
-}
+/* ── Credentials — two panels, one card geometry ────────────────
+   Education, then certifications and awards, each a full-width panel.
+   Inside, every entry is a card of the same shape — mark, name,
+   source, and a foot for the score or verify chips — laid in one
+   grid, so the two subsections read as the same thing. */
+.cred-stack { display: grid; gap: var(--s3); }
 .cred-panel { padding: var(--s2) var(--s3) var(--s3); }
 .cred-panel-title {
-  margin: 0 0 var(--s1);
+  margin: 0 0 var(--s2);
   font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--accent);
 }
-.cred-list { list-style: none; margin: 0; padding: 0; }
-.cred-item {
-  display: flex; align-items: flex-start; gap: var(--s2);
-  padding: var(--s2) 0;
-  border-top: 1px solid var(--border);
+.cred-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--s2);
 }
-.cred-item:first-child { border-top: none; }
-.cred-item:last-child { padding-bottom: 0; }
-.cred-item .tile-ic { width: 34px; height: 34px; border-radius: 9px; }
-.cred-item .tile-ic svg { width: 16px; height: 16px; }
-.cred-body { flex: 1; min-width: 0; }
+.cred-card--w2 { grid-column: span 2; }
+.cred-card--w3 { grid-column: span 3; }
+@media (max-width: 900px) {
+  .cred-grid { grid-template-columns: 1fr; }
+  .cred-card--w2, .cred-card--w3 { grid-column: auto; }
+}
+.cred-card {
+  display: flex; align-items: flex-start; gap: var(--s2);
+  padding: var(--s2) var(--s2) var(--s2) var(--s2);
+  border: 1px solid var(--border); border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-raised) 55%, transparent);
+  transition: border-color 0.2s var(--ease-out);
+}
+.cred-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.cred-card .tile-ic { width: 34px; height: 34px; border-radius: 9px; }
+.cred-card .tile-ic svg { width: 16px; height: 16px; }
+.cred-body { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100%; }
 .cred-head {
   margin: 0; line-height: 1.3;
   font-family: var(--f-display); font-size: 1.05rem; color: var(--text);
@@ -3993,16 +4221,10 @@ details.more > summary:hover,
   margin: 3px 0 0; font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.05em; line-height: 1.6; color: var(--text-3);
 }
-.cred-score {
-  flex-shrink: 0; margin-top: 8px;
-  font-family: var(--f-mono); font-size: 10px; color: var(--accent);
-  white-space: nowrap;
-}
-.cred-item .cert-links { flex-shrink: 0; margin-top: 6px; max-width: 42%; justify-content: flex-end; }
-@media (max-width: 900px) {
-  .cred-split { grid-template-columns: 1fr; }
-  .cred-item { flex-wrap: wrap; }
-  .cred-item .cert-links { max-width: none; width: 100%; justify-content: flex-start; padding-left: 46px; }
+/* The foot sits at the bottom of the card whatever the text above did. */
+.cred-foot { margin: auto 0 0; padding-top: var(--s1); }
+.cred-foot.cert-links { margin-top: auto; }
+.cred-score { font-family: var(--f-mono); font-size: 10px; color: var(--accent); white-space: nowrap; }
 }
 
 /* ── Responsive ───────────────────────────────────────────────────
