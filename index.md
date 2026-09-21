@@ -1,10 +1,17 @@
 ---
 # ═════════════════════════════════════════════════════════════════
 #  HOME — all of the page's content lives in this front matter.
-#  _layouts/home.html renders it as the dossier layout: a stack of
-#  section cards, one content width top to bottom. A left-margin rail
-#  names the section you are reading (and a compact heading stands in
-#  for it on narrow screens).
+#  _layouts/home.html renders it as full-width rows, one content
+#  column, alternating between the open scene and a tinted band so
+#  each section is visibly its own. A left-margin rail names the
+#  section you are reading (a compact heading stands in for it on
+#  narrow screens).
+#
+#  Each section is a different component, so the page reads at a
+#  glance before any of it is read: About is three spotlight tiles,
+#  Projects a band of poster cards, Experience a timeline, Toolkit a
+#  band of edge-to-edge logo loops, Writing a dated list, Credentials
+#  two panels of rows. The prose for each thing sits behind a fold.
 #
 #  Bullet strings accept inline Markdown (**bold**, `code`, [links](#)).
 #  Stack strings are matched against _data/tech_logos.json to pick a
@@ -41,8 +48,9 @@ links:
   - { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
-# ── Pillars — the three claims, shown inside "About" ─────────────
-# Three claims, and only three. More would dilute each one.
+# ── Pillars — the three claims, shown inside "About" as icon tiles ─
+# Three claims, and only three. More would dilute each one. `icon`
+# is the tile's mark (see _includes/icon.html for the names).
 # "Full-stack" is deliberately not a pillar: it is evidence inside
 # the work below, where it is more convincing than as a claim.
 pillars:
@@ -66,7 +74,9 @@ pillars:
       everything works takes care of itself.
 
 # ── Metrics ──────────────────────────────────────────────────────
-# Deliberately one per pillar, plus the track record.
+# Deliberately one per pillar, plus the track record. Rendered as
+# four tiles in the first band; the number in each `figure` counts
+# up on scroll, and whatever surrounds it ("+", "%") stays put.
 metrics:
   - { figure: "500+",  label: employees using the assistant }
   - { figure: "93.6%", label: right call on a test of 600 questions }
@@ -74,13 +84,18 @@ metrics:
   - { figure: "4",     label: platforms shipped start to finish }
 
 # ═════════════════════════════════════════════════════════════════
-#  PROJECTS — one section, however many entries. Add a project here
-#  and the page grows; nothing in _layouts/home.html needs touching.
+#  PROJECTS — one list, however many entries, and no ranking: a
+#  weekend repo and a flagship get the same card. Add a project here
+#  and the grid makes room; nothing in _layouts/home.html changes.
+#  Four show at once; from the fifth on, an "All N projects" button
+#  reveals the rest in place, so ten projects is still one grid.
 #
-#  Every project renders the same way, top to bottom:
-#    heading → horizontal strip of `shots` → the write-up
-#    (`promise`, `body`, `points`, `glance`) → `parts` as cards
-#    stacked one per row → `links`.
+#  Every project is a card in a two-across grid, top to bottom:
+#  `shots` as the cover (one at a time, dots to page; with no shots
+#  a plate with the name's initial stands in) → heading → `blurb` →
+#  `stack` chips (or the `parts` as chips) → `links` → the write-up
+#  folded behind "The full write-up" (`promise`, `body`, `points`,
+#  `glance`, `parts` as cards). Same shape whatever it has to say.
 #
 #  `promise` is the one sentence the thing guarantees. It renders as
 #            the pull quote, so keep it to a sentence.
@@ -193,10 +208,11 @@ projects:
       There is no fourth outcome where an event quietly disappears. That is the
       whole point, and the hardest part to keep true.
 
-    # A light UI, and readable on both themes, so no `src_dark`.
+    # Taken from the live dashboard at 1440×900, 2×, in the app's own
+    # light and dark themes — the same pair as the Nivara shots.
     shots:
-      - { src: /assets/img/webhook/dashboard.png, alt: "Operator dashboard showing live counters and demo controls", caption: "The operator dashboard" }
-      - { src: /assets/img/webhook/events.png,    alt: "Event list showing a dead-lettered event and two retrying",  caption: "Every attempt, including the failures" }
+      - { src: /assets/img/webhook/dashboard.light.png, src_dark: /assets/img/webhook/dashboard.dark.png, alt: "Operator dashboard showing live counters, demo controls and the scenario buttons", caption: "The operator dashboard" }
+      - { src: /assets/img/webhook/events.light.png,    src_dark: /assets/img/webhook/events.dark.png,    alt: "Event list showing dead-lettered events with every attempt recorded",          caption: "Every attempt, including the failures" }
 
     glance:
       - { k: Guarantee, v: "Accepted once · delivered at least once · never silently lost" }
@@ -219,26 +235,42 @@ projects:
       - { label: Source,    icon: github,   url: "https://github.com/rishabh0111/webhook-delivery-engine" }
       - { label: Write-up,  icon: pen,      url: "/blogs/webhook-delivery-engine/" }
 
-# ── Smaller projects — a line each ───────────────────────────────
-projects_small:
-  - name: MoviesWave
-    language: JavaScript
-    line: >-
-      A film browser. Caching in the browser cut repeat calls to the film
-      database by **about half** in a normal browsing session.
+  - name:     MoviesWave
+    year:     "2023"
+    kind:     Side project
+    blurb:    A film browser that remembers what you already looked at
+    languages: [JavaScript]
+    # From the live app at 1440×900, 2×, in its own light and dark
+    # themes. JPEG, not PNG: these are movie posters, not UI.
+    shots:
+      - { src: /assets/img/movieswave/home.light.jpg,  src_dark: /assets/img/movieswave/home.dark.jpg,  alt: "MoviesWave home: a featured film and a grid of posters by category", caption: "Popular, by genre" }
+      - { src: /assets/img/movieswave/movie.light.jpg, src_dark: /assets/img/movieswave/movie.dark.jpg, alt: "A film's page: poster, rating, overview, top cast and links",          caption: "One film, with its cast" }
+    body: >-
+      Caching in the browser cut repeat calls to the film database by
+      **about half** in a normal browsing session.
+    stack: [JavaScript, React, Redux]
     links:
-      - { label: Source, icon: github,   url: "https://github.com/rishabh0111/MoviesWave" }
       - { label: Live,   icon: external, url: "https://movieswave.netlify.app" }
-  - name: MetaMask ETH Bank
-    language: Solidity
-    line: >-
+      - { label: Source, icon: github,   url: "https://github.com/rishabh0111/MoviesWave" }
+
+  - name:     MetaMask ETH Bank
+    year:     "2023"
+    kind:     Side project
+    blurb:    Deposits and withdrawals on a smart contract, signed in with a wallet
+    languages: [Solidity]
+    body: >-
       A smart contract for deposits and withdrawals, using a crypto wallet to
       sign in. No server involved.
+    stack: [Solidity, Ethereum]
     links:
       - { label: Source, icon: github, url: "https://github.com/rishabh0111/MetaMask-ETH-Bank" }
 
 # ═════════════════════════════════════════════════════════════════
-#  EXPERIENCE — three bullets at Kleeto, two per Zeonix venture.
+#  EXPERIENCE — a timeline. `period` sits in the gutter, a dot on
+#  the spine marks the job (`current: true` lights it), and the job
+#  is a card: `summary` (one line — always give a job one), the
+#  `ventures` as small tiles, `stack`. The `points` are folded behind
+#  "What I did there", so a new job takes the same room as the last.
 #  `logo` is the company mark; add `logo_dark` only for a wordmark
 #  that needs a second version to read on the dark theme.
 # ═════════════════════════════════════════════════════════════════
@@ -254,6 +286,9 @@ experience:
     place:   Gurugram
     current: true
     stack:   [Python, FastAPI, MCP, LangGraph, RAG, Claude, OpenAI]
+    summary: >-
+      I own the **AI assistant inside Kleeto's HR platform**: 500+ employees
+      ask it for things in plain English across six parts of the system.
     points:
       - >-
         I own the **AI assistant inside Kleeto's HR platform** — hiring,
@@ -378,7 +413,9 @@ about: >-
   permissions it borrows, and whether I can reproduce every number I publish from
   a clean clone.
 
-# ── Background — education, certs, awards compacted ───────────────
+# ── Credentials — two panels ──────────────────────────────────────
+# Education in one, certifications and awards in the other, each
+# entry a row with the mark of its kind (cap, seal, trophy).
 education:
   - degree: B.E. Computer Science Engineering
     detail: Specialization in Information Security
@@ -412,11 +449,6 @@ awards:
     note: Intel × IIT Roorkee.
   - name: District Rank 1 — Mathematics Olympiad
     note: National Science Congress.
-
-resources:
-  - { name: "DBMS — a full tutorial", url: "https://iamrishabhsharma.notion.site/DataBase-Management-System-DBMS-98f325fc3e1c44e1976d7d1773525ec4" }
-  - { name: "Computer Networking — a full tutorial", url: "https://iamrishabhsharma.notion.site/Computer-Networking-6673ce922d3b4685abdb77ad0a1fef94" }
-  - { name: "Data Structures & Algorithms in C++", url: "https://github.com/rishabh0111/DataStructures-Algorithms" }
 
 interests: [Chess, Technical writing, 10-finger typing, Infrastructure spelunking]
 

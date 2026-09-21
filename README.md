@@ -3,8 +3,9 @@
 Personal site built with Jekyll on GitHub Pages.
 
 - **Home** (`index.md`) — the whole portfolio, all of it in the front matter.
-  Rendered by `_layouts/home.html` as a *dossier*: a sticky label column on the
-  left and content on the right, one width top to bottom. See below.
+  Rendered by `_layouts/home.html` as full-width rows that alternate between
+  the open scene and a tinted band, each row a different component, with a
+  rail in the left margin naming the section you are reading. See below.
 - **Blog** (`/blogs/`) — original long-form articles, standalone or grouped into a series.
 - **News** (`/news/`) — bi-weekly annotated-reading digests.
 
@@ -24,14 +25,13 @@ To change the page, change that file.
 | `profile.name` / `.surname` / `.role` / `.avatar` | The hero (name, eyebrow, portrait) |
 | `profile.tagline`, `profile.status` | **About** — the standfirst line and the "now" line (moved out of the hero) |
 | `links` | The link pills, in the hero and the closing plane |
-| `metrics` | The four-figure stat band |
-| `pillars` | **About** — the three claims, right column |
-| `about` | **About** — the essay |
-| `projects` | **Projects** — one section, however many entries. Each has `promise` (a pull quote), `glance` (a table), `shots`, optional `parts` (rendered as cards), and `links` |
-| `projects_small` | Smaller ones, a line each |
-| `experience` | **Experience**, with `ventures` nested |
+| `metrics` | The first band: four stat tiles, figures counting up on scroll |
+| `pillars` | **About** — the three claims as icon tiles (`icon` names a glyph in `_includes/icon.html`) |
+| `about` | **About** — the essay, folded behind "The longer version" |
+| `projects` | **Projects** — a band of poster cards, however many entries, no tiers. Each card: `shots` as the cover (or a plate with the first stack mark), name, `blurb`, stack chips, `links`; the write-up (`promise`, `body`, `points`, `glance`, `parts` as cards) is folded behind "The full write-up" |
+| `experience` | **Experience** — a timeline. Each job is a card on the spine (`current: true` lights its dot) with `summary`, `ventures` as tiles and `stack`; the bullets are folded behind "What I did there" |
 | `skills` | **Toolkit** — a logo grid |
-| `education`, `certifications`, `awards`, `resources` | **Credentials** |
+| `education`, `certifications`, `awards` | **Credentials** — two panels: education, then certifications and awards, each entry a row with its kind's mark |
 | `contact` | The closing plane |
 
 Two conventions worth knowing:
@@ -45,6 +45,33 @@ Two conventions worth knowing:
   Same rule as `logo` / `logo_dark` in `experience`.
 - **`parts`** turns a project into cards, one per separable piece. Nivara Desk
   uses it for its AI layer, API and front ends.
+- **One component per section, on alternating grounds.** Rows alternate
+  between the open scene and a tinted band (`.ds-band`), so the eye finds
+  where one section ends without a box around each. About is spotlight
+  tiles, Projects a band of poster cards with a glow border, Experience a
+  timeline, Toolkit a band of edge-to-edge logo loops, Writing a dated list,
+  Credentials two panels of rows. The reader gets each section's gist from
+  its silhouette before reading a word. The hover effects follow React Bits
+  (SpotlightCard, MagicBento, LogoLoop) rewritten as plain CSS on the site's
+  tokens; the component choices track shadcn/ui's catalog (Card, Item,
+  Carousel).
+- **Everything arrives as you reach it.** Every tile, row and card carries
+  `data-anim` (up / left / fade) and rises in with a stagger when scrolled
+  to; the metrics count up; the About lede reveals word by word as it
+  climbs the viewport; the contact address carries a slow sheen. All after
+  React Bits (AnimatedContent, FadeContent, CountUp, ScrollReveal,
+  ShinyText) as plain CSS driven by a few lines in the home script; under
+  reduced motion or without JS the page is simply there.
+- **Any number of projects.** The grid shows four; from the fifth on, an
+  "All N projects" button reveals the rest in place, same card as the
+  first four. Ten projects is five rows, not a carousel that hides them.
+- **No tiers among projects.** A weekend repo and a flagship get the same
+  card; `kind` and `year` are the only things that differ.
+- **The fold.** Every project, every job and the About essay keep their full
+  text behind a native `<details>` (styled as `details.more`), closed by
+  default. A new project or job takes the same room as the last one however
+  much it has to say. Nothing is cut: open the fold and it is all there, and
+  it still works without JS.
 
 Adding a project means adding to `projects:` — the layout does not change.
 

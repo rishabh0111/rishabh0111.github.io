@@ -2099,12 +2099,56 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* Sections fade up as they arrive. JS adds .in; print + reduced-motion
    force them visible (see the bottom of this block). */
-.reveal {
+/* ── Motion: everything arrives as you reach it ──────────────────
+   [data-anim] elements get .anim from the home script and .in once
+   they enter the viewport (after React Bits AnimatedContent and
+   FadeContent). --anim-i, set on the children of a [data-stagger]
+   parent, spaces them out. Without JS nothing gets .anim, so the
+   page is simply there. */
+.anim {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transition: opacity 0.7s var(--ease-out), transform 0.8s var(--ease-out);
+  transition-delay: calc(var(--anim-i, 0) * 80ms);
+  will-change: opacity, transform;
 }
-.reveal.in { opacity: 1; transform: none; }
+.anim[data-anim="up"]    { transform: translateY(28px); }
+.anim[data-anim="left"]  { transform: translateX(-32px); }
+.anim[data-anim="right"] { transform: translateX(32px); }
+.anim[data-anim="fade"]  { transform: none; }
+.anim.in { opacity: 1; transform: none; will-change: auto; }
+/* A tile's own hover lift must not fight the entrance. */
+.anim.in.glow:hover { transform: translateY(-2px); }
+
+/* The lede, word by word (after React Bits ScrollReveal): --p is
+   the paragraph's progress up the viewport, --w each word's place
+   in it. A word is faint and soft until the progress passes it. */
+.ds-lede.is-split .w {
+  display: inline-block;
+  opacity: calc(0.18 + 0.82 * clamp(0, (var(--p, 1) - var(--w) * 0.85) * 6, 1));
+  filter: blur(calc((1 - clamp(0, (var(--p, 1) - var(--w) * 0.85) * 6, 1)) * 3px));
+  transition: opacity 0.12s linear, filter 0.12s linear;
+}
+
+/* A sheen that slides across the address every few seconds (after
+   React Bits ShinyText): the text is filled with a gradient that is
+   mostly its own colour, with one bright band moving through it. */
+.contact-email.shiny {
+  background-image: linear-gradient(120deg,
+    var(--plane-ink) 0%, var(--plane-ink) 40%,
+    var(--accent) 50%,
+    var(--plane-ink) 60%, var(--plane-ink) 100%);
+  background-size: 250% auto; background-position: 150% center;
+  background-repeat: repeat;   /* the ends match, so the tiles join unseen */
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--plane-ink);
+  animation: shine 5s linear infinite;
+}
+@keyframes shine {
+  0%   { background-position: 150% center; }
+  60%  { background-position: -50% center; }
+  100% { background-position: -50% center; }
+}
+.contact-email.shiny:hover { -webkit-text-fill-color: var(--accent); animation-play-state: paused; background-size: 250% auto; }
 
 
 /* ── Hero ──────────────────────────────────────────────────────
@@ -2522,12 +2566,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
     box-shadow: 0 4px 14px rgba(0,0,0,0.10);
   }
 
-  /* The current section's card takes an accent edge — the far end of
-     the line that starts at the lit dot. */
-  .ds-row.is-active {
-    box-shadow: 0 2px 18px rgba(0,0,0,0.05),
-                inset 2px 0 0 color-mix(in srgb, var(--accent) 75%, transparent);
-  }
 }
 
 
@@ -2538,73 +2576,168 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── Metrics — a full-width stat band on the structural teal.
-   The one place the palette runs at full strength: it punctuates
-   the page between the triage grid and the long-form body. ──── */
-.band-stats .band-inner {
-  background: var(--stat-bg);
-  border-radius: 14px;
-  padding: var(--s5);
-  box-shadow: var(--panel-shadow);
+/* ── Metrics — four stat tiles in the first band ────────────────
+   The same tile every other section is cut from (shadcn's dashboard
+   section-cards: label, then the figure), so the numbers belong to
+   the page rather than sitting on it in their own colour. */
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+.metric { padding: var(--s3); }
+.metric-label {
+  display: block; margin-bottom: var(--s2);
+  font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-3); line-height: 1.6;
 }
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); }
-.metric {
-  padding-left: var(--s3);
-  border-left: 1px solid color-mix(in srgb, var(--stat-fg) 22%, transparent);
-}
-.metric:first-child { padding-left: 0; border-left: none; }
 .metric-figure {
   display: block;
   font-family: var(--f-display);
-  font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
   font-weight: 400; line-height: 1;
-  color: var(--stat-fg); letter-spacing: -0.02em;
+  color: var(--text); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
-.metric-label {
-  display: block; margin-top: 8px;
-  font-family: var(--f-mono); font-size: 8.5px;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--stat-dim); line-height: 1.6;
-}
+#metrics { padding-top: var(--s6); padding-bottom: var(--s6); }
+@media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); } }
 
 
-/* ── Experience — a timeline: the period sits in a sticky gutter
-   so it stays with you down a long job, and the job itself is a
-   card. Ventures nest inside as sub-cards, so the three-in-one
-   Zeonix entry stops reading as a single wall. ──────────────── */
-.timeline { position: relative; }
-/* The spine, drawn between the gutter and the cards */
-.timeline::before {
-  content: '';
-  position: absolute; top: 6px; bottom: 6px; left: 158px;
+/* ── Tiles — the one card surface the home's components share ───
+   Pillars, project posters, timeline cards, credential panels: each section
+   has its own shape, but they are cut from the same material so
+   the page still reads as one thing. */
+.tile {
+  background: var(--card-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), inset 0 1px 0 var(--glass-hi);
+  min-width: 0;
+}
+/* Spotlight — a radial light that follows the pointer across the
+   tile (after React Bits SpotlightCard). --mouse-x/--mouse-y are set
+   by the home script; the light is drawn on ::before so the tile's
+   content sits above it. */
+.spot {
+  position: relative; overflow: hidden;
+  --mouse-x: 50%; --mouse-y: 50%;
+}
+.spot::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(320px circle at var(--mouse-x) var(--mouse-y),
+              color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+  opacity: 0; transition: opacity 0.5s var(--ease-out);
+}
+.spot:hover::before, .spot:focus-within::before { opacity: 1; }
+.spot > * { position: relative; }
+
+/* Glow — the border lights up around the pointer (after React Bits
+   MagicBento's border glow). The ring is a radial gradient on ::after,
+   masked to the border by two stacked masks composited with xor, so
+   only the frame is painted. --glow-* are set by the home script. */
+.glow {
+  position: relative;
+  --glow-x: 50%; --glow-y: 50%; --glow-intensity: 0; --glow-radius: 220px;
+}
+.glow::after {
+  content: ''; position: absolute; inset: 0; padding: 2px;
+  border-radius: inherit; pointer-events: none; z-index: 2;
+  background: radial-gradient(var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    color-mix(in srgb, var(--accent) calc(var(--glow-intensity) * 90%), transparent) 0%,
+    color-mix(in srgb, var(--accent) calc(var(--glow-intensity) * 40%), transparent) 35%,
+    transparent 65%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  transition: opacity 0.3s var(--ease-out);
+}
+.glow:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14),
+              0 0 32px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* The icon plate a tile can carry: a tinted square, accent glyph. */
+.tile-ic {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  color: var(--accent);
+}
+.tile-ic svg { width: 18px; height: 18px; }
+
+/* ── Experience — a timeline ─────────────────────────────────────
+   Three tracks: the period in a gutter, a spine with a dot per
+   job, and the job as a tile. The current job's dot is lit. */
+.tl { list-style: none; margin: 0; padding: 0; }
+.tl-item {
+  display: grid;
+  grid-template-columns: 160px 28px minmax(0, 1fr);
+  column-gap: var(--s2);
+}
+.tl-item + .tl-item { margin-top: var(--s3); }
+.tl-when {
+  padding-top: 26px; text-align: right; line-height: 1.5; white-space: nowrap;
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3);
+}
+.tl-spine { position: relative; }
+.tl-spine::before {
+  content: ''; position: absolute; left: 50%;
+  top: calc(var(--s3) * -1); bottom: calc(var(--s3) * -1);
   width: 1px; background: var(--border);
+  transform: translateX(-50%);
 }
-
-/* Sub-ventures under one employer — nested cards, so three
-   products under one job read as three things, not one list. */
-.ventures {
-  margin-top: var(--s4);
-  display: grid; gap: var(--s2);
+.tl-item:first-child .tl-spine::before { top: 30px; }
+.tl-item:last-child  .tl-spine::before { bottom: calc(100% - 30px); }
+.tl-dot {
+  position: absolute; left: 50%; top: 30px;
+  width: 11px; height: 11px; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg); border: 2px solid var(--accent);
 }
-.venture {
-  padding: var(--s3);
-  border-radius: 9px;
+.tl-item.is-current .tl-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.tl-card { padding: var(--s3); }
+.tl-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.tl-head .co-logo { height: 46px; min-width: 46px; max-width: 132px; padding: 0 10px; }
+.tl-head .co-logo img { max-height: 30px; max-width: 108px; }
+.tl-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tl-co { margin: 0; font-family: var(--f-display); font-size: 1.3rem; font-weight: 400; color: var(--text); line-height: 1.15; }
+.tl-role { font-size: 13px; color: var(--text-2); }
+.tl-head .tl-when-inline { display: none; }
+.tl-card > .project-body { margin-top: var(--s2); font-size: 14px; }
+.tl-card > .chips { margin-top: var(--s3); }
+/* Ventures under one employer, as a strip of small tiles: three
+   products read as three things before the fold is opened. Once it
+   is, the full venture blocks repeat the names, so the strip steps
+   aside. */
+.venture-strip {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s2); margin-top: var(--s3);
+}
+.venture-tile {
+  padding: 10px 12px; border-radius: 9px;
+  border: 1px solid var(--border); border-left: 2px solid var(--accent);
   background: color-mix(in srgb, var(--bg-raised) 55%, transparent);
-  border: 1px solid var(--border);
-  border-left: 2px solid var(--border);
-  transition: border-left-color 0.25s var(--ease-out);
 }
-.venture:hover { border-left-color: var(--accent); }
-/* The summary is the venture's title row; the chevron comes from the
-   shared details rules above, so only the type is set here. */
-.venture > summary {
-  align-items: baseline;
-  font-family: var(--f-display); font-size: 1.12rem;
-  font-weight: 400; color: var(--text);
-  letter-spacing: 0; text-transform: none;
+.venture-tile b {
+  display: block; margin-bottom: 3px;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 400;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
 }
-.venture > summary::before { align-self: center; }
-.venture[open] > summary { margin-bottom: var(--s1); }
+.venture-tile span { font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.tl-card:has(.xp-more[open]) .venture-strip { display: none; }
+.xp-more { margin-top: var(--s3); }
+.xp-more > .points { margin-top: var(--s2); }
+.xp-more[open] > summary { margin-bottom: var(--s1); }
+@media (max-width: 720px) {
+  .tl-item { grid-template-columns: 20px minmax(0, 1fr); column-gap: var(--s1); }
+  .tl-when { display: none; }
+  .tl-head .tl-when-inline { display: inline; margin-left: auto; }
+  .tl-item:first-child .tl-spine::before { top: 26px; }
+  .tl-item:last-child  .tl-spine::before { bottom: calc(100% - 26px); }
+  .tl-dot { top: 26px; }
+}
 
 
 /* ── Bullets (shared by jobs + projects) ─────────────────────── */
@@ -2658,19 +2791,19 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .project-body strong { color: var(--text); }
 .project-foot .chips { margin: 0; }
 .project-links { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); }
-.project-links a, .section-more a {
+.project-links a, .section-more a, .section-more button {
   display: inline-flex; align-items: center; gap: 7px;
   font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--link); text-decoration: none;
   transition: color 0.15s;
 }
-.project-links a:hover, .section-more a:hover { color: var(--accent); }
+.project-links a:hover, .section-more a:hover, .section-more button:hover { color: var(--accent); }
 
 /* The arrow nudge belongs to "go somewhere else" links. Project links now
    carry a type icon instead, which must not slide on hover. */
-.section-more a span { transition: transform 0.2s var(--ease-out); }
-.section-more a:hover span { transform: translateX(3px); }
+.section-more a span, .section-more button span { transition: transform 0.2s var(--ease-out); }
+.section-more a:hover span, .section-more button:hover span { transform: translateX(3px); }
 
 /* Inline link-type icon: github / external / pen */
 .link-ic { display: inline-flex; flex-shrink: 0; }
@@ -2689,29 +2822,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .resource-list a:hover { color: var(--accent); }
 .resource-list a:hover span { transform: translateX(3px); }
 .bg-title + .bg-item { margin-top: 0; }
-.bg-item { margin-bottom: var(--s4); }
-.bg-item:last-child { margin-bottom: 0; }
-.bg-item-head {
-  font-family: var(--f-display); font-size: 1.08rem;
-  color: var(--text); line-height: 1.3;
-}
-.bg-item-head a {
-  color: inherit; text-decoration: underline;
-  text-decoration-color: var(--link-uline);
-  text-underline-offset: 3px;
-  transition: color 0.15s, text-decoration-color 0.15s;
-}
-.bg-item-head a:hover { color: var(--accent); text-decoration-color: var(--accent); }
-.bg-item-sub { font-size: 13px; font-style: italic; color: var(--text-2); margin-top: 2px; }
-.bg-item-meta {
-  font-family: var(--f-mono); font-size: 9.5px;
-  letter-spacing: 0.05em; color: var(--text-3); margin-top: 5px;
-}
-.bg-item-score {
-  font-family: var(--f-mono); font-size: 10px;
-  color: var(--accent); margin-top: 4px;
-}
-.bg-item-note { font-size: 13px; line-height: 1.6; color: var(--text-2); margin-top: 6px; }
 
 /* Verify links for certs that bundle several credentials */
 .cert-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s1); }
@@ -2889,12 +2999,13 @@ details.more > summary:hover,
   .section-more { flex-direction: column; gap: var(--s2); }
   .card { padding: var(--s3); border-radius: 10px; }
   .job-card, .project { padding: var(--s3); }
-  .band-stats .band-inner { padding: var(--s4); border-radius: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .status-dot { animation: none; }
-  .reveal { opacity: 1; transform: none; }
+  .anim { opacity: 1; transform: none; transition: none; }
+  .ds-lede.is-split .w { opacity: 1; filter: none; }
+  .contact-email.shiny { animation: none; }
   /* The ring still tracks progress — it just stops easing there */
   .scroll-top { transition: opacity 0.2s linear, visibility 0s linear; transform: none; }
   .scroll-top.visible { transform: none; }
@@ -2902,7 +3013,7 @@ details.more > summary:hover,
 }
 
 @media print {
-  .reveal { opacity: 1 !important; transform: none !important; }
+  .anim { opacity: 1 !important; transform: none !important; }
   .hero, .contact { padding: 0 0 var(--s3); }
   .hero::before, .hero::after,
   .contact::before, .contact::after { display: none; }
@@ -2910,7 +3021,7 @@ details.more > summary:hover,
   .band { padding: var(--s4) 0; }
   .band-inner { padding: 0; max-width: none; }
   /* Cards are a screen affordance — on paper they become plain blocks */
-  .card, .home-prose.sheet, .band-stats .band-inner {
+  .card, .home-prose.sheet, .tile {
     background: none !important; box-shadow: none !important;
     border: none !important; backdrop-filter: none !important;
     padding: 0;
@@ -3442,19 +3553,20 @@ details.more > summary:hover,
    slides left by exactly half its own width and restarts, so the
    second run is under the cursor at the moment the first would run
    out — no jump, no gap. */
-.ribbon { padding: var(--s2) 0; border-bottom: 1px solid var(--border); }
-.ribbon:last-child { border-bottom: none; }
+.ribbon { padding: 10px 0; }
+.ribbon + .ribbon { border-top: 1px solid var(--band-line); }
 .ribbon-label {
-  margin: 0 0 var(--s1);
+  margin: 0 0 6px;
   font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--accent);
 }
-/* The mask fades both ends so items enter and leave rather than
+/* The loop runs the full width of the band and fades at both ends
+   (after React Bits LogoLoop), so items enter and leave rather than
    being cut off against a hard edge. */
 .ribbon-view {
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 clamp(24px, 8%, 120px), #000 calc(100% - clamp(24px, 8%, 120px)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 clamp(24px, 8%, 120px), #000 calc(100% - clamp(24px, 8%, 120px)), transparent);
 }
 .ribbon-track {
   display: flex; width: max-content;
@@ -3524,21 +3636,6 @@ details.more > summary:hover,
   color: var(--accent); letter-spacing: 0.02em; line-height: 1;
 }
 
-/* Experience row shared by all three layouts */
-.xp { display: flex; gap: var(--s3); align-items: flex-start; }
-/* Two jobs ran straight into each other with no separation at all —
-   the second company's name sat directly under the first one's last
-   bullet. Same dashed rule the projects use, so the page separates
-   its repeated blocks one way. */
-.xp + .xp {
-  margin-top: var(--s8);
-  padding-top: var(--s6);
-  border-top: 1px dashed var(--border);
-}
-.xp-body { flex: 1; min-width: 0; }
-.xp-head { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; }
-.xp-co { font-family: var(--f-display); font-size: 1.35rem; font-weight: 400; margin: 0; color: var(--text); }
-.xp-role { font-size: 13px; color: var(--text-2); }
 .xp-when {
   margin-left: auto; font-family: var(--f-mono); font-size: 10px;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3);
@@ -3566,45 +3663,45 @@ details.more > summary:hover,
 .home .band-narrow,
 .home .band-mid { max-width: 1180px; }
 .home .band { padding: var(--s8) 0; }
-
-/* Each section is its own card. They used to share one sheet with
-   hairline rules between them, which read as a single long slab —
-   nothing in the UI said where one section ended. The cards are
-   deliberately light: enough to separate, not enough to box the page
-   in. */
-.ds-row {
-  padding: var(--s5);
-  margin-bottom: var(--s3);
-  border-radius: 14px;
-  /* Home only (this selector never renders on the listing pages). The
-     dossier cards take the SAME glass as the floating bars — same tint,
-     same heavy blur — so the whole page reads as one material and the
-     contour lines behind melt to a smooth frost instead of showing
-     through as detail. */
-  background: var(--header-glass);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 var(--glass-hi),
-    0 2px 18px rgba(0,0,0,0.06);
-  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
-  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
-  scroll-margin-top: calc(var(--h-header) + var(--s3));
-}
-.ds-row:last-child { margin-bottom: 0; }
-/* Under Reduce Transparency / Increase Contrast the cards go solid,
-   like the bars do. */
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .ds-row {
-    background: var(--card-bg);
-    backdrop-filter: none; -webkit-backdrop-filter: none;
+/* From 1200px the rail sits in the left margin and its label pill
+   reaches ~170px in. Between 1200px and ~1450px the margin is thinner
+   than that, so the column pulls in — the same amount on both sides,
+   to stay centred — until the margin alone clears the pill. */
+@media (min-width: 1200px) {
+  .home .band-inner {
+    padding-inline: clamp(var(--s5), calc(176px - (100vw - 1180px) / 2), 176px);
   }
+}
+
+/* Each section is a full-width row. They used to be a stack of
+   identical glass cards, which read as one long slab in a different
+   coat — the same box around a grid, a timeline and a list said
+   nothing about what was inside. Now the rows alternate: open on the
+   scene, then a tinted band, then open again. The band is the only
+   thing drawn; the components inside each row do the rest. */
+.ds-row {
+  padding: var(--s8) 0;
+  scroll-margin-top: var(--h-header);
+}
+.ds-band {
+  background: var(--band-bg);
+  border-top: 1px solid var(--band-line);
+  border-bottom: 1px solid var(--band-line);
+}
+.ds-band + .ds-band { border-top: none; }
+:root {
+  --band-bg:   color-mix(in srgb, var(--bg-raised) 78%, transparent);
+  --band-line: color-mix(in srgb, var(--border) 70%, transparent);
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .ds-band { background: var(--bg-raised); }
 }
 
 /* Compact section heading, shown only where the rail is not (below
    1200px). One mono line, the note trailing in serif on the same
    line so it costs a single row of height, not three. */
 .ds-heading {
-  margin: 0 0 var(--s3);
+  margin: 0 0 var(--s4);
   font-family: var(--f-mono); font-size: 12.5px; font-weight: 400;
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
 }
@@ -3615,13 +3712,6 @@ details.more > summary:hover,
 @media (min-width: 1200px) { .ds-heading { display: none; } }
 
 .ds-val { min-width: 0; }
-/* ── One project inside the Projects section ─────────────────── */
-.proj + .proj,
-.proj + .proj-parts-label {
-  margin-top: var(--s6);
-  padding-top: var(--s6);
-  border-top: 1px dashed var(--border);
-}
 .proj-blurb {
   margin: 0 0 var(--s2);
   font-size: 14.5px; line-height: 1.6; color: var(--text-2);
@@ -3694,7 +3784,7 @@ details.more > summary:hover,
   .drail, .drail-dot, .drail a > span, .drail-line i { transition: none; }
 }
 
-/* The write-up: promise, prose, results, then the glance table. */
+/* The write-up: the promise in view, the rest behind a fold. */
 .proj-copy { margin-top: var(--s4); }
 .proj-copy > .project-body { margin-top: var(--s3); }
 .proj-copy > .points { margin-top: var(--s3); }
@@ -3702,6 +3792,97 @@ details.more > summary:hover,
   margin-top: var(--s4); padding-top: var(--s3);
   border-top: 1px solid var(--border);
 }
+
+/* ── Projects — a grid of poster cards ──────────────────────────
+   One tile per project: the screenshots as a cover that bleeds to
+   the card's edges, then the name, one line, chips, links. The
+   write-up is a fold at the foot of the card. Two across; the grid
+   makes room for the next project on its own. */
+.proj-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3); align-items: start;
+}
+.proj { padding: var(--s3); overflow: hidden; }
+.proj .proj-shots { margin: calc(var(--s3) * -1) calc(var(--s3) * -1) 0; }
+.proj .proj-carousel { gap: 0; padding: 0; scrollbar-width: none; }
+.proj .proj-carousel::-webkit-scrollbar { display: none; }
+.proj .proj-carousel .shot { flex: 0 0 100%; }
+/* No screenshots: a plate in the cover's place, the name's initial in
+   the display face on an accent wash, so the card keeps the same
+   silhouette as the ones with shots. */
+.proj-plate {
+  position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+  display: grid; place-items: center;
+  border-bottom: 1px solid var(--panel-border);
+  background:
+    radial-gradient(120% 90% at 18% 0%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 60%),
+    radial-gradient(90% 80% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
+    var(--bg-raised);
+}
+.proj-plate-initial {
+  font-family: var(--f-display); font-size: clamp(5rem, 12vw, 8rem);
+  line-height: 1; color: color-mix(in srgb, var(--accent) 55%, var(--text));
+  letter-spacing: -0.03em;
+}
+/* On a white tile, like an app icon, so a dark mark (Solidity) reads
+   on the dark theme as well as a bright one (JavaScript) does. */
+.proj-plate-mark {
+  width: clamp(88px, 15vw, 128px); height: auto; aspect-ratio: 1;
+  object-fit: contain; padding: 18px; border-radius: 26px;
+  background: #fff; box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+}
+.proj-plate-lang {
+  position: absolute; left: var(--s2); bottom: var(--s2);
+  padding: 4px 9px; border-radius: 6px;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--text-2);
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+}
+/* Every cover the same height, cropped from the top, so the two
+   cards line up whatever each screenshot's proportions are. */
+.proj .shot img {
+  aspect-ratio: 16 / 9; object-fit: cover; object-position: left top;
+  border: none; border-bottom: 1px solid var(--panel-border);
+  border-radius: 0; box-shadow: none;
+}
+.proj .shot figcaption {
+  position: absolute; left: var(--s2); bottom: var(--s2); margin: 0;
+  padding: 4px 9px; border-radius: 6px;
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+  color: var(--text-2);
+}
+.proj .proj-dots { margin-top: var(--s2); }
+.proj .ds-fhead { margin-top: var(--s3); }
+.proj .ds-fhead h2 { font-size: 1.45rem; }
+.proj .proj-blurb { margin-bottom: 0; }
+.proj > .chips { margin-top: var(--s3); }
+.proj > .project-links { margin-top: var(--s2); }
+/* A piece named as a chip: label, then its language in the accent. */
+.chips .chip-sub { margin-left: 6px; color: var(--accent); }
+/* Four show; the rest are hidden while the grid is collapsed and
+   rise in when the button opens it. Without JS the class is never
+   set, so every card shows. */
+.proj-grid.is-collapsed > .proj:nth-child(n + 5) { display: none; }
+.proj-grid-more { margin-top: var(--s4); }
+.proj-grid-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0; border: none; background: none; cursor: pointer;
+  font: inherit;
+}
+.proj-grid-btn[aria-expanded="true"] span { transform: rotate(90deg); }
+
+/* ── The fold — one disclosure for projects, jobs and the essay ──
+   The page reads at a glance closed; open, the full write-up drops
+   in beneath the summary. The summary keeps the same mono label as
+   the other section furniture; its chevron comes from details.more. */
+.proj-more { margin-top: var(--s3); padding-top: var(--s2); border-top: 1px solid var(--border); }
+.proj-more > .promise { margin-top: var(--s2); font-size: 1.15rem; line-height: 1.4; }
+.proj-more > .project-body,
+.proj-more > .points,
+.proj-more > .glance { margin-top: var(--s3); }
+.proj-more > .glance { padding-top: var(--s3); border-top: 1px solid var(--border); }
+.proj-more > .parts-stack { margin-top: 0; }
+.proj-more[open] > summary { margin-bottom: var(--s1); }
 
 .ds-fhead { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s2); }
 .ds-fhead h2 { font-family: var(--f-display); font-size: 1.8rem; font-weight: 400; margin: 0; color: var(--text); }
@@ -3715,29 +3896,23 @@ details.more > summary:hover,
   border-radius: 999px; padding: 3px 9px;
 }
 
-/* ── About: the essay and the three claims it earns, side by side ─
+/* ── About: the lede, then the three claims as icon tiles ───────
    Both used to be their own dossier rows (Background, Position).
-   The essay holds a ~34rem reading measure; on its own that left the
-   card half empty on wide screens, so the claims take the right
-   column, split off by a hairline. Below 1000px they stack, essay
-   first, and the hairline moves to the top (see the responsive
-   block). */
-#about .ds-val {
-  display: grid;
-  grid-template-columns: minmax(0, 34rem) 1fr;
-  column-gap: var(--s6);
+   The tiles carry the pillars' marks (spark, shield, server), so
+   the three claims register before they are read. Below 900px they
+   stack one per row (see the responsive block). */
+#about .ds-prose { max-width: 40rem; }
+.pillar-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3); margin-top: var(--s4);
 }
-.ds-claims {
-  padding-left: var(--s6);
-  border-left: 1px solid var(--border);
+.pillar { padding: var(--s3); }
+.pillar .tile-ic { margin-bottom: var(--s2); }
+.pillar-title {
+  margin: 0 0 6px; line-height: 1.2;
+  font-family: var(--f-display); font-size: 1.15rem; font-weight: 400; color: var(--text);
 }
-.ds-claim + .ds-claim { margin-top: var(--s3); }
-.ds-claim-title {
-  margin: 0 0 4px;
-  font-family: var(--f-display); font-size: 1.2rem; font-weight: 400;
-  color: var(--text); line-height: 1.2;
-}
-.ds-claim-body { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
+.pillar-body { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-2); }
 
 /* ── About prose — the reading measure is set by the grid column ── */
 .ds-prose p {
@@ -3756,55 +3931,90 @@ details.more > summary:hover,
 /* The "now" line, also from the hero — a mono footnote under the essay. */
 #about .ds-now {
   display: flex; align-items: center;
-  margin: var(--s4) 0 0;
+  margin: var(--s3) 0 0;
   font-family: var(--f-mono); font-size: 10.5px;
   letter-spacing: 0.04em; line-height: 1.5;
   color: var(--text-3);
 }
 #about .ds-now .status-dot { margin-right: 9px; }
+/* The essay, folded under the tiles. */
+.about-more { margin-top: var(--s3); }
+.about-more[open] > summary { margin-bottom: var(--s2); }
+.about-more > .ds-prose { max-width: 40rem; }
 
-/* ── Smaller projects — a line each ──────────────────────────── */
-.minor { padding: var(--s2) 0; border-bottom: 1px solid var(--border); }
-.minor:last-child { border-bottom: none; }
-.minor h3 {
-  margin: 0 0 4px; font-family: var(--f-display); font-size: 1.15rem;
-  font-weight: 400; color: var(--text);
+/* ── Writing — each post a row tile, the date as a block ─────── */
+.post-list .post-row {
+  margin: 0 0 var(--s2); padding: var(--s2) var(--s3);
+  border: 1px solid var(--panel-border); border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), inset 0 1px 0 var(--glass-hi);
+  transition: border-color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
 }
-.minor-lang {
-  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--accent); margin-left: 6px;
-}
-.minor p { margin: 0 0 var(--s1); font-size: 13px; line-height: 1.6; color: var(--text-2); }
-.minor .project-links { margin-top: 6px; }
+.post-list .post-row:last-of-type { margin-bottom: 0; }
+.post-list .post-row::before { display: none; }
+.post-list .post-row:hover { border-color: var(--accent); transform: translateX(4px); }
+.post-list .section-more { margin-top: var(--s3); }
 
 /* ── Toolkit groups ──────────────────────────────────────────── */
 .tk-group + .tk-group { margin-top: var(--s5); }
 .tk-group > .group-heading { margin: 0 0 var(--s2); }
 
-/* ── Credentials — three columns, hairline separated ─────────── */
-.cred-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
-.cred-grid > div > .group-heading { margin-top: 0; }
-@media (max-width: 900px) { .cred-grid { grid-template-columns: 1fr; gap: var(--s4); } }
+/* ── Credentials — two panels of rows ───────────────────────────
+   Education on the left, certifications and awards on the right.
+   Each row: the mark of its kind, the name and where it came from,
+   and a score or verify chip at the end. */
+.cred-split {
+  display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--s3); align-items: start;
+}
+.cred-panel { padding: var(--s2) var(--s3) var(--s3); }
+.cred-panel-title {
+  margin: 0 0 var(--s1);
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+}
+.cred-list { list-style: none; margin: 0; padding: 0; }
+.cred-item {
+  display: flex; align-items: flex-start; gap: var(--s2);
+  padding: var(--s2) 0;
+  border-top: 1px solid var(--border);
+}
+.cred-item:first-child { border-top: none; }
+.cred-item:last-child { padding-bottom: 0; }
+.cred-item .tile-ic { width: 34px; height: 34px; border-radius: 9px; }
+.cred-item .tile-ic svg { width: 16px; height: 16px; }
+.cred-body { flex: 1; min-width: 0; }
+.cred-head {
+  margin: 0; line-height: 1.3;
+  font-family: var(--f-display); font-size: 1.05rem; color: var(--text);
+}
+.cred-sub { margin: 2px 0 0; font-size: 12.5px; font-style: italic; color: var(--text-2); }
+.cred-meta {
+  margin: 3px 0 0; font-family: var(--f-mono); font-size: 9.5px;
+  letter-spacing: 0.05em; line-height: 1.6; color: var(--text-3);
+}
+.cred-score {
+  flex-shrink: 0; margin-top: 8px;
+  font-family: var(--f-mono); font-size: 10px; color: var(--accent);
+  white-space: nowrap;
+}
+.cred-item .cert-links { flex-shrink: 0; margin-top: 6px; max-width: 42%; justify-content: flex-end; }
+@media (max-width: 900px) {
+  .cred-split { grid-template-columns: 1fr; }
+  .cred-item { flex-wrap: wrap; }
+  .cred-item .cert-links { max-width: none; width: 100%; justify-content: flex-start; padding-left: 46px; }
+}
 
 /* ── Responsive ───────────────────────────────────────────────────
    Every multi-column grid on the page collapses to one track. */
-/* About: below 1000px the two columns don't both fit a usable width,
-   so stack them, essay first, and move the hairline back to the top. */
-@media (max-width: 1000px) {
-  #about .ds-val { display: block; }
-  .ds-claims {
-    margin-top: var(--s5);
-    padding: var(--s4) 0 0;
-    border-left: none;
-    border-top: 1px solid var(--border);
-  }
+/* Below 900px the poster and pillar grids go to one track. */
+@media (max-width: 900px) {
+  .proj-grid, .pillar-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
   .ds-row { padding: var(--s4) var(--s3); }
   .proj-carousel .shot { flex-basis: 86%; }
-  .xp { flex-direction: column; gap: var(--s2); }
-  .xp-when { margin-left: 0; }
 }
 
 
