@@ -2940,11 +2940,17 @@ details.more > summary:hover,
   :root { --sidebar-w: 280px; --max-w: 1520px; }
 }
 
-/* Three columns: parts rail | article | TOC. The breakpoint is set where
-   a third column can be paid for out of the empty margins rather than out
-   of the measure — below it the article would drop to ~600px. */
-@media (min-width: 1360px) {
-  :root { --rail-w: 210px; --rail-gap: var(--col-gap); }
+/* Three columns: parts rail | article | TOC. The parts rail should be up
+   on any laptop that shows the TOC rail: a series card that is a strip
+   above the article on one screen and a rail on the next reads as a bug,
+   not a layout choice. The old 1360px gate missed most laptops (1920px
+   at 125–150% Windows scaling is 1280–1536 CSS px). The rail starts
+   narrow and widens with the viewport so the measure pays as little as
+   possible — ~530px of article at 1024px, ~750px at 1280px. Below 1024px
+   a third column can't be paid for at all (the article would drop under
+   400px), so the strip stays. */
+@media (min-width: 1024px) {
+  :root { --rail-w: 180px; --rail-gap: var(--col-gap); }
 
   .post-wrap.has-rail {
     grid-template-columns: var(--rail-w) 1fr var(--sidebar-w);
@@ -2990,6 +2996,9 @@ details.more > summary:hover,
     display: block;
     overflow-y: auto;
   }
+}
+@media (min-width: 1360px) {
+  :root { --rail-w: 210px; }
 }
 @media (min-width: 1440px) {
   :root { --rail-w: 240px; }
