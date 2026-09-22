@@ -7,7 +7,7 @@
    without React, GSAP or motion:
 
      lineSidebar()      Line Sidebar       the rail's beads and labels reach for the pointer
-     targetCursor()     Target Cursor      corner brackets that snap around targets
+     targetCursor()     Target Cursor      theme-coloured ring cursor; brackets snap around targets
      counters()         Counter            the metrics as rolling digits
      decrypt()          Decrypted Text     mono labels scramble into place
      typewrite()        Text Type          the "now" line types itself
@@ -80,17 +80,20 @@
   }
 
   /* ── Target Cursor ────────────────────────────────────────────────
-     The native cursor gives way to a dot with four corner brackets
-     that turn slowly; over a target the brackets fly to its corners
-     and hold there until the pointer leaves. Drawn in difference
-     blend, so it reads on both themes. */
+     The native pointer gives way to a theme-coloured ring: a dot
+     sits exactly on the pointer, the ring trails it a touch, and
+     over a target four corner brackets fly to its corners and hold
+     there until the pointer leaves. Hidden until the first move and
+     while the pointer is off the page, so nothing sits in the middle
+     of the viewport on load. */
   function targetCursor() {
     if (!fine || reduce) return;
     var wrap = document.createElement("div");
-    wrap.className = "tc"; wrap.setAttribute("aria-hidden", "true");
-    wrap.innerHTML = '<i class="tc-dot"></i><i class="tc-c tc-tl"></i><i class="tc-c tc-tr"></i><i class="tc-c tc-br"></i><i class="tc-c tc-bl"></i>';
+    wrap.className = "tc is-away"; wrap.setAttribute("aria-hidden", "true");
+    wrap.innerHTML = '<i class="tc-ring"></i><i class="tc-dot"></i><i class="tc-c tc-tl"></i><i class="tc-c tc-tr"></i><i class="tc-c tc-br"></i><i class="tc-c tc-bl"></i>';
     document.body.appendChild(wrap);
     document.body.classList.add("has-tc");
+    var dot = wrap.querySelector(".tc-dot");
     var corners = Array.prototype.slice.call(wrap.querySelectorAll(".tc-c"));
     var SEL = "a, button, summary, .tile, .proj, .pcard, .tool, .chips li, .drail a";
     var x = window.innerWidth / 2, y = window.innerHeight / 2, tx = x, ty = y;
@@ -99,6 +102,7 @@
     function place() {
       x += (tx - x) * 0.35; y += (ty - y) * 0.35;
       wrap.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
+      dot.style.transform = "translate3d(" + (tx - x).toFixed(1) + "px," + (ty - y).toFixed(1) + "px,0)";
       if (active) {
         var r = active.getBoundingClientRect(), b = 3, pad = 4;
         var pts = [[r.left - pad, r.top - pad], [r.right + pad - 12, r.top - pad], [r.right + pad - 12, r.bottom + pad - 12], [r.left - pad, r.bottom + pad - 12]];
@@ -115,6 +119,7 @@
     home();
     window.addEventListener("mousemove", function (e) {
       tx = e.clientX; ty = e.clientY;
+      wrap.classList.remove("is-away");
       var t = e.target.closest ? e.target.closest(SEL) : null;
       if (t !== active) {
         active = t;

@@ -100,7 +100,7 @@ with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 | contact | Shiny Text | a sheen across the address |
 | all cards | Animated Content | rise in with a stagger |
 | the rail | Line Sidebar | the beads and labels reach for the pointer |
-| the cursor | Target Cursor | corner brackets that snap around links and cards |
+| the cursor | Target Cursor | a ring cursor in the theme's ink and accent; corner brackets snap around links and cards |
 | metrics | Counter | rolling odometer digits |
 | mono labels | Decrypted Text | scramble into place on arrival |
 | the "now" line | Text Type | types itself out |

@@ -2772,35 +2772,45 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 /* ── Target Cursor ────────────────────────────────────────────────
-   (after React Bits TargetCursor) The dot follows the pointer; the
-   four corners turn slowly, and over a target fly to its corners. */
-body.has-tc, body.has-tc a, body.has-tc button, body.has-tc summary { cursor: none; }
+   (after React Bits TargetCursor) The native pointer gives way to a
+   ring in the theme's own ink: a dot on the pointer, a ring that
+   trails it a touch, and over a target four corner brackets that fly
+   to its corners. Painted in --text / --accent, not a blend mode, so
+   it always reads on the ground it's over. Fine pointers only. */
+body.has-tc, body.has-tc * { cursor: none !important; }
 .tc {
   position: fixed; left: 0; top: 0; width: 0; height: 0;
   pointer-events: none; z-index: 2147483000;
-  mix-blend-mode: difference;
+  transition: opacity 0.18s;
 }
+.tc.is-away { opacity: 0; }
 .tc-dot {
-  position: absolute; left: -2px; top: -2px; width: 4px; height: 4px;
-  border-radius: 50%; background: #fff;
-  transition: transform 0.15s;
+  position: absolute; left: -3px; top: -3px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--text);
+  box-shadow: 0 0 0 1.5px var(--bg);   /* halo: still reads over ink-coloured text */
 }
-.tc.is-down .tc-dot { transform: scale(0.6); }
+.tc-ring {
+  position: absolute; left: -14px; top: -14px; width: 28px; height: 28px;
+  border-radius: 50%; border: 1.5px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 0 1px var(--bg);     /* halo: still reads over accent-coloured text */
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s, border-color 0.22s;
+}
+.tc.is-on .tc-ring { transform: scale(0.55); opacity: 0.6; }
+.tc.is-down .tc-ring { transform: scale(0.8); }
+.tc.is-on.is-down .tc-ring { transform: scale(0.45); }
 .tc-c {
   position: absolute; left: 0; top: 0; width: 12px; height: 12px;
-  border: 2px solid #fff;
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border: 2px solid var(--accent);
+  opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.18s;
   will-change: transform;
 }
+.tc.is-on .tc-c { opacity: 1; }
 .tc-tl { border-right: none; border-bottom: none; }
 .tc-tr { border-left: none; border-bottom: none; }
 .tc-br { border-left: none; border-top: none; }
 .tc-bl { border-right: none; border-top: none; }
-/* Free: the corners turn together as a frame around the dot. */
-.tc:not(.is-on) { animation: tc-spin 3s linear infinite; }
-.tc.is-on { animation: none; }
-.tc.is-away { opacity: 0; }
-@keyframes tc-spin { to { rotate: 360deg; } }
 
 /* ── Counter — rolling digits for the metrics ─────────────────────*/
 .metric-figure.odo { display: inline-flex; align-items: flex-start; line-height: 1.12; }
