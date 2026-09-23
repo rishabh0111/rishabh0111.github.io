@@ -34,7 +34,7 @@
   <link rel="apple-touch-icon" href="{{ '/assets/img/apple-touch-icon.png' | relative_url }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Martian+Mono:wdth,wght@75..112.5,300..600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% if content contains 'language-mermaid' %}
   <!-- Only loaded on pages with a mermaid fence, pinned major version 10 for a stable render. -->
@@ -380,7 +380,7 @@
         securityLevel: 'loose',
         theme: dark ? 'dark' : 'default',
         themeVariables: MERMAID_SEQUENCE_VARS[dark ? 'dark' : 'light'],
-        fontFamily: '"DM Mono", monospace'
+        fontFamily: '"Martian Mono", monospace'
       });
       mermaidBlocks.forEach(function (block) {
         var id = 'mermaid-diagram-' + (mermaidRenderCount++);
@@ -395,7 +395,7 @@
       });
     }
     // Mermaid measures node/text boxes against whatever font is active the
-    // instant it runs. If the webfont (DM Mono) hasn't finished loading yet,
+    // instant it runs. If the webfont (Martian Mono) hasn't finished loading yet,
     // it measures against the fallback and every label clips once the real
     // font swaps in. document.fonts.ready guarantees the swap already happened.
     function renderMermaid() {
@@ -813,14 +813,30 @@
           ? btn.getAttribute('data-label-expand')
           : btn.getAttribute('data-label-collapse'));
         if (remember) {
-          try { localStorage.setItem(key, collapsed ? '1' : '0'); } catch (e) {}
+          try { localStorage.setItem(keyNow(), collapsed ? '1' : '0'); } catch (e) {}
         }
         window.dispatchEvent(new Event('resize'));
       };
 
-      try {
-        if (localStorage.getItem(key) === '1') apply(true, false);
-      } catch (e) {}
+      // On a phone the parts list sits between the title and the first
+      // paragraph, so it starts folded to a one-line bar, and its state
+      // is kept apart from the desktop rail's: folding a side rail on a
+      // wide screen says nothing about wanting the list open on a phone.
+      var phone = rail.classList.contains('post-rail') && window.matchMedia
+        ? window.matchMedia('(max-width: 860px)') : null;
+      var keyNow = function () { return phone && phone.matches ? key + '-phone' : key; };
+      var restore = function () {
+        var saved = null;
+        try { saved = localStorage.getItem(keyNow()); } catch (e) {}
+        var collapsed = saved === null ? !!(phone && phone.matches) : saved === '1';
+        if (collapsed !== rail.classList.contains('collapsed')) apply(collapsed, false);
+      };
+      restore();
+      if (phone) {
+        var onChange = function () { restore(); };
+        if (phone.addEventListener) phone.addEventListener('change', onChange);
+        else if (phone.addListener) phone.addListener(onChange);
+      }
 
       btn.addEventListener('click', function () {
         apply(!rail.classList.contains('collapsed'), true);
