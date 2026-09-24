@@ -179,8 +179,8 @@ never holds the credential that reads it; a separate token does. The system bein
 way to quote its own score.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/nivara/analytics.dark.png">
-  <img src="/assets/img/nivara/analytics.light.png" alt="An analytics view showing deflection, resolution and SLA breach rates each above the ticket count they were computed from, with median and 90th percentile response times.">
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/analytics.dark.png">
+  <img src="/assets/img/home/projects/nivara/analytics.light.png" alt="An analytics view showing deflection, resolution and SLA breach rates each above the ticket count they were computed from, with median and 90th percentile response times.">
 </picture>
 
 Which produced an uncomfortable moment worth including. The offline AI-answered rate is 73.5%. Live

@@ -34,7 +34,7 @@ profile:
   surname:   Sharma
   role:      AI · Backend · Security
   location:  Gurugram, India
-  avatar:    /assets/img/profile.jpg
+  avatar:    /assets/img/home/profile.jpg
   avatar_caption: Gurugram, 2026
   status:    Building the AI assistant inside Kleeto's HR platform
   tagline: >-
@@ -124,10 +124,10 @@ projects:
       The AI answers if it is confident; otherwise a person picks it up.
 
     shots:
-      - { src: /assets/img/nivara/queue.light.png,       src_dark: /assets/img/nivara/queue.dark.png,       alt: "Support queue with response clocks",  caption: "The support queue" }
-      - { src: /assets/img/nivara/ticket.light.png,      src_dark: /assets/img/nivara/ticket.dark.png,      alt: "A ticket showing the AI's answer",    caption: "One ticket, and how the AI answered it" }
-      - { src: /assets/img/nivara/widget.host.light.png, src_dark: /assets/img/nivara/widget.host.dark.png, alt: "Chat widget on another company's page", caption: "The chat box, on someone else's site" }
-      - { src: /assets/img/nivara/analytics.light.png,   src_dark: /assets/img/nivara/analytics.dark.png,   alt: "Analytics dashboard",                 caption: "Analytics, behind its own permission" }
+      - { src: /assets/img/home/projects/nivara/queue.light.png,       src_dark: /assets/img/home/projects/nivara/queue.dark.png,       alt: "Support queue with response clocks",  caption: "The support queue" }
+      - { src: /assets/img/home/projects/nivara/ticket.light.png,      src_dark: /assets/img/home/projects/nivara/ticket.dark.png,      alt: "A ticket showing the AI's answer",    caption: "One ticket, and how the AI answered it" }
+      - { src: /assets/img/home/projects/nivara/widget.host.light.png, src_dark: /assets/img/home/projects/nivara/widget.host.dark.png, alt: "Chat widget on another company's page", caption: "The chat box, on someone else's site" }
+      - { src: /assets/img/home/projects/nivara/analytics.light.png,   src_dark: /assets/img/home/projects/nivara/analytics.dark.png,   alt: "Analytics dashboard",                 caption: "Analytics, behind its own permission" }
 
     glance:
       - { k: Guarantee, v: "One company can never see another's data — the database enforces it, not the code" }
@@ -211,8 +211,8 @@ projects:
     # Taken from the live dashboard at 1440×900, 2×, in the app's own
     # light and dark themes — the same pair as the Nivara shots.
     shots:
-      - { src: /assets/img/webhook/dashboard.light.png, src_dark: /assets/img/webhook/dashboard.dark.png, alt: "Operator dashboard showing live counters, demo controls and the scenario buttons", caption: "The operator dashboard" }
-      - { src: /assets/img/webhook/events.light.png,    src_dark: /assets/img/webhook/events.dark.png,    alt: "Event list showing dead-lettered events with every attempt recorded",          caption: "Every attempt, including the failures" }
+      - { src: /assets/img/home/projects/webhook/dashboard.light.png, src_dark: /assets/img/home/projects/webhook/dashboard.dark.png, alt: "Operator dashboard showing live counters, demo controls and the scenario buttons", caption: "The operator dashboard" }
+      - { src: /assets/img/home/projects/webhook/events.light.png,    src_dark: /assets/img/home/projects/webhook/events.dark.png,    alt: "Event list showing dead-lettered events with every attempt recorded",          caption: "Every attempt, including the failures" }
 
     glance:
       - { k: Guarantee, v: "Accepted once · delivered at least once · never silently lost" }
@@ -243,8 +243,8 @@ projects:
     # From the live app at 1440×900, 2×, in its own light and dark
     # themes. JPEG, not PNG: these are movie posters, not UI.
     shots:
-      - { src: /assets/img/movieswave/home.light.jpg,  src_dark: /assets/img/movieswave/home.dark.jpg,  alt: "MoviesWave home: a featured film and a grid of posters by category", caption: "Popular, by genre" }
-      - { src: /assets/img/movieswave/movie.light.jpg, src_dark: /assets/img/movieswave/movie.dark.jpg, alt: "A film's page: poster, rating, overview, top cast and links",          caption: "One film, with its cast" }
+      - { src: /assets/img/home/projects/movieswave/home.light.jpg,  src_dark: /assets/img/home/projects/movieswave/home.dark.jpg,  alt: "MoviesWave home: a featured film and a grid of posters by category", caption: "Popular, by genre" }
+      - { src: /assets/img/home/projects/movieswave/movie.light.jpg, src_dark: /assets/img/home/projects/movieswave/movie.dark.jpg, alt: "A film's page: poster, rating, overview, top cast and links",          caption: "One film, with its cast" }
     body: >-
       Caching in the browser cut repeat calls to the film database by
       **about half** in a normal browsing session.
@@ -279,8 +279,8 @@ experience:
     legal:   Next Gen Paper Solutions Pvt. Ltd.
     # A wordmark, so it needs both grounds: the colour mark is
     # invisible on the dark theme and the white one on the light.
-    logo:      /assets/img/logos/kleeto.light.png
-    logo_dark: /assets/img/logos/kleeto.dark.png
+    logo:      /assets/img/home/logos/kleeto.light.png
+    logo_dark: /assets/img/home/logos/kleeto.dark.png
     role:    AI Engineer
     period:  May 2026 — Present
     place:   Gurugram
@@ -309,8 +309,8 @@ experience:
   - company: Zeonix Global Pvt. Ltd.
     # The full wordmark. "nix Global" is near-black, so it needs a
     # lifted version to stay readable on the dark theme.
-    logo:      /assets/img/logos/zeonix.light.png
-    logo_dark: /assets/img/logos/zeonix.dark.png
+    logo:      /assets/img/home/logos/zeonix.light.png
+    logo_dark: /assets/img/home/logos/zeonix.dark.png
     role:    Software Developer
     period:  Jun 2024 — Apr 2026
     place:   Chandigarh

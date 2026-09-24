@@ -1,6 +1,6 @@
 # Tech marks
 
-`assets/img/logos/tech/` holds one SVG per brand the site names, plus
+`assets/img/home/logos/tech/` holds one SVG per brand the site names, plus
 `_data/tech_logos.json` mapping the display string used in `index.md` to its
 file. It lives in `_data/` because that is where Jekyll reads it from, so the
 layout can look a mark up by name.
@@ -63,7 +63,7 @@ never happens is a drawn substitute.
 Plain `<img>`:
 
 ```html
-<img class="tech-ic" src="/assets/img/logos/tech/python.svg" alt="">
+<img class="tech-ic" src="/assets/img/home/logos/tech/python.svg" alt="">
 ```
 
 An earlier version used a CSS mask over `background-color: currentColor`. That

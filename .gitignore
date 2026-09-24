@@ -5,7 +5,7 @@ _site/
 Gemfile.lock
 
 # Icon source packages — the ~64 marks the site uses are committed
-# under assets/img/logos/tech/; the sources they came from are not.
+# under assets/img/home/logos/tech/; the sources they came from are not.
 _templates/logos/devicon/
 _templates/logos/simple/
 _templates/logos/package/

@@ -36,7 +36,7 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 DEVICON = os.path.join(HERE, "devicon", "icons")
 SIMPLE = os.path.join(HERE, "simple")
 SRC = os.path.join(REPO, "index.md")
-OUT_DIR = os.path.join(REPO, "assets", "img", "logos", "tech")
+OUT_DIR = os.path.join(REPO, "assets", "img", "home", "logos", "tech")
 MANIFEST = os.path.join(REPO, "_data", "tech_logos.json")
 
 # name in index.md -> devicon folder
@@ -220,7 +220,7 @@ def main():
             out_name = slug + ".svg"
             io.open(os.path.join(OUT_DIR, out_name), "w", encoding="utf-8",
                     newline="").write(io.open(path, encoding="utf-8").read())
-            manifest[name] = {"file": "/assets/img/logos/tech/" + out_name,
+            manifest[name] = {"file": "/assets/img/home/logos/tech/" + out_name,
                               "title": name, "source": "devicon"}
             n_dev += 1
             continue
@@ -238,7 +238,7 @@ def main():
             out_name = slug + ".svg"
             io.open(os.path.join(OUT_DIR, out_name), "w", encoding="utf-8",
                     newline="").write(svg.strip() + "\n")
-            manifest[name] = {"file": "/assets/img/logos/tech/" + out_name,
+            manifest[name] = {"file": "/assets/img/home/logos/tech/" + out_name,
                               "title": by_slug.get(slug, {}).get("title", name),
                               "source": "simple-icons"}
             n_simple += 1

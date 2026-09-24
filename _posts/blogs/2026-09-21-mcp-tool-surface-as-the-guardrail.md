@@ -175,8 +175,8 @@ If it escalates, an agent picks up a ticket that was never in a separate system 
 reconciled.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/nivara/ticket.dark.png">
-  <img src="/assets/img/nivara/ticket.light.png" alt="An agent's ticket view showing the customer's question, an answer posted by Automation, and controls for state, priority and assignee.">
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/ticket.dark.png">
+  <img src="/assets/img/home/projects/nivara/ticket.light.png" alt="An agent's ticket view showing the customer's question, an answer posted by Automation, and controls for state, priority and assignee.">
 </picture>
 
 I've used support tools where the bot conversations live somewhere else and get "escalated" by

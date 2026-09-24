@@ -336,8 +336,9 @@ How the theming works — worth understanding so diagrams don't come out mis-col
   (`blogs/dbms/` holds the whole DBMS series). Reference with
   `![alt](/assets/img/blogs/<folder>/foo.png)`.
 - The meme a post opens with goes in `assets/img/blogs/memes/<post-slug>.jpg`.
-- Project screenshots the home page shows (`nivara/`, `webhook/`, `movieswave/`) stay at
-  the top of `assets/img/`; a post may reuse them from there rather than copy them.
+- Home-page images live under `assets/img/home/`: project screenshots in
+  `home/projects/<project>/`, company and tech marks in `home/logos/`, and the portrait.
+  A post may reuse a project screenshot from there rather than copy it.
 - Any image or mermaid diagram in the article body opens in a zoom/pan lightbox when
   clicked — unless the image is wrapped in a link, in which case the link wins.
 - `figure` / `figcaption` are styled (centred, small caption).

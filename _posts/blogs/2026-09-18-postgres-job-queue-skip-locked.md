@@ -122,8 +122,8 @@ numbered pages. A decision about SQL travelled into what the UI can honestly off
 the good kind of constraint.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/nivara/queue.dark.png">
-  <img src="/assets/img/nivara/queue.light.png" alt="A ticket queue with filters for state, priority, source and assignee, listing tickets newest first, ending in a load-more control rather than page numbers.">
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/queue.dark.png">
+  <img src="/assets/img/home/projects/nivara/queue.light.png" alt="A ticket queue with filters for state, priority, source and assignee, listing tickets newest first, ending in a load-more control rather than page numbers.">
 </picture>
 
 ### Idempotency keys, and 400 on unknown parameters
