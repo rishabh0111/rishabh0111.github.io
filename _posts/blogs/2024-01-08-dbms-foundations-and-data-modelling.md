@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Part One: what a DBMS is, and how to model data before you store it"
+title: "What a DBMS is, and how to model data before you store it"
 date: 2024-01-08 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
@@ -759,4 +759,4 @@ two foreign keys (rule 9, and a compound key from the key list).
 That is the design side: from raw facts to a schema. The next part writes that schema, and queries
 it, in SQL.
 
-Next: [Part Two: SQL, from CREATE TABLE to fifty interview queries](/blogs/dbms-sql-and-queries/)
+Next: [SQL, from CREATE TABLE to fifty interview queries](/blogs/dbms-sql-and-queries/)

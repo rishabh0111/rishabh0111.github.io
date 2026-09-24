@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Part Two: SQL, from CREATE TABLE to fifty interview queries"
+title: "SQL, from CREATE TABLE to fifty interview queries"
 date: 2024-01-15 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
@@ -1055,4 +1055,4 @@ Both return (1,2), (2,4), (3,2), (5,6), (7,8). The join keeps a row when it has 
 The schema from Part One now exists and can be queried. What it cannot yet do is stay fast and
 correct under growth and concurrent writes. That is Part Three.
 
-Next: [Part Three: normalisation, transactions, indexing, NoSQL and scaling](/blogs/dbms-optimisation-transactions-and-scaling/)
+Next: [Normalisation, transactions, indexing, NoSQL and scaling](/blogs/dbms-optimisation-transactions-and-scaling/)

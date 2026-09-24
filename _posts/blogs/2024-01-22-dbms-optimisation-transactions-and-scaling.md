@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Part Three: normalisation, transactions, indexing, NoSQL and scaling"
+title: "Normalisation, transactions, indexing, NoSQL and scaling"
 date: 2024-01-22 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
