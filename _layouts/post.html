@@ -168,3 +168,21 @@ layout: default
   </div>
 </section>
 {% endif %}
+
+<script>
+  // Wide tables scroll inside their own box instead of widening the page
+  // on a phone. kramdown can't emit a wrapper, so it goes on here; the
+  // CSS has a no-JS fallback for narrow screens.
+  (function () {
+    document.querySelectorAll('#post-body table').forEach(function (t) {
+      if (t.parentNode.classList && t.parentNode.classList.contains('table-wrap')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'table-wrap';
+      wrap.setAttribute('role', 'region');
+      wrap.setAttribute('aria-label', 'Table, scrolls sideways');
+      wrap.tabIndex = 0;
+      t.parentNode.insertBefore(wrap, t);
+      wrap.appendChild(t);
+    });
+  })();
+</script>
