@@ -14,7 +14,7 @@ excerpt: "Three tools, a token with four scopes, and no path from the model's pr
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/mcp-tool-surface-as-the-guardrail.jpg" width="460"
+  <img src="/assets/img/blogs/memes/mcp-tool-surface-as-the-guardrail.jpg" width="460"
        alt="Always Has Been meme. Wait, the model can only speak through tool calls? / Always has been.">
 </p>
 

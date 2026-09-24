@@ -14,7 +14,7 @@ excerpt: "SLA clocks need something to tick. I didn't want that something to be 
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/postgres-job-queue-skip-locked.jpg" width="460"
+  <img src="/assets/img/blogs/memes/postgres-job-queue-skip-locked.jpg" width="460"
        alt="Expanding Brain meme. A cron that polls / Redis queue and a worker service / Kafka / SELECT … FOR UPDATE SKIP LOCKED">
 </p>
 

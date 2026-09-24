@@ -228,7 +228,7 @@ entities and the relationships between them. Its picture is the ER diagram, whic
 blueprint for a database.
 
 <figure>
-  <img src="/assets/img/dbms/er-notation.png" width="420" alt="ER diagram notation: rectangle for entity, ellipse for attribute, diamond for relationship, a line linking them, double ellipse for multivalued attribute, dashed ellipse for derived attribute, double line for total participation, double rectangle for weak entity, double diamond for weak relationship, ellipses joined to an ellipse for a composite attribute, and an underlined name for a key attribute">
+  <img src="/assets/img/blogs/dbms/er-notation.png" width="420" alt="ER diagram notation: rectangle for entity, ellipse for attribute, diamond for relationship, a line linking them, double ellipse for multivalued attribute, dashed ellipse for derived attribute, double line for total participation, double rectangle for weak entity, double diamond for weak relationship, ellipses joined to an ellipse for a composite attribute, and an underlined name for a key attribute">
   <figcaption>The ER notation used in the diagrams below.</figcaption>
 </figure>
 
@@ -323,7 +323,7 @@ features below make the schema easier to express.
     2. The ER diagram draws it as a triangle.
 
 <figure>
-  <img src="/assets/img/dbms/specialisation.png" width="520" alt="Specialisation: Person with Name, Phone and Address splits through an Is-A triangle into Employee (Employee_id, Salary) and Customer (Customer_id, Credit, Email), labelled top-down approach">
+  <img src="/assets/img/blogs/dbms/specialisation.png" width="520" alt="Specialisation: Person with Name, Phone and Address splits through an Is-A triangle into Employee (Employee_id, Salary) and Customer (Customer_id, Credit, Email), labelled top-down approach">
   <figcaption>Specialisation: Person splits into Employee and Customer.</figcaption>
 </figure>
 
@@ -344,7 +344,7 @@ Why specialise?
 - It is a **bottom-up** approach.
 
 <figure>
-  <img src="/assets/img/dbms/generalisation.png" width="460" alt="Generalisation: bike (bike id) and car (car id) generalised through an Is-A diamond into Vehicle, which holds Model, Date Manufactured, Manufacturer and Cost">
+  <img src="/assets/img/blogs/dbms/generalisation.png" width="460" alt="Generalisation: bike (bike id) and car (car id) generalised through an Is-A diamond into Vehicle, which holds Model, Date Manufactured, Manufacturer and Cost">
   <figcaption>Generalisation: bike and car roll up into Vehicle.</figcaption>
 </figure>
 
@@ -368,7 +368,7 @@ Why generalise?
 - Treating the relationship as an entity set of its own avoids redundancy.
 
 <figure>
-  <img src="/assets/img/dbms/aggregation.png" width="440" alt="Aggregation: Employee, Project and Department joined by a Works On relationship, all boxed together; the box as a whole is linked through a Manages relationship to Manager">
+  <img src="/assets/img/blogs/dbms/aggregation.png" width="440" alt="Aggregation: Employee, Project and Department joined by a Works On relationship, all boxed together; the box as a whole is linked through a Manages relationship to Manager">
   <figcaption>Employee works on Project in Department, and a Manager manages that whole arrangement.</figcaption>
 </figure>
 
@@ -419,7 +419,7 @@ constraints. Four worked examples follow.
     6. Employee <managed by> Employee (N:1) [partial participation]
 
 <figure>
-  <img src="/assets/img/dbms/er-banking.png" alt="Hand-drawn ER diagram of the banking system: Customer, Branch, Loan, weak entity Payment, Employee, and Account specialised into Current a/c and Saving a/c, with the borrow, originated by, loan-payment, deposit, banker and managed by relationships and their cardinalities">
+  <img src="/assets/img/blogs/dbms/er-banking.png" alt="Hand-drawn ER diagram of the banking system: Customer, Branch, Loan, weak entity Payment, Employee, and Account specialised into Current a/c and Saving a/c, with the borrow, originated by, loan-payment, deposit, banker and managed by relationships and their cardinalities">
   <figcaption>The banking ER diagram, drawn from the steps above.</figcaption>
 </figure>
 
@@ -460,7 +460,7 @@ constraints. Four worked examples follow.
     6. Order <assigned to> Delivery (1:1) [partial participation]
 
 <figure>
-  <img src="/assets/img/dbms/er-pizza-ordering.png" alt="ER diagram of an online pizza ordering system: Customer places Order (1:N); Employee finalizes Order; Order has Pizza and Non_Pizza items; Pizza and Non_Pizza each need Ingredients (N:N); each entity with its attributes">
+  <img src="/assets/img/blogs/dbms/er-pizza-ordering.png" alt="ER diagram of an online pizza ordering system: Customer places Order (1:N); Employee finalizes Order; Order has Pizza and Non_Pizza items; Pizza and Non_Pizza each need Ingredients (N:N); each entity with its attributes">
   <figcaption>A close relative of the delivery model: an online pizza-ordering system, where the products are pizzas and non-pizza items built from ingredients.</figcaption>
 </figure>
 
@@ -563,7 +563,7 @@ flowchart LR
     8. Page <publish> Post (1:N) [total participation]
 
 <figure>
-  <img src="/assets/img/dbms/er-facebook.png" alt="Hand-drawn Facebook ER diagram: user_profile with username, name (first, last), email and contact (multivalued), password, DOB and derived age; a friendship relationship from user_profile to itself (M:N); user_profile posts user_post (1:N) with image and video multivalued; post_comment and post_like each linked to user_profile and user_post">
+  <img src="/assets/img/blogs/dbms/er-facebook.png" alt="Hand-drawn Facebook ER diagram: user_profile with username, name (first, last), email and contact (multivalued), password, DOB and derived age; a friendship relationship from user_profile to itself (M:N); user_profile posts user_post (1:N) with image and video multivalued; post_comment and post_like each linked to user_profile and user_post">
   <figcaption>A trimmed version drawn by hand: user profiles, posts, comments, likes and friendships. The relational section below turns this diagram into tables.</figcaption>
 </figure>
 
@@ -622,7 +622,7 @@ flowchart LR
     3. Can be used as the PK.
 
 <figure>
-  <img src="/assets/img/dbms/relational-keys.png" alt="Two tables. Table 1 has EmpID, Emp Name, EmpLicence, EmpPassport and DId. EmpID, EmpLicence and EmpPassport are candidate keys; EmpID is the primary key; EmpLicence and EmpPassport are alternate keys; the licence, passport and DId columns are marked unique keys. DId is a foreign key into Table 2 (DId, Designation). A side box shows primary, candidate and alternate keys all being super keys">
+  <img src="/assets/img/blogs/dbms/relational-keys.png" alt="Two tables. Table 1 has EmpID, Emp Name, EmpLicence, EmpPassport and DId. EmpID, EmpLicence and EmpPassport are candidate keys; EmpID is the primary key; EmpLicence and EmpPassport are alternate keys; the licence, passport and DId columns are marked unique keys. DId is a foreign key into Table 2 (DId, Designation). A side box shows primary, candidate and alternate keys all being super keys">
   <figcaption>The keys on one example. Primary, candidate and alternate keys are all super keys.</figcaption>
 </figure>
 

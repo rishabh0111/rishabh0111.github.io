@@ -511,7 +511,7 @@ INNER JOIN table3 ON condition2
 ```
 
 <figure>
-  <img src="/assets/img/dbms/join-inner.png" width="220" alt="Venn diagram of table1 and table2 with only the overlap shaded">
+  <img src="/assets/img/blogs/dbms/join-inner.png" width="220" alt="Venn diagram of table1 and table2 with only the overlap shaded">
   <figcaption>INNER JOIN: only the overlap.</figcaption>
 </figure>
 
@@ -535,7 +535,7 @@ SELECT columns FROM table1 LEFT JOIN table2 ON join_cond;
 ```
 
 <figure>
-  <img src="/assets/img/dbms/join-left.png" width="220" alt="Venn diagram with all of table1 shaded, including the overlap">
+  <img src="/assets/img/blogs/dbms/join-left.png" width="220" alt="Venn diagram with all of table1 shaded, including the overlap">
   <figcaption>LEFT JOIN: all of the left table.</figcaption>
 </figure>
 
@@ -546,7 +546,7 @@ SELECT columns FROM table1 RIGHT JOIN table2 ON join_cond;
 ```
 
 <figure>
-  <img src="/assets/img/dbms/join-right.png" width="220" alt="Venn diagram with all of table2 shaded, including the overlap">
+  <img src="/assets/img/blogs/dbms/join-right.png" width="220" alt="Venn diagram with all of table2 shaded, including the overlap">
   <figcaption>RIGHT JOIN: all of the right table.</figcaption>
 </figure>
 
@@ -562,7 +562,7 @@ SELECT columns FROM table1 AS t1 RIGHT JOIN table2 AS t2 ON t1.id = t2.id;
 `UNION` removes duplicate rows; use `UNION ALL` to keep them.
 
 <figure>
-  <img src="/assets/img/dbms/join-full.png" width="220" alt="Venn diagram with both tables fully shaded">
+  <img src="/assets/img/blogs/dbms/join-full.png" width="220" alt="Venn diagram with both tables fully shaded">
   <figcaption>FULL JOIN: everything from both.</figcaption>
 </figure>
 
@@ -578,7 +578,7 @@ SELECT column_list FROM table1 CROSS JOIN table2;
 ```
 
 <figure>
-  <img src="/assets/img/dbms/join-cross.png" width="340" alt="Rows 1, 2 and 3 of table A each connected by arrows to every row A, B and C of table B">
+  <img src="/assets/img/blogs/dbms/join-cross.png" width="340" alt="Rows 1, 2 and 3 of table A each connected by arrows to every row A, B and C of table B">
   <figcaption>CROSS JOIN: every row paired with every row.</figcaption>
 </figure>
 
@@ -593,7 +593,7 @@ SELECT columns FROM table_name AS t1 INNER JOIN table_name AS t2 ON t1.id = t2.i
 ```
 
 <figure>
-  <img src="/assets/img/dbms/join-self.png" width="180" alt="A single circle with an arrow looping back into itself">
+  <img src="/assets/img/blogs/dbms/join-self.png" width="180" alt="A single circle with an arrow looping back into itself">
   <figcaption>SELF JOIN: one table, joined to itself.</figcaption>
 </figure>
 

@@ -332,7 +332,12 @@ How the theming works — worth understanding so diagrams don't come out mis-col
 
 ### Images
 
-- Put files in `assets/img/`. Reference with `![alt](/assets/img/foo.png)`.
+- Blog images live under `assets/img/blogs/`, one folder per post or per series
+  (`blogs/dbms/` holds the whole DBMS series). Reference with
+  `![alt](/assets/img/blogs/<folder>/foo.png)`.
+- The meme a post opens with goes in `assets/img/blogs/memes/<post-slug>.jpg`.
+- Project screenshots the home page shows (`nivara/`, `webhook/`, `movieswave/`) stay at
+  the top of `assets/img/`; a post may reuse them from there rather than copy them.
 - Any image or mermaid diagram in the article body opens in a zoom/pan lightbox when
   clicked — unless the image is wrapped in a link, in which case the link wins.
 - `figure` / `figcaption` are styled (centred, small caption).
@@ -393,4 +398,4 @@ its own versions and ignores a committed lockfile anyway.
 - [ ] Series part: `series`, `series_order`, and `series_total` while the series is in progress
 - [ ] Headings are `##` / `###`; no hand-typed `§`
 - [ ] Mermaid diagrams use the role names from the table above
-- [ ] Images in `assets/img/`
+- [ ] Images in `assets/img/blogs/<folder>/`, meme in `assets/img/blogs/memes/<post-slug>.jpg`

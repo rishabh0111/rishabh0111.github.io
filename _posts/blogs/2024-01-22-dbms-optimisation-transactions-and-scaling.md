@@ -372,7 +372,7 @@ order, a primary index is the index whose search key defines that order.
 The data file is ordered on some search key, which can be the primary key or a non-key attribute.
 
 <figure>
-  <img src="/assets/img/dbms/index-primary-sparse.png" width="520" alt="A primary index with two entries, 5 and 4, each pointing at the first record of a block in the data file; block 1 holds 5, 6, 7, 3 and block 2 holds 4, 23, 27, 55">
+  <img src="/assets/img/blogs/dbms/index-primary-sparse.png" width="520" alt="A primary index with two entries, 5 and 4, each pointing at the first record of a block in the data file; block 1 holds 5, 6, 7, 3 and block 2 holds 4, 23, 27, 55">
   <figcaption>One index entry per block of the data file.</figcaption>
 </figure>
 
@@ -404,7 +404,7 @@ A primary index is built over a data file sorted on either a key or a non-key at
       department groups every employee of a department together.
 
 <figure>
-  <img src="/assets/img/dbms/index-clustered.png" width="440" alt="Clustered index: entries 1, 2, 3, 4 each point to the block where that value first appears in a data file sorted by the non-key value, with repeated values 1, 1, 1, 2, 2, 3, 3, 4, 4, 4 across three blocks">
+  <img src="/assets/img/blogs/dbms/index-clustered.png" width="440" alt="Clustered index: entries 1, 2, 3, 4 each point to the block where that value first appears in a data file sorted by the non-key value, with repeated values 1, 1, 1, 2, 2, 3, 3, 4, 4, 4 across three blocks">
   <figcaption>Clustered index on a non-key attribute. The pointers go to blocks, not to records.</figcaption>
 </figure>
 
@@ -415,7 +415,7 @@ A primary index is built over a data file sorted on either a key or a non-key at
   into levels: a small outer index over a larger inner one.
 
 <figure>
-  <img src="/assets/img/dbms/index-multilevel.png" alt="Multilevel index: a primary-level index in RAM with entries 100, 200, 300 points into a secondary-level index on disk with entries 100 to 320, which points into the data blocks in memory">
+  <img src="/assets/img/blogs/dbms/index-multilevel.png" alt="Multilevel index: a primary-level index in RAM with entries 100, 200, 300 points into a secondary-level index on disk with entries 100 to 320, which points into the data blocks in memory">
   <figcaption>A small index in RAM over a larger index on disk, over the data.</figcaption>
 </figure>
 
@@ -428,7 +428,7 @@ A primary index is built over a data file sorted on either a key or a non-key at
 - It is a dense index.
 
 <figure>
-  <img src="/assets/img/dbms/index-secondary.png" width="480" alt="Secondary index: an outer index with 10 and 50 points to a dense inner index sorted 10 to 80, whose pointers cross to data blocks stored in their own order: 30 50, 20 70, 80 40, 10 60">
+  <img src="/assets/img/blogs/dbms/index-secondary.png" width="480" alt="Secondary index: an outer index with 10 and 50 points to a dense inner index sorted 10 to 80, whose pointers cross to data blocks stored in their own order: 30 50, 20 70, 80 40, 10 60">
   <figcaption>The dense index is sorted on the secondary key; the blocks stay as they are.</figcaption>
 </figure>
 
@@ -533,7 +533,7 @@ and sharding.
       ask every shard and merge the answers (the scatter-gather problem).
 
 <figure>
-  <img src="/assets/img/dbms/sharding-invoice.png" alt="An Invoice table with customer_id, invoice_id and creation_date is split horizontally on the partition key customer_id: rows for customers 1 and 2 go to database shard 1, rows for customers 3 and 4 go to database shard 2">
+  <img src="/assets/img/blogs/dbms/sharding-invoice.png" alt="An Invoice table with customer_id, invoice_id and creation_date is split horizontally on the partition key customer_id: rows for customers 1 and 2 go to database shard 1, rows for customers 3 and 4 go to database shard 2">
   <figcaption>Horizontal partitioning on customer_id: each shard holds whole rows for some customers.</figcaption>
 </figure>
 
@@ -554,7 +554,7 @@ and sharding.
 > availability.
 
 <figure>
-  <img src="/assets/img/dbms/cap-theorem.png" width="440" alt="Three overlapping circles, Consistency, Availability and Partitioning, with the pairwise overlaps labelled CA, CP and AP and the centre marked with a cross">
+  <img src="/assets/img/blogs/dbms/cap-theorem.png" width="440" alt="Three overlapping circles, Consistency, Availability and Partitioning, with the pairwise overlaps labelled CA, CP and AP and the centre marked with a cross">
   <figcaption>Two out of three; the centre is not on offer.</figcaption>
 </figure>
 
@@ -649,7 +649,7 @@ databases like MongoDB offered resilience, distribution and geographic placement
     3. applications built around simple key-based queries.
 
 <figure>
-  <img src="/assets/img/dbms/nosql-key-value.png" width="300" alt="Key-value store: a simple key/value table (123 to 123 Main St., 126 to a phone number), and below it a single key CustomerID whose value is a whole object: Customer, Billing Address, and Orders containing Order with Shipping Address, Order Payment and Order Item with Product">
+  <img src="/assets/img/blogs/dbms/nosql-key-value.png" width="300" alt="Key-value store: a simple key/value table (123 to 123 Main St., 126 to a phone number), and below it a single key CustomerID whose value is a whole object: Customer, Billing Address, and Orders containing Order with Shipping Address, Order Payment and Order Item with Product">
   <figcaption>The value can be a single string or an entire customer object.</figcaption>
 </figure>
 
@@ -663,7 +663,7 @@ databases like MongoDB offered resilience, distribution and geographic placement
 - Examples: Cassandra, Redshift, Snowflake.
 
 <figure>
-  <img src="/assets/img/dbms/nosql-columnar.png" alt="The same table of ID, last name, first name and bonus stored two ways: a row-oriented database keeps each person's values together, a column-oriented database keeps all IDs together, all last names together, and so on">
+  <img src="/assets/img/blogs/dbms/nosql-columnar.png" alt="The same table of ID, last name, first name and bonus stored two ways: a row-oriented database keeps each person's values together, a column-oriented database keeps all IDs together, all last names together, and so on">
   <figcaption>Row-oriented vs column-oriented storage of the same three rows.</figcaption>
 </figure>
 
@@ -677,7 +677,7 @@ databases like MongoDB offered resilience, distribution and geographic placement
 - Examples: MongoDB, CouchDB.
 
 <figure>
-  <img src="/assets/img/dbms/nosql-document.png" width="460" alt="A beers table with rows of id, name, brewer and units, next to the same data as documents: beer_1167 as a JSON object with _id, name, brewer and units">
+  <img src="/assets/img/blogs/dbms/nosql-document.png" width="460" alt="A beers table with rows of id, name, brewer and units, next to the same data as documents: beer_1167 as a JSON object with _id, name, brewer and units">
   <figcaption>The same beers as table rows and as documents.</figcaption>
 </figure>
 
@@ -692,7 +692,7 @@ databases like MongoDB offered resilience, distribution and geographic placement
 - Uses: fraud detection, social networks, knowledge graphs.
 
 <figure>
-  <img src="/assets/img/dbms/nosql-graph.png" width="420" alt="Graph: Person Dan and Person Ann with LOVES edges in both directions and a LIVES WITH edge; Dan DRIVES a Car (since Jan 10, 2011) and Ann OWNS it; the car is a Volvo V70">
+  <img src="/assets/img/blogs/dbms/nosql-graph.png" width="420" alt="Graph: Person Dan and Person Ann with LOVES edges in both directions and a LIVES WITH edge; Dan DRIVES a Car (since Jan 10, 2011) and Ann OWNS it; the car is a Volvo V70">
   <figcaption>Nodes with properties, and relationships stored as first-class edges.</figcaption>
 </figure>
 

@@ -14,7 +14,7 @@ excerpt: "Don't ask the model if it's confident. Read the retrieval margin, swee
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/calibrating-a-rag-gate.jpg" width="460"
+  <img src="/assets/img/blogs/memes/calibrating-a-rag-gate.jpg" width="460"
        alt="Spider-Man pointing (three) meme. Refund FAQ / Billing overview / Plans and pricing. Five chunks came back and nothing distinguished any of them.">
 </p>
 

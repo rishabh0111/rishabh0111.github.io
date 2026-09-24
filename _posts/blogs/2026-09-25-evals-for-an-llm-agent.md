@@ -14,7 +14,7 @@ excerpt: "Every number an AI system reports about itself is a claim. This is the
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/evals-for-an-llm-agent.jpg" width="460"
+  <img src="/assets/img/blogs/memes/evals-for-an-llm-agent.jpg" width="460"
        alt="Panik Kalm Panik meme. Grounding is scored by an LLM judge / Measure the judge against 100 hand labels / κ = 0.14">
 </p>
 

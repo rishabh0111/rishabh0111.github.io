@@ -14,7 +14,7 @@ excerpt: "Put the tenant filter in the database so a forgotten WHERE returns not
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/postgres-rls-multitenancy.jpg" width="460"
+  <img src="/assets/img/blogs/memes/postgres-rls-multitenancy.jpg" width="460"
        alt="Anakin and Padme meme. I turned on row-level security / So every tenant is isolated, right? / Right?">
 </p>
 

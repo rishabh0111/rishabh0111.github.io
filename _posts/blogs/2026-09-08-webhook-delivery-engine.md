@@ -11,7 +11,7 @@ excerpt: "Durability, idempotency, and the surprisingly large gap between COMMIT
 ---
 
 <p align="center">
-  <img src="/assets/img/webhook/exactly-once.jpg" width="460"
+  <img src="/assets/img/blogs/memes/webhook-delivery-engine.jpg" width="460"
        alt="Drake meme. Rejecting: exactly-once delivery. Approving: at-least-once delivery plus an idempotency key.">
 </p>
 
