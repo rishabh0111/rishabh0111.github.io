@@ -70,7 +70,7 @@
   --page-pad:  var(--s3);
   --pill-w:    38px;      /* a collapsed rail */
   --h-header:  54px;
-  --float-radius: 999px;  /* the floating header + tab bar are capsules, like the iOS 26 bars */
+  --float-radius: 999px;  /* the phone's floating tab bar is a capsule, like the iOS 26 bar */
 
   /* Spacing: every unit is 8px */
   --s1:  0.5rem;   /*  8px */
@@ -132,8 +132,8 @@
      180% that smears a near-grey palette and drags the hero's teal
      glow unevenly across the bar. Glass is for the navigation layer:
      the content cards below carry a plain surface, not a blur. */
-  --glass-blur:       12px;   /* overlays: FAB, TOC rail, fig button  */
-  --glass-blur-nav:   22px;   /* the floating header + mobile tab bar */
+  --glass-blur:       12px;   /* small overlays: the figure button    */
+  --glass-blur-nav:   22px;   /* header, tab bar, rails, back-to-top  */
   --glass-blur-scrim:  3px;   /* whisper behind a near-opaque panel   */
   --glass-fx:         saturate(1.25);
   --glass-bg:     color-mix(in srgb, var(--bg-raised) 72%, transparent);
@@ -705,17 +705,13 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   display: grid; place-items: center;
   padding: 0; cursor: pointer;
   border-radius: 50%;
-  /* Glass, like the header and the cards — but tinted heavier than
-     --glass-bg (78% vs 58–72%). An earlier pass made this fully opaque
-     because a thin translucent disc vanished against the TOC card,
-     which is itself glass; the placement rules below now keep the
-     button out of the rail entirely, so the real requirement is just
-     that it separates from the article panel it floats over. The
-     heavier tint plus a border and a two-part shadow — tight contact
-     shadow, wide soft one — does that while still reading as glass. */
-  background: color-mix(in srgb, var(--bg-raised) 78%, transparent);
-  backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
+  /* The header's glass (same tint, same blur), so every floating
+     control reads as one material with the bars. The border and the
+     two-part shadow (tight contact, wide soft) separate it from the
+     article panel it floats over. */
+  background: var(--header-glass);
+  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
   border: 1px solid var(--glass-border);
   box-shadow:
     0 12px 28px rgba(0,0,0,0.26),
@@ -814,9 +810,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ════════════════════════════════════════════════════════════════
    HEADER
-   The navigation plane, floating: a glass capsule held clear of every
-   edge with the page sliding under it — the iOS 26 model, where the
-   nav layer sits on its own material and the content peeks through.
+   A flat glass bar across the full width, flush to the top of the
+   window, with the page sliding under it. Only the phone's tab bar
+   floats as a pill; the header is a plane, not an object.
    Three things happen here: wordmark, nav, nothing else.
 ════════════════════════════════════════════════════════════════ */
 .site-header {
@@ -827,27 +823,18 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      window on phones — is one of them. A pseudo-element has no
      descendants to capture, so the glass survives without the trap. */
   height: var(--h-header);
-  padding: 0 var(--s4);
+  /* Edge to edge, but the wordmark and nav line up with the content:
+     past --max-w the padding grows to centre them on it. */
+  padding: 0 max(var(--s4), calc((100% - var(--max-w)) / 2 + var(--s4)));
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s3);
-  /* Floats free of the top and side edges. Sticky, not fixed, so it
-     still reserves its own height in normal flow — nothing below needs
-     a manual offset — and because the top margin equals the stick point
-     (--s1) it settles there with no jump as the page starts to move. */
+  /* Sticky, not fixed, so it still reserves its own height in normal
+     flow and nothing below needs a manual offset. */
   position: sticky;
-  top: var(--s1); z-index: 100;
-  /* 24px clear of each side — the same inset the mobile nav bar uses,
-     so the two floating bars line up. Capped and centred past --max-w. */
-  width: calc(100% - var(--s3) * 2);
-  max-width: var(--max-w);
-  margin: var(--s1) auto 0;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--float-radius);
-  /* The glass tell: a specular top edge inside, a soft cast outside. */
-  box-shadow:
-    inset 0 1px 0 var(--glass-hi),
-    0 4px 20px rgba(46,52,64,0.14),
-    0 1px 3px rgba(46,52,64,0.08);
+  top: 0; z-index: 100;
+  width: 100%;
+  margin: 0;
+  border-bottom: 1px solid var(--glass-border);
 }
 .site-header::before {
   content: '';
@@ -857,14 +844,17 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
 }
 
-/* OS "Reduce Transparency" / "Increase Contrast": the navigation plane
-   goes to a solid material, the way iOS drops Liquid Glass for an opaque
-   fill under the same settings. The mobile tab bar is handled in its own
+/* OS "Reduce Transparency" / "Increase Contrast" (on Windows, turning
+   off Transparency effects): the navigation plane, and the rails and
+   back-to-top button that share its glass, go to a solid material, the
+   way iOS drops Liquid Glass for an opaque fill under the same settings. The mobile tab bar is handled in its own
    ≤860 block. */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .site-header, .site-footer { background: var(--header-glass-solid); }
+  .site-header, .site-footer, .scroll-top { background: var(--header-glass-solid); }
   .site-header::before,
-  .site-footer { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .site-footer, .scroll-top { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  /* The rails get the same treatment at the end of the file, after the
+     .sidebar-card rules it has to override. */
 }
 
 /* Wordmark: mono, uppercase, with slash in lacquer.
@@ -904,9 +894,10 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   background: var(--accent);
 }
 
-/* Nav: generous gap, no box, just text. Active = a glass pill behind
-   the tab (the iOS 26 model), the same material as the theme-toggle
-   thumb it sits next to. */
+/* Nav: generous gap, no box, just text. On the flat header bar the
+   active tab is marked by an accent line along the bar's bottom edge
+   (the >=861 block below); on phones the same links become the floating
+   tab bar, which keeps its glass pill and sliding lens. */
 .site-nav { display: flex; align-items: center; gap: 2px; }
 .site-nav a {
   font-family: var(--f-mono);
@@ -924,24 +915,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* Nav icons: same monochrome set as everywhere else, so they take the
    link's colour through every theme and hover state for free. */
 .site-nav a { gap: 7px; }
-/* Pill Nav hover (React Bits): a disc rises from the floor of the pill
-   and fills it. clip-path keeps the disc inside the pill's shape
-   without changing the link's box. */
-@media (min-width: 861px) and (hover: hover) {
-  .site-nav a { clip-path: inset(8px 2px round 999px); }
-  .site-nav a::before {
-    content: '';
-    position: absolute; left: 50%; bottom: -10px;
-    width: 150%; aspect-ratio: 1; border-radius: 50%;
-    background: var(--accent);
-    transform: translate(-50%, 100%) scale(0.2);
-    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: -1;
-  }
-  .site-nav a:hover::before { transform: translate(-50%, 30%) scale(1.15); }
-  .site-nav a:hover { color: var(--bg); }
-  .site-nav a:hover .nav-ic { opacity: 1; }
-}
 .nav-ic { display: grid; place-items: center; opacity: 0.75; transition: opacity 0.2s; }
 .nav-ic svg { width: 13px; height: 13px; display: block; }
 .site-nav a:hover .nav-ic,
@@ -968,6 +941,27 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a:hover::after  { opacity: 0.5; transform: scale(1); }
 .site-nav a.active::after { opacity: 1; transform: scale(1); }
 .site-nav a.active { color: var(--accent); }
+
+/* Desktop: the header is a flat bar, so its tabs are flat too. The
+   ::after pill above (still the phone tab bar's no-JS fallback) turns
+   into a 2px line sitting on the bar's bottom edge: faint on hover,
+   accent and full width on the current page. */
+@media (min-width: 861px) {
+  .site-nav { align-self: stretch; }
+  .site-nav a::after {
+    inset: auto var(--s2) -1px;          /* over the header's hairline */
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--accent);
+    box-shadow: none;
+    opacity: 0;
+    transform: scaleX(0.4);
+    transform-origin: center;
+  }
+  .site-nav a:hover::after  { opacity: 0.45; transform: scaleX(1); }
+  .site-nav a.active::after { opacity: 1; transform: scaleX(1); }
+  .site-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; border-radius: 4px; }
+}
 /* The tab bar's sliding lens (see the ≤860 block); inert up here */
 .nav-lens { display: none; }
 
@@ -1914,15 +1908,16 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 .sidebar-card {
-  background: var(--glass-bg);
+  /* The header's glass: same tint and blur as the bar above it. */
+  background: var(--header-glass);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
   /* Tight: the rail is narrow, so padding here is width taken from the
      entries themselves — and vertically it is TOC rows lost. */
   padding: var(--s2) var(--s2);
   margin-bottom: var(--s2);
-  backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) var(--glass-fx);
+  backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
+  -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
   box-shadow:
     0 1px 3px rgba(0,0,0,0.06),
     inset 0 1px 0 var(--glass-hi);   /* hairline top highlight = the "glass" tell */
@@ -4674,15 +4669,26 @@ details.more > summary:hover,
      are 80–88% opaque already, so their 3px scrim was nearly invisible
      and goes for free; the glass cards trade their blur for a heavier
      tint so the scene's texture doesn't print through the text. The
-     two navigation bars keep their glass — it's the material of the
-     design and they are small — at a lighter radius. */
+     two navigation bars and the back-to-top button beside the tab bar
+     keep their glass (it's the material of the design and they are
+     small) at a lighter radius. */
   :root { --glass-blur-nav: 14px; }
   .post-content, .listing-wrap, .card, .home-prose.sheet,
   .hero-portrait.no-img .portrait-monogram,
-  .sidebar-card, .scroll-top, .site-footer {
+  .sidebar-card, .site-footer {
     backdrop-filter: none; -webkit-backdrop-filter: none;
   }
   .sidebar-card { background: color-mix(in srgb, var(--bg-raised) 92%, transparent); }
   .site-footer  { background: var(--header-glass-solid); }
-  .scroll-top   { background: color-mix(in srgb, var(--bg-raised) 94%, transparent); }
+}
+
+
+/* Reduced transparency, part two: the rails share the header's glass, so
+   they share its solid fallback too. Here rather than beside the header's
+   rule because .sidebar-card is declared further down than that. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .sidebar-card {
+    background: var(--header-glass-solid);
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
 }

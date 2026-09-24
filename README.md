@@ -92,7 +92,6 @@ with `"registries": { "@react-bits": "https://reactbits.dev/r/{name}" }`:
 | portrait | Profile Card | the photo as a card: tilt, glare, a Nord-palette sheen, a glass strip with handle · location |
 | link pills | Magnet | pull toward a nearby pointer |
 | everywhere | Click Spark | a burst of lines on click |
-| header nav | Pill Nav | a disc rises to fill the pill on hover |
 | tile marks | Glass Icons | a frosted front over a turned, tinted back |
 | projects | Magic Bento | border glow per card, one soft light over the band |
 | metrics | Count Up | figures count up on arrival |
