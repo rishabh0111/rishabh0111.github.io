@@ -11,7 +11,7 @@ excerpt: "Terraform across four environments, GitOps with ArgoCD, IRSA with no s
 ---
 
 <p align="center">
-  <img src="/assets/img/memes/production-grade-devops-platform.jpg" width="460"
+  <img src="/assets/img/blogs/memes/production-grade-devops-platform.jpg" width="460"
        alt="Expanding brain meme. It works on my machine. It works in CI. It survives five chaos experiments. It survived real AWS, for $3.32.">
 </p>
 
