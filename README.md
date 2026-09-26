@@ -329,6 +329,43 @@ How the theming works — worth understanding so diagrams don't come out mis-col
 - Any `%%{init: …}%%` directive in the diagram source is **stripped** before rendering, so
   a baked-in theme can't override the page theme. Don't rely on one.
 
+#### Shape: diagrams must read on a phone
+
+A diagram is scaled down to the column width, which is about 244 px of drawing on a
+390 px phone. A wide diagram doesn't scroll; it shrinks, and its text becomes
+unreadable. A 2029 × 437 flowchart (4.6 : 1) rendered 52 px tall. So:
+
+- **Aim for about 1 : 1, never wider than 1.3 : 1** (viewBox width ÷ height). The
+  LinkPulse diagrams are 1.08 : 1 and 1.08 : 1; that is the reference.
+- **Flowcharts go `flowchart TB`, never `LR`.** At most three nodes side by side.
+  If the flow is one long chain, start a second chain beside it (a node that feeds
+  the chain rather than hangs off the end), so the diagram grows sideways a little
+  instead of downwards a lot.
+- **Keep labels short:** node text about 20 characters per line, split with `<br/>`;
+  edge labels two or three words. Long labels, not node count, are what make most
+  diagrams wide.
+- **Colour every node with a role**, and give the entry point `gateway`, so a diagram
+  isn't all `service` green and `store` teal. Use at least three roles where the
+  diagram has them.
+- **Sequence diagrams: three participants where you can.** Each participant costs
+  about 200 px of width whatever the labels say, so four is already about 900 px.
+  Fold a minor participant into a `Note`, and break every note and long message
+  with `<br/>`.
+
+Check before publishing: open the built page (`jekyll serve`, or the live URL) with
+the devtools device toolbar at 390 px, and paste this into the console:
+
+```js
+[...document.querySelectorAll('svg[id^="mermaid"]')].map(s => {
+  const { width, height } = s.viewBox.baseVal;
+  return `${Math.round(width)} x ${Math.round(height)}  ${(width / height).toFixed(2)} : 1`;
+});
+```
+
+Anything above 1.3 : 1 gets redrawn. To try a draft without rebuilding, run
+`await mermaid.render('probe', source)` on any page that has a diagram and read the
+`viewBox` from the returned `svg`.
+
 ### Hand-drawn figures (sketches)
 
 For diagrams that should look drawn by hand (the DSA series uses them for every
@@ -443,5 +480,6 @@ its own versions and ignores a committed lockfile anyway.
 - [ ] Blog: `permalink: /blogs/<slug>/`
 - [ ] Series part: `series`, `series_order`, and `series_total` while the series is in progress
 - [ ] Headings are `##` / `###`; no hand-typed `§`
-- [ ] Mermaid diagrams use the role names from the table above
+- [ ] Mermaid diagrams use the role names from the table above, with the entry point as `gateway`
+- [ ] Every Mermaid diagram is `TB` and at most 1.3 : 1, checked at 390 px with the console snippet ("Shape: diagrams must read on a phone")
 - [ ] Images in `assets/img/blogs/<folder>/`, meme in `assets/img/blogs/memes/<post-slug>.jpg`

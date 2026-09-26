@@ -63,22 +63,23 @@ This post walks through the decisions behind each of those, including the ones I
 ## The shape of it
 
 ```mermaid
-flowchart LR
-    Client([Client<br/>API key or staff token]) -->|"POST /v1/entries"| API
-    API[API service<br/>Spring Boot · scales out] -->|"Entry + Postings + outbox row<br/>one transaction"| LedgerDB
-    LedgerDB[(Ledger Postgres<br/>RLS · constraints · insert-only)]
-    Relay[Outbox relay<br/>Spring Boot · one writer] -->|"drain in Position order"| LedgerDB
-    Relay -->|"keyed by Tenant"| Kafka[(Kafka)]
-    Kafka --> Projection[Projection service<br/>Spring Boot · gRPC server]
-    Projection -->|"apply at most once"| ProjDB[(Projection Postgres)]
-    API -->|"GetBalance over gRPC<br/>Tenant in metadata"| Projection
-    API -->|"per-Tenant budget"| Redis[(Redis)]
+flowchart TB
+    Client([Client<br/>API key or JWT]) -->|POST /v1/entries| API[API service<br/>scales out]
+    API -->|Entry + outbox row<br/>one transaction| LDB[(Ledger<br/>Postgres)]
+    API -->|rate limit| Redis[(Redis)]
+    Relay[Outbox relay<br/>one writer] -->|drains| LDB
+    Relay -->|by tenant| Kafka[(Kafka)]
+    Kafka --> Proj[Projection<br/>service]
+    Proj -->|applied once| PDB[(Projection<br/>Postgres)]
+    API -.->|GetBalance, gRPC| Proj
     classDef actor fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef gateway fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
     classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
     classDef store fill:#CFFAFE,stroke:#0891B2,stroke-width:2px,color:#164E63
     class Client actor
-    class API,Relay,Projection service
-    class LedgerDB,ProjDB,Kafka,Redis store
+    class API gateway
+    class Relay,Proj service
+    class LDB,PDB,Kafka,Redis store
 ```
 
 The vocabulary matters, so here it is once. An **Entry** is one balanced movement of money. It is made
@@ -278,16 +279,15 @@ Balance after it is wrong.
 sequenceDiagram
     autonumber
     participant A as Entry A
-    participant B as Entry B
-    participant DB as Ledger Postgres
+    participant DB as Postgres
     participant R as Relay
-    A->>DB: first write, Position 10
-    B->>DB: first write, Position 11
-    B->>DB: COMMIT
-    R->>DB: what is committed?
-    DB-->>R: 11 (10 is still open)
-    Note over R: publish 11 and move on?<br/>then 10 commits behind the watermark
+    A->>DB: gets Position 10
+    Note over DB: Entry B gets 11<br/>and commits first
+    R->>DB: committed?
+    DB-->>R: 11 (10 open)
+    Note over R: publish 11,<br/>move on
     A->>DB: COMMIT
+    Note over A,R: 10 commits behind<br/>the watermark and<br/>is never published
 ```
 
 The Position is the transaction's `xid8`, prefixed with the database's system identifier, so a token
