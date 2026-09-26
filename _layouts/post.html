@@ -64,7 +64,7 @@ layout: default
     <div class="sidebar-card" id="series-card">
       <div class="sidebar-head">
         <span class="sidebar-icon">{% include icon.html name="layers" %}</span>
-        <span class="sidebar-label">{{ page.series }} · Part {{ page.series_order }} of {{ series_total }}</span>
+        <span class="sidebar-label">{{ page.series }} · <span class="sidebar-part">Part {{ page.series_order }} of {{ series_total }}</span></span>
         <button type="button" class="rail-toggle" data-rail="series"
                 aria-expanded="true" aria-controls="series-body"
                 data-label-collapse="Collapse the parts list"

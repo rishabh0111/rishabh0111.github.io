@@ -768,9 +768,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   /* The strip between the TOC rail and the article's text is the column
      gap plus the panel's own inner padding: 64px with nothing in it.
      The button is sized and placed to fill that, clearing the rail by
-     2px on one side and stopping short of the prose on the other. */
+     2px on one side and stopping short of the prose on the other. The
+     open rail sits against the window edge (no page gutter), so the
+     offset is the rail's width alone. */
   body:has(.post-sidebar) {
-    --fab-right: calc(var(--page-pad) + var(--sidebar-w) + 2px);
+    --fab-right: calc(var(--sidebar-w) + 2px);
   }
   /* Rail docked at the edge: the article now runs to the gutter, so the
      button returns to the plain corner. The pill sits at the top of the
@@ -2017,6 +2019,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   line-height: 1.45;
   overflow-wrap: anywhere;      /* a long series name must not overflow */
 }
+/* "Part 8 of 10" breaks as one unit, never leaving the total alone on
+   a line of its own. */
+.sidebar-part { white-space: nowrap; }
 
 .rail-toggle {
   flex: 0 0 auto;
@@ -2084,6 +2089,19 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border-left-color: transparent;
 }
 .post-sidebar.collapsed .sidebar-card {
+  border-radius: 9px 0 0 9px;
+  border-right-color: transparent;
+}
+
+/* ── Open: docked to the same edge ───────────────────────────────
+   An open rail keeps the tab's footing: it sits against the window
+   edge, square and borderless on that side, rather than floating a
+   gutter in from it. The page gutter on that side is dropped (see
+   .post-wrap in RESPONSIVE), so the rail keeps its width and the
+   article takes the gutter it gave up. Only where the rail really is
+   a side column: the TOC is hidden at 860px and under, and the parts
+   rail docks from 1024px. */
+.post-sidebar:not(.collapsed) .sidebar-card {
   border-radius: 9px 0 0 9px;
   border-right-color: transparent;
 }
@@ -3783,6 +3801,50 @@ details.more > summary:hover,
    possible: ~530px of article at 1024px, ~750px at 1280px. Below 1024px
    a third column can't be paid for at all (the article would drop under
    400px), so the strip stays. */
+/* An open TOC rail docks to the right edge (see "Open: docked to the
+   same edge"), so the right gutter goes to the article. A collapsed
+   one keeps the gutter: its pill reaches the edge through it. */
+@media (min-width: 861px) {
+  .post-wrap:has(> .post-sidebar:not(.collapsed)) { padding-right: 0; }
+}
+/* Below three columns the parts list is a strip spanning the whole row;
+   it keeps the gutter the TOC gave up so it stays centred on the page. */
+@media (min-width: 861px) and (max-width: 1023px) {
+  .post-wrap:has(> .post-sidebar:not(.collapsed)) > .post-rail:not(.collapsed) {
+    margin-right: var(--page-pad);
+  }
+}
+
+/* ── The collapse handle ─────────────────────────────────────────
+   An open side rail folds by a round handle on its inner edge, the
+   edge that moves, straddling the border like a drawer pull, with the
+   chevron pointing at the side it folds into. Out of the head, so the
+   heading gets the card's full width. The handle overhangs into the
+   column gap, so the rail and card stop clipping: their lists are the
+   scroll containers and every flex child above them has min-height:0,
+   so nothing else needs the clip. Strip mode and phones keep the
+   in-head toggle. The parts rail's half is in the 1024px block. */
+@media (min-width: 861px) {
+  .post-sidebar:not(.collapsed),
+  .post-sidebar:not(.collapsed) #toc-card { overflow: visible; }
+  .post-sidebar:not(.collapsed) .sidebar-card { position: relative; }
+  .post-sidebar:not(.collapsed) .rail-toggle {
+    position: absolute; top: 9px; z-index: 2;
+    width: 24px; height: 24px; margin: 0;
+    border-radius: 50%;
+    background: var(--bg-raised);
+    border-color: var(--glass-border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .post-sidebar:not(.collapsed) .rail-toggle:hover,
+  .post-sidebar:not(.collapsed) .rail-toggle:focus-visible {
+    color: var(--accent); border-color: var(--accent);
+    background: var(--bg-raised);
+  }
+  .post-sidebar:not(.collapsed) .rail-toggle svg { width: 12px; height: 12px; }
+  .post-sidebar:not(.collapsed) .rail-toggle { left: -12px; }
+}
+
 @media (min-width: 1024px) {
   :root { --rail-w: 180px; --rail-gap: var(--col-gap); }
 
@@ -3830,6 +3892,32 @@ details.more > summary:hover,
     display: block;
     overflow-y: auto;
   }
+  /* Docked to the left edge like its tab, mirroring the TOC rail: the
+     left gutter goes to the article. */
+  .post-wrap.has-rail:has(> .post-rail:not(.collapsed)) { padding-left: 0; }
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .sidebar-card {
+    border-radius: 0 9px 9px 0;
+    border-left-color: transparent;
+  }
+  /* The collapse handle, on the rail's right (inner) edge; the TOC's
+     half and the reasoning are under "The collapse handle". */
+  .post-wrap.has-rail > .post-rail:not(.collapsed),
+  .post-wrap.has-rail > .post-rail:not(.collapsed) #series-card { overflow: visible; }
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .sidebar-card { position: relative; }
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .rail-toggle {
+    position: absolute; top: 9px; right: -12px; z-index: 2;
+    width: 24px; height: 24px; margin: 0;
+    border-radius: 50%;
+    background: var(--bg-raised);
+    border-color: var(--glass-border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .rail-toggle:hover,
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .rail-toggle:focus-visible {
+    color: var(--accent); border-color: var(--accent);
+    background: var(--bg-raised);
+  }
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .rail-toggle svg { width: 12px; height: 12px; }
 }
 @media (min-width: 1360px) {
   :root { --rail-w: 210px; }
