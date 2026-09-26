@@ -113,19 +113,16 @@ Unpacked, that's three guarantees:
 ## The architecture, in one picture
 
 ```mermaid
-flowchart TD
-    Producer([Client / Producer]) -->|"POST /api/events<br/>raw bytes + headers"| API
-    Operator([Operator<br/>dashboard · /metrics]) -->|replay dead-letter| API
-    API[Express API<br/>subscriptions · events · replay<br/>metrics · health · docs]
-    API -->|"2 · enqueue jobId = event.id"| Redis
-    Reconciler[Reconciler<br/>~15 min repeatable] -->|re-enqueue| Redis
-    Redis[(Redis + BullMQ<br/>disposable scheduler)] -->|dequeue| Worker
-    Worker[BullMQ Worker<br/>concurrency 5] -->|"POST signed delivery<br/>HMAC-SHA256"| Receiver
-    Receiver([Receiver<br/>subscriber endpoint]) -.->|"2xx OK · 5xx/429/408/timeout retry · 4xx dead"| Worker
-    API -->|"1 · INSERT pending, COMMIT"| Postgres
-    Reconciler -->|scan stale events| Postgres
-    Worker -->|delivery_attempt + status| Postgres
-    Postgres[(PostgreSQL · authoritative<br/>subscription · event · delivery_attempt · dead_letter)]
+flowchart TB
+    Producer([Producer]) -->|POST /api/events| API[Express API]
+    Operator([Operator]) -->|replay| API
+    API -->|1 · INSERT, COMMIT| PG[(PostgreSQL<br/>authoritative)]
+    API -->|2 · enqueue| Redis[(Redis + BullMQ<br/>disposable)]
+    Redis --> Worker[Worker<br/>concurrency 5]
+    Worker -->|signed POST| Receiver([Receiver])
+    Worker -->|attempts, status| PG
+    Reconciler[Reconciler<br/>+ watchdog] -->|scan stale| PG
+    Reconciler -->|re-enqueue| Redis
     classDef actor fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
     classDef gateway fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
     classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
@@ -133,7 +130,7 @@ flowchart TD
     class Producer,Operator,Receiver actor
     class API gateway
     class Reconciler,Worker service
-    class Redis,Postgres store
+    class Redis,PG store
 ```
 
 There aren't many moving parts. The entire design hangs off a single decision about who is
@@ -174,22 +171,18 @@ ruthless about which exact line is the point of no return:
 ```mermaid
 sequenceDiagram
     autonumber
-    participant P as Client / Producer
-    participant A as Express API
-    participant DB as PostgreSQL
-    participant Q as Redis + BullMQ
-    P->>A: POST /api/events<br/>exact raw payload bytes
-    A->>A: Validate X-Subscription-Id (UUID)<br/>and non-empty body
-    A->>DB: INSERT INTO event (status = pending)<br/>ON CONFLICT (idempotency_key) DO NOTHING
-    alt Row already existed
+    participant P as Producer
+    participant A as API
+    participant DB as Postgres
+    P->>A: POST /api/events<br/>raw bytes
+    A->>DB: INSERT pending<br/>ON CONFLICT DO NOTHING
+    alt key already used
         DB-->>A: 0 rows
-        A-->>P: 200 OK · existing event, enqueue nothing
-    else Row inserted
-        DB-->>A: 1 row
-        A->>DB: COMMIT
-        Note over A,DB: Durable point of no return
-        A->>Q: Enqueue job · jobId = event.id
-        Note over A,Q: Enqueue failure is non-fatal: logged,<br/>reconciler recovers later, duplicate jobId is a no-op
+        A-->>P: 200 · existing event
+    else new event
+        DB-->>A: 1 row, COMMIT
+        Note over A,DB: durable from here
+        Note over A: enqueue,<br/>jobId = event.id<br/>(a failed enqueue is<br/>left to the reconciler)
         A-->>P: 202 Accepted
     end
 ```
@@ -232,27 +225,22 @@ So the worker classifies every outcome:
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Q as Redis + BullMQ
-    participant W as BullMQ Worker
-    participant DB as PostgreSQL
+    participant W as Worker
+    participant DB as Postgres
     participant R as Receiver
-    Q->>W: Job · event.id
-    W->>DB: Load event + subscription<br/>status = delivering
-    W->>W: HMAC-SHA256(secret, timestamp + '.' + raw_body)<br/>X-Webhook-Id / -Timestamp / -Signature
-    W->>R: POST raw_body to target_url<br/>timeout via AbortController
-    R-->>W: status code, or timeout / network error
-    W->>DB: Record delivery_attempt<br/>status_code · duration_ms · response_body · error
+    Note over W: job event.id<br/>from BullMQ
+    W->>DB: load event,<br/>status = delivering
+    Note over W: HMAC-SHA256 over<br/>timestamp + raw body
+    W->>R: signed POST,<br/>with a timeout
+    R-->>W: status, or timeout
+    W->>DB: record the attempt
     alt 2xx
-        W->>DB: status = delivered
-    else Permanent 4xx (except 408 / 429)
-        W->>DB: throw UnrecoverableError<br/>dead-letter now · status = dead
-    else Timeout / network / 429 / 408 / 5xx
-        alt Attempts remain (max 5)
-            W->>Q: throw Error · BullMQ retries<br/>backoff ~60s, 120s, 240s, 480s
-            Q-->>W: Redelivered after backoff
-        else Attempts exhausted
-            W->>DB: dead-letter · status = dead
-        end
+        W->>DB: delivered
+    else other 4xx
+        W->>DB: dead at once
+    else 5xx, 408, 429, timeout
+        Note over W: retry with backoff,<br/>60 s to 480 s, 5 tries
+        W->>DB: dead when<br/>tries run out
     end
 ```
 
@@ -295,26 +283,20 @@ there non-terminal events with no live job?
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Repeatable job<br/>~15 min
     participant RC as Reconciler
-    participant DB as PostgreSQL
-    participant Q as Redis + BullMQ
-    Note over S,Q: Recovers what the queue cannot self-heal: a crash between<br/>COMMIT and enqueue, or loss of Redis data
-    S->>RC: Sweep fires
-    RC->>DB: Non-terminal events:<br/>pending past threshold OR delivering gone stale
-    DB-->>RC: Candidate events
-    loop For each event
-        RC->>Q: Look up job by id
-        alt Live job (waiting / active / delayed / paused)
-            Q-->>RC: Found
-            Note right of RC: Skip · queue already handling it
-        else No live job
-            Q-->>RC: Missing, or stale completed/failed
-            RC->>Q: Remove stale job, re-enqueue · jobId = event.id
-            Note right of RC: Event back in the queue
+    participant DB as Postgres
+    participant Q as BullMQ
+    Note over RC: every 15 min, or at<br/>once if the watchdog<br/>finds the schedule gone
+    RC->>DB: stale pending<br/>or delivering?
+    DB-->>RC: candidates
+    loop each event
+        RC->>Q: job by id?
+        alt live job
+            Q-->>RC: found, skip
+        else missing or stale
+            RC->>Q: re-enqueue,<br/>jobId = event.id
         end
     end
-    Note over S,DB: Infrequent by design, so the free-tier<br/>database can autosuspend between sweeps
 ```
 
 It scans Postgres for events stuck `pending` past a threshold or `delivering` gone stale, looks
@@ -352,22 +334,16 @@ twice, and two replays must not race.
 sequenceDiagram
     autonumber
     participant O as Operator
-    participant A as Express API
-    participant DB as PostgreSQL
-    participant Q as Redis + BullMQ
-    O->>A: POST /api/dead-letters/:id/replay<br/>after fixing the receiver
-    A->>DB: Look up dead_letter row to event_id
-    A->>DB: UPDATE event SET status = pending<br/>WHERE status = dead
-    alt 0 rows updated
-        DB-->>A: Not currently dead
-        A-->>O: 409 Conflict<br/>guards double-click / double-delivery
-    else 1 row updated
-        DB-->>A: Claimed
-        A->>Q: Remove stale failed job<br/>same jobId, else re-add no-ops
-        A->>Q: Re-enqueue delivery · jobId = event.id
-        A->>DB: Stamp dead_letter.replayed_at = now()
-        Note over A,DB: Stamped after enqueue, so a crash here is safe
-        A-->>O: 200 OK · event_id · status = pending
+    participant A as API
+    participant DB as Postgres
+    O->>A: replay a<br/>dead letter
+    A->>DB: UPDATE event<br/>SET status = pending<br/>WHERE status = dead
+    alt 0 rows
+        A-->>O: 409 Conflict
+    else 1 row
+        Note over A: remove the failed job,<br/>re-enqueue by event.id
+        A->>DB: stamp replayed_at
+        A-->>O: 200 · pending
     end
 ```
 
