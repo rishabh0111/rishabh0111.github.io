@@ -125,34 +125,34 @@ Most "let's estimate this" conversations go badly because the raw material is mi
 
 | Power (2ⁿ) | Exact value | Roughly | Bytes |
 | --- | --- | --- | --- |
-| 2⁷ | 128 | — | 128 B |
-| 2⁸ | 256 | — | 256 B |
+| 2⁷ | 128 |  | 128 B |
+| 2⁸ | 256 |  | 256 B |
 | 2¹⁰ | 1,024 | 1 thousand | 1 KB |
-| 2¹⁶ | 65,536 | — | 64 KB |
+| 2¹⁶ | 65,536 |  | 64 KB |
 | 2²⁰ | 1,048,576 | 1 million | 1 MB |
 | 2³⁰ | 1,073,741,824 | 1 billion | 1 GB |
-| 2³² | 4,294,967,296 | — | 4 GB |
+| 2³² | 4,294,967,296 |  | 4 GB |
 | 2⁴⁰ | 1,099,511,627,776 | 1 trillion | 1 TB |
 
 ### Latency numbers worth memorizing
 
 | Operation | ns | µs | ms | Comparison |
 | --- | --- | --- | --- | --- |
-| L1 cache reference | 0.5 | — | — | baseline |
-| Branch mispredict | 5 | — | — | — |
-| L2 cache reference | 7 | — | — | 14× L1 |
-| Mutex lock/unlock | 25 | — | — | — |
-| Main memory reference | 100 | — | — | 20× L2, 200× L1 |
-| Compress 1 KB with Zippy | 10,000 | 10 | — | — |
-| Send 1 KB over 1 Gbps network | 10,000 | 10 | — | — |
-| Read 4 KB randomly from SSD | 150,000 | 150 | — | ~1 GB/s SSD |
-| Read 1 MB sequentially from memory | 250,000 | 250 | — | — |
-| Round trip inside the same datacenter | 500,000 | 500 | — | — |
+| L1 cache reference | 0.5 |  |  | baseline |
+| Branch mispredict | 5 |  |  |  |
+| L2 cache reference | 7 |  |  | 14× L1 |
+| Mutex lock/unlock | 25 |  |  |  |
+| Main memory reference | 100 |  |  | 20× L2, 200× L1 |
+| Compress 1 KB with Zippy | 10,000 | 10 |  |  |
+| Send 1 KB over 1 Gbps network | 10,000 | 10 |  |  |
+| Read 4 KB randomly from SSD | 150,000 | 150 |  | ~1 GB/s SSD |
+| Read 1 MB sequentially from memory | 250,000 | 250 |  |  |
+| Round trip inside the same datacenter | 500,000 | 500 |  |  |
 | Read 1 MB sequentially from SSD | 1,000,000 | 1,000 | 1 | 4× memory |
 | HDD seek | 10,000,000 | 10,000 | 10 | 20× datacenter round trip |
 | Read 1 MB sequentially over 1 Gbps network | 10,000,000 | 10,000 | 10 | 40× memory, 10× SSD |
 | Read 1 MB sequentially from HDD | 30,000,000 | 30,000 | 30 | 120× memory, 30× SSD |
-| Round trip California → Netherlands → California | 150,000,000 | 150,000 | 150 | — |
+| Round trip California → Netherlands → California | 150,000,000 | 150,000 | 150 |  |
 
 One comparison is worth carrying around. A same-datacenter round trip and a 1 MB sequential SSD read land in the same order of magnitude, both roughly a millisecond. Reading that same megabyte off a spinning disk costs thirty times more. A design that quietly assumes "disk is disk" can therefore be a 30x mistake before a line of application code gets written.
 

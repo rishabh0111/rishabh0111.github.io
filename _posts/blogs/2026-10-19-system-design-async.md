@@ -120,7 +120,7 @@ A plain message queue moves bytes from a producer to a consumer. A **task queue*
 | --- | --- | --- |
 | Purpose | Transport messages | Execute background work |
 | Focus | Delivery, routing, buffering | Scheduling, execution, retries, lifecycle |
-| Payload | Generic messages | Serialized tasks — callable, arguments, metadata |
+| Payload | Generic messages | Serialized tasks: callable, arguments, metadata |
 | Scheduling | Generally unsupported | Supported |
 | Retry | Delivery-level | Task-level |
 | Result tracking | No | Yes |
@@ -375,7 +375,7 @@ That's close to Amazon's own order flow. Save the order, publish `OrderCreated`,
 
 | | Kafka | RabbitMQ |
 | --- | --- | --- |
-| Model | Event log — many consumers read the same event | Task queue — one worker consumes each task |
+| Model | Event log: many consumers read the same event | Task queue: one worker consumes each task |
 | Retention | Retains events, replayable | Removed once processed |
 | Throughput | Very high | High |
 
@@ -385,7 +385,7 @@ flowchart LR
     E --> C2["Analytics"]
     E --> C3["Fraud detection"]
     T["Send email<br/>(task)"] --> W1["Worker A"]
-    T -.-> W2["Worker B — never sees it"]
+    T -.-> W2["Worker B (never sees it)"]
     classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
     classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E
     classDef flow fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#1E293B
@@ -559,5 +559,5 @@ Every pattern in this part is downstream of one 3.5-second order confirmation. O
 
 - [RabbitMQ](https://www.rabbitmq.com/)
 - [Amazon Simple Queue Service (SQS)](https://aws.amazon.com/sqs/)
-- [Celery — Distributed Task Queue](https://docs.celeryq.dev/en/stable/)
-- [When to Use Event Driven Architecture in System Design Interviews — Hello Interview](https://www.hellointerview.com/blog/event-driven-architecture)
+- [Celery: Distributed Task Queue](https://docs.celeryq.dev/en/stable/)
+- [When to Use Event Driven Architecture in System Design Interviews (Hello Interview)](https://www.hellointerview.com/blog/event-driven-architecture)

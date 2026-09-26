@@ -189,7 +189,7 @@ Consistent hashing answers it by hashing the key and mapping the result onto a r
 
 ```mermaid
 flowchart LR
-    subgraph Ring["Hash ring — 32 partitions, 4 nodes"]
+    subgraph Ring["Hash ring: 32 partitions, 4 nodes"]
         direction LR
         P0["Partitions 0-7"] --- P8["Partitions 8-15"] --- P16["Partitions 16-23"] --- P24["Partitions 24-31"] --- P0
     end
@@ -224,12 +224,12 @@ One limitation stays with you. It balances the *count* of keys per partition, no
 
 ```mermaid
 flowchart TB
-    subgraph Replication["Replication — same data, many copies"]
+    subgraph Replication["Replication: same data, many copies"]
         direction TB
         P["Primary"] --> R1["Replica"]
         P --> R2["Replica"]
     end
-    subgraph Sharding["Sharding — different data, split up"]
+    subgraph Sharding["Sharding: different data, split up"]
         direction LR
         Router["Router"] --> S1["Shard 1<br/>users 1–1M"]
         Router --> S2["Shard 2<br/>users 1M–2M"]
@@ -249,9 +249,9 @@ Instagram shards users by ID because no single database could hold all of them. 
 
 | Aspect | Sharding | Traditional replication |
 | --- | --- | --- |
-| Data normalization | Denormalized — some duplication across shards for distribution and performance | Normalized — minimal redundancy, consistency and integrity preserved |
-| Scaling direction | Scale out — parallel, independent instances | Scale up — a bigger master |
-| Write bottleneck | None — writes run in parallel | Master is the bottleneck and the single point of failure |
+| Data normalization | Denormalized: some duplication across shards for distribution and performance | Normalized: minimal redundancy, consistency and integrity preserved |
+| Scaling direction | Scale out: parallel, independent instances | Scale up: a bigger master |
+| Write bottleneck | None: writes run in parallel | Master is the bottleneck and the single point of failure |
 | Data locality / cache | Small shard size fits cache well | Large master dataset is harder to cache |
 | Availability | Shard failures stay isolated; a shard can run its own internal master-slave or dual-master setup | Master failure is a write outage |
 
@@ -270,4 +270,4 @@ Every technique here answers one of two questions. Is the bottleneck reads, or i
 
 ## Further reading
 
-- [Consistent Hashing — ByteByteGo](https://bytebytego.com/courses/system-design-interview/design-consistent-hashing)
+- [Consistent Hashing (ByteByteGo)](https://bytebytego.com/courses/system-design-interview/design-consistent-hashing)

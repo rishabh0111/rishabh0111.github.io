@@ -22,8 +22,8 @@
     })();
   </script>
   <!-- The home page sets page.title to the site title; without the guard it
-       would render "Rishabh Sharma — Rishabh Sharma". -->
-  <title>{% if page.title and page.title != site.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
+       would render "Rishabh Sharma · Rishabh Sharma". -->
+  <title>{% if page.title and page.title != site.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
 
   <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
        title is suppressed, because the em-dash form above is the one we want. -->
@@ -161,7 +161,7 @@
   </div>
 
   <footer class="site-footer">
-    <p>{{ site.title }} &mdash; {{ 'now' | date: "%Y" }}</p>
+    <p>{{ site.title }} · {{ 'now' | date: "%Y" }}</p>
     <div class="footer-palette" aria-hidden="true">
       <div class="footer-dot" style="background:#2E3440;"></div>
       <div class="footer-dot" style="background:#3B4252;"></div>
@@ -177,7 +177,7 @@
     var px = document.querySelector('.px');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (px && !reduce.matches) {
-      // The scene is fixed (locked) — content scrolling over it provides the
+      // The scene is fixed (locked); content scrolling over it provides the
       // depth. Layers only drift gently with the pointer for a touch of life.
       var layers = Array.prototype.slice.call(px.querySelectorAll('.px-layer'));
       var mx = 0, my = 0, raf = null;
@@ -208,7 +208,7 @@
     // A segmented radiogroup: light / system / dark, each directly
     // selectable, with a sliding thumb marking the current one. All
     // three are visible at once, so the available choices are legible
-    // without clicking — which a single cycling button cannot show.
+    // without clicking, which a single cycling button cannot show.
     //
     // "system" means no localStorage entry and no data-theme attribute,
     // so the CSS prefers-color-scheme block decides. The control's own
@@ -236,7 +236,7 @@
           var on = b.getAttribute('data-theme-opt') === choice;
           b.setAttribute('aria-checked', on ? 'true' : 'false');
           // Roving tabindex: the group is one tab stop, arrows move
-          // within it — the expected behaviour for a radiogroup.
+          // within it: the expected behaviour for a radiogroup.
           b.tabIndex = on ? 0 : -1;
         });
       };
@@ -290,13 +290,13 @@
     // ── Mermaid diagrams ─────────────────────────────────────────
     // kramdown emits a ```mermaid fence as <pre><code class="language-mermaid">
     // (rouge doesn't know the "mermaid" lexer, so no highlighter wrapper divs
-    // get added — just the plain pre/code pair, HTML-escaped). .textContent
+    // get added, just the plain pre/code pair, HTML-escaped). .textContent
     // decodes that escaping for free. We swap each block for a plain
     // container mermaid can render into, and keep the original source around
     // so a theme toggle can re-render in the new palette instead of leaving
     // stale-colored SVGs behind.
     // A classDef in the diagram source compiles to `#<svg-id> .actor > * { fill: … !important }`.
-    // That selector carries an id, so nothing in style.css can outrank it — a palette written
+    // That selector carries an id, so nothing in style.css can outrank it, so a palette written
     // into the Markdown is therefore permanently light, whatever the page theme says. The
     // dark/light switch below only ever reached what classDef left alone (arrows, edge labels,
     // background), which is why light-mode pastels sat on the dark page unchanged.
@@ -329,7 +329,7 @@
 
     // classDef only reaches flowchart nodes. A sequence diagram is styled entirely
     // through themeVariables, so the same eight roles are restated here in the terms
-    // mermaid uses for actors, signals, notes and activation bars — otherwise sequence
+    // mermaid uses for actors, signals, notes and activation bars; otherwise sequence
     // diagrams would be the one kind that ignores the palette and renders stock.
     var MERMAID_SEQUENCE_VARS = {
       light: {
@@ -455,7 +455,7 @@
     //
     // Click handling is delegated rather than bound per element, because
     // mermaid diagrams are rendered asynchronously (and re-rendered on
-    // every theme switch) — anything bound to them directly would be
+    // every theme switch), so anything bound to them directly would be
     // attached to a node that no longer exists.
     var lb = document.getElementById('lightbox');
     var lbStage = document.getElementById('lightbox-stage');
@@ -489,7 +489,7 @@
         draw();
       };
 
-      // Fit the figure to the stage — up as well as down. Opening at 1:1
+      // Fit the figure to the stage, up as well as down. Opening at 1:1
       // showed a column-sized diagram in the middle of a full screen,
       // which is the problem this viewer exists to solve.
       var fit = function () {
@@ -500,7 +500,7 @@
         var st = lbStage.getBoundingClientRect();
         // Measure the figure, not its wrapper. The wrapper is a grid
         // item, so anything wider than the stage was reported as exactly
-        // stage-width — which made the fit come out at 1 and let the
+        // stage-width, which made the fit come out at 1 and let the
         // figure overflow. Small diagrams never hit that clamp, which is
         // why only the large images and sequence diagrams overflowed.
         var f = fig.getBoundingClientRect();
@@ -515,7 +515,7 @@
       var moved = null, placeholder = null, savedStyle = null;
 
       var close = function () {
-        // The figure is the article's own node, on loan — put it back
+        // The figure is the article's own node, on loan; put it back
         // exactly where it was, with the styling it arrived with.
         if (moved && placeholder && placeholder.parentNode) {
           if (savedStyle === null) moved.removeAttribute('style');
@@ -539,7 +539,7 @@
       var open = function (node) {
         // Move the original rather than clone it. A mermaid flowchart
         // carries its own <style> block scoped to the svg's id, and puts
-        // its node labels in <foreignObject> HTML — a copy lands in a
+        // its node labels in <foreignObject> HTML, so a copy lands in a
         // different styling context with a duplicated id, and comes out
         // wrong. Sequence diagrams survived it because they are plain
         // <text>. Moving the node sidesteps the whole question.
@@ -573,7 +573,7 @@
       };
 
       // Only figures inside the article, and never one that is already a
-      // link — following the link is what a reader expects there.
+      // link; following the link is what a reader expects there.
       document.addEventListener('click', function (e) {
         var body = e.target.closest && e.target.closest('#post-body');
         if (!body || lb.contains(e.target)) return;
@@ -585,7 +585,7 @@
       });
 
       // A visible control on each figure. Clicking the artwork works too,
-      // but a diagram is mostly whitespace between boxes — you had to find
+      // but a diagram is mostly whitespace between boxes: you had to find
       // a stroke to hit, and nothing said it was clickable at all.
       var ZOOM_ICON =
         '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
@@ -616,7 +616,7 @@
           btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            // Looked up at click time — for a diagram the svg may not
+            // Looked up at click time: for a diagram the svg may not
             // have been rendered yet when the button was built.
             var fig = wrap.querySelector('img, svg');
             if (fig) open(fig);
@@ -635,7 +635,7 @@
           return;
         }
         // Clicking the toolbar's empty space dismisses. The stage decides
-        // for itself below, from the pointer — a drag that starts on the
+        // for itself below, from the pointer: a drag that starts on the
         // figure and ends over bare stage is a pan, not a dismissal.
         if (!lbStage.contains(e.target)) close();
       });
@@ -659,7 +659,7 @@
       }, { passive: false });
 
       // Safari reports a trackpad pinch through its own gesture events
-      // instead — e.scale is the ratio since gesturestart. iOS fires
+      // instead; e.scale is the ratio since gesturestart. iOS fires
       // these too, on top of the touch pointers handled below, so they
       // only act when no second finger is being tracked.
       var gestureBase = 1;
@@ -685,7 +685,7 @@
 
       // Drag to pan, pinch to zoom. Pointer events cover mouse, pen and
       // touch alike; every active pointer is tracked, so a second finger
-      // turns the drag into a pinch — the scale follows the distance
+      // turns the drag into a pinch: the scale follows the distance
       // between the fingers and the point midway between them stays
       // under them as they move. Bound to the stage rather than the
       // figure so a finger that lands beside the figure still counts.
@@ -746,7 +746,7 @@
 
       // dblclick is not dependable from a touch screen, so a double-tap
       // is detected by hand: two clean taps within a third of a second.
-      // It toggles — out to a closer look, back to the fit — which is
+      // It toggles (out to a closer look, back to the fit), which is
       // what a double-tap does everywhere else on a phone.
       var lastTap = 0;
       var toggleZoom = function (x, y) {
@@ -802,7 +802,7 @@
     // ("I want the width") rather than a per-page decision.
     //
     // Collapsing changes how much room the TOC and the parts list have,
-    // and both already recompute themselves on resize — so a synthetic
+    // and both already recompute themselves on resize, so a synthetic
     // resize is the honest way to tell them, rather than reaching into
     // their internals from here.
     document.querySelectorAll('.rail-toggle').forEach(function (btn) {
@@ -846,7 +846,7 @@
         apply(!rail.classList.contains('collapsed'), true);
       });
 
-      // Collapsed, the tab is mostly its sideways heading — clicking the
+      // Collapsed, the tab is mostly its sideways heading, so clicking the
       // words should open it, not just the 30px button. Only in that
       // direction: expanded, the card is full of links and a stray click
       // must not fold it away underneath the reader.
@@ -863,7 +863,7 @@
     // ── Series rail: reveal the current part ───────────────────
     // The rail scrolls internally once a series runs long, and the part
     // you are reading is often below the fold. Bring it into the rail's
-    // own scroll box (never scrollIntoView — that moves the page too).
+    // own scroll box (never scrollIntoView; that moves the page too).
     //
     // The landing position is snapped to an entry boundary. Scrolling to
     // an arbitrary offset leaves whatever entry straddles the top edge
@@ -903,7 +903,7 @@
     // Below 860px the nav is a floating tab bar, and this gives it the
     // iOS 26 behaviour the CSS only lays the ground for: a glass lens
     // that slides to the selected tab and follows a scrubbing finger.
-    // (It used to minimise to a circle on scroll as well; that was cut —
+    // (It used to minimise to a circle on scroll as well; that was cut:
     // the bar stays a pill.) Everything here is guarded on the same
     // breakpoint the CSS uses,
     // so on a desktop the nav is left exactly as it was.
@@ -913,7 +913,7 @@
       var activeTab = siteNav.querySelector('a.active');
 
       // Tabs are a fixed width, so the lens is placed by index rather
-      // than by measuring — measuring mid-animation would land it on a
+      // than by measuring; measuring mid-animation would land it on a
       // moving target.
       var tabW = function () {
         return parseFloat(getComputedStyle(document.documentElement)
@@ -927,7 +927,7 @@
       };
       // Positioned before they enter the DOM, so their first computed
       // style is already the right one. Set afterwards, the lens
-      // transitioned in from the first tab on every page load — the
+      // transitioned in from the first tab on every page load; the
       // getComputedStyle above forces a style pass, and that pass would
       // see it unplaced.
       lensTo(activeTab);
@@ -944,7 +944,7 @@
       siteNav.classList.toggle('no-active', !activeTab);
 
       // The back-to-top button parks above the bar unless there is
-      // room beside it — then it comes down onto the bar's line.
+      // room beside it, in which case it comes down onto the bar's line.
       var fab = document.getElementById('scroll-top');
       var placeFab = function () {
         if (!fab) return;
@@ -966,7 +966,7 @@
       var scrub = null, swallowClick = false, swallowTimer = null;
       var swallowNext = function () {
         // The click that trails a pointerup is what would double up the
-        // navigation, so it is eaten — but only the next one, and only
+        // navigation, so it is eaten, but only the next one, and only
         // briefly, in case no click ever comes.
         swallowClick = true;
         clearTimeout(swallowTimer);
@@ -1029,7 +1029,7 @@
       var progressTicking = false;
 
       // Once the article itself has scrolled by, the page is into the
-      // nav bands and the footer — which carry their own way onward, so
+      // nav bands and the footer, which carry their own way onward, so
       // the button retires rather than hovering over them.
       var readable = document.getElementById('post-body')
                      || document.querySelector('main');
@@ -1045,7 +1045,7 @@
         // Appears once there is somewhere to go back to. Not tied to the
         // progress fraction: on a long page 10% is already a long way.
         // Hides the moment the article no longer reaches down to where
-        // the button sits — past that point it would be hovering over
+        // the button sits; past that point it would be hovering over
         // the prev/next bands and the footer, not over anything it can
         // usefully take you back from. Comparing against the button's
         // own box (rather than a magic offset) keeps this true if its
@@ -1069,7 +1069,7 @@
       drawProgress();
 
       toTop.addEventListener('click', function () {
-        // html has scroll-behavior:smooth, so this animates on its own —
+        // html has scroll-behavior:smooth, so this animates on its own,
         // except under prefers-reduced-motion, where 'auto' is honoured.
         window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
       });
@@ -1095,8 +1095,8 @@
     // Active-section tracking.
     //
     // An IntersectionObserver only fires when a heading crosses the band,
-    // so any heading tall enough to skip the band — or a scroll that lands
-    // between two headings — leaves the highlight stale. Instead we ask the
+    // so any heading tall enough to skip the band (or a scroll that lands
+    // between two headings) leaves the highlight stale. Instead we ask the
     // plain question on every scroll: which heading is the last one above
     // the reading line? That is always exactly one answer, so the TOC and
     // the article can never drift apart.

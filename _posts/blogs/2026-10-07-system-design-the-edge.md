@@ -143,7 +143,7 @@ There are two different ways content gets onto the edge, and the difference is w
 | Feature | Push CDN | Pull CDN |
 | --- | --- | --- |
 | Content population | Origin uploads proactively | CDN fetches on first request |
-| First request | Fast | Slower — cache miss |
+| First request | Fast | Slower: cache miss |
 | Storage usage | Higher | Lower |
 | Best suited for | Low traffic, infrequently updated content | High traffic, frequently accessed content |
 
@@ -251,8 +251,8 @@ It's also the knob for deliberately routing less traffic to a server running som
 ```mermaid
 flowchart LR
     Req[New Request] --> LB{Load Balancer}
-    LB -->|routes here: fewest active connections| S1["Server 1 — 2 active connections"]
-    LB -.skipped: more loaded.-> S2["Server 2 — 5 active connections"]
+    LB -->|routes here: fewest active connections| S1["Server 1: 2 active connections"]
+    LB -.skipped: more loaded.-> S2["Server 2: 5 active connections"]
     classDef gateway fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
     classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
     classDef flow fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#1E293B
@@ -375,14 +375,14 @@ Six systems, minimum, before a request reaches code you wrote. DNS, maybe a CDN,
 
 ## Further reading
 
-- [DNS Architecture — Microsoft Learn](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd197427(v=ws.10))
-- [Articles in DNS — DNSimple Help](https://support.dnsimple.com/categories/dns/)
+- [DNS Architecture (Microsoft Learn)](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd197427(v=ws.10))
+- [Articles in DNS (DNSimple Help)](https://support.dnsimple.com/categories/dns/)
 - [Amazon Route 53](https://aws.amazon.com/route53/)
 - [Cloudflare DNS](https://www.cloudflare.com/products/dns/)
-- [Who controls the DNS servers? — Super User](http://superuser.com/questions/472695/who-controls-the-dns-servers/472729)
+- [Who controls the DNS servers? (Super User)](http://superuser.com/questions/472695/who-controls-the-dns-servers/472729)
 - [The 2016 Dyn cyberattack](https://en.wikipedia.org/wiki/2016_Dyn_cyberattack)
 - [HAProxy architecture guide](https://www.haproxy.org/download/1.2/doc/architecture.txt)
-- [Listeners for your Classic Load Balancer — Elastic Load Balancing](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-listener-config.html)
+- [Listeners for your Classic Load Balancer (Elastic Load Balancing)](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-listener-config.html)
 - [TCP/UDP Load Balancing with NGINX](https://blog.nginx.org/blog/tcp-load-balancing-udp-load-balancing-nginx-tips-tricks)
-- [HTTP Load Balancing — NGINX Documentation](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
+- [HTTP Load Balancing (NGINX Documentation)](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/)
 - [Inside NGINX: How We Designed for Performance & Scale](https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale)

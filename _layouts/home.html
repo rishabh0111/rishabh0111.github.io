@@ -8,7 +8,7 @@ layout: default
 {% assign marks   = site.data.tech_logos.icons %}
 
 <!-- ═══════════════════════════════════════════════════════════════
-     HERO — sits on the parallax scene, same plane as .page-header
+     HERO: sits on the parallax scene, same plane as .page-header
 ═══════════════════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="hero-inner">
@@ -42,7 +42,7 @@ layout: default
          card that tilts toward the pointer, with a glare and a soft
          holographic sheen in the site's own palette, and a glass strip
          along the foot carrying the handle and where I am (the
-         component's mini avatar and contact button are left out — the
+         component's mini avatar and contact button are left out; the
          strip sits on the photo, and the links are right beside it). The two contours around it are the same family of
          hand-drawn survey lines as the topographic scene. If the image
          is missing, an RS monogram takes over. -->
@@ -88,7 +88,7 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     DOSSIER RAIL — the page's navigation AND its section labels, in
+     DOSSIER RAIL: the page's navigation AND its section labels, in
      one control. A column of dots in the left margin: the section
      you are reading lights up and names itself, and a fill line
      tracks how far down the page you are. Replaces a full-width chip
@@ -112,7 +112,7 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     METRICS — the first band: four stat tiles on the same surface as
+     METRICS: the first band: four stat tiles on the same surface as
      every other tile on the page (shadcn's dashboard section-cards),
      the figures counting up as they come into view (React Bits
      Count Up; the script at the foot does the counting).
@@ -136,7 +136,7 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     THE SECTIONS — each one its own full-width row, with the content
+     THE SECTIONS: each one its own full-width row, with the content
      in one column (.band-inner). The rows alternate between the open
      scene and a tinted band (.ds-band), so the eye finds where one
      section ends and the next begins without a card around each.
@@ -144,7 +144,7 @@ layout: default
      The rail (.drail) names the section you are reading from 1200px
      up; below that each row carries a compact .ds-heading.
 ═══════════════════════════════════════════════════════════════ -->
-      <!-- ── About — spotlight cards on the open scene ─────────────
+      <!-- ── About: spotlight cards on the open scene ─────────────
            The lede, then the three claims as icon tiles: three marks
            (spark, shield, server) say AI · security · backends before
            a word is taken in. Each tile carries a spotlight that
@@ -186,7 +186,7 @@ layout: default
         </div>
       </section>
 
-      <!-- ── Projects — a tinted band of poster cards ────────────
+      <!-- ── Projects: a tinted band of poster cards ────────────
            One card per project, however many, and no tiers: every
            project gets the same card. A screenshot as the cover (or a
            plate with the name's initial when there is none), the name,
@@ -204,7 +204,7 @@ layout: default
           <article class="tile proj glow" id="{{ f.name | slugify }}" data-anim="up">
 
             <!-- 1 · the cover: the screenshots as an accordion (React
-                 Bits Accordion Gallery) — the hovered or tapped shot
+                 Bits Accordion Gallery): the hovered or tapped shot
                  grows, the rest narrow. No shots: a plate with the
                  first stack mark that fills with pixels on hover (Pixel
                  Card), so every card has the same silhouette. -->
@@ -214,7 +214,7 @@ layout: default
                 {% for s in f.shots %}
                 {% comment %}
                   `src` is the image. `src_dark` is only for a shot that
-                  needs a second version to read on the dark theme — the
+                  needs a second version to read on the dark theme, the
                   same rule as company logos. A lone image carries no
                   theme class, or the dark theme would hide it.
                 {% endcomment %}
@@ -365,7 +365,7 @@ layout: default
             Four projects show; from the fifth on they wait behind this
             button (the script wires it; without JS every card shows).
             A grid that grows in place keeps every project the same
-            card — a carousel would hide most of them.
+            card; a carousel would hide most of them.
           {% endcomment %}
           {% if page.projects.size > 4 %}
           <p class="section-more proj-grid-more" hidden>
@@ -377,12 +377,12 @@ layout: default
         </div>
       </section>
 
-      <!-- ── Experience — a timeline ─────────────────────────────
+      <!-- ── Experience: a timeline ─────────────────────────────
            The period sits in a gutter, a spine runs down the middle
            with a dot per job (the current one lit), and each job is
            a card: mark, name, role, one line, the ventures as tiles,
            the stack. The current job's card has a live, turbulent edge
-           (React Bits Electric Border) — the same family of wobble as
+           (React Bits Electric Border), the same family of wobble as
            the survey lines. The bullets are folded inside the card. -->
       <section class="ds-row" id="experience">
         <div class="band-inner">
@@ -399,7 +399,7 @@ layout: default
               <div class="tl-head">
                 {% comment %}
                   The company mark. `logo_dark` is only needed for a mark
-                  that reads on one ground and not the other — a wordmark,
+                  that reads on one ground and not the other: a wordmark,
                   typically. A square icon that works on both ships once.
                   With no `logo` at all, initials stand in deliberately;
                   see _templates/logos/README.md.
@@ -485,7 +485,7 @@ layout: default
         </div>
       </section>
 
-      <!-- ── Toolkit — a tinted band of logo loops ────────────────
+      <!-- ── Toolkit: a tinted band of logo loops ────────────────
            Each group is a single line that slides continuously, edge
            to edge of the viewport, fading out at both ends (React Bits
            LogoLoop). The label sits in the content column; the loop
@@ -525,7 +525,7 @@ layout: default
         </div>
       </section>
 
-      <!-- ── Writing — a list on the open scene ───────────────────
+      <!-- ── Writing: a list on the open scene ───────────────────
            Pulled live from the collections. Each post is one row with
            the date in a block on the left (shadcn Item / React Bits
            AnimatedList): a list, not a card. -->
@@ -571,7 +571,7 @@ layout: default
       </section>
       {% endif %}
 
-      <!-- ── Credentials — a tinted band, two panels ──────────────
+      <!-- ── Credentials: a tinted band, two panels ──────────────
            Education, then certifications and awards, each a full-width
            panel on the same six-column grid: a row of two cards spans
            3 + 3, a row of three spans 2 + 2 + 2, so every row is full
@@ -651,7 +651,7 @@ layout: default
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     CONTACT — a closing plane, mirrors the hero
+     CONTACT: a closing plane, mirrors the hero
 ═══════════════════════════════════════════════════════════════ -->
 <section class="contact" id="contact">
   <div class="magnet-lines" aria-hidden="true"></div>
@@ -805,8 +805,8 @@ layout: default
   }
 
   // ── Dossier rail: the section you're reading, and how far in ───
-  // Same question the article TOC asks — which section top is the
-  // last one above the reading line — so the rail and the page can't
+  // Same question the article TOC asks (which section top is the
+  // last one above the reading line), so the rail and the page can't
   // drift apart. The rail also stays hidden until the hero is behind
   // you, and a fill line grows as you move through the page.
   var rail = document.getElementById('drail');
@@ -915,7 +915,7 @@ layout: default
   // ── Toolkit ribbons: only animate the ones on screen ──────────
   // Each ribbon runs an infinite CSS marquee. Left to itself every row
   // is composited on every frame for the whole session, even scrolled
-  // away — which showed up as scroll lag on phones. Park the ones that
+  // away, which showed up as scroll lag on phones. Park the ones that
   // aren't visible.
   var ribbons = document.querySelectorAll('.ribbon');
   if (ribbons.length && 'IntersectionObserver' in window) {

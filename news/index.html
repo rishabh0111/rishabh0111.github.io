@@ -6,10 +6,10 @@ title: News
 {% assign news_posts = site.categories.news %}
 
 <div class="page-header news">
-  <div class="page-header-inner" data-section="Annotated Reading — News">
+  <div class="page-header-inner" data-section="Annotated Reading · News">
     <p class="page-label">Annotated reading</p>
     <h1>News</h1>
-    <p>Bi-weekly digests — articles worth reading, with notes on why they matter.</p>
+    <p>Bi-weekly digests: articles worth reading, with notes on why they matter.</p>
     <span class="post-count">
       {{ news_posts.size }} digest{% if news_posts.size != 1 %}s{% endif %}
     </span>
@@ -18,7 +18,7 @@ title: News
 
 <div class="listing-wrap">
   {% if news_posts.size == 0 %}
-    <p class="empty-state">No digests yet — the first one is coming soon.</p>
+    <p class="empty-state">No digests yet; the first one is coming soon.</p>
   {% else %}
     {% assign by_month = news_posts | group_by_exp: "p", "p.date | date: '%B %Y'" %}
     {% for mg in by_month %}

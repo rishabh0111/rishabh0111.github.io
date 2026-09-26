@@ -44,8 +44,8 @@ Those four shapes aren't interchangeable. Each one is built for a different acce
 | --- | --- | --- |
 | Key-value store | Hash table | O(1) reads and writes, often memory- or SSD-backed; some preserve lexicographic key order for range scans; can carry metadata alongside values. Great for simple, rapidly changing data like an in-memory cache, but the limited operation set pushes complexity into the application layer. It's also the foundation document stores and some graph databases are built on. |
 | Document store | A key-value store where the values are documents | Centered on XML, JSON, or binary documents, with an API or query language that understands their internal structure, organized by collections, tags, metadata, or directories. Documents in the same collection can have different fields entirely. MongoDB and CouchDB are the usual names; DynamoDB straddles key-value and document. High flexibility, well suited to data that changes occasionally rather than constantly. |
-| Wide column store | A nested map — `ColumnFamily<RowKey, Columns<ColKey, Value, Timestamp>>` | The basic unit is a column, a name/value pair; columns group into column families, roughly analogous to a SQL table, and families can group further into super column families. A row is the same row key appearing across columns, and every value carries its own timestamp for versioning and conflict resolution. It traces back to Google Bigtable, which shaped HBase in the Hadoop ecosystem and Cassandra at Facebook. Built for very large datasets with high availability and scalability. |
-| Graph database | A graph | Nodes are records, arcs are relationships, optimized specifically for complex, many-to-many relationships like a social network. High performance for relationship-heavy models, at the cost of being newer and less widely adopted — fewer tools, fewer people who've used one, often reachable only through a REST API rather than a native driver ecosystem. |
+| Wide column store | A nested map: `ColumnFamily<RowKey, Columns<ColKey, Value, Timestamp>>` | The basic unit is a column, a name/value pair; columns group into column families, roughly analogous to a SQL table, and families can group further into super column families. A row is the same row key appearing across columns, and every value carries its own timestamp for versioning and conflict resolution. It traces back to Google Bigtable, which shaped HBase in the Hadoop ecosystem and Cassandra at Facebook. Built for very large datasets with high availability and scalability. |
+| Graph database | A graph | Nodes are records, arcs are relationships, optimized specifically for complex, many-to-many relationships like a social network. High performance for relationship-heavy models, at the cost of being newer and less widely adopted: fewer tools, fewer people who've used one, often reachable only through a REST API rather than a native driver ecosystem. |
 
 ## SQL vs NoSQL isn't a preference, it's a fit test
 
@@ -64,8 +64,8 @@ Those four shapes aren't interchangeable. Each one is built for a different acce
 | Complex joins are required | Complex joins aren't needed |
 | Transactions are required | You're storing many TB or PB of data |
 | Scaling patterns are clear and moderate | Workload is very data-intensive |
-| An established ecosystem matters — developers, community, tooling | Very high IOPS throughput is required |
-| Fast index lookups are the priority | — |
+| An established ecosystem matters (developers, community, tooling) | Very high IOPS throughput is required |
+| Fast index lookups are the priority |  |
 
 Typical NoSQL-shaped data includes rapid clickstream or log ingestion, leaderboard and scoring data, temporary data like a shopping cart, frequently accessed "hot" tables, and metadata or lookup tables.
 

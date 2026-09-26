@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   home-fx.js — the home page's motion, after React Bits.
+   home-fx.js: the home page's motion, after React Bits.
 
    Every piece here is a plain-JS port of a React Bits component,
    fetched from its shadcn registry (reactbits.dev/r/<Name>-JS-CSS)
@@ -69,7 +69,7 @@
     return prog;
   }
 
-  /* ── 1 · Topography — the living contour map ─────────────────────
+  /* ── 1 · Topography: the living contour map ─────────────────────
      React Bits' shader, verbatim, on a raw WebGL2 full-screen
      triangle. Mounted inside the fixed .px scene in place of the
      static contour layer; colours come from --topo-low/mid/high so
@@ -228,10 +228,10 @@
     start();
   }
 
-  /* ── 2a · Warp Text — the name as a pane of glass ─────────────────
+  /* ── 2a · Warp Text: the name as a pane of glass ─────────────────
      After React Bits WarpText: the name is drawn into a 2D canvas in
-     the h1's own face — the first name in ink, the surname italic in
-     the accent — uploaded as a texture, and bent by the component's
+     the h1's own face (the first name in ink, the surname italic in
+     the accent), uploaded as a texture, and bent by the component's
      shader: a slow ambient undulation, a lens that follows the
      pointer with a soft ripple, and a hair of RGB split at the
      glass's edge. The h1 stays in the page (transparent) for layout,
@@ -414,7 +414,7 @@
     return true;
   }
 
-  /* ── 2b · Split Text — the hero name, one letter at a time ────────
+  /* ── 2b · Split Text: the hero name, one letter at a time ────────
      Each character becomes a span with its own delay; the CSS does
      the rise-and-focus. The <em> (surname) keeps its accent. Runs
      only where Warp Text cannot. */
@@ -441,7 +441,7 @@
     h1.classList.add("is-split");
   }
 
-  /* ── 3 · Blur Text — "Hi, I'm", word by word ───────────────────── */
+  /* ── 3 · Blur Text: "Hi, I'm", word by word ───────────────────── */
   function blurText() {
     var el = document.querySelector(".hero-hi");
     if (!el || reduce) return;
@@ -462,7 +462,7 @@
     el.classList.add("is-blur");
   }
 
-  /* ── 4 · Rotating Text — the role, one word at a time ─────────────
+  /* ── 4 · Rotating Text: the role, one word at a time ─────────────
      "AI · Backend · Security" becomes three words that take turns,
      each sliding up into place. The full label stays for readers
      of the DOM. */
@@ -494,7 +494,7 @@
     }, 2600);
   }
 
-  /* ── 5 · Profile Card — the portrait card follows the pointer ─────
+  /* ── 5 · Profile Card: the portrait card follows the pointer ─────
      After React Bits ProfileCard's tilt engine: the pointer's place
      on the card becomes a set of custom properties (--pointer-x/y,
      --rotate-x/y, --background-x/y, --pointer-from-*) that the CSS
@@ -548,7 +548,7 @@
     setVars(cur[0], cur[1]);
   }
 
-  /* ── 6 · Magnet — pills pull toward a pointer that comes near ────── */
+  /* ── 6 · Magnet: pills pull toward a pointer that comes near ────── */
   function magnet() {
     if (reduce || !fine) return;
     var els = Array.prototype.slice.call(document.querySelectorAll(".hero-links a, .proj-grid-btn"));
@@ -578,7 +578,7 @@
     }, { passive: true });
   }
 
-  /* ── 7 · Click Spark — a burst of short lines at every click ─────── */
+  /* ── 7 · Click Spark: a burst of short lines at every click ─────── */
   function clickSpark() {
     if (reduce || !fine) return;
     var canvas = document.createElement("canvas");
@@ -612,7 +612,7 @@
     });
   }
 
-  /* ── 8 · Magic Bento — one soft light over the whole project grid ──
+  /* ── 8 · Magic Bento: one soft light over the whole project grid ──
      The cards already glow at their borders; this is the second half
      of the component: a large blurred disc that follows the pointer
      across the band, brightening as it nears a card. */

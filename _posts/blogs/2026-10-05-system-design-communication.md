@@ -163,7 +163,7 @@ gRPC deserves its own mention because it isn't really competing with REST for th
 | --- | --- | --- |
 | Format | JSON (text) | Protocol Buffers (binary) |
 | Audience | External / public | Internal, service-to-service |
-| Performance | Lower | Higher — smaller payloads, multiplexed over HTTP/2 |
+| Performance | Lower | Higher: smaller payloads, multiplexed over HTTP/2 |
 
 Here's the comparison I keep coming back to. Stripe's public payments API has to be REST, because the audience is thousands of developers in every language who need to read and debug a response by looking at it. Inside Uber, when the trip service calls the pricing service hundreds of times a second, both ends are Uber's code, deployed together, versioned together. gRPC's compact binary payload and enforced schema matter far more there than human readability, since no human is ever meant to read that payload directly.
 
@@ -254,7 +254,7 @@ REST, RPC, gRPC, plus the four real-time options, aren't a ranked list from wors
 
 ## Further reading
 
-- [Know Your HTTP Well — Headers](https://github.com/for-GET/know-your-http-well/blob/master/headers.md)
-- [What is REST? — REST API Tutorial](https://restfulapi.net/)
-- [HATEOAS — REST CookBook](http://restcookbook.com/Basics/hateoas/)
+- [Know Your HTTP Well: Headers](https://github.com/for-GET/know-your-http-well/blob/master/headers.md)
+- [What is REST? (REST API Tutorial)](https://restfulapi.net/)
+- [HATEOAS (REST CookBook)](http://restcookbook.com/Basics/hateoas/)
 - [gRPC](https://grpc.io/)

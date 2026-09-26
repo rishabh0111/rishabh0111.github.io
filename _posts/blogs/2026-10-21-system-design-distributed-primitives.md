@@ -78,7 +78,7 @@ Everything happens locally. No database lookup, no network call, so it's fast. A
 | Feature | Auto increment | UUID | Snowflake |
 | --- | --- | --- | --- |
 | Globally unique | No | Yes | Yes |
-| Sequential | Yes | No | Mostly — time-ordered |
+| Sequential | Yes | No | Mostly: time-ordered |
 | Central server required | Usually yes | No | No |
 | Database-friendly | Yes | No | Yes |
 | Human-readable | Yes | No | No |
@@ -127,7 +127,7 @@ The server holds the session data. The browser holds only a session ID, usually 
 
 | Advantages | Disadvantages |
 | --- | --- |
-| Logout is trivial — just delete the session | Needs shared session storage (Redis, typically) once there's more than one server |
+| Logout is trivial: just delete the session | Needs shared session storage (Redis, typically) once there's more than one server |
 | A session can be invalidated instantly, on demand | Every authenticated request costs a session lookup |
 
 ### JWT-based authentication
@@ -236,7 +236,7 @@ None of that security comes from hiding the payload. A JWT payload is base64, re
 | Access token | Refresh token |
 | --- | --- |
 | Sent with every API request | Sent only to the auth server |
-| Short-lived — 15 to 60 minutes | Long-lived — days or weeks |
+| Short-lived: 15 to 60 minutes | Long-lived: days or weeks |
 | Grants API access | Used to obtain a new access token |
 | Limited blast radius if compromised | More sensitive; needs secure storage |
 
@@ -300,7 +300,7 @@ The user authenticates directly with Google and never types their Google passwor
 | Server stores user state | Yes | No |
 | Client stores | Session ID | Signed JWT |
 | Session lookup required | Yes | No |
-| Scales easily across distributed APIs | No — needs a shared session store | Yes |
+| Scales easily across distributed APIs | No: needs a shared session store | Yes |
 | Authentication method | Session lookup | Signature verification |
 
 ## Check yourself

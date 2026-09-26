@@ -27,7 +27,7 @@ Serve hot data from memory instead of disk. Skip an expensive database round tri
 | Cache layer | Purpose |
 | --- | --- |
 | Client cache | Browser or OS cache |
-| CDN cache | Edge caching — a CDN is, structurally, a type of cache |
+| CDN cache | Edge caching: a CDN is, structurally, a type of cache |
 | Web server cache | A reverse proxy like Varnish caching static and dynamic content without ever reaching the application server |
 | Database cache | Built-in caching inside the database itself, tunable for the workload |
 | Application cache | An in-memory key-value store sitting between the application and persistent storage |
@@ -61,7 +61,7 @@ One blanket rule survives every variation of this. Prefer in-memory caching and 
 | Feature | Redis | Memcached |
 | --- | --- | --- |
 | In-memory key-value store | Yes | Yes |
-| Data model | Rich — lists, sets, sorted sets, hashes | Key-value strings only |
+| Data model | Rich: lists, sets, sorted sets, hashes | Key-value strings only |
 | Persistence | Yes | No |
 | Pub/sub, streams, distributed locks | Yes | No |
 | Horizontal scalability | Good, via cluster mode | Excellent, and very simple |

@@ -1,6 +1,6 @@
 ---
 # ═════════════════════════════════════════════════════════════════
-#  HOME — all of the page's content lives in this front matter.
+#  HOME: all of the page's content lives in this front matter.
 #  _layouts/home.html renders it as full-width rows, one content
 #  column, alternating between the open scene and a tinted band so
 #  each section is visibly its own. A left-margin rail names the
@@ -48,7 +48,7 @@ links:
   - { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
-# ── Pillars — the three claims, shown inside "About" as icon tiles ─
+# ── Pillars: the three claims, shown inside "About" as icon tiles ─
 # Three claims, and only three. More would dilute each one. `icon`
 # is the tile's mark (see _includes/icon.html for the names).
 # "Full-stack" is deliberately not a pillar: it is evidence inside
@@ -84,7 +84,7 @@ metrics:
   - { figure: "4",     label: platforms shipped start to finish }
 
 # ═════════════════════════════════════════════════════════════════
-#  PROJECTS — one list, however many entries, and no ranking: a
+#  PROJECTS: one list, however many entries, and no ranking: a
 #  weekend repo and a flagship get the same card. Add a project here
 #  and the grid makes room; nothing in _layouts/home.html changes.
 #  Four show at once; from the fifth on, an "All N projects" button
@@ -115,7 +115,7 @@ projects:
     languages: [Python, TypeScript]
 
     promise: >-
-      Four ways to log in, one set of rules — so *"is this person allowed to see
+      Four ways to log in, one set of rules, so *"is this person allowed to see
       this ticket?"* has the same answer everywhere.
 
     body: >-
@@ -130,7 +130,7 @@ projects:
       - { src: /assets/img/home/projects/nivara/analytics.light.png,   src_dark: /assets/img/home/projects/nivara/analytics.dark.png,   alt: "Analytics dashboard",                 caption: "Analytics, behind its own permission" }
 
     glance:
-      - { k: Guarantee, v: "One company can never see another's data — the database enforces it, not the code" }
+      - { k: Guarantee, v: "One company can never see another's data; the database enforces it, not the code" }
       - { k: Built with, v: "Postgres row-level security · a trained answer gate · replayable tests" }
       - { k: Size,      v: "4 apps · 3 services · 18 permissions · 550 labelled test questions" }
       - { k: Runs on,   v: "Free hosting, and `docker compose up` with no API keys" }
@@ -147,12 +147,12 @@ projects:
           - >-
             Made the right call on **93.6% of a 600-question eval** (595 of 600)
             by routing every answer through a trained gate that decides when to
-            reply and when to fetch a human — money questions always go to a
+            reply and when to fetch a human. Money questions always go to a
             human.
           - >-
             Put the right document first **94.2% of the time** with hybrid
             retrieval over Qdrant, and every reply is built from one of those
-            real documents — so a made-up answer is **impossible rather than
+            real documents, so a made-up answer is **impossible rather than
             unlikely**.
           - >-
             Held wrongful escalations to **6.8%** (sent to a human when it could
@@ -165,12 +165,12 @@ projects:
         stack: [NestJS, Prisma, PostgreSQL RLS, PgBouncer, Socket.IO, Redis]
         blog:  /blogs/nivara-desk-part-two/
         promise: >-
-          Forget the company filter on a query and you get nothing back — never
+          Forget the company filter on a query and you get nothing back, never
           someone else's data.
         points:
           - >-
             Postgres itself blocks the rows, so a mistake in the code cannot leak
-            them. Asking for another company's ticket returns **404, not 403** —
+            them. Asking for another company's ticket returns **404, not 403**;
             saying "forbidden" would confirm the ticket exists.
 
       - id:    web
@@ -202,14 +202,14 @@ projects:
 
     promise: >-
       Once the API says `202`, the event is either delivered or recorded as
-      failed — and every attempt in between is written down.
+      failed, and every attempt in between is written down.
 
     body: >-
       There is no fourth outcome where an event quietly disappears. That is the
       whole point, and the hardest part to keep true.
 
     # Taken from the live dashboard at 1440×900, 2×, in the app's own
-    # light and dark themes — the same pair as the Nivara shots.
+    # light and dark themes, the same pair as the Nivara shots.
     shots:
       - { src: /assets/img/home/projects/webhook/dashboard.light.png, src_dark: /assets/img/home/projects/webhook/dashboard.dark.png, alt: "Operator dashboard showing live counters, demo controls and the scenario buttons", caption: "The operator dashboard" }
       - { src: /assets/img/home/projects/webhook/events.light.png,    src_dark: /assets/img/home/projects/webhook/events.dark.png,    alt: "Event list showing dead-lettered events with every attempt recorded",          caption: "Every attempt, including the failures" }
@@ -222,7 +222,7 @@ projects:
     points:
       - >-
         **Postgres holds the truth; Redis is only a scheduler.** That sounds
-        minor and it is the whole design — the entire Redis instance can be wiped
+        minor and it is the whole design: the entire Redis instance can be wiped
         without losing a single event.
       - >-
         A process can die between saving an event and queueing it. A **sweeper**
@@ -266,9 +266,9 @@ projects:
       - { label: Source, icon: github, url: "https://github.com/rishabh0111/MetaMask-ETH-Bank" }
 
 # ═════════════════════════════════════════════════════════════════
-#  EXPERIENCE — a timeline. `period` sits in the gutter, a dot on
+#  EXPERIENCE: a timeline. `period` sits in the gutter, a dot on
 #  the spine marks the job (`current: true` lights it), and the job
-#  is a card: `summary` (one line — always give a job one), the
+#  is a card: `summary` (one line; always give a job one), the
 #  `ventures` as small tiles, `stack`. The `points` are folded behind
 #  "What I did there", so a new job takes the same room as the last.
 #  `logo` is the company mark; add `logo_dark` only for a wordmark
@@ -282,7 +282,7 @@ experience:
     logo:      /assets/img/home/logos/kleeto.light.png
     logo_dark: /assets/img/home/logos/kleeto.dark.png
     role:    AI Engineer
-    period:  May 2026 — Present
+    period:  May 2026 to Present
     place:   Gurugram
     current: true
     stack:   [Python, FastAPI, MCP, LangGraph, RAG, Claude, OpenAI]
@@ -291,7 +291,7 @@ experience:
       ask it for things in plain English across six parts of the system.
     points:
       - >-
-        I own the **AI assistant inside Kleeto's HR platform** — hiring,
+        I own the **AI assistant inside Kleeto's HR platform**: hiring,
         onboarding, attendance, payroll, leaving, and the document system. Staff
         now ask for things in plain English instead of hunting through screens:
         **500+ employees, 6 parts of the platform, 18 actions the assistant can take**.
@@ -312,7 +312,7 @@ experience:
     logo:      /assets/img/home/logos/zeonix.light.png
     logo_dark: /assets/img/home/logos/zeonix.dark.png
     role:    Software Developer
-    period:  Jun 2024 — Apr 2026
+    period:  Jun 2024 to Apr 2026
     place:   Chandigarh
     stack:   [Node.js, Express, PostgreSQL, GraphQL, Angular, WSO2]
     summary: >-
@@ -329,7 +329,7 @@ experience:
             **three hours to under one**.
           - >-
             Made the busiest pages **40% faster (1.5s → 0.9s)** on ~10K requests a
-            day, and set up single sign-on with five permission levels —
+            day, and set up single sign-on with five permission levels:
             **no unauthorised access in 18 months across 500+ users**.
       - name: ZeoVerify
         note: Document verification & digital onboarding
@@ -353,7 +353,7 @@ experience:
             complete fully or not at all.
 
 # ═════════════════════════════════════════════════════════════════
-#  SKILLS — rendered as a logo grid. Each item is looked up in
+#  SKILLS: rendered as a logo grid. Each item is looked up in
 #  _data/tech_logos.json; anything with no brand mark renders as an
 #  initialled badge on purpose. Add an item, then re-run
 #  `python _templates/logos/build_logos.py` to pull its mark in.
@@ -413,16 +413,16 @@ about: >-
   permissions it borrows, and whether I can reproduce every number I publish from
   a clean clone.
 
-# ── Credentials — two panels ──────────────────────────────────────
+# ── Credentials: two panels ───────────────────────────────────────
 # Education in one, certifications and awards in the other, each
 # entry a row with the mark of its kind (cap, seal, trophy).
 education:
   - degree: B.E. Computer Science Engineering
     detail: Specialization in Information Security
     school: Chandigarh University, Mohali
-    period: Aug 2020 — May 2024
+    period: Aug 2020 to May 2024
     score:  CGPA 8.02 / 10
-  - degree: Higher Secondary (12th) — Science
+  - degree: Higher Secondary (12th), Science
     detail: PCM + Computer Science
     school: Govt. Sr. Sec. School, Chotta Shimla
     period: Mar 2019
@@ -445,9 +445,9 @@ certifications:
       - { label: Poly Proof,     url: "https://solscan.io/token/Hj9NS5NBVeEeV77n3nF8Fhvmw2Ab68v5AgSNjwVgNt5t" }
 
 awards:
-  - name: Top 5 nationally — Intel oneAPI Hackathon
+  - name: Top 5 nationally · Intel oneAPI Hackathon
     note: Intel × IIT Roorkee.
-  - name: District Rank 1 — Mathematics Olympiad
+  - name: District Rank 1 · Mathematics Olympiad
     note: National Science Congress.
 
 interests: [Chess, Technical writing, 10-finger typing, Infrastructure spelunking]

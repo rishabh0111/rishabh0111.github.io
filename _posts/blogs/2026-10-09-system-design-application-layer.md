@@ -179,7 +179,7 @@ Health checks come in two depths that get conflated more often than they should.
 | --- | --- | --- |
 | Database per service | Each service is fully independent, deployed on its own, free to pick its own persistence technology | Best option, choose by default |
 | Schema per service | One shared database, data isolated by schema, ownership stays clear | Acceptable fallback |
-| Tables per service | One shared database and schema, dedicated tables per service, held together by process discipline alone | Too hard to enforce — avoid |
+| Tables per service | One shared database and schema, dedicated tables per service, held together by process discipline alone | Too hard to enforce; avoid |
 
 Database-per-service is what lets a service pick Elasticsearch for search or Redis for a follower graph without asking anyone's permission. It costs something specific at query time, though. Cross-functional data that used to be one join now means querying each owning service separately and interpolating the results in application code, because a join across two services' private databases isn't a thing that exists anymore.
 
@@ -216,5 +216,5 @@ Every pattern in this part is downstream of the same one sentence. An applicatio
 
 ## Further reading
 
-- [Consul Documentation — HashiCorp Developer](https://developer.hashicorp.com/consul/docs)
+- [Consul Documentation (HashiCorp Developer)](https://developer.hashicorp.com/consul/docs)
 - [etcd](https://etcd.io/)

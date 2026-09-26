@@ -1,15 +1,15 @@
 /* =================================================================
-   rishabh0111.github.io — style.css  v3
+   rishabh0111.github.io: style.css  v3
    Palette: Sanzo Wada "Indigo Lacquer"
    
-   Design language: the feel of a 1960s Italian cultural magazine —
-   Domus, Casabella — printed on uncoated stock. Strong typographic
+   Design language: the feel of a 1960s Italian cultural magazine
+   (Domus, Casabella) printed on uncoated stock. Strong typographic
    architecture, generous white field, moments of unexpected colour.
    Not a museum. Not a brutalist blog. Something with opinions.
 
    Dark Reader fix:
-   — color-scheme: light dark tells DR the site handles both
-   — @media (prefers-color-scheme: dark) provides our own palette
+   · color-scheme: light dark tells DR the site handles both
+   · @media (prefers-color-scheme: dark) provides our own palette
      so DR sees a finished dark theme and leaves it alone
 ================================================================= */
 
@@ -17,7 +17,7 @@
    TOKENS
 ════════════════════════════════════════════════════════════════ */
 :root {
-  /* Paper ground — a pale mint-tinted stock. --paper is --color-5
+  /* Paper ground: a pale mint-tinted stock. --paper is --color-5
      lifted toward white so long-form text keeps its contrast; the mid
      and deep steps walk back down through --color-5 to --color-4, so
      the surface hierarchy is the palette itself rather than grey. */
@@ -28,13 +28,13 @@
   --ink-mid:       #485265;
   --ink-faint:     #5E6A83;
 
-  /* Deep teal — the structural colour (--color-2 verbatim; 7.0:1 on
+  /* Deep teal, the structural colour (--color-2 verbatim; 7.0:1 on
      --paper, so it can carry links and table headers as-is) */
   --indigo:        #3B4252;   /* = brand --color-2, Teal */
   --indigo-light:  #4C566A;   /* = brand --color-3, Cadet Blue */
   --indigo-ghost:  #ECEFF4;
 
-  /* Lacquer — the accent, appears sparingly. Cadet-blue family:
+  /* Lacquer: the accent, appears sparingly. Cadet-blue family:
      --lacquer is --color-3 darkened to clear AA on --paper (4.6:1),
      --lacquer-light is --color-4 verbatim for decorative, non-text use.
      Kept a brighter, greener teal than --indigo so the accent and the
@@ -62,7 +62,7 @@
      the full width inside --page-pad; its columns are sized by the grid
      rather than by --article-w, which is kept for the listing layouts. */
   --max-w:     1280px;
-  /* Gutter between the page edge and the content spine — the same
+  /* Gutter between the page edge and the content spine: the same
      --s5 that sits above and below the content, so the post page has
      one even frame on all four sides. One variable, because
      .post-wrap's padding and the bands' widths below it have to agree
@@ -86,12 +86,12 @@
   /* Easing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Semantic surface aliases — light mode */
+  /* Semantic surface aliases (light mode) */
   --bg:           var(--paper);
   --bg-raised:    var(--paper-mid);
   --text:         var(--ink);
-  --text-2:       #485265;   /* 7.4:1 on --paper — carries lead paragraphs */
-  --text-3:       #5E6A83;   /* 4.6:1 on --paper — small mono labels need AA too */
+  --text-2:       #485265;   /* 7.4:1 on --paper, carries lead paragraphs */
+  --text-3:       #5E6A83;   /* 4.6:1 on --paper; small mono labels need AA too */
   --accent:       var(--lacquer);
   --accent-dim:   var(--lacquer-light);
   --border:       var(--paper-deep);
@@ -99,7 +99,7 @@
   --header-text:  var(--ink);          /* light theme = dark text on light glass */
   --header-sub:   #556077;             /* darker so the mono nav reads clearly */
 
-  /* Component-level semantic tokens — light.
+  /* Component-level semantic tokens: light.
      Everything that used to need a per-rule dark override now lives
      here, so light/dark is decided in exactly ONE place (below). */
   --link:         #1D6F87;
@@ -122,13 +122,13 @@
   --pill-news-bg: rgba(136,192,208,0.30);
   --pill-news-fg: #1D6F87;
 
-  /* ── Glass — one material, three deliberate weights ──────────────
+  /* ── Glass: one material, three deliberate weights ──────────────
      Calibrated against iOS 26 "Liquid Glass". The navigation plane
      (floating header + tab bar) gets the heavy blur; overlays that
      briefly sit above content get the 12px "readable sweet spot";
      the scrim weight is a faint frost behind a surface that is
      already almost opaque. --glass-fx is the saturate/brightness lift
-     that puts back the contrast the blur eats — kept far below the
+     that puts back the contrast the blur eats, kept far below the
      180% that smears a near-grey palette and drags the hero's teal
      glow unevenly across the bar. Glass is for the navigation layer:
      the content cards below carry a plain surface, not a blur. */
@@ -141,11 +141,11 @@
   --glass-hi:     rgba(255,255,255,0.55);   /* top inner-light edge */
   /* A light frost, not a slab. The readability wash sits on the fixed
      scene (.px::after) behind BOTH the header and the hero, so the tint
-     here only has to unify the two — the wash already supplies the
+     here only has to unify the two; the wash already supplies the
      value. Kept transparent enough that the scene reads through. */
   --header-glass: color-mix(in srgb, var(--paper) 64%, transparent);
   --header-glass-solid: #ECEFF4;   /* reduced-transparency fallback   */
-  /* Mobile nav panel: near-opaque — it covers body text, unlike the header bar */
+  /* Mobile nav panel: near-opaque; it covers body text, unlike the header bar */
   --nav-panel:    color-mix(in srgb, var(--paper) 97%, transparent);
 
   /* Plane = header / hero / footer surfaces. Now transparent so the
@@ -155,7 +155,7 @@
   --plane-faint:  #5E6A83;             /* separators, counts          */
   --plane-rule:   rgba(46,52,64,0.12); /* hairline on header/footer   */
   /* The readability wash over the parallax. It now lives on the fixed
-     scene itself (.px::after), not on each plane's ::before — so the
+     scene itself (.px::after), not on each plane's ::before, so the
      floating header frosts exactly the same backdrop the hero sits on,
      at every scroll position. Weighted to the top and bottom of the
      viewport (where the planes are) and clear through the middle so the
@@ -168,14 +168,14 @@
                     rgba(236,239,244,0.50) 86%,
                     rgba(236,239,244,0.80) 100%);
 
-  /* Reading panel — "paper sheet" floating over the scene (content-first) */
+  /* Reading panel: "paper sheet" floating over the scene (content-first) */
   --panel:        color-mix(in srgb, var(--bg) 88%, transparent);
   --panel-border: color-mix(in srgb, var(--border) 55%, transparent);
   --panel-shadow: 0 10px 44px rgba(46,52,64,0.12);
   /* Cards carry text directly, so they sit more opaque than --panel */
   --card-bg:      #F6F8FA;
 
-  /* Stat band — the one place the palette runs at full strength */
+  /* Stat band: the one place the palette runs at full strength */
   --stat-bg:      #3B4252;
   --stat-fg:      #ECEFF4;   /* 8.7:1 on --stat-bg */
   --stat-dim:     #B4C0D4;   /* 5.5:1 on --stat-bg */
@@ -200,14 +200,14 @@
     radial-gradient(150% 60% at 50% 118%, rgba(216,222,233,0.85), rgba(216,222,233,0) 62%);
   --px-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%234C566A'%3E%3Ccircle cx='25' cy='35' r='2.2' opacity='.30'/%3E%3Ccircle cx='95' cy='70' r='1.6' opacity='.24'/%3E%3Ccircle cx='148' cy='30' r='2.4' opacity='.26'/%3E%3Ccircle cx='60' cy='135' r='1.9' opacity='.25'/%3E%3Ccircle cx='125' cy='120' r='2.1' opacity='.23'/%3E%3Ccircle cx='32' cy='98' r='1.5' opacity='.20'/%3E%3C/g%3E%3C/svg%3E");
   --px-tex-op: 0.22;
-  /* The contours are the light theme's character — run them high enough
+  /* The contours are the light theme's character; run them high enough
      to actually read, where the old corner arcs vanished at 0.22. */
   --px-mid-op:  0.85;
   --px-near-op: 1;
 }
 
 /* ────────────────────────────────────────────────────────────────
-   DARK TOKENS — the single source of truth for the dark palette.
+   DARK TOKENS: the single source of truth for the dark palette.
 
    Two triggers, one palette (defined once via a CSS variable list
    would require duplication, so we keep the block tight):
@@ -219,8 +219,8 @@
   --bg:           #2E3440;
   --bg-raised:    #3B4252;
   --text:         #ECEFF4;
-  --text-2:       #D8DEE9;   /* 6.6:1 on --bg — carries lead paragraphs */
-  --text-3:       #A6B2CA;   /* 4.8:1 on --bg — small mono labels need AA too */
+  --text-2:       #D8DEE9;   /* 6.6:1 on --bg, carries lead paragraphs */
+  --text-3:       #A6B2CA;   /* 4.8:1 on --bg; small mono labels need AA too */
   --accent:       #88C0D0;   /* brightened --color-5 (Dark Orange), 7.6:1 on --bg */
   --accent-dim:   #4C566A;
   --border:       #434C5E;
@@ -228,7 +228,7 @@
   --header-text:  #D8DEE9;
   --header-sub:   #6D7C99;
   --indigo:       #4C566A;
-  --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue — 10:1 on --bg */
+  --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue, 10:1 on --bg */
   --indigo-ghost: #2E3440;
   --paper:        #2E3440;
   --paper-mid:    #3B4252;
@@ -309,8 +309,8 @@
     --bg:           #2E3440;
     --bg-raised:    #3B4252;
     --text:         #ECEFF4;
-    --text-2:       #D8DEE9;   /* 6.6:1 on --bg — carries lead paragraphs */
-    --text-3:       #A6B2CA;   /* 4.8:1 on --bg — small mono labels need AA too */
+    --text-2:       #D8DEE9;   /* 6.6:1 on --bg, carries lead paragraphs */
+    --text-3:       #A6B2CA;   /* 4.8:1 on --bg; small mono labels need AA too */
     --accent:       #88C0D0;   /* brightened --color-5 (Dark Orange), 7.6:1 on --bg */
     --accent-dim:   #4C566A;
     --border:       #434C5E;
@@ -318,7 +318,7 @@
     --header-text:  #D8DEE9;
     --header-sub:   #6D7C99;
     --indigo:       #4C566A;
-    --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue — 10:1 on --bg */
+    --indigo-light: #88C0D0;   /* = brand --color-1, Sky Blue, 10:1 on --bg */
     --indigo-ghost: #2E3440;
     --paper:        #2E3440;
     --paper-mid:    #3B4252;
@@ -398,13 +398,13 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"]  { color-scheme: dark; }
 
-/* Refined text selection — token-driven, no separate dark rule needed */
+/* Refined text selection: token-driven, no separate dark rule needed */
 ::selection {
   background: var(--select-bg);
   color: var(--text);
 }
 
-/* Theme transition — smooth the swap, but never animate on first paint
+/* Theme transition: smooth the swap, but never animate on first paint
    or for users who prefer reduced motion */
 body, .site-header, .site-footer, .sidebar-card,
 .post-row, .post-content pre, .post-content blockquote,
@@ -423,7 +423,7 @@ body, .site-header, .site-footer, .sidebar-card,
   .hero-inner .hero-rise { opacity: 1; transform: none; animation: none; }
   .pcard, .pcard-avatar img { transform: none !important; }
   /* The clamp deliberately survives here. Reduced motion asks for no
-     ANIMATION, not for less functionality — the height transition is
+     ANIMATION, not for less functionality; the height transition is
      already killed by the rule above, and hiding the toggle instead
      would strand the rest of the essay behind a fade with no way in. */
 }
@@ -457,8 +457,8 @@ body {
   /* The .px scene (fixed, z-index -1) is what the page actually sits on;
      this gradient only shows in the overscroll rubber-band. It used to be
      background-attachment: fixed, which forces the browser to repaint a
-     full-viewport image on every scroll frame — the main cause of the
-     laggy scroll on phones — for a surface that is almost never visible. */
+     full-viewport image on every scroll frame (the main cause of the
+     laggy scroll on phones) for a surface that is almost never visible. */
   background: var(--px-base);
   color: var(--text);
   font-family: var(--f-serif);
@@ -475,7 +475,7 @@ body {
 
 main { flex: 1; }
 
-/* Subtle noise on the page surface — low opacity, doesn't invert badly */
+/* Subtle noise on the page surface: low opacity, doesn't invert badly */
 body::before {
   content: '';
   position: fixed; inset: 0;
@@ -500,7 +500,7 @@ body::before {
 }
 /* Readability wash, painted over the parallax layers as part of the
    fixed scene. Because it is viewport-fixed, anything floating in front
-   of the scene — the sticky header above all — sits on exactly the same
+   of the scene (the sticky header above all) sits on exactly the same
    wash as the hero does, so the two never read as different surfaces. */
 .px::after {
   content: '';
@@ -541,14 +541,14 @@ body::before {
 }
 .px.has-topo .px-mid { display: none; }
 
-/* ── Click Spark — a burst of short lines at every click ────────── */
+/* ── Click Spark: a burst of short lines at every click ────────── */
 .click-spark {
   position: fixed; inset: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 95;
 }
 
 /* ════════════════════════════════════════════════════════════════
-   READING PROGRESS — single hairline, lacquer
+   READING PROGRESS: single hairline, lacquer
 ════════════════════════════════════════════════════════════════ */
 /* ════════════════════════════════════════════════════════════════
    IMAGE / DIAGRAM VIEWER
@@ -559,7 +559,7 @@ body::before {
 
    The scrim follows the theme rather than being dark in both. A mermaid
    diagram is rendered in the page's own palette, so in the light theme
-   it draws dark ink — which a dark scrim swallowed. Mixing it from --bg
+   it draws dark ink, which a dark scrim swallowed. Mixing it from --bg
    means it tracks the theme with no second set of values to maintain.
 ════════════════════════════════════════════════════════════════ */
 .lightbox {
@@ -608,7 +608,7 @@ body.lb-open { overflow: hidden; }
 .lb-btn svg { width: 15px; height: 15px; display: block; }
 
 /* Centring is done by the figure's own transform, not by the stage.
-   Grid/flex centring of a box bigger than its track is not dependable —
+   Grid/flex centring of a box bigger than its track is not dependable:
    the overflow direction is up to the browser, and a tall diagram ended
    up hanging off the bottom instead of sitting in the middle. Anchoring
    the box's centre to the stage's centre is exact at any size. */
@@ -640,7 +640,7 @@ body.lb-open { overflow: hidden; }
   -webkit-touch-callout: none;      /* no save-image sheet on a long press */
 }
 /* Mermaid flowchart labels are HTML inside <foreignObject>, so they
-   inherit line-height from here — a zeroed one collapsed every label.
+   inherit line-height from here; a zeroed one collapsed every label.
    Sequence diagrams use plain <text> and were unaffected, which is why
    only the flowcharts came out wrong. */
 .lightbox-content { line-height: normal; }
@@ -654,7 +654,7 @@ body.lb-open { overflow: hidden; }
 .post-content a img { cursor: pointer; }
 
 /* Each figure gets a control in its corner. The artwork itself still
-   opens on click, but a diagram is mostly whitespace between boxes —
+   opens on click, but a diagram is mostly whitespace between boxes;
    this is the part you can actually aim at. */
 .fig-wrap { position: relative; display: block; }
 span.fig-wrap { display: inline-block; max-width: 100%; }
@@ -695,7 +695,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    "you are two thirds through".
 
    Nothing here is announced to screen readers except the button's own
-   label — progress is decoration, and the ring is inert SVG.
+   label: progress is decoration, and the ring is inert SVG.
 ════════════════════════════════════════════════════════════════ */
 .scroll-top {
   position: fixed;
@@ -759,14 +759,14 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 /* Placement. The convention is the bottom-right corner, and that is
-   where it goes — except on a post page, where the bottom-right corner
+   where it goes, except on a post page, where the bottom-right corner
    belongs to the TOC rail and a button there covers the last entries.
    There it shifts left to straddle the article panel's right edge: it
    lands in the column gutter and over the panel's own padding, so it
    overlaps neither the rail nor a line of text. */
 @media (min-width: 861px) {
   /* The strip between the TOC rail and the article's text is the column
-     gap plus the panel's own inner padding — 64px with nothing in it.
+     gap plus the panel's own inner padding: 64px with nothing in it.
      The button is sized and placed to fill that, clearing the rail by
      2px on one side and stopping short of the prose on the other. */
   body:has(.post-sidebar) {
@@ -774,7 +774,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   }
   /* Rail docked at the edge: the article now runs to the gutter, so the
      button returns to the plain corner. The pill sits at the top of the
-     window, the button at the bottom — they never meet. The state is
+     window, the button at the bottom; they never meet. The state is
      read off body because a fixed element cannot see a variable set on
      .post-wrap. */
   body:has(.post-sidebar.collapsed) { --fab-right: var(--s4); }
@@ -787,14 +787,14 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   transform: rotate(-90deg);          /* progress starts at 12 o'clock */
   overflow: visible;
 }
-/* Geometry (cx/cy/r) lives on the elements — as CSS properties it is
+/* Geometry (cx/cy/r) lives on the elements; as CSS properties it is
    too new to rely on. */
 .scroll-top-ring circle { fill: none; stroke-width: 3.5; }
 .ring-track { stroke: var(--border); stroke-width: 3; }
 .ring-bar {
   stroke: var(--accent);
   stroke-linecap: round;
-  /* dasharray/offset are set from JS — 2πr for r=21 */
+  /* dasharray/offset are set from JS: 2πr for r=21 */
   stroke-dasharray: 131.95;
   stroke-dashoffset: 131.95;
   transition: stroke-dashoffset 0.08s linear;
@@ -819,8 +819,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   background: var(--header-glass);
   /* The blur lives on ::before, not here. An element with a
      backdrop-filter becomes the containing block for its fixed-position
-     descendants, and .site-nav — which docks to the bottom of the
-     window on phones — is one of them. A pseudo-element has no
+     descendants, and .site-nav (which docks to the bottom of the
+     window on phones) is one of them. A pseudo-element has no
      descendants to capture, so the glass survives without the trap. */
   height: var(--h-header);
   /* Edge to edge, but the wordmark and nav line up with the content:
@@ -873,7 +873,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 .site-logo span {
   color: var(--accent);
-  /* The slash leans — gives the wordmark life */
+  /* The slash leans; gives the wordmark life */
   display: inline-block;
   transform: rotate(10deg);
   margin-left: 1px;
@@ -882,7 +882,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   margin-right: -0.16em;
   font-style: normal;
 }
-/* Terminal cursor block after the slash — the same mark as the favicon
+/* Terminal cursor block after the slash: the same mark as the favicon
    ("RISHABH SHARMA/" + a prompt cursor). Static, like the favicon: the
    block tucks up close under the slash, not spaced off it. */
 .logo-cur {
@@ -920,7 +920,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a:hover .nav-ic,
 .site-nav a.active .nav-ic { opacity: 1; }
 
-/* The selection pill — sits behind the label, brightens in on hover,
+/* The selection pill: sits behind the label, brightens in on hover,
    fills on active. z-index -1 drops it below the text but keeps it
    above the header's own glass (the sticky header is a stacking
    context, so -1 lands between its blur and its content). */
@@ -968,7 +968,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* Header right cluster: nav + theme switch + hamburger */
 .header-right { display: flex; align-items: center; gap: var(--s1); }
 
-/* Hamburger — desktop hides it; the ≤860px block turns it on.
+/* Hamburger: desktop hides it; the ≤860px block turns it on.
    Three bars that morph into an X when expanded. */
 .nav-toggle {
   display: none;
@@ -1021,7 +1021,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   height: calc(var(--tt-seg) + var(--tt-pad) * 2);
   border: 1px solid var(--plane-rule);
   border-radius: 999px;
-  /* No blur of its own — it sits on the header's glass, and glass on
+  /* No blur of its own. It sits on the header's glass, and glass on
      glass muddies both. A plain tint, concentric with the capsule. */
   background: color-mix(in srgb, var(--header-text) 10%, transparent);
   transition: border-color 0.25s var(--ease-out);
@@ -1086,7 +1086,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s3);
   border-top: 1px solid var(--plane-rule);
-  /* Never floats mid-page — body is flex column, main has flex:1 */
+  /* Never floats mid-page: body is flex column, main has flex:1 */
 }
 .site-footer p {
   font-family: var(--f-mono);
@@ -1103,10 +1103,10 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    PAGE HEADER (listing pages)
    
    Design break from the old version: 
-   — No decorative circle. No gradient blob.  
-   — Instead: the title is huge and sits against the dark field.
+   · No decorative circle. No gradient blob.  
+   · Instead: the title is huge and sits against the dark field.
      A single horizontal rule in lacquer breaks below it.
-   — The page label floats at a rotated angle in the far right —
+   · The page label floats at a rotated angle in the far right,
      a marginal note, like a hand-stamped category mark.
 ════════════════════════════════════════════════════════════════ */
 .page-header {
@@ -1117,7 +1117,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 /* The readability wash now lives on the fixed scene (.px::after), so the
-   header and this plane share one surface — no per-plane ::before. */
+   header and this plane share one surface, no per-plane ::before. */
 
 /* Bottom rule: a measured lacquer line, not full-width */
 .page-header::after {
@@ -1161,7 +1161,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   background: var(--accent); display: inline-block; flex-shrink: 0;
 }
 
-/* Headline — very large, heavy and tight. This is the architecture. */
+/* Headline: very large, heavy and tight. This is the architecture. */
 .page-header h1 {
   font-family: var(--f-display);
   font-size: clamp(3rem, 7vw, 5.5rem);
@@ -1188,11 +1188,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 
 /* ════════════════════════════════════════════════════════════════
-   LISTING — the post rows
+   LISTING: the post rows
    
    These are not cards. They are entries in a ledger.
    The date is a monospaced timestamp in the left gutter.
-   The title is large display type — it carries all the visual weight.
+   The title is large display type; it carries all the visual weight.
    On hover: the background warms, and a lacquer bar slides in on the left.
 ════════════════════════════════════════════════════════════════ */
 .listing-wrap {
@@ -1269,7 +1269,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* News: lacquer title on hover */
 .post-row.news-item:hover .post-row-title { color: var(--accent); }
 
-/* Tags — smaller, tucked under title */
+/* Tags: smaller, tucked under title */
 .post-row-tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
 .post-row-tag {
   font-family: var(--f-mono); font-size: 8px; letter-spacing: 0.1em;
@@ -1302,7 +1302,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    Standalone posts are a single card on the line; a series is the same
    card drawn as a stack of three (a <details>, so it folds without JS)
    and lists its parts when opened. One card against a stack is the
-   whole distinction — nothing else about the two differs in weight. */
+   whole distinction; nothing else about the two differs in weight. */
 .bt-year {
   --bt-gutter: 32px;
   --bt-rail: 7px;                  /* x of the line, from the gutter's left */
@@ -1350,7 +1350,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* the stack's two back cards hang below the front one */
 .bt-series { margin-bottom: calc(var(--s2) + 22px); }
 
-/* The card — shared by both kinds */
+/* The card, shared by both kinds */
 .bt-card, .series-card {
   display: block;
   border: 1px solid var(--border);
@@ -1437,10 +1437,10 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .group-count { letter-spacing: inherit; }
 
 /* Blog index toolbar: one hairline row (search, status, jump links)
-   and a line of tag filters under it — set in the same mono labels as
+   and a line of tag filters under it, set in the same mono labels as
    the rest of the listing, so it reads as part of the page, not a form.
    Rendered hidden and switched on by assets/js/blog-index.js, which
-   hides non-matching entries in place — the order never changes.
+   hides non-matching entries in place; the order never changes.
    .post-row sets display:grid, so [hidden] needs saying explicitly. */
 .listing-wrap [hidden] { display: none !important; }
 .post-row.is-last-shown { border-bottom: none; }
@@ -1544,25 +1544,25 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    POST HERO
    
    The single post view opens with a dark full-bleed field.
-   The title is very large — the page announces itself.
+   The title is very large: the page announces itself.
    Below the fold, the body returns to warm paper.
    
    Unusual choice: the title is set in the display font at an
    outsized scale, but the meta row directly below is tiny mono.
-   The gap in scale is deliberate — it creates vertical rhythm.
+   The gap in scale is deliberate; it creates vertical rhythm.
 ════════════════════════════════════════════════════════════════ */
 .post-hero {
   background: transparent;          /* parallax scene shows through */
-  /* The hero is allowed the room — it is the one place on the page
+  /* The hero is allowed the room: it is the one place on the page
      that isn't competing with the rails, and it sits on a wider inset
      than --page-pad so the title has air on both sides. */
   padding: var(--s8) var(--s8) var(--s6);
   position: relative; overflow: hidden;
 }
 
-/* Readability wash is on the fixed scene now (.px::after) — see .page-header. */
+/* Readability wash is on the fixed scene now (.px::after); see .page-header. */
 
-/* A thin lacquer line across the hero foot — marks the plane change */
+/* A thin lacquer line across the hero foot, marks the plane change */
 .post-hero::after {
   content: '';
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -1581,12 +1581,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 .post-hero-inner {
   /* No cap: .post-hero's own padding is the frame. One column, read top
-     to bottom — crumb, title, meta, excerpt. */
+     to bottom: crumb, title, meta, excerpt. */
   max-width: none; margin: 0 auto;
   position: relative; z-index: 1;
 }
 
-/* Breadcrumb — stays out of the way */
+/* Breadcrumb: stays out of the way */
 .post-crumb {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--f-mono); font-size: 9px;
@@ -1605,7 +1605,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .cat-pill.blog { background: var(--pill-blog-bg); color: var(--pill-blog-fg); }
 .cat-pill.news { background: var(--pill-news-bg); color: var(--pill-news-fg); }
 
-/* The post title — display serif at full stretch */
+/* The post title: display serif at full stretch */
 .post-title {
   font-family: var(--f-display);
   font-size: clamp(2.2rem, 4vw, 3.5rem);
@@ -1620,7 +1620,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 .post-title em { font-style: normal; color: var(--lacquer-light); }
 
-/* Meta row — tiny, far below the title, like a caption */
+/* Meta row: tiny, far below the title, like a caption */
 .post-meta {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: 0.15rem 0.8rem;
@@ -1632,7 +1632,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .meta-item svg { width: 11px; height: 11px; opacity: 0.7; }
 .post-source { color: var(--accent); }
 
-/* Excerpt — italic, indented with lacquer hairline */
+/* Excerpt: italic, indented with lacquer hairline */
 .post-excerpt {
   margin-top: var(--s4);
   font-size: 15px; line-height: 1.6;
@@ -1647,11 +1647,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    POST BODY GRID
 ════════════════════════════════════════════════════════════════ */
 /* Two rails by default: article + TOC on the right. A post that belongs
-   to a series also gets a left rail (.has-rail) holding the parts list —
+   to a series also gets a left rail (.has-rail) holding the parts list,
    but only once the viewport can afford a third column, see RESPONSIVE.
    Below that width the parts card becomes a strip above the article. */
 /* The top offset lives here, on the container, not on the columns. A
-   margin on a sticky column is added to its sticky `top` — the rails
+   margin on a sticky column is added to its sticky `top`, so the rails
    would hang that far below the header for the whole scroll. */
 .post-wrap {
   max-width: none;
@@ -1668,7 +1668,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .post-wrap:has(> .post-sidebar.collapsed) { grid-template-columns: 1fr 0px; }
 /* Fallback placement: a full-width strip above the article. It only
    becomes a true left rail once there is room for a third column.
-   As a strip the parts list lies flat — no scroll box, it's short and
+   As a strip the parts list lies flat: no scroll box, it's short and
    the page can absorb it. */
 .post-rail {
   grid-column: 1 / -1; grid-row: 1;
@@ -1690,7 +1690,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    ARTICLE PROSE
    
    The goal: a book page that happens to be on screen.
-   The §-marker lives in the negative space — margin reading.
+   The §-marker lives in the negative space: margin reading.
    First paragraph gets a slightly larger lead, like a magazine opener.
    No bullet icons, no decorative flourishes. Typography alone.
 ════════════════════════════════════════════════════════════════ */
@@ -1705,7 +1705,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   -webkit-backdrop-filter: blur(var(--glass-blur-scrim));
 }
 
-/* First paragraph: lead-in size — a gentle entry */
+/* First paragraph: lead-in size, a gentle entry */
 .post-content > p:first-of-type {
   font-size: 1.06em;
   color: var(--text-2);
@@ -1733,7 +1733,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   letter-spacing: 0;
 }
 
-/* H3: mono uppercase, very small — a classification mark */
+/* H3: mono uppercase, very small: a classification mark */
 .post-content h3 {
   font-family: var(--f-mono); font-size: 9.5px;
   letter-spacing: 0.22em; text-transform: uppercase;
@@ -1828,7 +1828,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--text-3); letter-spacing: 0.24em;
 }
 
-/* Images — centred in the measure, caption tracks the image */
+/* Images: centred in the measure, caption tracks the image */
 .post-content img {
   max-width: 100%; display: block;
   border: 1px solid var(--border); margin: var(--s5) auto;
@@ -1902,7 +1902,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    POST NAVIGATION
    Two columns. Each is a flat plane. No fuss.
 
-   Held to the same measure as the article and the "more posts" band —
+   Held to the same measure as the article and the "more posts" band;
    it used to run full-bleed, which read as part of the footer chrome
    and left the article sitting directly on top of it.
 ════════════════════════════════════════════════════════════════ */
@@ -1955,7 +1955,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* The rail is one viewport-tall column: cards are laid out top-down and
    the TOC absorbs every pixel the other cards don't claim, so a long
    article's contents stay visible instead of running off the fold.
-   The padding is deliberately thin — every rem here is a rem the TOC
+   The padding is deliberately thin: every rem here is a rem the TOC
    doesn't get. `overflow: hidden` is the guard that matters: without it
    a card that refuses to shrink paints straight over the post nav and
    the footer below, because the sticky box's height is capped but its
@@ -1981,7 +1981,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border: 1px solid var(--glass-border);
   border-radius: 8px;
   /* Tight: the rail is narrow, so padding here is width taken from the
-     entries themselves — and vertically it is TOC rows lost. */
+     entries themselves, and vertically it is TOC rows lost. */
   padding: var(--s2) var(--s2);
   margin-bottom: var(--s2);
   backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
@@ -1992,10 +1992,10 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 /* Card head: icon, label, collapse control. The head is the one part
-   that survives collapsing — it becomes the pill. */
+   that survives collapsing; it becomes the pill. */
 .sidebar-head {
   /* Never shrinks. The card is a flex column with overflow:hidden, so a
-     shrinkable head gets squeezed by the list below it — the label
+     shrinkable head gets squeezed by the list below it: the label
      clips against the card border and the toggle disappears with it. */
   flex: 0 0 auto;
   display: flex; align-items: flex-start; gap: 7px;
@@ -2037,11 +2037,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ── Collapsed: a tab docked to the page edge ────────────────────
    The list is dropped, the toggle swaps its chevron for the section's
-   own icon, and the heading turns on its side beneath it — so a docked
+   own icon, and the heading turns on its side beneath it, so a docked
    rail still says what it is, not just which icon it wears. Only the
    inner corners are rounded, so the pill reads as docked to the page
    edge rather than floating near it. It stays inside the article's
-   row — see below for why. */
+   row (see below for why). */
 .post-rail.collapsed,
 .post-sidebar.collapsed {
   /* Still a grid item, not fixed. Fixed positioning pinned the pill to
@@ -2088,7 +2088,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border-right-color: transparent;
 }
 
-/* The whole tab is the control, so the whole tab answers the pointer —
+/* The whole tab is the control, so the whole tab answers the pointer:
    icon and words together, not the 30px button alone. The docked edge
    keeps its transparent border either way, so the tab still reads as
    part of the page edge rather than as a floating outline. */
@@ -2150,7 +2150,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 /* Each tab's words lean away from the edge they are docked to: the
    right tab reads downward, the left tab upward. vertical-rl only gives
-   the downward direction, so the left one is turned through 180° — a
+   the downward direction, so the left one is turned through 180°, a
    paint-only change, the box it occupies is unaffected. */
 .post-rail.collapsed .sidebar-label { transform: rotate(180deg); }
 
@@ -2158,7 +2158,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .post-rail.collapsed .rail-toggle,
 .post-sidebar.collapsed .rail-toggle { order: -1; }
 
-/* Collapsed, the card must not stretch down the rail — it is a pill.
+/* Collapsed, the card must not stretch down the rail; it is a pill.
    min-height has to go too: #toc-card carries a 4rem floor so the open
    TOC never shrinks to nothing, and that floor was showing up as empty
    space under the pill's icon. */
@@ -2191,7 +2191,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   list-style: none;
   flex: 1 1 auto; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain;
-  /* Thin, unobtrusive scrollbar — the rail is a quiet surface */
+  /* Thin, unobtrusive scrollbar: the rail is a quiet surface */
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
   padding-right: 2px;
@@ -2221,7 +2221,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 #toc-list .toc-h3 { padding-left: 10px; opacity: 0.65; }
 
 /* ════════════════════════════════════════════════════════════════
-   MORE POSTS — the band under the article
+   MORE POSTS: the band under the article
 
    Sits on the same measure as the article so the page keeps one spine.
    Columns are separated by the same hairline rules the listing uses,
@@ -2277,7 +2277,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   transition: background 0.15s;
 }
 /* Five across needs real width. Drop the tail rather than let the row
-   squeeze into unreadable columns — the "All posts" link covers the rest. */
+   squeeze into unreadable columns; the "All posts" link covers the rest. */
 @media (max-width: 1100px) {
   .post-more-item:nth-child(n+4) { display: none; }
   /* item 3 becomes the last visible one, so it closes the row */
@@ -2301,8 +2301,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--text-3); margin-top: auto; padding-top: var(--s1);
 }
 
-/* Series ("parts") card. Wherever the card ends up — left rail, strip
-   above the article — the list itself is always the scroll container, so
+/* Series ("parts") card. Wherever the card ends up (left rail, strip
+   above the article), the list itself is always the scroll container, so
    the "centre the current part" script has one element to talk to. */
 #series-card {
   display: flex; flex-direction: column;
@@ -2432,7 +2432,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 
 /* ════════════════════════════════════════════════════════════════
-   HOME — the portfolio
+   HOME: the portfolio
 
    Same grammar as the rest of the site: a hero plane floating on the
    parallax scene, then one continuous paper sheet holding every
@@ -2500,7 +2500,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* ── Hero ──────────────────────────────────────────────────────
    Two columns on desktop: the name block, and a portrait plate in a
    4:5 portrait crop. The plate is deliberately NOT a square floating
-   beside the text — a square read as a stray thumbnail rather than
+   beside the text; a square read as a stray thumbnail rather than
    a designed pairing. It now runs taller than the tagline block and
    is optically anchored to it, so the two read as one composition.
 ──────────────────────────────────────────────────────────────── */
@@ -2519,14 +2519,14 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* Name block on the left, portrait plate on the right. The name runs
    big and carries the text column alone, so the portrait bottom-aligns
-   with the link row — the two sit on one baseline instead of the photo
+   with the link row, so the two sit on one baseline instead of the photo
    floating past the text top and bottom. */
 .hero-inner {
   max-width: var(--max-w); margin: 0 auto;
   position: relative; z-index: 1;
   display: grid;
   /* The text column hugs the name (max-content) rather than taking all
-     the spare width as 1fr — a 1fr column left a huge dead band between
+     the spare width as 1fr; a 1fr column left a huge dead band between
      the name and the photo. The pair is centred as one unit. */
   grid-template-columns: max-content clamp(230px, 20vw, 300px);
   justify-content: center;
@@ -2566,7 +2566,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   .hero-wave { animation: none; }
 }
 
-/* The name carries the page, and it carries it alone now — the
+/* The name carries the page, and it carries it alone now: the
    tagline and status moved to About. So it runs large. Surname in
    italic accent. home-fx.js rasterises it into particles that spring
    into place and scatter under the pointer; the <h1> underneath stays
@@ -2604,7 +2604,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 0%, transparent); }
 }
 
-/* Link pills — mono, hairline, accent on hover. They also drift a few
+/* Link pills: mono, hairline, accent on hover. They also drift a few
    px toward the pointer (see the magnetic handler in default.html). */
 .hero-links { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: var(--s4); }
 .hero-links a {
@@ -2637,7 +2637,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 /* ── Portrait ─────────────────────────────────────────────────
    The PLATE owns the aspect ratio and the image is pinned inside it,
-   so the box can never inherit the photo's intrinsic height — drop in
+   so the box can never inherit the photo's intrinsic height. Drop in
    a different file and the hero does not move. 4:5 rather than 1:1:
    a portrait crop of a person reads as intentional where a square
    read as an avatar dropped into a gap. */
@@ -2777,7 +2777,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    turbulence-displacement filter gives all three the same hand-drawn
    wobble as the topographic contour lines in the parallax, and warps
    them together so they never cross. Inner line strongest, outer
-   faintest — the way elevation lines read on a hill. Clipped by the
+   faintest, the way elevation lines read on a hill. Clipped by the
    hero edge, so they carry on into the scene. */
 .portrait-contours {
   position: absolute; inset: 0; z-index: 2;
@@ -2820,7 +2820,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 @keyframes hero-rise { to { opacity: 1; transform: none; } }
 
 
-/* ── Bands + cards — the home page's structural system ────────
+/* ── Bands + cards: the home page's structural system ────────
    The page is a stack of full-bleed BANDS. Each band centres a
    .band-inner column; scannable content sits in .card surfaces
    floating on the parallax scene, while prose keeps a bare
@@ -2837,7 +2837,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   margin: 0 auto;
   padding: 0 var(--s5);
 }
-/* Prose measure — long-form text wants ~70ch, not the full grid.
+/* Prose measure: long-form text wants ~70ch, not the full grid.
    These two bands are centred as whole units, heading and all, so the
    inset reads as a deliberate interlude rather than a stray indent. */
 .band-narrow { max-width: 820px; }
@@ -2868,7 +2868,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
               box-shadow 0.2s var(--ease-out);
 }
 
-/* The reading sheet for prose — same family as .card but no lift,
+/* The reading sheet for prose: same family as .card but no lift,
    because nothing here is a target. */
 .home-prose.sheet {
   background: var(--panel);
@@ -2880,7 +2880,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── Dossier rail — navigation and section labels in one control ──
+/* ── Dossier rail: navigation and section labels in one control ──
    A column of small monochrome icons fixed in the left margin, each
    ringed like a bead on a thread. The section you are reading lights
    up, names itself in a pill that sits against its card, and a fill
@@ -2985,14 +2985,14 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── Pillars — the triage grid: 2×2 cards, each a claim ─────── */
+/* ── Pillars: the triage grid: 2×2 cards, each a claim ─────── */
 .pillars {
   display: grid; grid-template-columns: repeat(2, 1fr);
   gap: var(--s3);
 }
 
 
-/* ── Metrics — four stat tiles in the first band ────────────────
+/* ── Metrics: four stat tiles in the first band ────────────────
    The same tile every other section is cut from (shadcn's dashboard
    section-cards: label, then the figure), so the numbers belong to
    the page rather than sitting on it in their own colour. */
@@ -3016,10 +3016,10 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 @media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); } }
 
 
-/* ── Warp Text — the name as glass (after React Bits WarpText) ────
+/* ── Warp Text: the name as glass (after React Bits WarpText) ────
    home-fx.js draws the name into a canvas laid over the h1, grown by
    a margin so bent glyphs have room, and the h1 goes transparent
-   underneath — still there for layout, readers and search. */
+   underneath, still there for layout, readers and search. */
 .hero-name-wrap { position: relative; }
 .hero-name-warp {
   position: absolute; display: block; pointer-events: none;
@@ -3030,7 +3030,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .hero-name-wrap.is-warp .hero-name em { color: transparent; }
 @media print { .hero-name-warp { display: none; } .hero-name-wrap.is-warp .hero-name { color: inherit; } }
 
-/* ── Split Text — the hero name, letter by letter ─────────────────
+/* ── Split Text: the hero name, letter by letter ─────────────────
    home-fx.js wraps each letter; each rises out of a blur with its own
    delay. With no split (reduced motion, no JS) the h1 is simply set. */
 .hero-name.is-split .st-ch {
@@ -3042,7 +3042,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   from { opacity: 0; transform: translateY(0.35em); filter: blur(10px); }
   to   { opacity: 1; transform: none; filter: blur(0); }
 }
-/* Blur Text — "Hi, I'm", word by word, from above */
+/* Blur Text: "Hi, I'm", word by word, from above */
 .hero-hi.is-blur .bt-w {
   display: inline-block;
   animation: bt-in 0.7s var(--ease-out) both;
@@ -3053,7 +3053,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   50%  { opacity: 0.6; transform: translateY(0.1em); filter: blur(4px); }
   100% { opacity: 1; transform: none; filter: blur(0); }
 }
-/* Rotating Text — the role eyebrow, one word at a time. All the words
+/* Rotating Text: the role eyebrow, one word at a time. All the words
    sit in one grid cell so the stage is as wide as the widest of them;
    the current one slides up in, the last one slides up out. */
 .page-label.has-rt .rt {
@@ -3068,7 +3068,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .page-label.has-rt .rt-w.is-in  { transform: none; opacity: 1; }
 .page-label.has-rt .rt-w.is-out { transform: translateY(-110%); opacity: 0; }
 
-/* Magnet — a pill pulls toward a pointer that comes within reach */
+/* Magnet: a pill pulls toward a pointer that comes within reach */
 .magnet {
   transform: translate3d(var(--mx, 0px), var(--my, 0px), 0) scale(var(--dock-s, 1));
   transform-origin: 50% 100%;
@@ -3080,7 +3080,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .hero-links.is-dock a.is-near { transition: transform 0.18s ease-out, color 0.2s, border-color 0.2s, background-color 0.2s; }
 
 /* ── Line Sidebar, on the rail's own beads ────────────────────────
-   --effect (0..1, from home-bits.js) is how near the pointer is —
+   --effect (0..1, from home-bits.js) is how near the pointer is,
    or 1 for the active section. The bead swells and takes the accent
    with it, and the label pill slides out in proportion, so the rail
    answers the pointer before it arrives. */
@@ -3140,7 +3140,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .tc-br { border-left: none; border-top: none; }
 .tc-bl { border-right: none; border-top: none; }
 
-/* ── Counter — rolling digits for the metrics ─────────────────────*/
+/* ── Counter: rolling digits for the metrics ─────────────────────*/
 .metric-figure.odo { display: inline-flex; align-items: flex-start; line-height: 1.12; }
 .odo-col {
   display: inline-block; position: relative; overflow: hidden;
@@ -3155,12 +3155,12 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .odo-strip i { display: grid; place-items: center; height: 1.12em; line-height: 1; font-style: normal; overflow: hidden; }
 .odo-sep { display: inline-block; height: 1.12em; line-height: 1.12; }
 
-/* ── Text Type — the now line ─────────────────────────────────────*/
+/* ── Text Type: the now line ─────────────────────────────────────*/
 .tt-cursor { display: inline-block; margin-left: 2px; color: var(--accent); animation: tt-blink 0.9s steps(2, start) infinite; }
 .tt-cursor.is-done { animation: none; opacity: 0; transition: opacity 0.6s; }
 @keyframes tt-blink { to { visibility: hidden; } }
 
-/* ── Accordion Gallery — project covers ───────────────────────────
+/* ── Accordion Gallery: project covers ───────────────────────────
    Panels share the cover's width; the active one takes most of it.
    Inactive panels are greyed and dimmed; the caption rides on the
    active panel. Each panel shows its image full-height, centred. */
@@ -3200,16 +3200,16 @@ body.has-tc, body.has-tc * { cursor: none !important; }
   .proj .proj-carousel.ag .shot:not(.is-active) { flex: 0 0 20px; }
 }
 
-/* ── Pixel Card — the cover plates ────────────────────────────────*/
+/* ── Pixel Card: the cover plates ────────────────────────────────*/
 .proj-plate { isolation: isolate; }
 .proj-plate .pixel-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 .proj-plate > *:not(.pixel-canvas) { position: relative; z-index: 1; }
 .proj-plate .proj-plate-lang { position: absolute; }
 
-/* ── Dot Grid — the projects band ─────────────────────────────────*/
+/* ── Dot Grid: the projects band ─────────────────────────────────*/
 #projects > .dot-grid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-/* ── Magnet Lines — behind the closing plane ──────────────────────*/
+/* ── Magnet Lines: behind the closing plane ──────────────────────*/
 .contact { position: relative; }
 .magnet-lines {
   position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -3250,7 +3250,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .specular:hover::before, .specular:hover::after { opacity: 1; }
 .specular > span { position: relative; z-index: 1; }
 
-/* ── True Focus — the off-hours words ─────────────────────────────*/
+/* ── True Focus: the off-hours words ─────────────────────────────*/
 .interests.is-focus { position: relative; }
 .focus-word { display: inline-block; transition: filter 0.3s ease, color 0.3s ease; filter: blur(1.5px); color: var(--text-3); }
 .focus-word.is-active { filter: blur(0); color: var(--text); }
@@ -3268,10 +3268,10 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .fc-bl { bottom: -7px; left: -8px; border-right: none; border-top: none; }
 .fc-br { bottom: -7px; right: -8px; border-left: none; border-top: none; }
 
-/* ── Scroll Velocity — the loops are moved by script ──────────────*/
+/* ── Scroll Velocity: the loops are moved by script ──────────────*/
 .ribbon.is-jsloop .ribbon-track { animation: none; will-change: transform; }
 
-/* ── Gradual Blur — the bottom of the viewport ────────────────────*/
+/* ── Gradual Blur: the bottom of the viewport ────────────────────*/
 .gradual-blur {
   position: fixed; left: 0; right: 0; bottom: 0; height: 110px;
   pointer-events: none; z-index: 60; isolation: isolate;
@@ -3279,7 +3279,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .gradual-blur i { position: absolute; inset: 0; display: block; }
 @media (max-width: 900px) { .gradual-blur { display: none; } }
 
-/* ── Tiles — the one card surface the home's components share ───
+/* ── Tiles: the one card surface the home's components share ───
    Pillars, project posters, timeline cards, credential panels: each section
    has its own shape, but they are cut from the same material so
    the page still reads as one thing. */
@@ -3290,7 +3290,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), inset 0 1px 0 var(--glass-hi);
   min-width: 0;
 }
-/* Spotlight — a radial light that follows the pointer across the
+/* Spotlight: a radial light that follows the pointer across the
    tile (after React Bits SpotlightCard). --mouse-x/--mouse-y are set
    by the home script; the light is drawn on ::before so the tile's
    content sits above it. */
@@ -3307,7 +3307,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .spot:hover::before, .spot:focus-within::before { opacity: 1; }
 .spot > * { position: relative; }
 
-/* Glow — the border lights up around the pointer (after React Bits
+/* Glow: the border lights up around the pointer (after React Bits
    MagicBento's border glow). The ring is a radial gradient on ::after,
    masked to the border by two stacked masks composited with xor, so
    only the frame is painted. --glow-* are set by the home script. */
@@ -3373,7 +3373,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
   .glass-ic .gi-front { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--card-bg) 80%, transparent); }
 }
 
-/* ── Experience — a timeline ─────────────────────────────────────
+/* ── Experience: a timeline ─────────────────────────────────────
    Three tracks: the period in a gutter, a spine with a dot per
    job, and the job as a tile. The current job's dot is lit. */
 .tl { list-style: none; margin: 0; padding: 0; }
@@ -3501,7 +3501,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .chips li:hover { border-color: var(--accent); color: var(--text); }
 
 
-/* ── Projects — laid out by the carousel above; this is the card
+/* ── Projects: laid out by the carousel above; this is the card
    itself. Sizing lives with .carousel-track > .project. ─────── */
 .project:hover {
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
@@ -3587,7 +3587,7 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .prose-clamp.open { max-height: 200rem; }
 .prose-clamp.open::after { opacity: 0; }
 
-/* <details> disclosure for bullet overflow — no JS needed */
+/* <details> disclosure for bullet overflow, no JS needed */
 details.more { margin-top: var(--s2); }
 details.more > summary,
 .venture > summary {
@@ -3635,7 +3635,7 @@ details.more > summary:hover,
    down for the live rules. */
 
 
-/* ── Contact plane — mirrors the hero ────────────────────────── */
+/* ── Contact plane: mirrors the hero ────────────────────────── */
 .contact {
   background: transparent;
   padding: var(--s10) var(--s5) var(--s12);
@@ -3676,7 +3676,7 @@ details.more > summary:hover,
 
 @media (max-width: 860px) {
   /* One column, portrait first. Stacked under the links at near full
-     width, the photo outgrew the name and the whole hero — a 288×360
+     width, the photo outgrew the name and the whole hero: a 288×360
      block on a 390px screen, and in a different crop from the desktop
      plate on top of that. It now leads the column as a small plate
      above the eyebrow, the way a profile card opens: the same 5:6 crop
@@ -3729,7 +3729,7 @@ details.more > summary:hover,
   .hero-name.is-split .st-ch, .hero-hi.is-blur .bt-w { animation: none; }
   .ds-lede.is-split .w { opacity: 1; filter: none; }
   .contact-email.shiny { animation: none; }
-  /* The ring still tracks progress — it just stops easing there */
+  /* The ring still tracks progress; it just stops easing there */
   .scroll-top { transition: opacity 0.2s linear, visibility 0s linear; transform: none; }
   .scroll-top.visible { transform: none; }
   .ring-bar { transition: none; }
@@ -3743,7 +3743,7 @@ details.more > summary:hover,
   .home { padding: 0; }
   .band { padding: var(--s4) 0; }
   .band-inner { padding: 0; max-width: none; }
-  /* Cards are a screen affordance — on paper they become plain blocks */
+  /* Cards are a screen affordance; on paper they become plain blocks */
   .card, .home-prose.sheet, .tile {
     background: none !important; box-shadow: none !important;
     border: none !important; backdrop-filter: none !important;
@@ -3780,7 +3780,7 @@ details.more > summary:hover,
    not a layout choice. The old 1360px gate missed most laptops (1920px
    at 125–150% Windows scaling is 1280–1536 CSS px). The rail starts
    narrow and widens with the viewport so the measure pays as little as
-   possible — ~530px of article at 1024px, ~750px at 1280px. Below 1024px
+   possible: ~530px of article at 1024px, ~750px at 1280px. Below 1024px
    a third column can't be paid for at all (the article would drop under
    400px), so the strip stays. */
 @media (min-width: 1024px) {
@@ -3809,7 +3809,7 @@ details.more > summary:hover,
     position: sticky; top: calc(var(--h-header) + var(--s2));
     margin: 0 0 0 calc(-1 * var(--page-pad));
   }
-  /* :not(.collapsed) again — this selector outranks the collapsed block,
+  /* :not(.collapsed) again: this selector outranks the collapsed block,
      so without the guard the rail stayed a sticky grid item while the
      grid had already dropped to two tracks, which pushed the article
      into the sidebar's 220px column. */
@@ -3822,7 +3822,7 @@ details.more > summary:hover,
     min-height: 0;
     overflow: hidden;               /* same guard as the right rail */
   }
-  /* One narrow column again — the list itself does the scrolling.
+  /* One narrow column again; the list itself does the scrolling.
      Scoped to :not(.collapsed): this selector is more specific than the
      collapsed rules, so without the guard it would switch the list back
      on inside a collapsed pill. */
@@ -3842,7 +3842,7 @@ details.more > summary:hover,
   /* Each of these has to restate the collapsed selector to match its
      specificity. `.post-sidebar.collapsed { display: block }` and the
      :has() track rules both outrank a bare `.post-sidebar` / `.post-wrap`,
-     so a rail collapsed on a desktop — the choice is remembered — came
+     so a rail collapsed on a desktop (the choice is remembered) came
      back as a floating tab here, in a layout that has no rails at all. */
   .post-wrap,
   .post-wrap:has(> .post-sidebar.collapsed) { grid-template-columns: 1fr; }
@@ -3852,8 +3852,8 @@ details.more > summary:hover,
   .post-hero { padding: var(--s6) var(--s5) var(--s5); }
   /* The parts list, on a phone. Laid open it stood a whole screen of
      links between the title and the first paragraph, so here it starts
-     folded (default.html) into one full-width bar — series name, part
-     number, a chevron — and opens in place. Open, it lies flat: a
+     folded (default.html) into one full-width bar (series name, part
+     number, a chevron) and opens in place. Open, it lies flat: a
      nested scroller under a thumb is a trap (overscroll-behavior:
      contain, right for a sticky rail, swallowed the page swipe). The
      docked side-tab the desktop uses makes no sense without a rail. */
@@ -3911,11 +3911,11 @@ details.more > summary:hover,
 
      Modelled on the iOS 26 tab bar, which does two things ours now
      does too:
-       · the capsule hugs its tabs and sits centred — with two or three
+       · the capsule hugs its tabs and sits centred; with two or three
          destinations a bar stretched edge to edge read as empty space
        · the selected tab is a coloured glyph AND a glass "lens" behind
          it; the lens slides between tabs and follows a scrubbing finger
-         (the JS moves it — the ::after pill below is the no-JS fallback)
+         (the JS moves it; the ::after pill below is the no-JS fallback)
      Two more were tried and cut: minimising the bar to a circle on
      scroll (the bar should just stay a pill) and a blurred scroll-edge
      under it (a smear over the text, and one more per-frame
@@ -3926,7 +3926,7 @@ details.more > summary:hover,
     --tab-h:   54px;   /* the capsule                              */
     --tab-pad: 4px;    /* lens inset from the capsule edge         */
     --tab-w:   78px;   /* one tab; the JS reads this to place lens */
-    /* One spring for the lens and the tabs — a touch of overshoot, the
+    /* One spring for the lens and the tabs, a touch of overshoot, the
        way iOS's interactive springs settle. */
     --spring: cubic-bezier(0.34, 1.28, 0.64, 1);
   }
@@ -3944,19 +3944,19 @@ details.more > summary:hover,
     z-index: 95;
     flex-direction: row; align-items: stretch;
     gap: 0;
-    /* No material on the nav itself — the glass is .nav-shell below,
+    /* No material on the nav itself; the glass is .nav-shell below,
        a leaf of its own; the lens and tabs move by transform and
        opacity, which stay on the compositor. */
     background: none; border: 0; box-shadow: none;
     /* The bar is not a scroll surface: a finger sliding along it is
        scrubbing the lens, and the browser must not claim it for a pan. */
     touch-action: none;
-    /* Always on — there is no open/closed state left to animate */
+    /* Always on: there is no open/closed state left to animate */
     opacity: 1; visibility: visible;
     transition: none;
   }
 
-  /* The glass. Same material as the header — the two floating bars are
+  /* The glass. Same material as the header; the two floating bars are
      one navigation plane, just in two places. */
   .nav-shell {
     position: absolute; inset: 0;
@@ -3974,7 +3974,7 @@ details.more > summary:hover,
       0 8px 28px rgba(46,52,64,0.22),
       0 2px 8px rgba(46,52,64,0.14);
   }
-  /* A sheen down from the top edge — the light catching the glass. */
+  /* A sheen down from the top edge, the light catching the glass. */
   .nav-shell::before {
     content: '';
     position: absolute; inset: 0;
@@ -3991,7 +3991,7 @@ details.more > summary:hover,
     .nav-shell::before { display: none; }
   }
 
-  /* Icon over label, each tab a fixed width — so the lens can be placed
+  /* Icon over label, each tab a fixed width, so the lens can be placed
      by index. Tabs never change size; folding away is a transform. */
   .site-nav a {
     position: relative; z-index: 1;       /* above the lens and shell */
@@ -4062,7 +4062,7 @@ details.more > summary:hover,
   .scroll-top { bottom: calc(var(--nav-floor) + var(--s2)); }
 
   /* The bar is a capsule now, not a strip, so where the screen has
-     room the button comes down to sit beside it on the same line — two
+     room the button comes down to sit beside it on the same line: two
      floating controls, the way iOS parks its search button next to the
      tab bar. The script sets the class only when the gap beside the bar
      can take the button; on a narrow screen, or with more tabs, it
@@ -4083,7 +4083,7 @@ details.more > summary:hover,
   .post-title { font-size: clamp(2rem, 8vw, 2.8rem); }
   .page-header h1 { font-size: clamp(2.4rem, 10vw, 3.6rem); }
 
-  /* Hide decorative shapes — too large relative to narrow viewport */
+  /* Hide decorative shapes: too large relative to narrow viewport */
   .page-header-inner::before,
   .post-hero-inner::before { display: none; }
 
@@ -4103,7 +4103,7 @@ details.more > summary:hover,
   .post-nav-item { border-right: none; border-bottom: 1px solid var(--border); }
   .post-nav-item:last-child { border-bottom: none; }
 
-  /* Phones give up more of the gutter — every band narrows with it */
+  /* Phones give up more of the gutter; every band narrows with it */
   :root { --page-pad: var(--s2); }
 
   /* Closer to the corner, and a touch smaller. The bottom offset is
@@ -4146,7 +4146,7 @@ details.more > summary:hover,
 }
 
 /* ════════════════════════════════════════════════════════════════
-   HOME v4 — the dossier layout.
+   HOME v4: the dossier layout.
 
    A label column and a content column on one grid, top to bottom.
    The left edge never moves, so the page can be scanned by its
@@ -4200,7 +4200,7 @@ details.more > summary:hover,
   padding: var(--s4);
 }
 
-/* ── The promise — one sentence, given the weight of a pull quote ─ */
+/* ── The promise: one sentence, given the weight of a pull quote ─ */
 .promise {
   margin: 0;
   font-family: var(--f-display);
@@ -4241,7 +4241,7 @@ details.more > summary:hover,
 /* ── The parts of a bigger project, as cards ─────────────────────
    Nivara Desk is one product with three separable pieces. Cards say
    that better than bare columns: each is a thing you can pick up on
-   its own. Stacked one per row — full width — so every project reads
+   its own. Stacked one per row, full width, so every project reads
    the same way down the page and each card gets room for its points. */
 .parts-stack {
   display: flex; flex-direction: column;
@@ -4305,11 +4305,11 @@ details.more > summary:hover,
 }
 .chips li { display: inline-flex; align-items: center; gap: 6px; }
 
-/* ── Toolkit ribbons — one row per group, always one row ─────────
+/* ── Toolkit ribbons: one row per group, always one row ─────────
    The group's items are emitted twice inside the track. The track
    slides left by exactly half its own width and restarts, so the
    second run is under the cursor at the moment the first would run
-   out — no jump, no gap. */
+   out: no jump, no gap. */
 .ribbon { padding: 10px 0; }
 .ribbon + .ribbon { border-top: 1px solid var(--band-line); }
 .ribbon-label {
@@ -4327,7 +4327,7 @@ details.more > summary:hover,
   mask-image: linear-gradient(90deg, transparent var(--fade-0), #000 var(--fade), #000 calc(100% - var(--fade)), transparent calc(100% - var(--fade-0)));
 }
 /* Where the rail is shown, the loop is clear under the rail and fades
-   in past it — and the same on the right, so the band stays centred. */
+   in past it, and the same on the right, so the band stays centred. */
 @media (min-width: 1200px) { .ribbon-view { --fade-0: 170px; --fade: 290px; } }
 .ribbon-track {
   display: flex; width: max-content;
@@ -4336,7 +4336,7 @@ details.more > summary:hover,
 .ribbon-rev .ribbon-track { animation-direction: reverse; }
 .ribbon:hover .ribbon-track,
 .ribbon:focus-within .ribbon-track { animation-play-state: paused; }
-/* JS parks this on rows that are scrolled off screen — a stopped
+/* JS parks this on rows that are scrolled off screen: a stopped
    animation is not composited every frame, so the ~11 marquee rows
    cost nothing while you are reading any other section. */
 .ribbon.is-offscreen .ribbon-track { animation-play-state: paused; }
@@ -4386,7 +4386,7 @@ details.more > summary:hover,
   background: var(--card-bg); overflow: hidden;
 }
 /* Sized so a wordmark with a second line ("zeonix / Global") is still
-   readable — at 28px that line rendered about four pixels tall. */
+   readable; at 28px that line rendered about four pixels tall. */
 .co-logo img {
   display: block;
   max-height: 38px; max-width: 134px;
@@ -4410,14 +4410,14 @@ details.more > summary:hover,
 .xp-venture p.note { margin: 0 0 var(--s1); font-size: 12px; color: var(--text-3); }
 
 /* ═════════════════════════════════════════════════════════════════
-   LAYOUT B — DOSSIER
+   LAYOUT B: DOSSIER
    A stack of section cards, one content column each. The section
    name is not printed on the card: from 1200px up the left-margin
    rail (.drail) names whichever section you are reading; below that
    each card shows a compact .ds-heading instead.
 ═════════════════════════════════════════════════════════════════ */
 /* ONE content width, everywhere. The old page ran bands at 1280px,
-   then 820px for About, then 1000px for Writing — three spines as you
+   then 820px for About, then 1000px for Writing: three spines as you
    scrolled. band-narrow and band-mid are kept as aliases so any page
    still using them lands on the same measure instead of drifting. */
 .home .band-inner,
@@ -4426,8 +4426,8 @@ details.more > summary:hover,
 .home .band { padding: var(--s8) 0; }
 /* From 1200px the rail sits in the left margin and its label pill
    reaches ~170px in. Between 1200px and ~1450px the margin is thinner
-   than that, so the column pulls in — the same amount on both sides,
-   to stay centred — until the margin alone clears the pill. */
+   than that, so the column pulls in (the same amount on both sides,
+   to stay centred) until the margin alone clears the pill. */
 @media (min-width: 1200px) {
   .home .band-inner {
     padding-inline: clamp(var(--s5), calc(176px - (100vw - 1180px) / 2), 176px);
@@ -4436,7 +4436,7 @@ details.more > summary:hover,
 
 /* Each section is a full-width row. They used to be a stack of
    identical glass cards, which read as one long slab in a different
-   coat — the same box around a grid, a timeline and a list said
+   coat; the same box around a grid, a timeline and a list said
    nothing about what was inside. Now the rows alternate: open on the
    scene, then a tinted band, then open again. The band is the only
    thing drawn; the components inside each row do the rest. */
@@ -4520,7 +4520,7 @@ details.more > summary:hover,
   border-radius: 4px;
 }
 
-/* Dots — one per screenshot, the current one drawn as a pill. Built
+/* Dots: one per screenshot, the current one drawn as a pill. Built
    by JS (so they only appear where they work); hidden if a project
    has a single shot. */
 .proj-dots {
@@ -4575,7 +4575,7 @@ details.more > summary:hover,
 .grid-spotlight.is-on { opacity: 1; }
 #projects > .band-inner { position: relative; z-index: 1; }
 
-/* ── Projects — a grid of poster cards ──────────────────────────
+/* ── Projects: a grid of poster cards ──────────────────────────
    One tile per project: the screenshots as a cover that bleeds to
    the card's edges, then the name, one line, chips, links. The
    write-up is a fold at the foot of the card. Two across; the grid
@@ -4653,7 +4653,7 @@ details.more > summary:hover,
 }
 .proj-grid-btn[aria-expanded="true"] span { transform: rotate(90deg); }
 
-/* ── The fold — one disclosure for projects, jobs and the essay ──
+/* ── The fold: one disclosure for projects, jobs and the essay ──
    The page reads at a glance closed; open, the full write-up drops
    in beneath the summary. The summary keeps the same mono label as
    the other section furniture; its chevron comes from details.more. */
@@ -4696,7 +4696,7 @@ details.more > summary:hover,
 }
 .pillar-body { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-2); }
 
-/* ── About prose — the reading measure is set by the grid column ── */
+/* ── About prose: the reading measure is set by the grid column ── */
 .ds-prose p {
   font-size: 14px; line-height: 1.8; color: var(--text-2);
   margin: 0 0 var(--s2);
@@ -4705,12 +4705,12 @@ details.more > summary:hover,
 .ds-prose em { color: var(--text-3); }
 
 /* The positioning line (from the hero) opens the essay as its first
-   paragraph — one passage, not a separate standfirst. Ink rather than
+   paragraph: one passage, not a separate standfirst. Ink rather than
    the body grey, so it still leads. */
 #about .ds-lede { color: var(--text); }
 #about .ds-lede strong { font-weight: 700; color: var(--accent); }
 
-/* The "now" line, also from the hero — a mono footnote under the essay. */
+/* The "now" line, also from the hero: a mono footnote under the essay. */
 #about .ds-now {
   display: flex; align-items: center;
   margin: var(--s3) 0 0;
@@ -4724,7 +4724,7 @@ details.more > summary:hover,
 .about-more[open] > summary { margin-bottom: var(--s2); }
 .about-more > .ds-prose { max-width: 40rem; }
 
-/* ── Writing — each post a row tile, the date as a block ─────── */
+/* ── Writing: each post a row tile, the date as a block ─────── */
 .post-list .post-row {
   margin: 0 0 var(--s2); padding: var(--s2) var(--s3);
   border: 1px solid var(--panel-border); border-radius: 12px;
@@ -4741,10 +4741,10 @@ details.more > summary:hover,
 .tk-group + .tk-group { margin-top: var(--s5); }
 .tk-group > .group-heading { margin: 0 0 var(--s2); }
 
-/* ── Credentials — two panels, one card geometry ────────────────
+/* ── Credentials: two panels, one card geometry ────────────────
    Education, then certifications and awards, each a full-width panel.
-   Inside, every entry is a card of the same shape — mark, name,
-   source, and a foot for the score or verify chips — laid in one
+   Inside, every entry is a card of the same shape (mark, name,
+   source, and a foot for the score or verify chips), laid in one
    grid, so the two subsections read as the same thing. */
 .cred-stack { display: grid; gap: var(--s3); }
 .cred-panel { padding: var(--s2) var(--s3) var(--s3); }
@@ -4803,7 +4803,7 @@ details.more > summary:hover,
 
 
 /* ════════════════════════════════════════════════════════════════
-   TOUCH DEVICES — no blur on content
+   TOUCH DEVICES: no blur on content
    Last in the file on purpose: these undo backdrop-filters declared
    all through the sheet at the same specificity, so they must come
    after every one of them.
@@ -4811,7 +4811,7 @@ details.more > summary:hover,
 @media (pointer: coarse) {
   /* Every backdrop-filter is a
      texture the compositor re-blurs on each scroll frame, and a phone
-     GPU can't keep several of them at 60fps — the article panel alone
+     GPU can't keep several of them at 60fps; the article panel alone
      is a viewport-wide one that never leaves the screen. The panels
      are 80–88% opaque already, so their 3px scrim was nearly invisible
      and goes for free; the glass cards trade their blur for a heavier
@@ -4894,7 +4894,7 @@ figure.sketch svg { display: block; width: 100%; height: auto; margin: 0 auto; o
 .sketch-svg [class^="h-"] { opacity: .5; }
 .sketch-svg [class^="f-"] { stroke: none; }
 
-/* "Check it with a chatbot" — a checkpoint opens ChatGPT or Claude with
+/* "Check it with a chatbot": a checkpoint opens ChatGPT or Claude with
    the coaching prompt already typed (see _includes/coach.html). */
 .coach { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 1.1rem 0 1.6rem;
   padding: .7rem .9rem; border: 1px dashed var(--border); border-radius: 10px; font-size: .92em; }
@@ -4903,7 +4903,7 @@ figure.sketch svg { display: block; width: 100%; height: auto; margin: 0 auto; o
   border: 1px solid var(--accent); color: var(--accent); text-decoration: none; font-family: var(--f-mono); font-size: .82em; }
 .coach a.coach-btn:hover, .coach a.coach-btn:focus-visible { background: var(--accent); color: var(--bg); }
 /* DSA problem tables (_includes/dsa-problems.html): difficulty as a pill, in the
-   same three hues the list uses everywhere else — easy green, medium amber, hard red. */
+   same three hues the list uses everywhere else: easy green, medium amber, hard red. */
 .post-content .dsa-problems-count { font-family: var(--f-mono); font-size: 12px; letter-spacing: .02em; color: var(--text-3); }
 .dsa-problems td:first-child { color: var(--text-3); font-family: var(--f-mono); font-size: 12px; }
 .dsa-problems .diff { display: inline-block; padding: .1em .6em; border-radius: 999px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .03em; border: 1px solid; }

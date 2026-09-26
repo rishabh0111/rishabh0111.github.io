@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   home-bits.js — the rest of the React Bits on the home page.
+   home-bits.js: the rest of the React Bits on the home page.
 
    Companion to home-fx.js (which carries the scene, the hero and the
    pointer effects). Every piece here is a plain-JS port of a React
@@ -42,10 +42,10 @@
     io.observe(el);
   }
 
-  /* ── Line Sidebar — the rail's beads reach for the pointer ─────────
+  /* ── Line Sidebar: the rail's beads reach for the pointer ─────────
      The rail keeps its beads, thread and label pills; from Line
-     Sidebar it takes --effect (0..1) per item — 1 for the active
-     section, otherwise how near the pointer is — eased every frame,
+     Sidebar it takes --effect (0..1) per item (1 for the active
+     section, otherwise how near the pointer is), eased every frame,
      so a bead swells and its label slides out as the pointer nears. */
   function lineSidebar() {
     var rail = document.getElementById("drail");
@@ -135,7 +135,7 @@
     raf = requestAnimationFrame(place);
   }
 
-  /* ── Counter — the metrics as rolling digits ───────────────────────
+  /* ── Counter: the metrics as rolling digits ───────────────────────
      Each digit is a column of 0–9 that slides to its value, the units
      first, the higher places after; the prefix and suffix ("+", "%")
      stay put. Replaces the count-up. */
@@ -169,7 +169,7 @@
     });
   }
 
-  /* ── Decrypted Text — mono labels scramble into place ─────────────
+  /* ── Decrypted Text: mono labels scramble into place ─────────────
      On arrival each label shows random characters that resolve into
      the real ones from the start, a few at a time. */
   function decrypt() {
@@ -186,7 +186,7 @@
           var out = "";
           for (var i = 0; i < text.length; i++) {
             var ch = text[i];
-            if (i < revealed || ch === " " || ch === "·" || ch === "—" || ch === "&") out += ch;
+            if (i < revealed || ch === " " || ch === "·" || ch === "&") out += ch;
             else out += CHARS[Math.floor(Math.random() * CHARS.length)];
           }
           el.textContent = out;
@@ -196,7 +196,7 @@
     });
   }
 
-  /* ── Text Type — the "now" line types itself out ──────────────────*/
+  /* ── Text Type: the "now" line types itself out ──────────────────*/
   function typewrite() {
     var el = document.querySelector("[data-typewrite]");
     if (!el || reduce) return;
@@ -217,7 +217,7 @@
     }, 0.6);
   }
 
-  /* ── Dock — the hero pills magnify near the pointer ───────────────*/
+  /* ── Dock: the hero pills magnify near the pointer ───────────────*/
   function dock() {
     var nav = document.querySelector(".hero .hero-links");
     if (!nav || !fine || reduce) return;
@@ -236,7 +236,7 @@
     nav.addEventListener("mouseleave", function () { items.forEach(function (a) { a.style.setProperty("--dock-s", "1"); }); });
   }
 
-  /* ── Accordion Gallery — project shots as expanding panels ────────
+  /* ── Accordion Gallery: project shots as expanding panels ────────
      The hovered (or tapped) shot grows, the rest narrow and grey. */
   function accordion() {
     Array.prototype.forEach.call(document.querySelectorAll(".proj-carousel.ag"), function (gal) {
@@ -253,7 +253,7 @@
     });
   }
 
-  /* ── Pixel Card — a field of pixels on the cover plates ───────────
+  /* ── Pixel Card: a field of pixels on the cover plates ───────────
      Pixels grow in from a random delay and shimmer while the pointer
      is over the plate, then shrink away. */
   function pixelPlates() {
@@ -312,7 +312,7 @@
     });
   }
 
-  /* ── Dot Grid — the projects band's dots ──────────────────────────
+  /* ── Dot Grid: the projects band's dots ──────────────────────────
      A grid of small dots; near the pointer they take the accent, and
      a fast pointer shoves them aside, after which they spring back. */
   function dotGrid() {
@@ -391,7 +391,7 @@
     draw();
   }
 
-  /* ── Electric Border — the current job's live edge ────────────────
+  /* ── Electric Border: the current job's live edge ────────────────
      The card's outline traced as a rounded rectangle whose points are
      pushed by layered noise that drifts with time, stroked in the
      accent on a canvas that reaches past the card; two blurred
@@ -469,7 +469,7 @@
     document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
   }
 
-  /* ── Magnet Lines — needles behind the closing plane ──────────────*/
+  /* ── Magnet Lines: needles behind the closing plane ──────────────*/
   function magnetLines() {
     var host = document.querySelector(".magnet-lines");
     if (!host) return;
@@ -497,7 +497,7 @@
     var r = host.getBoundingClientRect(); point(r.left + r.width / 2, r.top + r.height / 2);
   }
 
-  /* ── Specular Button — a highlight that follows the pointer ───────*/
+  /* ── Specular Button: a highlight that follows the pointer ───────*/
   function specular() {
     if (!fine) return;
     Array.prototype.forEach.call(document.querySelectorAll(".specular"), function (b) {
@@ -509,7 +509,7 @@
     });
   }
 
-  /* ── True Focus — a frame hopping between the off-hours words ─────*/
+  /* ── True Focus: a frame hopping between the off-hours words ─────*/
   function trueFocus() {
     var el = document.querySelector("[data-truefocus]");
     if (!el || reduce) return;
@@ -543,7 +543,7 @@
     void label;
   }
 
-  /* ── Scroll Velocity — the toolkit loops follow the scroll ─────────
+  /* ── Scroll Velocity: the toolkit loops follow the scroll ─────────
      The loops are moved by script instead of a CSS animation: a base
      drift, plus the scroll's speed on top, and a slight skew while
      the page is moving. Rows alternate direction as before. */
@@ -584,7 +584,7 @@
     requestAnimationFrame(frame);
   }
 
-  /* ── Gradual Blur — the page dissolves at the bottom edge ─────────*/
+  /* ── Gradual Blur: the page dissolves at the bottom edge ─────────*/
   function gradualBlur() {
     if (!fine || reduce) return;
     var el = document.createElement("div");

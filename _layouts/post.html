@@ -50,7 +50,7 @@ layout: default
      Both collapse into the flow on narrow screens, see RESPONSIVE. -->
 <div class="post-wrap{% if page.series %} has-rail{% endif %}">
 
-  <!-- Series navigation — same series, ordered. Left rail. -->
+  <!-- Series navigation: same series, ordered. Left rail. -->
   {% if page.series %}
   {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
   {%- comment -%}
@@ -99,7 +99,7 @@ layout: default
 
   <aside class="post-sidebar" aria-label="Sidebar">
 
-    <!-- TOC — auto-populated by JS in default.html.
+    <!-- TOC: auto-populated by JS in default.html.
          Takes whatever vertical room is left and scrolls internally. -->
     <div class="sidebar-card" id="toc-card">
       <div class="sidebar-head">
@@ -127,7 +127,7 @@ layout: default
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
     <span class="post-nav-dir">{% include icon.html name="arrow-left" %}Previous</span>
     <span class="post-nav-title">
-      {% if page.previous %}{{ page.previous.title }}{% else %}&mdash;{% endif %}
+      {% if page.previous %}{{ page.previous.title }}{% else %}·{% endif %}
     </span>
   </a>
   <a class="post-nav-item next"
@@ -135,14 +135,14 @@ layout: default
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
     <span class="post-nav-dir">Next{% include icon.html name="arrow-right" %}</span>
     <span class="post-nav-title">
-      {% if page.next %}{{ page.next.title }}{% else %}&mdash;{% endif %}
+      {% if page.next %}{{ page.next.title }}{% else %}·{% endif %}
     </span>
   </a>
 </nav>
 
-<!-- Related posts — same category. The last band on the page: prev/next
+<!-- Related posts: same category. The last band on the page: prev/next
      is the immediate continuation, this is the wider shelf beside it.
-     Always one row — the count is capped to what a row can hold. -->
+     Always one row; the count is capped to what a row can hold. -->
 {% assign cat = page.categories | first %}
 {% assign related = site.posts
     | where_exp: "p", "p.url != page.url"
@@ -155,7 +155,7 @@ layout: default
   </div>
   <div class="post-more-grid">
     {% comment %}
-      `limit` is a for-loop parameter, not a filter — as a filter Liquid
+      `limit` is a for-loop parameter, not a filter; as a filter Liquid
       doesn't recognise it and silently hands back the whole list.
     {% endcomment %}
     {% for post in related limit: 5 %}

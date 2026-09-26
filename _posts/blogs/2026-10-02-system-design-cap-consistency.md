@@ -275,9 +275,9 @@ sequenceDiagram
 
 | Aspect | Paxos | Raft |
 | --- | --- | --- |
-| Understandability | Low | High — explicit leader/log model |
+| Understandability | Low | High: explicit leader/log model |
 | Leader concept | Implicit, rotating | Explicit |
-| Adoption | Historical, theoretical | Widely used — etcd, Consul, CockroachDB |
+| Adoption | Historical, theoretical | Widely used: etcd, Consul, CockroachDB |
 
 Understandability is why etcd, Consul, and CockroachDB all picked Raft when they needed this primitive in production.
 

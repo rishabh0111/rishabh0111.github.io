@@ -5,7 +5,7 @@
    (a <details> listing the parts) side by side, newest first. This
    script never re-orders or re-renders it. It hides rows that don't
    match, hides any series card and any year left empty, and opens the
-   series that still have matches — then puts every card back the way
+   series that still have matches, then puts every card back the way
    the reader had it once the filter is cleared.
    Without JS the toolbar stays hidden and the <details> work on their own.
 
