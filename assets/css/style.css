@@ -4692,3 +4692,67 @@ details.more > summary:hover,
     backdrop-filter: none; -webkit-backdrop-filter: none;
   }
 }
+
+/* ── SKETCHES ──────────────────────────────────────────────────────
+   Hand-drawn figures (_templates/sketches → _includes/sketches) are
+   inline SVG whose paths carry tone classes, not colours, so they
+   follow the toggle like everything else. s- outline, h- hatching,
+   f- solid fill, t- text. Same eight hues as the Mermaid roles.
+──────────────────────────────────────────────────────────────── */
+:root {
+  --sk-ink: var(--text);         --sk-soft: var(--text-3, #5E6A83);
+  --sk-blue: #2563EB;   --sk-blue-fill: #DBEAFE;
+  --sk-violet: #7C3AED; --sk-violet-fill: #EDE9FE;
+  --sk-green: #059669;  --sk-green-fill: #D1FAE5;
+  --sk-cyan: #0891B2;   --sk-cyan-fill: #CFFAFE;
+  --sk-amber: #D97706;  --sk-amber-fill: #FEF3C7;
+  --sk-red: #DC2626;    --sk-red-fill: #FEE2E2;
+  --sk-ink-fill: #E5E9F0; --sk-soft-fill: #E5E9F0;
+}
+:root[data-theme="dark"] {
+  --sk-blue: #60A5FA;   --sk-blue-fill: #1B3050;
+  --sk-violet: #A78BFA; --sk-violet-fill: #2B1D4A;
+  --sk-green: #34D399;  --sk-green-fill: #123A2E;
+  --sk-cyan: #22D3EE;   --sk-cyan-fill: #0E3540;
+  --sk-amber: #FBBF24;  --sk-amber-fill: #42310D;
+  --sk-red: #F87171;    --sk-red-fill: #431A1B;
+  --sk-ink-fill: #3B4252; --sk-soft-fill: #3B4252;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sk-blue: #60A5FA;   --sk-blue-fill: #1B3050;
+    --sk-violet: #A78BFA; --sk-violet-fill: #2B1D4A;
+    --sk-green: #34D399;  --sk-green-fill: #123A2E;
+    --sk-cyan: #22D3EE;   --sk-cyan-fill: #0E3540;
+    --sk-amber: #FBBF24;  --sk-amber-fill: #42310D;
+    --sk-red: #F87171;    --sk-red-fill: #431A1B;
+    --sk-ink-fill: #3B4252; --sk-soft-fill: #3B4252;
+  }
+}
+figure.sketch { margin: 1.75rem 0; }
+figure.sketch svg { display: block; width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+/* The house caption is a 9px mono label; a sketch's caption is a sentence that says
+   what the colours mean, so it keeps the mono face at a size you can read. */
+.post-content figure.sketch figcaption { margin: .6rem auto 0; max-width: 62ch; font-size: 12px; line-height: 1.55; letter-spacing: .02em; color: var(--text-3); }
+.sketch-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sketch-svg text { font-family: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive; }
+.sketch-svg .s-ink, .sketch-svg .h-ink { stroke: var(--sk-ink); }       .sketch-svg .f-ink { fill: var(--sk-ink-fill); }     .sketch-svg .t-ink { fill: var(--sk-ink); }
+.sketch-svg .s-soft, .sketch-svg .h-soft { stroke: var(--sk-soft); }    .sketch-svg .f-soft { fill: var(--sk-soft-fill); }   .sketch-svg .t-soft { fill: var(--sk-soft); }
+.sketch-svg .s-blue, .sketch-svg .h-blue { stroke: var(--sk-blue); }    .sketch-svg .f-blue { fill: var(--sk-blue-fill); }   .sketch-svg .t-blue { fill: var(--sk-blue); }
+.sketch-svg .s-violet, .sketch-svg .h-violet { stroke: var(--sk-violet); } .sketch-svg .f-violet { fill: var(--sk-violet-fill); } .sketch-svg .t-violet { fill: var(--sk-violet); }
+.sketch-svg .s-green, .sketch-svg .h-green { stroke: var(--sk-green); } .sketch-svg .f-green { fill: var(--sk-green-fill); } .sketch-svg .t-green { fill: var(--sk-green); }
+.sketch-svg .s-cyan, .sketch-svg .h-cyan { stroke: var(--sk-cyan); }    .sketch-svg .f-cyan { fill: var(--sk-cyan-fill); }   .sketch-svg .t-cyan { fill: var(--sk-cyan); }
+.sketch-svg .s-amber, .sketch-svg .h-amber { stroke: var(--sk-amber); } .sketch-svg .f-amber { fill: var(--sk-amber-fill); } .sketch-svg .t-amber { fill: var(--sk-amber); }
+.sketch-svg .s-red, .sketch-svg .h-red { stroke: var(--sk-red); }       .sketch-svg .f-red { fill: var(--sk-red-fill); }     .sketch-svg .t-red { fill: var(--sk-red); }
+.sketch-svg [class^="h-"] { opacity: .5; }
+.sketch-svg [class^="f-"] { stroke: none; }
+
+/* "Check it with a chatbot" — a checkpoint opens ChatGPT or Claude with
+   the coaching prompt already typed (see _includes/coach.html). */
+.coach { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 1.1rem 0 1.6rem;
+  padding: .7rem .9rem; border: 1px dashed var(--border); border-radius: 10px; font-size: .92em; }
+.coach-label { color: var(--text-3, inherit); }
+.coach a.coach-btn { display: inline-flex; align-items: center; gap: .35em; padding: .3em .85em; border-radius: 999px;
+  border: 1px solid var(--accent); color: var(--accent); text-decoration: none; font-family: var(--f-mono); font-size: .82em; }
+.coach a.coach-btn:hover, .coach a.coach-btn:focus-visible { background: var(--accent); color: var(--bg); }
+/* ── /SKETCHES ── */

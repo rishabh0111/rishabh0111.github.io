@@ -1,0 +1,9 @@
+{%- comment -%}
+  A checkpoint the reader answers themselves, then has a chatbot judge.
+  Opens ChatGPT or Claude with the coaching prompt already typed.
+    {% capture prompt %}…plain text, no Liquid tags…{% endcapture %}
+    {% include coach.html prompt=prompt label="Answer these, then check them with" %}
+  ChatGPT takes the whole prompt from the link (tested with a 16,000-character URL).
+{%- endcomment -%}
+{%- assign coach_q = include.prompt | strip | url_encode -%}
+<div class="coach" markdown="0"><span class="coach-label">{{ include.label | default: "Answer first, then check it with" }}</span><a class="coach-btn" href="https://chatgpt.com/?q={{ coach_q }}" target="_blank" rel="noopener">ChatGPT ↗</a><a class="coach-btn" href="https://claude.ai/new?q={{ coach_q }}" target="_blank" rel="noopener">Claude ↗</a></div>
