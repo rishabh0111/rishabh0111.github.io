@@ -23,7 +23,19 @@ title: Blog
 {% endfor %}
 {% assign tag_counts = tag_counts | sort %}
 
-{% assign by_year = standalone | group_by_exp: "p", "p.date | date: '%Y'" %}
+{% comment %}
+  One timeline, newest first. A series stands in it once, dated by its
+  latest part, so it sits where the reader last saw it move; its parts
+  are listed inside its card. Built from every standalone post plus the
+  newest post of each series, sorted together by date.
+{% endcomment %}
+{% assign series_reps = "" | split: "" %}
+{% for s in series_names %}
+  {% assign latest = series_posts | where: "series", s | sort: "date" | last %}
+  {% assign series_reps = series_reps | push: latest %}
+{% endfor %}
+{% assign timeline = standalone | concat: series_reps | sort: "date" | reverse %}
+{% assign by_year = timeline | group_by_exp: "p", "p.date | date: '%Y'" %}
 
 <div class="page-header">
   <div class="page-header-inner" data-section="Writing — Blog">
@@ -31,7 +43,7 @@ title: Blog
     <h1>Blog</h1>
     <p>Original series articles on design, engineering, and ideas.</p>
     <span class="post-count">
-      {{ blog_posts.size }} post{% if blog_posts.size != 1 %}s{% endif %}
+      {{ blog_posts.size }} post{% if blog_posts.size != 1 %}s{% endif %}{% if series_names.size > 0 %} · {{ series_names.size }} series{% endif %}
     </span>
   </div>
 </div>
@@ -40,38 +52,36 @@ title: Blog
   {% if blog_posts.size == 0 %}
     <p class="empty-state">No posts yet — the first one is coming soon.</p>
   {% else %}
-    {% comment %} Hidden until the script runs; without JS the list below is the whole page. {% endcomment %}
+    {% comment %} Hidden until the script runs; without JS the timeline below is the whole page. {% endcomment %}
     <div class="listing-tools" role="search" hidden>
-      <div class="listing-search">
-        <label class="sr-only" for="blog-q">Search posts</label>
-        <svg class="listing-search-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="blog-q" type="search" autocomplete="off" spellcheck="false"
-               placeholder="Search titles, tags, series…">
-        <kbd class="listing-search-key" aria-hidden="true">/</kbd>
+      <div class="listing-bar">
+        <label class="listing-search">
+          <span class="sr-only">Search posts</span>
+          <svg class="listing-search-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="blog-q" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="Search posts, tags, series">
+          <kbd class="listing-search-key" aria-hidden="true">/</kbd>
+        </label>
+        <span class="listing-status" aria-live="polite"></span>
+        {% if by_year.size > 1 %}
+        <nav class="listing-jump" aria-label="Jump to year">
+          {% for yg in by_year %}<a href="#y{{ yg.name }}">{{ yg.name }}</a>{% endfor %}
+        </nav>
+        {% endif %}
       </div>
 
       {% if tag_counts.size > 0 %}
       <div class="listing-tags" aria-label="Filter by tag">
         {% for entry in tag_counts %}
           {% assign parts = entry | split: "|" %}
-          <button type="button" class="listing-tag{% if forloop.index > 12 %} is-extra{% endif %}"
+          <button type="button" class="listing-tag{% if forloop.index > 10 %} is-extra{% endif %}"
                   data-tag="{{ parts[1] | escape }}" aria-pressed="false">{{ parts[1] }}<span>{{ parts[2] }}</span></button>
         {% endfor %}
-        {% if tag_counts.size > 12 %}
-        <button type="button" class="listing-tag-more" aria-expanded="false">+{{ tag_counts.size | minus: 12 }} more</button>
+        {% if tag_counts.size > 10 %}
+        <button type="button" class="listing-tag-more" aria-expanded="false">+{{ tag_counts.size | minus: 10 }} more</button>
         {% endif %}
       </div>
       {% endif %}
-
-      <div class="listing-meta">
-        <span class="listing-status" aria-live="polite"></span>
-        {% if series_names.size > 0 or by_year.size > 1 %}
-        <nav class="listing-jump" aria-label="Jump to">
-          {% if series_names.size > 0 %}<a href="#series">Series</a>{% endif %}
-          {% for yg in by_year %}<a href="#y{{ yg.name }}">{{ yg.name }}</a>{% endfor %}
-        </nav>
-        {% endif %}
-      </div>
     </div>
 
     <p class="empty-state listing-none" hidden>
@@ -79,114 +89,99 @@ title: Blog
       <button type="button" class="listing-clear">Clear the search</button>
     </p>
 
-    {% comment %}
-      Series: one card per series, newest series first (the order the
-      posts arrive in). A card is a <details>: closed, it says what the
-      series is and how big; open, it lists the parts in series order.
-    {% endcomment %}
-    {% if series_names.size > 0 %}
-    <section class="listing-series" id="series" aria-label="Series">
-      <p class="group-heading">Series</p>
-      <div class="series-grid">
-      {% for s in series_names %}
-        {% assign items = series_posts | where: "series", s | sort: "series_order" %}
-        {% assign by_date = items | sort: "date" %}
-        {% assign first_date = by_date.first.date | date: "%b %Y" %}
-        {% assign last_date = by_date.last.date | date: "%b %Y" %}
-        {% assign minutes = 0 %}
-        {% assign s_tags = "" | split: "" %}
-        {% for post in items %}
-          {% assign minutes = minutes | plus: post.read_time %}
-          {% assign s_tags = s_tags | concat: post.tags %}
-        {% endfor %}
-        {% comment %} The card's tags: the ones most parts share, same sort trick as above. {% endcomment %}
-        {% assign s_ranked = "" | split: "" %}
-        {% assign s_uniq = s_tags | uniq | where_exp: "t", "t != 'series'" %}
-        {% for t in s_uniq %}
-          {% assign tn = s_tags | where_exp: "x", "x == t" | size %}
-          {% assign inv = 9999 | minus: tn | prepend: "0000" | slice: -4, 4 %}
-          {% assign s_entry = inv | append: "|" | append: t %}
-          {% assign s_ranked = s_ranked | push: s_entry %}
-        {% endfor %}
-        {% assign s_ranked = s_ranked | sort %}
-        <details class="series-card">
-          <summary>
-            <span class="series-card-name">{{ s }}</span>
-            <span class="series-card-meta">
-              <span class="group-count" data-total="{{ items.size }}" data-unit="part">{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span>
-              {% if minutes > 0 %}<span>{{ minutes }} min</span>{% endif %}
-              <span>{{ first_date }}{% if last_date != first_date %} – {{ last_date }}{% endif %}</span>
-            </span>
-            {% if s_ranked.size > 0 %}
-            <span class="series-card-tags">
-              {% for e in s_ranked limit: 4 %}{% assign tp = e | split: "|" %}<span class="post-row-tag">{{ tp[1] }}</span>{% endfor %}
-            </span>
-            {% endif %}
-          </summary>
-          <div class="series-card-parts">
-          {% for post in items %}
-            {% assign tag_str = post.tags | join: ' ' %}
-            {% assign hay = post.title | append: ' ' | append: post.excerpt | append: ' ' | append: s | append: ' ' | append: tag_str %}
-            <a class="post-row series-row" href="{{ post.url | relative_url }}"
+    {% for yg in by_year %}
+    <section class="bt-year" id="y{{ yg.name }}" aria-labelledby="y{{ yg.name }}-h">
+      <h2 class="bt-year-label" id="y{{ yg.name }}-h">{{ yg.name }}</h2>
+      <ol class="bt-list">
+      {% for post in yg.items %}
+        {% if post.series %}
+          {% comment %}
+            A series: a <details> drawn as a stack of three cards. Closed,
+            it says what the series is and how big; open, it lists the
+            parts in series order.
+          {% endcomment %}
+          {% assign s = post.series %}
+          {% assign items = series_posts | where: "series", s | sort: "series_order" %}
+          {% assign by_date = items | sort: "date" %}
+          {% assign first_date = by_date.first.date | date: "%b %Y" %}
+          {% assign last_date = by_date.last.date | date: "%b %Y" %}
+          {% assign minutes = 0 %}
+          {% assign s_tags = "" | split: "" %}
+          {% for part in items %}
+            {% assign minutes = minutes | plus: part.read_time %}
+            {% assign s_tags = s_tags | concat: part.tags %}
+          {% endfor %}
+          {% comment %} The card's tags: the ones most parts share, same sort trick as above. {% endcomment %}
+          {% assign s_ranked = "" | split: "" %}
+          {% assign s_uniq = s_tags | uniq | where_exp: "t", "t != 'series'" %}
+          {% for t in s_uniq %}
+            {% assign tn = s_tags | where_exp: "x", "x == t" | size %}
+            {% assign inv = 9999 | minus: tn | prepend: "0000" | slice: -4, 4 %}
+            {% assign s_entry = inv | append: "|" | append: t %}
+            {% assign s_ranked = s_ranked | push: s_entry %}
+          {% endfor %}
+          {% assign s_ranked = s_ranked | sort %}
+          <li class="bt-item bt-series">
+            <div class="bt-stack">
+            <details class="series-card">
+              <summary>
+                <span class="bt-meta">
+                  <span class="bt-kind">Series</span>
+                  <span class="group-count" data-total="{{ items.size }}" data-unit="part">{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span>
+                  <span>{{ first_date }}{% if last_date != first_date %} – {{ last_date }}{% endif %}</span>
+                  {% if minutes > 0 %}<span>{{ minutes }} min</span>{% endif %}
+                </span>
+                <span class="bt-title">{{ s }}</span>
+                {% if s_ranked.size > 0 %}
+                <span class="post-row-tags">
+                  {% for e in s_ranked limit: 4 %}{% assign tp = e | split: "|" %}<span class="post-row-tag">{{ tp[1] }}</span>{% endfor %}
+                </span>
+                {% endif %}
+              </summary>
+              <div class="series-card-parts">
+              {% for part in items %}
+                {% assign tag_str = part.tags | join: ' ' %}
+                {% assign hay = part.title | append: ' ' | append: part.excerpt | append: ' ' | append: s | append: ' ' | append: tag_str %}
+                <a class="post-row series-row" href="{{ part.url | relative_url }}"
+                   data-tags="{{ part.tags | join: '|' | escape }}"
+                   data-search="{{ hay | strip_html | strip_newlines | downcase | escape }}">
+                  <span class="post-row-date">Part {{ part.series_order }}</span>
+                  <span class="post-row-title">{{ part.title }}</span>
+                  {% if part.read_time %}
+                  <span class="post-row-readtime">{{ part.read_time }} min</span>
+                  {% endif %}
+                </a>
+              {% endfor %}
+              </div>
+            </details>
+            </div>
+          </li>
+        {% else %}
+          {% assign tag_str = post.tags | join: ' ' %}
+          {% assign hay = post.title | append: ' ' | append: post.excerpt | append: ' ' | append: tag_str %}
+          <li class="bt-item bt-post">
+            <a class="bt-card" href="{{ post.url | relative_url }}"
                data-tags="{{ post.tags | join: '|' | escape }}"
                data-search="{{ hay | strip_html | strip_newlines | downcase | escape }}">
-              <span class="post-row-date">Part {{ post.series_order }}</span>
-              <span>
-                <span class="post-row-title">{{ post.title }}</span>
-                {% if post.tags and post.tags.size > 0 %}
-                <div class="post-row-tags">
-                  {% for tag in post.tags limit: 3 %}
-                  <span class="post-row-tag">{{ tag }}</span>
-                  {% endfor %}
-                </div>
-                {% endif %}
+              <span class="bt-meta">
+                <span class="bt-kind">Post</span>
+                <span>{{ post.date | date: "%b %-d" }}</span>
+                {% if post.read_time %}<span>{{ post.read_time }} min</span>{% endif %}
               </span>
-              {% if post.read_time %}
-              <span class="post-row-readtime">{{ post.read_time }} min</span>
+              <span class="bt-title">{{ post.title }}</span>
+              {% if post.tags and post.tags.size > 0 %}
+              <span class="post-row-tags">
+                {% for tag in post.tags limit: 4 %}
+                <span class="post-row-tag">{{ tag }}</span>
+                {% endfor %}
+              </span>
               {% endif %}
             </a>
-          {% endfor %}
-          </div>
-        </details>
+          </li>
+        {% endif %}
       {% endfor %}
-      </div>
+      </ol>
     </section>
-    {% endif %}
-
-    {% comment %}
-      Standalone posts, grouped by year, newest year first. Each year is a
-      <details>; only the newest starts open, so the page stays short
-      however many years pile up below it.
-    {% endcomment %}
-    {% for yg in by_year %}
-      <details class="year-group" id="y{{ yg.name }}"{% if forloop.first %} open{% endif %}>
-        <summary class="group-heading">
-          {{ yg.name }}
-          <span class="group-count" data-total="{{ yg.items.size }}" data-unit="post">{{ yg.items.size }} post{% if yg.items.size != 1 %}s{% endif %}</span>
-        </summary>
-        {% for post in yg.items %}
-        {% assign tag_str = post.tags | join: ' ' %}
-        {% assign hay = post.title | append: ' ' | append: post.excerpt | append: ' ' | append: tag_str %}
-        <a class="post-row" href="{{ post.url | relative_url }}"
-           data-tags="{{ post.tags | join: '|' | escape }}"
-           data-search="{{ hay | strip_html | strip_newlines | downcase | escape }}">
-          <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
-          <span>
-            <span class="post-row-title">{{ post.title }}</span>
-            {% if post.tags and post.tags.size > 0 %}
-            <div class="post-row-tags">
-              {% for tag in post.tags limit: 3 %}
-              <span class="post-row-tag">{{ tag }}</span>
-              {% endfor %}
-            </div>
-            {% endif %}
-          </span>
-          {% if post.read_time %}
-          <span class="post-row-readtime">{{ post.read_time }} min</span>
-          {% endif %}
-        </a>
-        {% endfor %}
-      </details>
     {% endfor %}
   {% endif %}
 </div>

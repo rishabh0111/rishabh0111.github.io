@@ -1,11 +1,12 @@
-/* Blog index: search and tag filter over the server-rendered list.
+/* Blog index: search and tag filter over the server-rendered timeline.
 
-   The list is rendered in full by Liquid, in its final order: series
-   cards first, then standalone posts in one <details> per year. This
+   The timeline is rendered in full by Liquid, in its final order: one
+   <section> per year, each holding standalone posts and series cards
+   (a <details> listing the parts) side by side, newest first. This
    script never re-orders or re-renders it. It hides rows that don't
-   match, hides any group (a series card, a year) left empty, and opens
-   the groups that still have matches — then puts every group back the
-   way the reader had it once the filter is cleared.
+   match, hides any series card and any year left empty, and opens the
+   series that still have matches — then puts every card back the way
+   the reader had it once the filter is cleared.
    Without JS the toolbar stays hidden and the <details> work on their own.
 
    State lives in the URL (?q=…&tag=…) so a filtered view can be linked
@@ -23,17 +24,29 @@
   var jump    = tools.querySelector('.listing-jump');
   var none    = wrap.querySelector('.listing-none');
   var clear   = wrap.querySelector('.listing-clear');
-  var seriesSection = wrap.querySelector('.listing-series');
 
-  var groups = Array.prototype.slice.call(wrap.querySelectorAll('.series-card, .year-group'))
-    .map(function (el) {
-      return {
-        el: el,
-        rows: Array.prototype.slice.call(el.querySelectorAll('.post-row')),
-        count: el.querySelector('.group-count')
-      };
-    });
-  var total = groups.reduce(function (n, g) { return n + g.rows.length; }, 0);
+  function all(root, sel) {
+    return Array.prototype.slice.call(root.querySelectorAll(sel));
+  }
+
+  // year → items → rows. A standalone post is an item with one row
+  // (itself); a series is an item whose rows are its parts.
+  var years = all(wrap, '.bt-year').map(function (el) {
+    return {
+      el: el,
+      items: all(el, '.bt-item').map(function (li) {
+        return {
+          el: li,
+          card: li.querySelector('.series-card'),
+          rows: all(li, '.post-row, .bt-card'),
+          count: li.querySelector('.group-count')
+        };
+      })
+    };
+  });
+  var total = years.reduce(function (n, y) {
+    return y.items.reduce(function (m, it) { return m + it.rows.length; }, n);
+  }, 0);
 
   var activeTag = '';
   var filtering = false;
@@ -62,39 +75,44 @@
     var qs = terms(input.value);
     var nowFiltering = qs.length > 0 || !!activeTag;
 
-    // Entering a filter: remember which groups the reader had open, so
+    // Entering a filter: remember which series the reader had open, so
     // clearing it restores their view rather than ours.
     if (nowFiltering && !filtering) {
-      groups.forEach(function (g) { g.wasOpen = g.el.open; });
+      years.forEach(function (y) {
+        y.items.forEach(function (it) { if (it.card) it.wasOpen = it.card.open; });
+      });
     }
 
-    var shown = 0, seriesShown = 0;
-    groups.forEach(function (g) {
-      var n = 0, last = null;
-      g.rows.forEach(function (r) {
-        var ok = !nowFiltering || matches(r, qs);
-        r.hidden = !ok;
-        r.classList.remove('is-last-shown');
-        if (ok) { n++; last = r; }
+    var shown = 0;
+    years.forEach(function (y) {
+      var yearShown = 0;
+      y.items.forEach(function (it) {
+        var n = 0, last = null;
+        it.rows.forEach(function (r) {
+          var ok = !nowFiltering || matches(r, qs);
+          r.hidden = !ok;
+          r.classList.remove('is-last-shown');
+          if (ok) { n++; last = r; }
+        });
+        if (last) last.classList.add('is-last-shown');
+        shown += n;
+        it.el.hidden = n === 0;
+        if (n) yearShown++;
+
+        if (!it.card) return;
+        var tot = +it.count.getAttribute('data-total');
+        var unit = it.count.getAttribute('data-unit');
+        it.count.textContent = nowFiltering && n !== tot
+          ? n + ' of ' + label(tot, unit)
+          : label(tot, unit);
+
+        if (nowFiltering) it.card.open = n > 0;
+        else if (filtering) it.card.open = !!it.wasOpen;
       });
-      if (last) last.classList.add('is-last-shown');
-      shown += n;
-
-      g.el.hidden = n === 0;
-      if (n && g.el.classList.contains('series-card')) seriesShown++;
-
-      var tot = +g.count.getAttribute('data-total');
-      var unit = g.count.getAttribute('data-unit');
-      g.count.textContent = nowFiltering && n !== tot
-        ? n + ' of ' + label(tot, unit)
-        : label(tot, unit);
-
-      if (nowFiltering) g.el.open = n > 0;
-      else if (filtering) g.el.open = !!g.wasOpen;
+      y.el.hidden = yearShown === 0;
     });
     filtering = nowFiltering;
 
-    if (seriesSection) seriesSection.hidden = seriesShown === 0;
     none.hidden = shown > 0;
     if (jump) jump.hidden = filtering;
     status.textContent = filtering ? shown + ' of ' + label(total, 'post') : '';
@@ -135,14 +153,6 @@
     input.focus();
   }
 
-  // A jump link or a #y2024 in the URL opens the year it points at;
-  // a closed <details> is otherwise a dead end to land on.
-  function openTarget(hash) {
-    if (!hash || hash.length < 2) return;
-    var el = document.getElementById(decodeURIComponent(hash.slice(1)));
-    if (el && el.tagName === 'DETAILS') el.open = true;
-  }
-
   var timer;
   input.addEventListener('input', function () {
     clearTimeout(timer);
@@ -174,14 +184,6 @@
 
   if (clear) clear.addEventListener('click', reset);
 
-  if (jump) {
-    jump.addEventListener('click', function (e) {
-      var a = e.target.closest('a');
-      if (a) openTarget(a.getAttribute('href'));
-    });
-  }
-  window.addEventListener('hashchange', function () { openTarget(location.hash); });
-
   // "/" jumps to the search box from anywhere on the page, unless the
   // reader is already typing somewhere.
   document.addEventListener('keydown', function (e) {
@@ -195,7 +197,6 @@
   });
 
   tools.hidden = false;
-  openTarget(location.hash);
   readUrl();
   apply();
 })();
