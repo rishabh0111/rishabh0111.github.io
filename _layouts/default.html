@@ -36,6 +36,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Martian+Mono:wdth,wght@75..112.5,300..600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% if content contains 'sketch-svg' %}
+  <!-- Hand-drawn figures (_includes/sketches) letter their labels in Caveat; only pages that carry one load it. -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+  {% endif %}
   {% if content contains 'language-mermaid' %}
   <!-- Only loaded on pages with a mermaid fence, pinned major version 10 for a stable render. -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>

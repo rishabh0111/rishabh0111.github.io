@@ -329,6 +329,37 @@ How the theming works — worth understanding so diagrams don't come out mis-col
 - Any `%%{init: …}%%` directive in the diagram source is **stripped** before rendering, so
   a baked-in theme can't override the page theme. Don't rely on one.
 
+### Hand-drawn figures (sketches)
+
+For diagrams that should look drawn by hand (the DSA series uses them for every
+figure), write a spec in `_templates/sketches/<folder>/figures.js`, build it with
+`node`, and embed the SVG it writes to `_includes/sketches/<folder>/` on one line:
+
+```html
+<figure class="sketch">{% include sketches/<folder>/<name>.svg %}<figcaption>…</figcaption></figure>
+```
+
+The SVG is inline, and its colours are classes mapped to the same eight hues as the
+Mermaid roles (the `SKETCHES` block at the end of `assets/css/style.css`), so it follows
+the light/dark toggle. Pages that contain one load the Caveat font. Vocabulary, build
+and preview commands: `_templates/sketches/README.md`.
+
+### Checkpoints judged by a chatbot
+
+A question the reader should answer before seeing any answer gets a coach link instead of
+a stored answer. It opens ChatGPT or Claude with a coaching prompt already typed:
+
+```liquid
+{% capture coach %}
+You are my coding-interview coach. … (plain text, no Liquid tags)
+{% endcapture %}
+{% include coach.html prompt=coach label="Answer these yourself, then get them checked by" %}
+```
+
+The prompt must stand on its own (the chatbot has not read the post). ChatGPT opens
+with it sent, and took a 16,000-character link whole when tested; a full lesson prompt
+encodes to about 10,000 to 12,000.
+
 ### Images
 
 - Blog images live under `assets/img/blogs/`, one folder per post or per series
