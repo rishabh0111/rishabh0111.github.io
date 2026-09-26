@@ -7,6 +7,7 @@ categories: blogs
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 12
 series_total: 19
+links_new_tab: true
 tags: [dsa, intervals, sweep-line, python, series]
 read_time: 27
 permalink: /blogs/dsa-intervals/
@@ -329,14 +330,7 @@ A recognition checklist for an unfamiliar problem:
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, spaced repetition. For Intervals the struggle questions are: why does the local choice stay globally optimal? Is it a sort, a heap, or both? After watching a solution, justify the greedy decision in your own words: why this sort key, why this comparison, why this tie rule.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Insert Interval](https://leetcode.com/problems/insert-interval/) |
-| 2 | [Merge Intervals](https://leetcode.com/problems/merge-intervals/) |
-| 3 | [Non Overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/) |
-| 4 | [Meeting Rooms](https://neetcode.io/problems/meeting-schedule/question) |
-| 5 | [Meeting Rooms II](https://neetcode.io/problems/meeting-schedule-ii/question) |
-| 6 | [Minimum Interval to Include Each Query](https://leetcode.com/problems/minimum-interval-to-include-each-query/) |
+{% include dsa-problems.html slug="dsa-intervals" %}
 
 ## Take this lesson as a live session
 

@@ -11,6 +11,7 @@ excerpt: "A greedy algorithm commits to the choice that looks best right now and
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 13
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers greedy algorithms: Kadane's algorithm first, then how to check that a local choice is safe before you trust it.
@@ -366,16 +367,7 @@ Ask me whether I would use that greedy rule here and why, and wait for my answer
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, then spaced repetition. For greedy, the struggle question is always *why does the local choice stay globally optimal?* Is the order a sort or a heap, and which of the three arguments makes the choice safe? If you watch a video walkthrough of the problem, justify the greedy decision in your own words afterwards, and put that justification in your key sentence.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) |
-| 2 | [Jump Game](https://leetcode.com/problems/jump-game/) |
-| 3 | [Jump Game II](https://leetcode.com/problems/jump-game-ii/) |
-| 4 | [Gas Station](https://leetcode.com/problems/gas-station/) |
-| 5 | [Hand of Straights](https://leetcode.com/problems/hand-of-straights/) |
-| 6 | [Merge Triplets to Form Target Triplet](https://leetcode.com/problems/merge-triplets-to-form-target-triplet/) |
-| 7 | [Partition Labels](https://leetcode.com/problems/partition-labels/) |
-| 8 | [Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/) |
+{% include dsa-problems.html slug="dsa-greedy" %}
 
 ## Take this lesson as a live session
 

@@ -11,6 +11,7 @@ excerpt: "Every linked list bug is the same bug: you overwrote a .next before an
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 7
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers linked lists: singly linked lists, doubly linked lists, and fast and slow pointers.
@@ -529,19 +530,7 @@ Recognition checklist for an unfamiliar problem:
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): an honest 15-minute struggle, one key sentence per problem in your own words, and spaced repetition. For linked lists, during the struggle draw four or five boxes with arrows on paper and, before every pointer assignment, ask what would become unreachable, whether the head can change, and whether two pointers at different speeds can reach the position you need.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
-| 2 | [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/) |
-| 3 | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) |
-| 4 | [Reorder List](https://leetcode.com/problems/reorder-list/) |
-| 5 | [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/) |
-| 6 | [Copy List With Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/) |
-| 7 | [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/) |
-| 8 | [Find The Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/) |
-| 9 | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
-| 10 | [Merge K Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/) |
-| 11 | [Reverse Nodes In K Group](https://leetcode.com/problems/reverse-nodes-in-k-group/) |
+{% include dsa-problems.html slug="dsa-linked-list" %}
 
 ## Take this lesson as a live session
 

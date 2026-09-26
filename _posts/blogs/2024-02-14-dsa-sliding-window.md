@@ -7,6 +7,7 @@ categories: blogs
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 6
 series_total: 19
+links_new_tab: true
 tags: [dsa, sliding-window, monotonic-deque, python, series]
 read_time: 37
 permalink: /blogs/dsa-sliding-window/
@@ -474,14 +475,7 @@ So your first two questions on any window problem are "is the length given or ch
 
 Work them with the solving cycle from [Part 1](/blogs/dsa-the-method/) (a 15-minute struggle, one key sentence per problem, spaced repetition). During the struggle for this category, ask: can a hash map or set give O(1) lookups of what's in the window? Would prefix sums help instead? Can I restate the question as "longest/shortest window where some condition holds"? The insight is usually the right window state, or seeing that the problem is a window at all.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Best Time to Buy And Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) |
-| 2 | [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/) |
-| 3 | [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/) |
-| 4 | [Permutation In String](https://leetcode.com/problems/permutation-in-string/) |
-| 5 | [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/) |
-| 6 | [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/) |
+{% include dsa-problems.html slug="dsa-sliding-window" %}
 
 ## Take this lesson as a live session
 

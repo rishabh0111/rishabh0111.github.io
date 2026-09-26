@@ -11,6 +11,7 @@ excerpt: "Everyone can write binary search on a sorted array. The seven problems
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 5
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers binary search: the lower-bound loop on a sorted array, and the same loop lifted onto any integer range with a yes/no question that flips exactly once. Seven problems at the end put it to work.
@@ -363,15 +364,7 @@ A recognition checklist for unfamiliar problems:
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, spaced repetition. For this category, the struggle questions are: what is the search space (indices, values, or a split point), what yes/no question flips exactly once across it, and after one check at mid, which half can I throw away and why?
 
-| # | Problem |
-| --- | --- |
-| 1 | [Binary Search](https://leetcode.com/problems/binary-search/) |
-| 2 | [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/) |
-| 3 | [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/) |
-| 4 | [Find Minimum In Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/) |
-| 5 | [Search In Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/) |
-| 6 | [Time Based Key Value Store](https://leetcode.com/problems/time-based-key-value-store/) |
-| 7 | [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/) |
+{% include dsa-problems.html slug="dsa-binary-search" %}
 
 ## Take this lesson as a live session
 

@@ -11,6 +11,7 @@ excerpt: "Watching a solution teaches you to recognise it after you have seen it
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 1
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts. This one is the entry point: the method I use, the topic map the series follows, and how each of the eighteen topic posts is built. [Part 2](/blogs/dsa-arrays-and-hashing/) starts the topics with Arrays & Hashing.
@@ -77,7 +78,7 @@ For each prerequisite, in the order listed, a `##` module with these parts:
 - **Mini-task (conditional).** If none of the topic's problems forces you to derive this technique from scratch, you get an unfamiliar problem with the technique left unnamed. The coach behind it hints only when you're stuck, a little more each time, and shows a solution only if you ask after trying. If a list problem already exercises it, the post says so in one line and skips the mini-task.
 - **Transfer test.** One short, unfamiliar scenario. Would you use the technique here, and why?
 
-After all the prerequisites comes **Integration**: how they connect to the topic, how to tell competing approaches apart, and a recognition checklist for problems you haven't seen. Then **The problems**, a table of the topic's exact problems from the list, each linked to its problem page. Nothing in the post solves or walks through any of those problems. That's the point. The post stops right where you'd start solving.
+After all the prerequisites comes **Integration**: how they connect to the topic, how to tell competing approaches apart, and a recognition checklist for problems you haven't seen. Then **The problems**, a table of the topic's exact problems from the list: each linked to its problem page, tagged easy, medium or hard, and with a **coach** link that opens a chat running the cycle below for that one problem. It makes you struggle first, hints only when you say what you're stuck on, and ends by drafting your tracker row. Nothing in the post solves or walks through any of those problems. That's the point. The post stops right where you'd start solving.
 
 A blog can't pause and wait for you the way a chat can, so the waiting is handed to one. **Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.** Each checkpoint (Active Recall, Mini-task, Transfer test) ends with a link that opens ChatGPT or Claude with a coaching prompt already typed. The prompt carries what the lesson taught, asks the questions one at a time, waits for your attempt, and then confirms or corrects it. Answer out loud or on paper first. Asking for the answer straight away turns the question back into reading, which is the habit this series exists to break.
 
@@ -113,7 +114,7 @@ If you're still stuck when the 15 minutes run out, finish one sentence before mo
 
 ### 2. Last-chance insight (5 minutes)
 
-Open a video walkthrough of the problem and pause as soon as the problem has been restated. Hearing someone else describe it sometimes shakes an idea loose. Use those five minutes to think again before watching any more.
+Open a video walkthrough of the problem and pause as soon as the problem has been restated. Hearing someone else describe it sometimes shakes an idea loose. Use those five minutes to think again before watching any more. The problem's coach link is the other way through this step: tell it "I'm stuck because ___" and it answers that sentence with the smallest hint it can, instead of the whole approach.
 
 ### 3. Absorb, then reconstruct
 
@@ -130,6 +131,8 @@ One row per problem:
 | Problem | Key sentence | Pattern | Complexity | Edge case missed | Solved |
 | --- | --- | --- | --- | --- | --- |
 | | | | | | Cold / Needed video |
+
+**[Download the tracker spreadsheet (.xlsx)](/assets/downloads/dsa-tracker.xlsx){:download=""}.** It has all 150 problems in series order, each with its topic, difficulty and link, and the columns above to fill in. It works out each problem's next review date and whether it's due, and a dashboard tracks the cold-solve ratio per topic. It opens in Excel, or in Google Sheets via File > Import.
 
 The **key sentence** is the column that matters. It's one line capturing the flow of the solution, written so future-you can rebuild the whole thing from that line alone. The test is strict: if you can't rebuild the solution from it, the sentence was too vague. Rewrite it.
 
@@ -150,6 +153,8 @@ Re-solve after **1 day, 3 days, 7 days and 14 days**, but keep it light:
 - **Default review, 2 minutes.** Cover the key sentence, look only at the problem name, and say the approach aloud. If you can state the pattern, the key idea and the complexity fluently, it passes. Move on.
 - **Full re-code** only if the quick review fails, or if the first attempt was "Needed video."
 - **If a review fails:** struggle for 5 minutes, then consult the key sentence, and re-watch only as a last resort. That problem **resets to day 1.**
+
+The tracker does the date arithmetic: enter the date you solved it and how many reviews have passed, and it shows the next review and marks it **due** when the day comes. A failed review is two edits: date solved to today, reviews passed to 0.
 
 Over 150 problems, most reviews stay two-minute reviews. The full re-codes go where they're needed.
 

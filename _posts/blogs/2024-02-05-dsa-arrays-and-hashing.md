@@ -11,6 +11,7 @@ excerpt: "Arrays & Hashing is the root of the topic map. Four prerequisites: wha
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 2
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers Arrays & Hashing: what a Python list really costs, how to use a dict and a set, how a hash table works underneath, and prefix sums.
@@ -629,17 +630,7 @@ A recognition checklist for an unfamiliar array or string problem:
 
 Solve them with the cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem once it clicks, then spaced repetition. For this category, ask during the struggle: can a hash map or set give me O(1) lookups? Would prefix sums help? Can two pointers shrink the search space? The insight is usually the right data structure, or reframing the question as a condition on a subarray.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/) |
-| 2 | [Valid Anagram](https://leetcode.com/problems/valid-anagram/) |
-| 3 | [Two Sum](https://leetcode.com/problems/two-sum/) |
-| 4 | [Group Anagrams](https://leetcode.com/problems/group-anagrams/) |
-| 5 | [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) |
-| 6 | [Encode and Decode Strings](https://neetcode.io/problems/string-encode-and-decode/question) |
-| 7 | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
-| 8 | [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/) |
-| 9 | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
+{% include dsa-problems.html slug="dsa-arrays-and-hashing" %}
 
 ## Take this lesson as a live session
 

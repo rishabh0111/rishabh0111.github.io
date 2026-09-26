@@ -11,6 +11,7 @@ excerpt: "The last topic in the series has no single pattern. It has five small 
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 19
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one, the last, covers Math & Geometry: five small techniques that each break on one specific input.
@@ -697,16 +698,7 @@ A recognition checklist for an unfamiliar problem in this area:
 
 Solve these with the six-step cycle from [the method](/blogs/dsa-the-method/): 15 minutes of struggle, the "I'm stuck because ___" sentence, the key sentence in your log, and spaced repetition. Math & Geometry is closest to the pattern-driven note. During the struggle, work a 3 × 3 or 3-digit example by hand, write the index map or invariant down before any code, and list the degenerate inputs (single row, zero, negative exponent, a carry out of the top digit, duplicate points) that could break it.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Rotate Image](https://leetcode.com/problems/rotate-image/) |
-| 2 | [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/) |
-| 3 | [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/) |
-| 4 | [Happy Number](https://leetcode.com/problems/happy-number/) |
-| 5 | [Plus One](https://leetcode.com/problems/plus-one/) |
-| 6 | [Pow(x, n)](https://leetcode.com/problems/powx-n/) |
-| 7 | [Multiply Strings](https://leetcode.com/problems/multiply-strings/) |
-| 8 | [Detect Squares](https://leetcode.com/problems/detect-squares/) |
+{% include dsa-problems.html slug="dsa-math-and-geometry" %}
 
 That's the last topic and the last of the 150 problems, and the end of the series. Finishing the lessons isn't the goal, though. The goal is still being able to solve these problems cold a month from now. That comes from the loop in [Part 1](/blogs/dsa-the-method/): a key sentence for every problem, then reviews at 1, 3, 7 and 14 days, with any failed review resetting to day 1. Keep that loop running across all 18 topics. If you are starting over or picking the series up cold, that is also where the method and the topic map live.
 

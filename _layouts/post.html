@@ -185,4 +185,16 @@ layout: default
       wrap.appendChild(t);
     });
   })();
+{% if page.links_new_tab %}
+  // links_new_tab: true in front matter: every link in the body opens in a new tab,
+  // so a reader working through a lesson never loses their place in it.
+  // In-page anchors (#…) stay put.
+  (function () {
+    document.querySelectorAll('#post-body a[href]').forEach(function (a) {
+      if (a.getAttribute('href').charAt(0) === '#') return;
+      a.target = '_blank';
+      a.rel = 'noopener';
+    });
+  })();
+{% endif %}
 </script>
