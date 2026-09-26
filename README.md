@@ -341,6 +341,9 @@ unreadable. A 2029 × 437 flowchart (4.6 : 1) rendered 52 px tall. So:
   If the flow is one long chain, start a second chain beside it (a node that feeds
   the chain rather than hangs off the end), so the diagram grows sideways a little
   instead of downwards a lot.
+- **Edges crossing nodes? Reorder the lines.** The layout places nodes in the order
+  they are first declared, so moving an edge up or down often removes a crossing
+  without changing the diagram's meaning.
 - **Keep labels short:** node text about 20 characters per line, split with `<br/>`;
   edge labels two or three words. Long labels, not node count, are what make most
   diagrams wide.

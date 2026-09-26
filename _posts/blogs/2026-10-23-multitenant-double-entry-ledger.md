@@ -65,13 +65,13 @@ This post walks through the decisions behind each of those, including the ones I
 ```mermaid
 flowchart TB
     Client([Client<br/>API key or JWT]) -->|POST /v1/entries| API[API service<br/>scales out]
-    API -->|Entry + outbox row<br/>one transaction| LDB[(Ledger<br/>Postgres)]
     API -->|rate limit| Redis[(Redis)]
+    API -->|Entry + outbox row<br/>one transaction| LDB[(Ledger<br/>Postgres)]
     Relay[Outbox relay<br/>one writer] -->|drains| LDB
     Relay -->|by tenant| Kafka[(Kafka)]
-    Kafka --> Proj[Projection<br/>service]
+    API -.->|GetBalance, gRPC| Proj[Projection<br/>service]
+    Kafka --> Proj
     Proj -->|applied once| PDB[(Projection<br/>Postgres)]
-    API -.->|GetBalance, gRPC| Proj
     classDef actor fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
     classDef gateway fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
     classDef service fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#065F46
