@@ -11,6 +11,7 @@ excerpt: "Bit problems are short, but they turn on a handful of identities: what
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 18
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers bit manipulation: the handful of bitwise identities the problems turn on, and how to fake 32-bit integers in a language whose integers never overflow.
@@ -405,15 +406,7 @@ Recognition checklist for an unfamiliar problem:
 
 Run each through the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, a key sentence, spaced repetition. For bit manipulation the struggle is concrete. Write small inputs in binary on paper, ask which identity (XOR cancel, `n & (n - 1)`, single-bit mask) matches what changes, and ask whether the problem assumes 32 bits before you write a loop.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Single Number](https://leetcode.com/problems/single-number/) |
-| 2 | [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/) |
-| 3 | [Counting Bits](https://leetcode.com/problems/counting-bits/) |
-| 4 | [Reverse Bits](https://leetcode.com/problems/reverse-bits/) |
-| 5 | [Missing Number](https://leetcode.com/problems/missing-number/) |
-| 6 | [Sum of Two Integers](https://leetcode.com/problems/sum-of-two-integers/) |
-| 7 | [Reverse Integer](https://leetcode.com/problems/reverse-integer/) |
+{% include dsa-problems.html slug="dsa-bit-manipulation" %}
 
 ## Take this lesson as a live session
 

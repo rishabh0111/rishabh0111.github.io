@@ -7,6 +7,7 @@ categories: blogs
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 11
 series_total: 19
+links_new_tab: true
 tags: [dsa, backtracking, recursion, python, series]
 read_time: 37
 permalink: /blogs/dsa-backtracking/
@@ -590,18 +591,7 @@ When you're stuck on a new problem, fill in the table row first: what's on the p
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, a one-sentence key insight when you're done, and spaced repetition. For backtracking, during the struggle ask: what are my choices at each step, what constraint makes a partial answer invalid, and where can I prune? Write the `backtrack(state)` skeleton in the first few minutes, even before the details are clear.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Subsets](https://leetcode.com/problems/subsets/) |
-| 2 | [Combination Sum](https://leetcode.com/problems/combination-sum/) |
-| 3 | [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/) |
-| 4 | [Permutations](https://leetcode.com/problems/permutations/) |
-| 5 | [Subsets II](https://leetcode.com/problems/subsets-ii/) |
-| 6 | [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/) |
-| 7 | [Word Search](https://leetcode.com/problems/word-search/) |
-| 8 | [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/) |
-| 9 | [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/) |
-| 10 | [N Queens](https://leetcode.com/problems/n-queens/) |
+{% include dsa-problems.html slug="dsa-backtracking" %}
 
 ## Take this lesson as a live session
 

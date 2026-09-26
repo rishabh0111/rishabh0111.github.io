@@ -7,6 +7,7 @@ categories: blogs
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 3
 series_total: 19
+links_new_tab: true
 tags: [dsa, two-pointers, sorting, python, series]
 read_time: 19
 permalink: /blogs/dsa-two-pointers/
@@ -211,13 +212,7 @@ Recognition checklist for an unfamiliar problem:
 
 Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, one key sentence written in your own words, spaced repetition. During the struggle for this topic, ask: can a hash map or set give O(1) lookups? Would prefix sums help? Can two pointers shrink the search space, and what exactly does one comparison let me throw away? The insight is usually the right data structure, or reframing the question as a pair or window condition.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/) |
-| 2 | [Two Sum II Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/) |
-| 3 | [3Sum](https://leetcode.com/problems/3sum/) |
-| 4 | [Container With Most Water](https://leetcode.com/problems/container-with-most-water/) |
-| 5 | [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/) |
+{% include dsa-problems.html slug="dsa-two-pointers" %}
 
 ## Take this lesson as a live session
 

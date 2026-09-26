@@ -11,6 +11,7 @@ excerpt: "A backtracking tree that keeps asking the same question is a DP proble
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 15
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one, Part 15, covers 1-D dynamic programming: turning a backtracking tree that keeps re-asking the same question into a table, plus the expand-around-center trick for palindromic substrings.
@@ -469,20 +470,7 @@ Recognition checklist for an unfamiliar problem:
 
 Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, then the one key sentence, then spaced repetition. For DP, during the struggle, write down before any code: what does the state represent? What's the recurrence? What are the base cases? If you're stuck after the struggle, take only the recurrence from a video walkthrough of the problem, then write it yourself as recurrence → memo → tabulation (→ O(1) space where the recurrence allows).
 
-| # | Problem |
-| --- | --- |
-| 1 | [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/) |
-| 2 | [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/) |
-| 3 | [House Robber](https://leetcode.com/problems/house-robber/) |
-| 4 | [House Robber II](https://leetcode.com/problems/house-robber-ii/) |
-| 5 | [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/) |
-| 6 | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
-| 7 | [Decode Ways](https://leetcode.com/problems/decode-ways/) |
-| 8 | [Coin Change](https://leetcode.com/problems/coin-change/) |
-| 9 | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
-| 10 | [Word Break](https://leetcode.com/problems/word-break/) |
-| 11 | [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/) |
-| 12 | [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/) |
+{% include dsa-problems.html slug="dsa-1d-dynamic-programming" %}
 
 ## Take this lesson as a live session
 

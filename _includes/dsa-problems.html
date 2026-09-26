@@ -1,0 +1,33 @@
+{%- comment -%}
+  The problem table for one topic of the DSA series, from _data/dsa_problems.yml.
+    {% include dsa-problems.html slug="dsa-two-pointers" %}
+  Each problem opens in a new tab; "coach" opens ChatGPT or Claude with the solving
+  cycle from Part 1 already typed: struggle first, hints only when stuck, and at the
+  end the row for the tracker spreadsheet.
+{%- endcomment -%}
+{%- assign t = site.data.dsa_problems | where: "slug", include.slug | first -%}
+{%- assign n_easy = t.problems | where: "difficulty", "Easy" | size -%}
+{%- assign n_med = t.problems | where: "difficulty", "Medium" | size -%}
+{%- assign n_hard = t.problems | where: "difficulty", "Hard" | size -%}
+<div class="dsa-problems" markdown="0">
+<p class="dsa-problems-count">{{ t.problems | size }} problems · {{ n_easy }} easy · {{ n_med }} medium · {{ n_hard }} hard · <a href="{{ '/assets/downloads/dsa-tracker.xlsx' | relative_url }}" download>tracker spreadsheet (.xlsx)</a></p>
+<table>
+<thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Coach</th></tr></thead>
+<tbody>
+{%- for p in t.problems %}
+{%- capture q -%}
+You are my coding-interview coach for "{{ p.name }}" ({{ p.url }}), a {{ p.difficulty }} problem from the {{ t.topic }} topic. I solve in Python.
+Run this cycle with me and never jump ahead:
+1. Struggle first. Ask me to restate the problem in my own words and to read the constraints as hints (n up to 20 suggests backtracking; n up to 10^5 needs O(n log n) or better). Then ask for a brute force and what it wastes. Don't name the technique.
+2. If I say "I'm stuck because ...", give the smallest hint that answers that sentence, one at a time, each a little stronger. Never the full approach unless I ask for it after trying.
+3. When I have an approach, make me justify why it is correct and state time and space complexity before I code.
+4. Review my code for correctness, edge cases and complexity.
+5. Finish by helping me write the tracker row: a one-line key sentence I could rebuild the solution from, the pattern, the complexity, any edge case I missed, and whether I solved it cold or needed help.
+Start with step 1.
+{%- endcapture -%}
+{%- assign qe = q | url_encode %}
+<tr><td>{{ forloop.index }}</td><td><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.name }}</a></td><td><span class="diff diff-{{ p.difficulty | downcase }}">{{ p.difficulty }}</span></td><td class="dsa-coach"><a href="https://chatgpt.com/?q={{ qe }}" target="_blank" rel="noopener" title="Work through {{ p.name }} with ChatGPT">ChatGPT</a> · <a href="https://claude.ai/new?q={{ qe }}" target="_blank" rel="noopener" title="Work through {{ p.name }} with Claude">Claude</a></td></tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>

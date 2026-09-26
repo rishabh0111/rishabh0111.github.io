@@ -11,6 +11,7 @@ excerpt: "Grids, adjacency lists, BFS layers, three-colour cycle detection and U
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 14
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers graphs: grids and adjacency lists, depth-first and breadth-first search on both, three-colour cycle detection with the ordering it gives for free, and Union-Find, followed by the thirteen problems they unlock.
@@ -741,21 +742,7 @@ A recognition checklist for an unfamiliar problem:
 
 Work them with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, the key sentence, spaced repetition. For graphs, spend the struggle this way. Sketch a small example first. Decide whether it's DFS, BFS, Dijkstra or a topological sort, and whether you need cycle detection or just a visited set. Simulate by hand before coding. Then explain the traversal order and exactly how your code avoids infinite loops.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
-| 2 | [Max Area of Island](https://leetcode.com/problems/max-area-of-island/) |
-| 3 | [Clone Graph](https://leetcode.com/problems/clone-graph/) |
-| 4 | [Walls And Gates](https://neetcode.io/problems/islands-and-treasure/question) |
-| 5 | [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/) |
-| 6 | [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/) |
-| 7 | [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/) |
-| 8 | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
-| 9 | [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/) |
-| 10 | [Graph Valid Tree](https://neetcode.io/problems/valid-tree/question) |
-| 11 | [Number of Connected Components In An Undirected Graph](https://neetcode.io/problems/count-connected-components/question) |
-| 12 | [Redundant Connection](https://leetcode.com/problems/redundant-connection/) |
-| 13 | [Word Ladder](https://leetcode.com/problems/word-ladder/) |
+{% include dsa-problems.html slug="dsa-graphs" %}
 
 ## Take this lesson as a live session
 

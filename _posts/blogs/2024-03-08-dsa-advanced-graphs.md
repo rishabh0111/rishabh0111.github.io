@@ -7,6 +7,7 @@ categories: blogs
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 16
 series_total: 19
+links_new_tab: true
 tags: [dsa, graphs, shortest-path, python, series]
 read_time: 47
 permalink: /blogs/dsa-advanced-graphs/
@@ -702,14 +703,7 @@ The heap from [Part 10](/blogs/dsa-heaps/) powers the first two, and Union-Find 
 
 Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, a one-sentence key insight, then spaced repetition. During the struggle, sketch a small example first and ask: DFS, BFS, Dijkstra, or topological sort? Do I need cycle detection, or just a visited set? Simulate by hand before coding, and be able to explain the traversal order and what stops an infinite loop.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Network Delay Time](https://leetcode.com/problems/network-delay-time/) |
-| 2 | [Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/) |
-| 3 | [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/) |
-| 4 | [Swim In Rising Water](https://leetcode.com/problems/swim-in-rising-water/) |
-| 5 | [Alien Dictionary](https://neetcode.io/problems/foreign-dictionary/question) |
-| 6 | [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/) |
+{% include dsa-problems.html slug="dsa-advanced-graphs" %}
 
 ## Take this lesson as a live session
 

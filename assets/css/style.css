@@ -4755,4 +4755,13 @@ figure.sketch svg { display: block; width: 100%; height: auto; margin: 0 auto; o
 .coach a.coach-btn { display: inline-flex; align-items: center; gap: .35em; padding: .3em .85em; border-radius: 999px;
   border: 1px solid var(--accent); color: var(--accent); text-decoration: none; font-family: var(--f-mono); font-size: .82em; }
 .coach a.coach-btn:hover, .coach a.coach-btn:focus-visible { background: var(--accent); color: var(--bg); }
+/* DSA problem tables (_includes/dsa-problems.html): difficulty as a pill, in the
+   same three hues the list uses everywhere else — easy green, medium amber, hard red. */
+.post-content .dsa-problems-count { font-family: var(--f-mono); font-size: 12px; letter-spacing: .02em; color: var(--text-3); }
+.dsa-problems td:first-child { color: var(--text-3); font-family: var(--f-mono); font-size: 12px; }
+.dsa-problems .diff { display: inline-block; padding: .1em .6em; border-radius: 999px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .03em; border: 1px solid; }
+.dsa-problems .diff-easy   { color: var(--sk-green); background: var(--sk-green-fill); border-color: var(--sk-green); }
+.dsa-problems .diff-medium { color: var(--sk-amber); background: var(--sk-amber-fill); border-color: var(--sk-amber); }
+.dsa-problems .diff-hard   { color: var(--sk-red);   background: var(--sk-red-fill);   border-color: var(--sk-red); }
+.dsa-problems td.dsa-coach { white-space: nowrap; font-family: var(--f-mono); font-size: 12px; }
 /* ── /SKETCHES ── */

@@ -11,6 +11,7 @@ excerpt: "One index was enough for climbing stairs. Grids, budgets, two strings 
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 17
 series_total: 19
+links_new_tab: true
 ---
 
 These are my data structures and algorithms notes, cleaned up into nineteen posts, one pattern at a time. This one covers 2-D dynamic programming: grids, state machines, both kinds of knapsack, two-string tables and interval DP.
@@ -713,19 +714,7 @@ The Graphs parent shows up in the last column. The cells are nodes, "reads" are 
 
 Solve them with the cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, a one-sentence key insight once you have it, and spaced repetition. For DP, before writing any code, define: what does the state represent, what is the recurrence, what are the base cases? For 2-D, add: what are the two indices, and which cells does a cell read (so what order fills the table)? If you are stuck, get the recurrence from a video walkthrough of the problem, then write recurrence, then memo, then tabulation.
 
-| # | Problem |
-| --- | --- |
-| 1 | [Unique Paths](https://leetcode.com/problems/unique-paths/) |
-| 2 | [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/) |
-| 3 | [Best Time to Buy And Sell Stock With Cooldown](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/) |
-| 4 | [Coin Change II](https://leetcode.com/problems/coin-change-ii/) |
-| 5 | [Target Sum](https://leetcode.com/problems/target-sum/) |
-| 6 | [Interleaving String](https://leetcode.com/problems/interleaving-string/) |
-| 7 | [Longest Increasing Path In a Matrix](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/) |
-| 8 | [Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences/) |
-| 9 | [Edit Distance](https://leetcode.com/problems/edit-distance/) |
-| 10 | [Burst Balloons](https://leetcode.com/problems/burst-balloons/) |
-| 11 | [Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/) |
+{% include dsa-problems.html slug="dsa-2d-dynamic-programming" %}
 
 ## Take this lesson as a live session
 

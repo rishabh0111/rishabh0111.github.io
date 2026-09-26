@@ -360,6 +360,21 @@ The prompt must stand on its own (the chatbot has not read the post). ChatGPT op
 with it sent, and took a 16,000-character link whole when tested; a full lesson prompt
 encodes to about 10,000 to 12,000.
 
+### The DSA series' problem lists and tracker
+
+The 150 problems of the DSA series live once, in `_data/dsa_problems.yml` (topic, part,
+name, difficulty, URL: LeetCode, or NeetCode where the problem is premium on LeetCode).
+Two things read it:
+
+- `{% include dsa-problems.html slug="dsa-<topic>" %}` renders a post's problem table:
+  counts, difficulty pills, and a per-problem coach link that runs the solving cycle.
+- `python _templates/dsa-tracker/build_tracker.py` rebuilds
+  `assets/downloads/dsa-tracker.xlsx`, the tracker spreadsheet Part 1 and every problem
+  table link to. Open and re-save it in Excel afterwards so it ships with computed values.
+
+A post with `links_new_tab: true` in its front matter opens every body link in a new tab
+(set on the whole DSA series, so a lesson stays open while you solve).
+
 ### Images
 
 - Blog images live under `assets/img/blogs/`, one folder per post or per series

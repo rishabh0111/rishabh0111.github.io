@@ -1,0 +1,527 @@
+# The problem list for the "Data Structures & Algorithms, Pattern by Pattern" series.
+# One entry per topic, in series order. Rendered by _includes/dsa-problems.html and
+# built into the downloadable tracker by _templates/dsa-tracker/build_tracker.py.
+# url: LeetCode, or the free NeetCode page for problems that are premium on LeetCode.
+
+- topic: "Arrays & Hashing"
+  slug: dsa-arrays-and-hashing
+  part: 2
+  problems:
+    - name: "Contains Duplicate"
+      difficulty: Easy
+      url: https://leetcode.com/problems/contains-duplicate/
+    - name: "Valid Anagram"
+      difficulty: Easy
+      url: https://leetcode.com/problems/valid-anagram/
+    - name: "Two Sum"
+      difficulty: Easy
+      url: https://leetcode.com/problems/two-sum/
+    - name: "Group Anagrams"
+      difficulty: Medium
+      url: https://leetcode.com/problems/group-anagrams/
+    - name: "Top K Frequent Elements"
+      difficulty: Medium
+      url: https://leetcode.com/problems/top-k-frequent-elements/
+    - name: "Encode and Decode Strings"
+      difficulty: Medium
+      url: https://neetcode.io/problems/string-encode-and-decode/question
+    - name: "Product of Array Except Self"
+      difficulty: Medium
+      url: https://leetcode.com/problems/product-of-array-except-self/
+    - name: "Valid Sudoku"
+      difficulty: Medium
+      url: https://leetcode.com/problems/valid-sudoku/
+    - name: "Longest Consecutive Sequence"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-consecutive-sequence/
+- topic: "Two Pointers"
+  slug: dsa-two-pointers
+  part: 3
+  problems:
+    - name: "Valid Palindrome"
+      difficulty: Easy
+      url: https://leetcode.com/problems/valid-palindrome/
+    - name: "Two Sum II Input Array Is Sorted"
+      difficulty: Medium
+      url: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+    - name: "3Sum"
+      difficulty: Medium
+      url: https://leetcode.com/problems/3sum/
+    - name: "Container With Most Water"
+      difficulty: Medium
+      url: https://leetcode.com/problems/container-with-most-water/
+    - name: "Trapping Rain Water"
+      difficulty: Hard
+      url: https://leetcode.com/problems/trapping-rain-water/
+- topic: "Stack"
+  slug: dsa-stack
+  part: 4
+  problems:
+    - name: "Valid Parentheses"
+      difficulty: Easy
+      url: https://leetcode.com/problems/valid-parentheses/
+    - name: "Min Stack"
+      difficulty: Medium
+      url: https://leetcode.com/problems/min-stack/
+    - name: "Evaluate Reverse Polish Notation"
+      difficulty: Medium
+      url: https://leetcode.com/problems/evaluate-reverse-polish-notation/
+    - name: "Daily Temperatures"
+      difficulty: Medium
+      url: https://leetcode.com/problems/daily-temperatures/
+    - name: "Car Fleet"
+      difficulty: Medium
+      url: https://leetcode.com/problems/car-fleet/
+    - name: "Largest Rectangle In Histogram"
+      difficulty: Hard
+      url: https://leetcode.com/problems/largest-rectangle-in-histogram/
+- topic: "Binary Search"
+  slug: dsa-binary-search
+  part: 5
+  problems:
+    - name: "Binary Search"
+      difficulty: Easy
+      url: https://leetcode.com/problems/binary-search/
+    - name: "Search a 2D Matrix"
+      difficulty: Medium
+      url: https://leetcode.com/problems/search-a-2d-matrix/
+    - name: "Koko Eating Bananas"
+      difficulty: Medium
+      url: https://leetcode.com/problems/koko-eating-bananas/
+    - name: "Find Minimum In Rotated Sorted Array"
+      difficulty: Medium
+      url: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
+    - name: "Search In Rotated Sorted Array"
+      difficulty: Medium
+      url: https://leetcode.com/problems/search-in-rotated-sorted-array/
+    - name: "Time Based Key Value Store"
+      difficulty: Medium
+      url: https://leetcode.com/problems/time-based-key-value-store/
+    - name: "Median of Two Sorted Arrays"
+      difficulty: Hard
+      url: https://leetcode.com/problems/median-of-two-sorted-arrays/
+- topic: "Sliding Window"
+  slug: dsa-sliding-window
+  part: 6
+  problems:
+    - name: "Best Time to Buy And Sell Stock"
+      difficulty: Easy
+      url: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+    - name: "Longest Substring Without Repeating Characters"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+    - name: "Longest Repeating Character Replacement"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-repeating-character-replacement/
+    - name: "Permutation In String"
+      difficulty: Medium
+      url: https://leetcode.com/problems/permutation-in-string/
+    - name: "Minimum Window Substring"
+      difficulty: Hard
+      url: https://leetcode.com/problems/minimum-window-substring/
+    - name: "Sliding Window Maximum"
+      difficulty: Hard
+      url: https://leetcode.com/problems/sliding-window-maximum/
+- topic: "Linked List"
+  slug: dsa-linked-list
+  part: 7
+  problems:
+    - name: "Reverse Linked List"
+      difficulty: Easy
+      url: https://leetcode.com/problems/reverse-linked-list/
+    - name: "Merge Two Sorted Lists"
+      difficulty: Easy
+      url: https://leetcode.com/problems/merge-two-sorted-lists/
+    - name: "Linked List Cycle"
+      difficulty: Easy
+      url: https://leetcode.com/problems/linked-list-cycle/
+    - name: "Reorder List"
+      difficulty: Medium
+      url: https://leetcode.com/problems/reorder-list/
+    - name: "Remove Nth Node From End of List"
+      difficulty: Medium
+      url: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
+    - name: "Copy List With Random Pointer"
+      difficulty: Medium
+      url: https://leetcode.com/problems/copy-list-with-random-pointer/
+    - name: "Add Two Numbers"
+      difficulty: Medium
+      url: https://leetcode.com/problems/add-two-numbers/
+    - name: "Find The Duplicate Number"
+      difficulty: Medium
+      url: https://leetcode.com/problems/find-the-duplicate-number/
+    - name: "LRU Cache"
+      difficulty: Medium
+      url: https://leetcode.com/problems/lru-cache/
+    - name: "Merge K Sorted Lists"
+      difficulty: Hard
+      url: https://leetcode.com/problems/merge-k-sorted-lists/
+    - name: "Reverse Nodes In K Group"
+      difficulty: Hard
+      url: https://leetcode.com/problems/reverse-nodes-in-k-group/
+- topic: "Trees"
+  slug: dsa-trees
+  part: 8
+  problems:
+    - name: "Invert Binary Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/invert-binary-tree/
+    - name: "Maximum Depth of Binary Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/maximum-depth-of-binary-tree/
+    - name: "Diameter of Binary Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/diameter-of-binary-tree/
+    - name: "Balanced Binary Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/balanced-binary-tree/
+    - name: "Same Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/same-tree/
+    - name: "Subtree of Another Tree"
+      difficulty: Easy
+      url: https://leetcode.com/problems/subtree-of-another-tree/
+    - name: "Lowest Common Ancestor of a Binary Search Tree"
+      difficulty: Medium
+      url: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
+    - name: "Binary Tree Level Order Traversal"
+      difficulty: Medium
+      url: https://leetcode.com/problems/binary-tree-level-order-traversal/
+    - name: "Binary Tree Right Side View"
+      difficulty: Medium
+      url: https://leetcode.com/problems/binary-tree-right-side-view/
+    - name: "Count Good Nodes In Binary Tree"
+      difficulty: Medium
+      url: https://leetcode.com/problems/count-good-nodes-in-binary-tree/
+    - name: "Validate Binary Search Tree"
+      difficulty: Medium
+      url: https://leetcode.com/problems/validate-binary-search-tree/
+    - name: "Kth Smallest Element In a Bst"
+      difficulty: Medium
+      url: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+    - name: "Construct Binary Tree From Preorder And Inorder Traversal"
+      difficulty: Medium
+      url: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
+    - name: "Binary Tree Maximum Path Sum"
+      difficulty: Hard
+      url: https://leetcode.com/problems/binary-tree-maximum-path-sum/
+    - name: "Serialize And Deserialize Binary Tree"
+      difficulty: Hard
+      url: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
+- topic: "Tries"
+  slug: dsa-tries
+  part: 9
+  problems:
+    - name: "Implement Trie Prefix Tree"
+      difficulty: Medium
+      url: https://leetcode.com/problems/implement-trie-prefix-tree/
+    - name: "Design Add And Search Words Data Structure"
+      difficulty: Medium
+      url: https://leetcode.com/problems/design-add-and-search-words-data-structure/
+    - name: "Word Search II"
+      difficulty: Hard
+      url: https://leetcode.com/problems/word-search-ii/
+- topic: "Heap / Priority Queue"
+  slug: dsa-heaps
+  part: 10
+  problems:
+    - name: "Kth Largest Element In a Stream"
+      difficulty: Easy
+      url: https://leetcode.com/problems/kth-largest-element-in-a-stream/
+    - name: "Last Stone Weight"
+      difficulty: Easy
+      url: https://leetcode.com/problems/last-stone-weight/
+    - name: "K Closest Points to Origin"
+      difficulty: Medium
+      url: https://leetcode.com/problems/k-closest-points-to-origin/
+    - name: "Kth Largest Element In An Array"
+      difficulty: Medium
+      url: https://leetcode.com/problems/kth-largest-element-in-an-array/
+    - name: "Task Scheduler"
+      difficulty: Medium
+      url: https://leetcode.com/problems/task-scheduler/
+    - name: "Design Twitter"
+      difficulty: Medium
+      url: https://leetcode.com/problems/design-twitter/
+    - name: "Find Median From Data Stream"
+      difficulty: Hard
+      url: https://leetcode.com/problems/find-median-from-data-stream/
+- topic: "Backtracking"
+  slug: dsa-backtracking
+  part: 11
+  problems:
+    - name: "Subsets"
+      difficulty: Medium
+      url: https://leetcode.com/problems/subsets/
+    - name: "Combination Sum"
+      difficulty: Medium
+      url: https://leetcode.com/problems/combination-sum/
+    - name: "Combination Sum II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/combination-sum-ii/
+    - name: "Permutations"
+      difficulty: Medium
+      url: https://leetcode.com/problems/permutations/
+    - name: "Subsets II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/subsets-ii/
+    - name: "Generate Parentheses"
+      difficulty: Medium
+      url: https://leetcode.com/problems/generate-parentheses/
+    - name: "Word Search"
+      difficulty: Medium
+      url: https://leetcode.com/problems/word-search/
+    - name: "Palindrome Partitioning"
+      difficulty: Medium
+      url: https://leetcode.com/problems/palindrome-partitioning/
+    - name: "Letter Combinations of a Phone Number"
+      difficulty: Medium
+      url: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+    - name: "N Queens"
+      difficulty: Hard
+      url: https://leetcode.com/problems/n-queens/
+- topic: "Intervals"
+  slug: dsa-intervals
+  part: 12
+  problems:
+    - name: "Insert Interval"
+      difficulty: Medium
+      url: https://leetcode.com/problems/insert-interval/
+    - name: "Merge Intervals"
+      difficulty: Medium
+      url: https://leetcode.com/problems/merge-intervals/
+    - name: "Non Overlapping Intervals"
+      difficulty: Medium
+      url: https://leetcode.com/problems/non-overlapping-intervals/
+    - name: "Meeting Rooms"
+      difficulty: Easy
+      url: https://neetcode.io/problems/meeting-schedule/question
+    - name: "Meeting Rooms II"
+      difficulty: Medium
+      url: https://neetcode.io/problems/meeting-schedule-ii/question
+    - name: "Minimum Interval to Include Each Query"
+      difficulty: Hard
+      url: https://leetcode.com/problems/minimum-interval-to-include-each-query/
+- topic: "Greedy"
+  slug: dsa-greedy
+  part: 13
+  problems:
+    - name: "Maximum Subarray"
+      difficulty: Medium
+      url: https://leetcode.com/problems/maximum-subarray/
+    - name: "Jump Game"
+      difficulty: Medium
+      url: https://leetcode.com/problems/jump-game/
+    - name: "Jump Game II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/jump-game-ii/
+    - name: "Gas Station"
+      difficulty: Medium
+      url: https://leetcode.com/problems/gas-station/
+    - name: "Hand of Straights"
+      difficulty: Medium
+      url: https://leetcode.com/problems/hand-of-straights/
+    - name: "Merge Triplets to Form Target Triplet"
+      difficulty: Medium
+      url: https://leetcode.com/problems/merge-triplets-to-form-target-triplet/
+    - name: "Partition Labels"
+      difficulty: Medium
+      url: https://leetcode.com/problems/partition-labels/
+    - name: "Valid Parenthesis String"
+      difficulty: Medium
+      url: https://leetcode.com/problems/valid-parenthesis-string/
+- topic: "Graphs"
+  slug: dsa-graphs
+  part: 14
+  problems:
+    - name: "Number of Islands"
+      difficulty: Medium
+      url: https://leetcode.com/problems/number-of-islands/
+    - name: "Max Area of Island"
+      difficulty: Medium
+      url: https://leetcode.com/problems/max-area-of-island/
+    - name: "Clone Graph"
+      difficulty: Medium
+      url: https://leetcode.com/problems/clone-graph/
+    - name: "Walls And Gates"
+      difficulty: Medium
+      url: https://neetcode.io/problems/islands-and-treasure/question
+    - name: "Rotting Oranges"
+      difficulty: Medium
+      url: https://leetcode.com/problems/rotting-oranges/
+    - name: "Pacific Atlantic Water Flow"
+      difficulty: Medium
+      url: https://leetcode.com/problems/pacific-atlantic-water-flow/
+    - name: "Surrounded Regions"
+      difficulty: Medium
+      url: https://leetcode.com/problems/surrounded-regions/
+    - name: "Course Schedule"
+      difficulty: Medium
+      url: https://leetcode.com/problems/course-schedule/
+    - name: "Course Schedule II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/course-schedule-ii/
+    - name: "Graph Valid Tree"
+      difficulty: Medium
+      url: https://neetcode.io/problems/valid-tree/question
+    - name: "Number of Connected Components In An Undirected Graph"
+      difficulty: Medium
+      url: https://neetcode.io/problems/count-connected-components/question
+    - name: "Redundant Connection"
+      difficulty: Medium
+      url: https://leetcode.com/problems/redundant-connection/
+    - name: "Word Ladder"
+      difficulty: Hard
+      url: https://leetcode.com/problems/word-ladder/
+- topic: "1-D Dynamic Programming"
+  slug: dsa-1d-dynamic-programming
+  part: 15
+  problems:
+    - name: "Climbing Stairs"
+      difficulty: Easy
+      url: https://leetcode.com/problems/climbing-stairs/
+    - name: "Min Cost Climbing Stairs"
+      difficulty: Easy
+      url: https://leetcode.com/problems/min-cost-climbing-stairs/
+    - name: "House Robber"
+      difficulty: Medium
+      url: https://leetcode.com/problems/house-robber/
+    - name: "House Robber II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/house-robber-ii/
+    - name: "Longest Palindromic Substring"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-palindromic-substring/
+    - name: "Palindromic Substrings"
+      difficulty: Medium
+      url: https://leetcode.com/problems/palindromic-substrings/
+    - name: "Decode Ways"
+      difficulty: Medium
+      url: https://leetcode.com/problems/decode-ways/
+    - name: "Coin Change"
+      difficulty: Medium
+      url: https://leetcode.com/problems/coin-change/
+    - name: "Maximum Product Subarray"
+      difficulty: Medium
+      url: https://leetcode.com/problems/maximum-product-subarray/
+    - name: "Word Break"
+      difficulty: Medium
+      url: https://leetcode.com/problems/word-break/
+    - name: "Longest Increasing Subsequence"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-increasing-subsequence/
+    - name: "Partition Equal Subset Sum"
+      difficulty: Medium
+      url: https://leetcode.com/problems/partition-equal-subset-sum/
+- topic: "Advanced Graphs"
+  slug: dsa-advanced-graphs
+  part: 16
+  problems:
+    - name: "Network Delay Time"
+      difficulty: Medium
+      url: https://leetcode.com/problems/network-delay-time/
+    - name: "Reconstruct Itinerary"
+      difficulty: Hard
+      url: https://leetcode.com/problems/reconstruct-itinerary/
+    - name: "Min Cost to Connect All Points"
+      difficulty: Medium
+      url: https://leetcode.com/problems/min-cost-to-connect-all-points/
+    - name: "Swim In Rising Water"
+      difficulty: Hard
+      url: https://leetcode.com/problems/swim-in-rising-water/
+    - name: "Alien Dictionary"
+      difficulty: Hard
+      url: https://neetcode.io/problems/foreign-dictionary/question
+    - name: "Cheapest Flights Within K Stops"
+      difficulty: Medium
+      url: https://leetcode.com/problems/cheapest-flights-within-k-stops/
+- topic: "2-D Dynamic Programming"
+  slug: dsa-2d-dynamic-programming
+  part: 17
+  problems:
+    - name: "Unique Paths"
+      difficulty: Medium
+      url: https://leetcode.com/problems/unique-paths/
+    - name: "Longest Common Subsequence"
+      difficulty: Medium
+      url: https://leetcode.com/problems/longest-common-subsequence/
+    - name: "Best Time to Buy And Sell Stock With Cooldown"
+      difficulty: Medium
+      url: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/
+    - name: "Coin Change II"
+      difficulty: Medium
+      url: https://leetcode.com/problems/coin-change-ii/
+    - name: "Target Sum"
+      difficulty: Medium
+      url: https://leetcode.com/problems/target-sum/
+    - name: "Interleaving String"
+      difficulty: Medium
+      url: https://leetcode.com/problems/interleaving-string/
+    - name: "Longest Increasing Path In a Matrix"
+      difficulty: Hard
+      url: https://leetcode.com/problems/longest-increasing-path-in-a-matrix/
+    - name: "Distinct Subsequences"
+      difficulty: Hard
+      url: https://leetcode.com/problems/distinct-subsequences/
+    - name: "Edit Distance"
+      difficulty: Medium
+      url: https://leetcode.com/problems/edit-distance/
+    - name: "Burst Balloons"
+      difficulty: Hard
+      url: https://leetcode.com/problems/burst-balloons/
+    - name: "Regular Expression Matching"
+      difficulty: Hard
+      url: https://leetcode.com/problems/regular-expression-matching/
+- topic: "Bit Manipulation"
+  slug: dsa-bit-manipulation
+  part: 18
+  problems:
+    - name: "Single Number"
+      difficulty: Easy
+      url: https://leetcode.com/problems/single-number/
+    - name: "Number of 1 Bits"
+      difficulty: Easy
+      url: https://leetcode.com/problems/number-of-1-bits/
+    - name: "Counting Bits"
+      difficulty: Easy
+      url: https://leetcode.com/problems/counting-bits/
+    - name: "Reverse Bits"
+      difficulty: Easy
+      url: https://leetcode.com/problems/reverse-bits/
+    - name: "Missing Number"
+      difficulty: Easy
+      url: https://leetcode.com/problems/missing-number/
+    - name: "Sum of Two Integers"
+      difficulty: Medium
+      url: https://leetcode.com/problems/sum-of-two-integers/
+    - name: "Reverse Integer"
+      difficulty: Medium
+      url: https://leetcode.com/problems/reverse-integer/
+- topic: "Math & Geometry"
+  slug: dsa-math-and-geometry
+  part: 19
+  problems:
+    - name: "Rotate Image"
+      difficulty: Medium
+      url: https://leetcode.com/problems/rotate-image/
+    - name: "Spiral Matrix"
+      difficulty: Medium
+      url: https://leetcode.com/problems/spiral-matrix/
+    - name: "Set Matrix Zeroes"
+      difficulty: Medium
+      url: https://leetcode.com/problems/set-matrix-zeroes/
+    - name: "Happy Number"
+      difficulty: Easy
+      url: https://leetcode.com/problems/happy-number/
+    - name: "Plus One"
+      difficulty: Easy
+      url: https://leetcode.com/problems/plus-one/
+    - name: "Pow(x, n)"
+      difficulty: Medium
+      url: https://leetcode.com/problems/powx-n/
+    - name: "Multiply Strings"
+      difficulty: Medium
+      url: https://leetcode.com/problems/multiply-strings/
+    - name: "Detect Squares"
+      difficulty: Medium
+      url: https://leetcode.com/problems/detect-squares/
