@@ -5,7 +5,7 @@ date: 2026-09-08 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [distributed-systems, webhooks, reliability, postgres, engineering]
-read_time: 15
+read_time: 18
 permalink: /blogs/webhook-delivery-engine/
 excerpt: "Durability, idempotency, and the surprisingly large gap between COMMIT and 'enqueue a job.' It's deployed, so you can go and break it."
 ---
@@ -84,7 +84,8 @@ from scratch so I'd have to answer every one of those questions out loud.
 
 What follows is why it's shaped the way it is. If you want the code first:
 [github.com/rishabh0111/webhook-delivery-engine][repo]. Around 2.5k lines, fully tested, runs
-on $0 of infrastructure. It's also deployed, so you can poke at the running thing: the
+on $0 of infrastructure, and benchmarked: [0 of 50,000 events lost](#then-i-measured-it) when I
+wiped Redis in the middle of the load. It's also deployed, so you can poke at the running thing: the
 [operator dashboard][dashboard] and the [Swagger docs][docs].
 
 ---
@@ -324,11 +325,19 @@ each up in BullMQ, and re-enqueues anything with no live job. One mechanism cove
    queue from the source of truth. The system self-heals, which is the entire reason I was
    allowed to call Redis disposable in the first place.
 
+That second claim was wrong, and it took a benchmark to show me. The reconciler's schedule is a
+BullMQ repeatable job, and a repeatable job lives in Redis. Wipe Redis and you wipe the backstop
+along with the queue it was meant to rebuild. Nothing re-registered it until the process
+restarted. The fix is a watchdog: once a minute the process asks Redis whether the schedule still
+exists, and if it doesn't, Redis has lost data, so it puts the schedule back and sweeps
+immediately. The numbers are [below](#then-i-measured-it).
+
 There's a constraint hidden in that cadence. The free-tier Postgres I targeted autosuspends
 when idle, so a chatty backstop polling every 30 seconds would keep it awake around the clock
 and burn the quota doing nothing. Fifteen minutes is a deliberate trade of recovery latency for
 letting the database sleep. A backstop you run constantly is just a load generator wearing a
-useful hat.
+useful hat. The watchdog keeps that trade intact: its once-a-minute check touches only Redis, and
+Postgres hears from it only on the rare minute when the schedule has actually vanished.
 
 ---
 
@@ -423,6 +432,42 @@ free tier the disposable thing really can vanish at any moment.
 
 ---
 
+## Then I measured it
+
+A promise like "no silent loss" is only worth something if you try to break it, so I wrote a
+benchmark harness ([`bench/`][bench]) that starts the engine and a local receiver, drives the
+real HTTP API, and counts every delivery at the receiver end. It ran on my laptop: one engine
+instance, Postgres and Redis in Docker, the receiver on the same machine. The numbers describe
+that setup, not a production cluster. Every run is in the [results note][results], including the
+ones that failed.
+
+| Test | What I did | Result |
+| --- | --- | --- |
+| **Durability** | Sent 50,000 events and ran `FLUSHALL` on Redis halfway through, with 23,468 jobs waiting in the queue | **0 lost, 0 double-sends, no restart.** All 50,000 delivered 191 s after the last one was accepted |
+| **Throughput** | Held 5,000 events a minute for 15 minutes, 75,000 events in all | Every event delivered, backlog flat, **p95 47 ms, p99 139 ms** end to end |
+| **Idempotency** | Sent 10,000 events twice each with the same idempotency key, half the pairs concurrently | 10,000 stored, 10,000 delivered, **0 double-sends** |
+
+The durability row is the one with a story. The first time I ran it, with the engine exactly as
+I'd shipped it, **23,536 of the 50,000 events were never delivered.** They weren't lost, since
+every one was still sitting in Postgres as `pending`, but nothing was ever going to pick them up.
+The flush had deleted the reconciler's schedule too, which is the bug from Decision #3. The
+backstop I'd built for Redis loss couldn't survive Redis loss. A restart recovered all of them,
+which hid the problem from every test I'd written, because none of them wiped Redis while the
+process kept running. After the watchdog, the same test delivered all 50,000, each exactly once.
+
+Two smaller things the harness pinned down:
+
+- **Two different mechanisms stop duplicates.** A client's repeated request never reaches the
+  queue at all: the unique idempotency key in Postgres turns it into a `200`. The job id (the
+  event id) catches the engine's own re-enqueues, such as the reconciler racing an in-flight
+  enqueue. When a job has already finished and been removed, the worker's "already delivered?"
+  check is the last line. The benchmark hit all three.
+- **The laptop can stall.** One of the three 15-minute runs had multi-second stalls with nothing
+  in the engine log to explain them, most likely contention on the shared laptop. It's in the
+  results note as the run that happened, not dropped because it looked bad.
+
+---
+
 ## The bugs that actually cost me time
 
 The things that never make it into the tidy final diagram:
@@ -480,6 +525,8 @@ and until they were written down I wasn't being honest with myself about which w
    the backstop that cleans up when it does.
 4. **Constraints are a feature.** The free-tier limits didn't dilute the project. They're the
    reason it has a point of view.
+5. **Measure the promise, not just the code.** Every unit test passed while the headline
+   guarantee was false. It took one benchmark that did the disaster for real to find it.
 
 It was the most fun I've had being paranoid about failure. If you build webhooks after reading
 this and remember to set a per-attempt timeout, that's enough for me.
@@ -493,6 +540,7 @@ this and remember to set a per-attempt timeout, that's enough for me.
 | **Stack** | Node.js, Express, BullMQ, PostgreSQL, Redis, Zod, Pino, Jest |
 | **Guarantees** | exactly-once acceptance, at-least-once delivery, no silent loss |
 | **Patterns** | transactional outbox, dead-letter + replay, reconciliation, HMAC signing |
+| **Measured** | 0 of 50,000 lost through a mid-load Redis wipe; 5,000 events/min for 15 min at p95 47 ms; 0 double-sends from 10,000 duplicate sends (one laptop, single instance) |
 | **Code** | [github.com/rishabh0111/webhook-delivery-engine][repo], MIT |
 | **Live demo** | [operator dashboard][dashboard], one-click walkthrough of every delivery outcome |
 | **API docs** | [Swagger][docs] |
@@ -500,6 +548,8 @@ this and remember to set a per-attempt timeout, that's enough for me.
 [repo]: https://github.com/rishabh0111/webhook-delivery-engine
 [dashboard]: https://webhook-delivery-engine-on21.onrender.com/dashboard
 [docs]: https://webhook-delivery-engine-on21.onrender.com/docs
+[bench]: https://github.com/rishabh0111/webhook-delivery-engine/tree/main/bench
+[results]: https://github.com/rishabh0111/webhook-delivery-engine/blob/main/docs/results/2026-09-26-benchmarks.md
 
 *Built and written by Rishabh Sharma. The [live dashboard][dashboard] runs a self-contained
 demo of every delivery path: happy, retrying, timing out, and dying.*
