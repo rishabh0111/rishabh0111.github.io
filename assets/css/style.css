@@ -1085,7 +1085,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   -webkit-backdrop-filter: blur(var(--glass-blur-nav)) var(--glass-fx);
   padding: var(--s4) var(--s5);
   margin-top: var(--s5);        /* the last band never sits on the footer */
-  display: flex; align-items: center; justify-content: space-between;
+  /* Name | socials | palette. Equal side tracks keep the socials on the
+     page's centre line whatever the two ends measure. */
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   gap: var(--s3);
   border-top: 1px solid var(--plane-rule);
   /* Never floats mid-page: body is flex column, main has flex:1 */
@@ -1097,7 +1099,26 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   text-transform: uppercase;
   color: var(--header-sub);
 }
-.footer-palette { display: flex; gap: 5px; align-items: center; }
+.footer-palette { display: flex; gap: 5px; align-items: center; justify-self: end; }
+
+/* Social links: icon-only, named by aria-label and a tooltip. Quiet
+   like the rest of the footer until pointed at. */
+.footer-social { display: flex; gap: 4px; align-items: center; }
+.footer-social a {
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  color: var(--header-sub);
+  border: 1px solid transparent; border-radius: 8px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  color: var(--accent);
+  border-color: var(--glass-border);
+  background: var(--bg-raised);
+}
+.footer-social a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.footer-social svg { width: 16px; height: 16px; display: block; }
 .footer-dot { width: 7px; height: 7px; border-radius: 50%; opacity: 0.7; }
 
 
@@ -4144,9 +4165,12 @@ details.more > summary:hover,
 
   /* The tab bar's footprint from the window floor: home-indicator inset
      + its 16px gap + its height = --nav-floor. Content clears that
-     plus a breathing gap; the FAB parks one --s2 above its top edge. */
+     plus a breathing gap; the FAB parks one --s2 above its top edge.
+     The clearance is the footer's own bottom padding, not the body's:
+     the footer runs to the bottom of the page and the bar floats over
+     its lower edge, instead of a band of empty page under the footer. */
   :root { --nav-floor: calc(env(safe-area-inset-bottom, 0px) + var(--s2) + var(--tab-h)); }
-  body { padding-bottom: calc(var(--nav-floor) + var(--s3)); }
+  .site-footer { padding-bottom: calc(var(--nav-floor) + var(--s4)); }
   .scroll-top { bottom: calc(var(--nav-floor) + var(--s2)); }
 
   /* The bar is a capsule now, not a strip, so where the screen has
@@ -4211,7 +4235,12 @@ details.more > summary:hover,
   /* item 2 is the last *visible* one here; :last-child is hidden */
   .post-more-item:nth-child(2) { border-bottom: none; }
 
-  .site-footer { flex-direction: column; gap: var(--s2); align-items: flex-start; }
+  /* Phones: one column, name then socials then palette, all flush left.
+     The icon row steps out by its own inset so the glyphs line up with
+     the text above rather than their hit areas. */
+  .site-footer { grid-template-columns: 1fr; gap: var(--s2); justify-items: start; }
+  .footer-social { margin-left: -9px; }
+  .footer-palette { justify-self: start; }
 }
 
 /* ════════════════════════════════════════════════════════════════

@@ -162,6 +162,11 @@
 
   <footer class="site-footer">
     <p>{{ site.title }} · {{ 'now' | date: "%Y" }}</p>
+    <nav class="footer-social" aria-label="Social links">
+      {% for l in site.data.social %}
+      <a href="{{ l.url }}" aria-label="{{ l.label }}" title="{{ l.label }}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>{% include icon.html name=l.icon %}</a>
+      {% endfor %}
+    </nav>
     <div class="footer-palette" aria-hidden="true">
       <div class="footer-dot" style="background:#2E3440;"></div>
       <div class="footer-dot" style="background:#3B4252;"></div>

@@ -6,6 +6,8 @@ layout: default
 {% assign n_blogs = site.categories.blogs | size %}
 {% assign n_news  = site.categories.news  | size %}
 {% assign marks   = site.data.tech_logos.icons %}
+{% comment %} Hero and contact links: the site-wide socials, then the home-only ones. {% endcomment %}
+{% assign profile_links = site.data.social | concat: page.links %}
 
 <!-- ═══════════════════════════════════════════════════════════════
      HERO: sits on the parallax scene, same plane as .page-header
@@ -27,7 +29,7 @@ layout: default
       </div>
 
       <nav class="hero-links" aria-label="Profile links">
-        {% for l in page.links %}
+        {% for l in profile_links %}
         {% assign ext = false %}
         {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
         <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
@@ -46,7 +48,7 @@ layout: default
          strip sits on the photo, and the links are right beside it). The two contours around it are the same family of
          hand-drawn survey lines as the topographic scene. If the image
          is missing, an RS monogram takes over. -->
-    {% assign gh = page.links | where: "icon", "github" | first %}
+    {% assign gh = site.data.social | where: "icon", "github" | first %}
     {% assign handle = gh.url | split: "/" | last %}
     <figure class="hero-portrait pcard-wrap" id="portrait">
       <div class="pcard-behind" aria-hidden="true"></div>
@@ -659,7 +661,7 @@ layout: default
     <p class="page-label" data-decrypt>Get in touch</p>
     <a class="contact-email shiny" href="mailto:{{ page.contact.email }}">{{ page.contact.email }}</a>
     <nav class="hero-links" aria-label="Profile links">
-      {% for l in page.links %}
+      {% for l in profile_links %}
       {% assign ext = false %}
       {% if l.url contains '://' or l.url contains 'mailto:' %}{% assign ext = true %}{% endif %}
       <a href="{% if ext %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>

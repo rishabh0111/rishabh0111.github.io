@@ -42,10 +42,8 @@ profile:
     backends underneath them. I trained in security, so I ask how something
     breaks before I ask when it ships.
 
+# Home-only links, shown after the social links in _data/social.yml.
 links:
-  - { label: GitHub,   url: "https://github.com/rishabh0111",       icon: github }
-  - { label: LinkedIn, url: "https://linkedin.com/in/rishabh0111",  icon: linkedin }
-  - { label: Email,    url: "mailto:rishabhsharma8912@gmail.com",   icon: mail }
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
 # ── Pillars: the three claims, shown inside "About" as icon tiles ─
