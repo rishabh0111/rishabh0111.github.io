@@ -3446,9 +3446,9 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .tl-card.electric > *:not(.eb-layers) { position: relative; z-index: 1; }
 .eb-canvas { position: absolute; left: -40px; top: -40px; display: block; z-index: 2; }
 .eb-glow-1, .eb-glow-2, .eb-bg-glow { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
-.eb-glow-1 { border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); filter: blur(1px); }
-.eb-glow-2 { border: 2px solid var(--accent); filter: blur(4px); opacity: 0.7; }
-.eb-bg-glow { z-index: -1; transform: scale(1.06); filter: blur(28px); opacity: 0.22;
+.eb-glow-1 { border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); filter: blur(1px); }
+.eb-glow-2 { border: 2px solid var(--accent); filter: blur(4px); opacity: 0.25; }
+.eb-bg-glow { z-index: -1; transform: scale(1.03); filter: blur(28px); opacity: 0.08;
   background: linear-gradient(-30deg, var(--accent), transparent, var(--accent)); }
 @media (prefers-reduced-motion: reduce) { .eb-canvas, .eb-glow-2 { display: none; } }
 .tl-head { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }

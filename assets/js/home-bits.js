@@ -445,17 +445,20 @@
       return r;
     }
     var rect = size();
-    window.addEventListener("resize", function () { rect = size(); }, { passive: true });
+    // Follow the card, not the window: opening "What I did there"
+    // grows it, and a stale canvas would trace the old outline.
+    if (window.ResizeObserver) new ResizeObserver(function () { rect = size(); }).observe(card);
+    else window.addEventListener("resize", function () { rect = size(); }, { passive: true });
     function frame(now) {
       var time = (now - t0) * 0.001;
       var w = rect.width, h = rect.height, rad = 12, N = 360;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.strokeStyle = cssVar("--accent") || "#88C0D0";
-      ctx.lineWidth = 1.6; ctx.lineJoin = "round";
+      ctx.globalAlpha = 0.55; ctx.lineWidth = 1.2; ctx.lineJoin = "round";
       ctx.beginPath();
       for (var i = 0; i <= N; i++) {
         var t = (i % N) / N, p = point(w, h, rad, t);
-        var n = octaved(t * 8, time * 0.9, 1) * 9, n2 = octaved(t * 8 + 3.7, time * 0.9, 2) * 9;
+        var n = octaved(t * 8, time * 0.3, 1) * 3, n2 = octaved(t * 8 + 3.7, time * 0.3, 2) * 3;
         var x = p[0] + OFF + n, y = p[1] + OFF + n2;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
