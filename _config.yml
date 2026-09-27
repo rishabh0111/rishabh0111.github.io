@@ -21,7 +21,7 @@ defaults:
   - scope:
       path: ""
     values:
-      image: /assets/img/og-card.png
+      image: /assets/img/og-card.jpg
 
 # ── Timezone ───────────────────────────────────────────────────
 timezone: Asia/Kolkata

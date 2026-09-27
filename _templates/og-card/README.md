@@ -1,7 +1,9 @@
 # og-card
 
-Source for `/assets/img/og-card.png` — the single social share image
-(`og:image` / `twitter:image`) used site-wide via `_config.yml` `defaults`.
+Source for the previous social share card. The live card is now
+`/assets/img/og-card.jpg` (`og:image` / `twitter:image`, set site-wide via
+`_config.yml` `defaults`), a supplied image padded with black to 1200x630;
+this template no longer produces it.
 
 `og-card.html` is self-contained (logo SVGs inlined). To regenerate after an edit:
 
