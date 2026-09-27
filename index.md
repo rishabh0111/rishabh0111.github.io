@@ -34,7 +34,7 @@ profile:
   surname:   Sharma
   role:      AI · Backend · Infrastructure
   location:  Gurugram, India
-  avatar:    /assets/img/home/profile.jpg
+  avatar:    /assets/img/home/profile-cutout.webp
   avatar_caption: Gurugram, 2026
   status:    Shipping AI at Kleeto · 4 systems since May 2026
   tagline: >-
