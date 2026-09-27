@@ -3771,8 +3771,12 @@ details.more > summary:hover,
 @media (max-width: 700px) {
   .band { padding: var(--s8) 0; }
   .band-inner { padding: 0 var(--s3); }
-  .metrics { grid-template-columns: 1fr 1fr; row-gap: var(--s4); }
-  .metric:nth-child(odd) { padding-left: 0; border-left: none; }
+  .metrics { grid-template-columns: 1fr 1fr; gap: var(--s2); }
+  /* Label on top, figure on the floor: tiles in a row share a
+     height, so the figures line up however the labels wrap. */
+  .metric { display: flex; flex-direction: column; justify-content: space-between;
+            gap: var(--s2); padding: var(--s2) var(--s2) var(--s3); }
+  .metric-label { margin-bottom: 0; }
   .carousel-track > .project { flex-basis: 84%; min-height: 0; }
 
   /* The timeline folds to a single column: the period becomes a
