@@ -20,7 +20,6 @@
      specular()         Specular Button    a highlight that follows the pointer on buttons
      trueFocus()        True Focus         a frame hopping between the off-hours words
      scrollVelocity()   Scroll Velocity    the toolkit loops speed up with the scroll
-     gradualBlur()      Gradual Blur       the page dissolves at the bottom edge
 
    All progressive; with reduced motion, a coarse pointer or no JS the
    page is simply still.
@@ -584,25 +583,6 @@
     requestAnimationFrame(frame);
   }
 
-  /* ── Gradual Blur: the page dissolves at the bottom edge ─────────*/
-  function gradualBlur() {
-    if (!fine || reduce) return;
-    var el = document.createElement("div");
-    el.className = "gradual-blur"; el.setAttribute("aria-hidden", "true");
-    var n = 5;
-    for (var i = 0; i < n; i++) {
-      var layer = document.createElement("i");
-      var blur = Math.pow(2, i) * 0.5;      // 0.5, 1, 2, 4, 8
-      var a = (i / n) * 100, b = ((i + 1) / n) * 100, c = ((i + 2) / n) * 100;
-      layer.style.backdropFilter = "blur(" + blur + "px)";
-      layer.style.webkitBackdropFilter = "blur(" + blur + "px)";
-      layer.style.maskImage = "linear-gradient(to bottom, transparent " + a + "%, black " + b + "%, black " + Math.min(100, c) + "%, transparent " + Math.min(100, c + 20) + "%)";
-      layer.style.webkitMaskImage = layer.style.maskImage;
-      el.appendChild(layer);
-    }
-    document.body.appendChild(el);
-  }
-
   lineSidebar();
   targetCursor();
   counters();
@@ -617,5 +597,4 @@
   specular();
   trueFocus();
   scrollVelocity();
-  gradualBlur();
 })();

@@ -3309,14 +3309,6 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 /* ── Scroll Velocity: the loops are moved by script ──────────────*/
 .ribbon.is-jsloop .ribbon-track { animation: none; will-change: transform; }
 
-/* ── Gradual Blur: the bottom of the viewport ────────────────────*/
-.gradual-blur {
-  position: fixed; left: 0; right: 0; bottom: 0; height: 110px;
-  pointer-events: none; z-index: 60; isolation: isolate;
-}
-.gradual-blur i { position: absolute; inset: 0; display: block; }
-@media (max-width: 900px) { .gradual-blur { display: none; } }
-
 /* ── Tiles: the one card surface the home's components share ───
    Pillars, project posters, timeline cards, credential panels: each section
    has its own shape, but they are cut from the same material so
