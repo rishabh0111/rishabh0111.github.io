@@ -24,23 +24,24 @@
 layout: home
 title: Rishabh Sharma
 description: >-
-  AI engineer. I build assistants companies can trust: a live one inside
-  Kleeto's HR platform, a shared help desk that keeps every company's data
-  apart, and three business platforms before those.
+  AI engineer. Four AI systems shipped at Kleeto since May 2026, three of them
+  in production, plus the backends and infrastructure under them, measured
+  with tests, benchmarks and real-cloud runs.
 permalink: /
 
 profile:
   name:      Rishabh
   surname:   Sharma
-  role:      AI · Backend · Security
+  role:      AI · Backend · Infrastructure
   location:  Gurugram, India
   avatar:    /assets/img/home/profile.jpg
   avatar_caption: Gurugram, 2026
-  status:    Building the AI assistant inside Kleeto's HR platform
+  status:    Shipping AI at Kleeto · 4 systems since May 2026
   tagline: >-
-    I build **AI assistants that companies can actually trust**, and the
-    backends underneath them. I trained in security, so I ask how something
-    breaks before I ask when it ships.
+    I ship **AI systems to production**, along with the backends and
+    infrastructure under them, and I measure them before I trust them. I
+    trained in security, so I ask how something breaks before I ask when it
+    ships.
 
 # Home-only links, shown after the social links in _data/social.yml.
 links:
@@ -55,31 +56,31 @@ pillars:
   - title: AI that real people use
     icon:  spark
     body: >-
-      An assistant inside Kleeto's HR platform, used by 500+ employees across
-      six parts of the system. Plus Nivara Desk, where the AI hands the question
-      to a person rather than guess at it.
+      Four AI systems at Kleeto since May 2026: an HR assistant for 500+
+      employees, document checks on 5,500 files a month, ID masking on 30,000
+      documents, and a voice presenter piloting with three customers.
   - title: Security built in, not added later
     icon:  shield
     body: >-
       A security degree and a CEH certificate, used on design rather than
       audits. I prefer making a mistake impossible over writing a rule that
       asks people not to make it.
-  - title: Backends that survive a bad day
+  - title: Systems that prove their guarantees
     icon:  server
     body: >-
-      Retries, duplicate protection, signed requests, jobs that resume after a
-      crash. I design for the thing going wrong, because the version where
-      everything works takes care of itself.
+      In Python, TypeScript and Java, every promise has a test or a benchmark
+      behind it. The durability test on my webhook engine found the durability
+      bug; after the fix, a Redis wipe lost 0 of 50,000 events.
 
 # ── Metrics ──────────────────────────────────────────────────────
 # Deliberately one per pillar, plus the track record. Rendered as
 # four tiles in the first band; the number in each `figure` counts
 # up on scroll, and whatever surrounds it ("+", "%") stays put.
 metrics:
-  - { figure: "500+",  label: employees using the assistant }
-  - { figure: "93.6%", label: right call on a test of 600 questions }
+  - { figure: "4",     label: AI systems shipped at Kleeto since May 2026 }
+  - { figure: "500+",  label: employees using the HR assistant }
   - { figure: "0",     label: attempts to trick the AI that worked }
-  - { figure: "4",     label: platforms shipped start to finish }
+  - { figure: "$3.32", label: for 12 hours on real AWS Kubernetes }
 
 # ═════════════════════════════════════════════════════════════════
 #  PROJECTS: one list, however many entries, and no ranking: a
@@ -138,30 +139,40 @@ projects:
         label: AI layer
         lang:  Python
         stack: [FastAPI, Hybrid RAG, Qdrant, MCP, Langfuse, pytest]
-        blog:  /blogs/nivara-desk-part-four/
+        blog:  /blogs/mcp-tool-surface-as-the-guardrail/
         promise: >-
           Anything the model writes on its own can never reach a customer.
         points:
           - >-
-            Made the right call on **93.6% of a 600-question eval** (595 of 600)
-            by routing every answer through a trained gate that decides when to
-            reply and when to fetch a human. Money questions always go to a
-            human.
+            Made the right call on **93.6% of 600 recorded tickets** (595 of
+            600) by routing every answer through a trained gate that decides
+            when to reply, when to ask, and when to fetch a human. Money
+            questions always go to a human.
           - >-
             Put the right document first **94.2% of the time** with hybrid
             retrieval over Qdrant, and every reply is built from one of those
             real documents, so a made-up answer is **impossible rather than
-            unlikely**.
+            unlikely**. **No attempt to trick it has worked**, and the attacks
+            re-run on every change.
           - >-
-            Held wrongful escalations to **6.8%** (sent to a human when it could
-            have answered) and kept the full eval **free to re-run ($0)** by
-            recording model responses once and replaying them.
+            Held wrongful escalations to **6.8%** with zero wrong answers on
+            money questions, and kept the full eval **free to re-run ($0)** by
+            recording model responses once and replaying them. One automated
+            grader agreed with people too rarely (κ = 0.14), so its score was
+            dropped rather than published.
+          - >-
+            Cut model cost **26–39% on 8 of 13 kinds of question** with no drop
+            in accuracy, by sending each question to the cheapest model that
+            answers it well and falling back down a chain that ends in a person.
+          - >-
+            Found and fixed a **ranking leak between companies** inside the
+            search engine, and pinned it with a test so it cannot come back.
 
       - id:    api
         label: API
         lang:  TypeScript
         stack: [NestJS, Prisma, PostgreSQL RLS, PgBouncer, Socket.IO, Redis]
-        blog:  /blogs/nivara-desk-part-two/
+        blog:  /blogs/postgres-rls-multitenancy/
         promise: >-
           Forget the company filter on a query and you get nothing back, never
           someone else's data.
@@ -175,7 +186,6 @@ projects:
         label: Front ends
         lang:  TypeScript
         stack: [Next.js 15, React 19, Tailwind v4, TanStack, Shadow DOM, Playwright]
-        blog:  /blogs/nivara-desk-part-three/
         promise: >-
           Every screenshot above was taken from the running app by a script.
         points:
@@ -190,7 +200,86 @@ projects:
       - { label: API docs, icon: external, url: "https://nivara-api-nestjs.onrender.com/docs" }
       - { label: Chat box, icon: external, url: "https://rishabh0111.github.io/nivara-web-nextjs/" }
       - { label: Source,   icon: github,   url: "https://github.com/rishabh0111?tab=repositories&q=nivara" }
-      - { label: Write-up, icon: pen,      url: "/blogs/nivara-desk-part-one/" }
+      - { label: Write-up, icon: pen,      url: "/blogs/postgres-rls-multitenancy/" }
+
+  - name:     Nostro
+    year:     "2026"
+    kind:     Systems
+    blurb:    A ledger for many companies where money cannot go missing
+    languages: [Java]
+
+    promise: >-
+      An entry that doesn't balance, arrives twice, or touches another
+      company's money cannot be recorded. The database refuses it.
+
+    body: >-
+      A double-entry ledger API for many tenants on one deployment, split into
+      three Spring Boot services. Every guarantee in the README names the test
+      that proves it, and CI ticks that table on every push.
+
+    glance:
+      - { k: Guarantee, v: "Every entry sums to zero, is recorded once, and stays inside its own tenant" }
+      - { k: Built with, v: "Transactional outbox · Kafka relay · gRPC read model · Postgres row-level security" }
+      - { k: Size,      v: "3 services · 211 tests · 16 decision records" }
+      - { k: Runs on,   v: "`docker compose up`, which seeds two tenants and prints their keys" }
+
+    points:
+      - >-
+        **211 tests (127 against real Postgres, Kafka and Redis)** prove the
+        guarantees in a **3-minute** CI run: 40 writers on one account,
+        opposite-order writers, concurrent duplicates, and killing the relay's
+        leader mid-stream.
+      - >-
+        Load-tested a hot account: **half the throughput and 2.3× the p99** on
+        one account versus 64, with **zero database errors** either way. Every
+        refusal was the balance floor, answered as a clean 422.
+      - >-
+        Failure cases are **sealed types**, so a failure nobody handled is a
+        compile error, not a 500 in production.
+
+    stack: [Java, Spring Boot, Kafka, gRPC, PostgreSQL, Testcontainers]
+    links:
+      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/nostro-ledger" }
+      - { label: Write-up, icon: pen,    url: "/blogs/multitenant-double-entry-ledger/" }
+
+  - name:     LinkPulse
+    year:     "2026"
+    kind:     Infrastructure
+    blurb:    A small app, run like a production platform, then broken on purpose on real AWS
+    languages: [Go]
+
+    promise: >-
+      Every alert has been seen to fire, because I made each failure happen.
+
+    body: >-
+      A URL shortener with click analytics, where the product is small on
+      purpose and the work is operating it: Terraform, Kubernetes, GitOps,
+      monitoring, and chaos tests, on $0 plus one budgeted window on AWS.
+
+    glance:
+      - { k: Guarantee, v: "Redirects stay fast even when the database is throttling or down" }
+      - { k: Built with, v: "Terraform · Kubernetes on AWS EKS · ArgoCD · Prometheus, Grafana, Loki" }
+      - { k: Size,      v: "4 Terraform environments · 13 alerts · 5 chaos experiments · 9 CI jobs" }
+      - { k: Runs on,   v: "An always-free AWS tier, and a local cluster with one command" }
+
+    points:
+      - >-
+        Ran the whole stack for **12 hours on AWS EKS against real DynamoDB for
+        $3.32**, and found and fixed **13 defects** no local run or CI could
+        have shown.
+      - >-
+        Proved **13 alert rules with 5 chaos experiments** (4 run in CI on
+        every push). Two alerts turned out to be unable to ever fire; the
+        write-up is a blameless postmortem.
+      - >-
+        With real DynamoDB throttling clicks, redirects stayed at **0 failures
+        in 7,202 requests** and a **7 ms p99**, because clicks are written in the
+        background and the redirect never waits for them.
+
+    stack: [Go, Terraform, Kubernetes, AWS EKS, ArgoCD, Prometheus, Grafana]
+    links:
+      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/linkpulse" }
+      - { label: Write-up, icon: pen,    url: "/blogs/production-grade-devops-platform/" }
 
   - name:     Webhook Delivery Engine
     year:     "2026"
@@ -219,12 +308,19 @@ projects:
 
     points:
       - >-
-        **Postgres holds the truth; Redis is only a scheduler.** That sounds
-        minor and it is the whole design: the entire Redis instance can be wiped
-        without losing a single event.
+        **Postgres holds the truth; Redis is only a scheduler.** Wiping all of
+        Redis in the middle of a load test lost **0 of 50,000 events**, sent
+        none twice, and needed no restart: all 50,000 were delivered within
+        **191 seconds**.
       - >-
-        A process can die between saving an event and queueing it. A **sweeper**
-        runs every few minutes and picks up anything left stranded in that gap.
+        The first time I ran that test it failed: **23,536 events** sat
+        undelivered until a restart, because the wipe also deleted the
+        sweeper's schedule. A watchdog now puts the schedule back, and the same
+        test passes. Measure the claim, find it false, fix it, measure again.
+      - >-
+        Held **5,000 events a minute for 15 minutes** at **47 ms p95** with a
+        flat backlog, and turned **10,000 events sent twice** into exactly
+        10,000 deliveries. Every delivery is signed, Stripe-style.
 
     stack: [Express, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
     links:
@@ -283,26 +379,67 @@ experience:
     period:  May 2026 to Present
     place:   Gurugram
     current: true
-    stack:   [Python, FastAPI, MCP, LangGraph, RAG, Claude, OpenAI]
+    stack:   [Python, FastAPI, LangGraph, MCP, RAG, Claude, OpenAI, Pipecat]
     summary: >-
-      I own the **AI assistant inside Kleeto's HR platform**: 500+ employees
-      ask it for things in plain English across six parts of the system.
-    points:
-      - >-
-        I own the **AI assistant inside Kleeto's HR platform**: hiring,
-        onboarding, attendance, payroll, leaving, and the document system. Staff
-        now ask for things in plain English instead of hunting through screens:
-        **500+ employees, 6 parts of the platform, 18 actions the assistant can take**.
-      - >-
-        Built in **Python and FastAPI**. The assistant plans what to do, looks
-        up the relevant HR policy, and answers from it rather than from memory.
-        Security came first: it asks for approval before anything sensitive, and
-        **it can never see or do more than the person asking it**.
-      - >-
-        Measured, not assumed: **85%+ of tasks completed correctly**, **no
-        successful attempt** to trick it out of 50+ tries, answers in about
-        **6 seconds** for roughly **2 cents each**. Everyday HR questions are
-        now answered **the same day** instead of taking one to two.
+      I own Kleeto's AI layer: **4 AI systems shipped since May 2026**, three of
+      them in production for **500+ employees and 2 enterprise clients**, and
+      one piloting with **3 customers**.
+    ventures:
+      - name: HR assistant
+        note: AI agent across the HR platform · 500+ employees
+        points:
+          - >-
+            Staff ask for things in plain English across **6 parts of the HR
+            platform** (hiring, onboarding, attendance, payroll, leaving, and
+            the document system) instead of hunting through screens: **250+
+            questions a week**, answered **the same day** instead of in one to
+            two.
+          - >-
+            Built in **Python and FastAPI** with **18 actions** the assistant
+            can take, grounded in **500,000 documents**. It asks for approval
+            before anything sensitive, and **it can never see or do more than
+            the person asking it**.
+          - >-
+            Measured, not assumed: **85%+ of tasks completed correctly**, **no
+            successful attempt** to trick it out of 50+ tries, answers at
+            **6 seconds p95** for **2 cents each**.
+      - name: Document verification
+        note: GPT-4o checks on onboarding documents · 5,500 a month
+        points:
+          - >-
+            Checks every document a new hire uploads (right type, readable,
+            clean scan, name matches) and tells them exactly what to fix:
+            **5,500 documents a month, 82% accepted automatically**, live for
+            **2 enterprise clients** since July 2026.
+          - >-
+            The model only reads the facts off the page; **plain code makes the
+            decision**, so every rejection names the rule and the number. If
+            the model is down, onboarding carries on the old way instead of
+            blocking anyone.
+      - name: TheMask
+        note: Masks ID numbers before archiving · 30,000 documents
+        points:
+          - >-
+            Hides government ID numbers on identity documents before they are
+            archived, so **a full server breach reveals nothing**. **30,000
+            documents masked** so far.
+          - >-
+            The customer can still recover their number by answering 4 of 6
+            security questions. The encrypted copy lives inside the masked image
+            itself, so the server keeps **no database and no files** to leak.
+      - name: Kleeto AI Slides
+        note: Real-time voice AI presenter · piloting with 3 customers
+        points:
+          - >-
+            Presents any slide deck aloud in **English or Hindi**, stops for
+            questions at any moment, and answers **only from the company's own
+            documents**, with a citation on screen, or says plainly that they
+            don't cover it.
+          - >-
+            Works on whatever laptop and projector a room has: it tells a
+            question from a cough, a side remark, or its own voice coming back
+            through the speakers. **1,000+ tests**; **40 sessions** run in the
+            pilot so far.
 
   - company: Zeonix Global Pvt. Ltd.
     # The full wordmark. "nix Global" is near-black, so it needs a
@@ -329,6 +466,11 @@ experience:
             Made the busiest pages **40% faster (1.5s → 0.9s)** on ~10K requests a
             day, and set up single sign-on with five permission levels:
             **no unauthorised access in 18 months across 500+ users**.
+          - >-
+            Cut commission payouts for **100+ agent partners from two days to
+            same-day** by automating the chain from accounts to PDF invoice to
+            email, and saved **4–6 hours a week** of form filling with a bot
+            that submits university applications.
       - name: ZeoVerify
         note: Document verification & digital onboarding
         points:
@@ -338,7 +480,9 @@ experience:
             permission and **fetches the document from the government directly**,
             so there is nothing to forge.
           - >-
-            Built the document-checking service on **Google's Gemini**, kept
+            Launched the company's **first production AI feature**: a
+            document-checking service in **Python and FastAPI** on **Google's
+            Gemini**, kept
             deliberately simple and predictable so a reviewer could see exactly
             why it flagged something. The model advised; a person still decided.
             *This is where my AI work started.*
@@ -359,36 +503,40 @@ experience:
 skills:
   - group: Languages
     icon:  code
-    items: [Python, TypeScript, JavaScript, Node.js, SQL, C/C++]
+    items: [Python, TypeScript, Java, JavaScript, Node.js, SQL, Go, PHP, C/C++]
   - group: AI & LLM Engineering
     icon:  spark
-    items: [LangGraph, MCP, RAG, LangChain, Qdrant, Embeddings, Eval harnesses,
-            Guardrails, Langfuse, Prompt engineering, Multi-model routing]
+    items: [LangGraph, MCP, RAG, LangChain, Qdrant, ChromaDB, Embeddings,
+            Eval harnesses, Guardrails, Langfuse, Prompt engineering,
+            Multi-model routing, Vision LLMs, Voice agents]
   - group: Models
     icon:  chip
-    items: [Anthropic Claude, OpenAI, Google Gemini, Groq, "Ollama (Llama, Qwen, Gemma)"]
+    items: [Anthropic Claude, OpenAI, Google Gemini, Groq, Sarvam AI,
+            "Ollama (Llama, Qwen, Gemma)"]
   - group: Security
     icon:  shield
     items: [CEH v11, OWASP LLM Top 10, Postgres RLS, Prompt-injection resistance,
-            HMAC signing, JWT + RBAC, Adversarial testing]
+            HMAC signing, JWT + RBAC, Applied cryptography, Adversarial testing]
   - group: Backend
     icon:  server
-    items: [FastAPI, NestJS, Express.js, GraphQL, Outbox pattern, Idempotency,
-            BullMQ, Redis, Socket.IO, WSO2 SSO, OpenAPI]
+    items: [FastAPI, Spring Boot, NestJS, Express.js, GraphQL, gRPC, Kafka,
+            Outbox pattern, Idempotency, BullMQ, Redis, Socket.IO, WSO2 SSO, OpenAPI]
   - group: Data
     icon:  database
-    items: [PostgreSQL, MongoDB, MySQL, Redis, Qdrant, Prisma, Schema design,
-            Query optimization]
+    items: [PostgreSQL, MongoDB, MySQL, DynamoDB, Redis, Qdrant, Prisma,
+            Schema design, Query optimization]
   - group: Frontend
     icon:  window
     items: [React, Next.js, Angular, Redux, TanStack Query, Tailwind CSS, RxJS]
   - group: Infrastructure
     icon:  cube
-    items: [Docker, Kubernetes, GitHub Actions, Jenkins, Nginx, Linux,
-            "AWS (EC2, S3, RDS, Lambda, IAM)", "Azure (App Service, Blob)"]
+    items: [Docker, Kubernetes, Terraform, ArgoCD, Helm, GitHub Actions, Jenkins,
+            Prometheus, Grafana, Nginx, Linux,
+            "AWS (EKS, DynamoDB, S3, IAM)", "Azure (App Service, Blob)"]
   - group: Testing & Quality
     icon:  check
-    items: [pytest, Jest, Vitest, Playwright, Supertest, MSW, Selenium, Postman]
+    items: [pytest, JUnit 5, Testcontainers, Jest, Vitest, Playwright, Supertest,
+            MSW, k6, Gatling, Selenium, Postman]
   - group: Integrations
     icon:  link
     items: [Razorpay, ICICI Payments, Digilocker, Slack Bolt, Gmail API,
@@ -407,9 +555,10 @@ about: >-
   production LLM feature there: a document-authenticity check on Gemini, written
   as fixed LangChain chains with retrieval grounding so a human verifier could
   see why a document was flagged. The model advised and a person decided, and
-  that is still how I build. I care most about what a model can reach, whose
-  permissions it borrows, and whether I can reproduce every number I publish from
-  a clean clone.
+  that is still how I build: at Kleeto the model reads, and code or a person
+  makes the call. I care most about what a model can reach, whose permissions
+  it borrows, and whether I can reproduce every number I publish from a clean
+  clone.
 
 # ── Credentials: two panels ───────────────────────────────────────
 # Education in one, certifications and awards in the other, each

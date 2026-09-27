@@ -65,6 +65,7 @@ DEVICON_ALIAS = {
     "Swagger/OpenAPI": "swagger",
     "OpenAPI": "swagger",
     "JavaScript (ES6+)": "javascript",
+    "Kafka": "apachekafka",
 }
 
 # name in index.md -> simple-icons slug, only where devicon has nothing
@@ -111,8 +112,15 @@ NO_MARK_REASON = {
     "Golden-task eval harnesses": "a practice",
     "CEH v11": "a certification",
     "Shadow DOM": "a browser API",
-    "AWS (EC2, S3, RDS, Lambda, IAM)":
+    "Vision LLMs": "a technique",
+    "Voice agents": "a technique",
+    "Applied cryptography": "a practice",
+    "AWS (EKS, DynamoDB, S3, IAM)":
         "devicon ships only a wordmark, unreadable at icon size",
+    "AWS EKS": "devicon ships only a wordmark, unreadable at icon size",
+    "ChromaDB": "in neither icon set",
+    "Sarvam AI": "in neither icon set",
+    "Testcontainers": "in neither icon set",
     "OpenAI": "in neither icon set",
     "Groq": "in neither icon set",
     "Langfuse": "in neither icon set",
@@ -128,6 +136,13 @@ NO_MARK_REASON = {
     "ERC-20": "a token standard, not a product",
     "Metabase": "in neither icon set",
     "Razorpay": "in neither icon set",
+}
+
+# devicon file -> (find, replace) edits applied on copy. devicon's gRPC
+# draws its letters in white, which vanish on the light theme; a mid
+# teal from the mark's own gradient reads on both themes.
+RECOLOR = {
+    "grpc": [('fill="#fff"', 'fill="#00938f"')],
 }
 
 
@@ -218,8 +233,11 @@ def main():
         if hit:
             path, slug = hit
             out_name = slug + ".svg"
+            svg = io.open(path, encoding="utf-8").read()
+            for old, new in RECOLOR.get(slug, []):
+                svg = svg.replace(old, new)
             io.open(os.path.join(OUT_DIR, out_name), "w", encoding="utf-8",
-                    newline="").write(io.open(path, encoding="utf-8").read())
+                    newline="").write(svg)
             manifest[name] = {"file": "/assets/img/home/logos/tech/" + out_name,
                               "title": name, "source": "devicon"}
             n_dev += 1

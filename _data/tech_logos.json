@@ -12,6 +12,11 @@
       "source": "simple-icons",
       "title": "Claude"
     },
+    "ArgoCD": {
+      "file": "/assets/img/home/logos/tech/argocd.svg",
+      "source": "devicon",
+      "title": "ArgoCD"
+    },
     "Azure (App Service, Blob)": {
       "file": "/assets/img/home/logos/tech/azure.svg",
       "source": "devicon",
@@ -37,6 +42,11 @@
       "source": "devicon",
       "title": "Docker"
     },
+    "DynamoDB": {
+      "file": "/assets/img/home/logos/tech/dynamodb.svg",
+      "source": "devicon",
+      "title": "DynamoDB"
+    },
     "Ethereum": {
       "file": "/assets/img/home/logos/tech/ethereum.svg",
       "source": "simple-icons",
@@ -57,6 +67,11 @@
       "source": "devicon",
       "title": "FastAPI"
     },
+    "Gatling": {
+      "file": "/assets/img/home/logos/tech/gatling.svg",
+      "source": "devicon",
+      "title": "Gatling"
+    },
     "GitHub Actions": {
       "file": "/assets/img/home/logos/tech/githubactions.svg",
       "source": "devicon",
@@ -66,6 +81,11 @@
       "file": "/assets/img/home/logos/tech/gmail.svg",
       "source": "simple-icons",
       "title": "Gmail"
+    },
+    "Go": {
+      "file": "/assets/img/home/logos/tech/go.svg",
+      "source": "devicon",
+      "title": "Go"
     },
     "Google Calendar": {
       "file": "/assets/img/home/logos/tech/googlecalendar.svg",
@@ -77,20 +97,40 @@
       "source": "simple-icons",
       "title": "Google Gemini"
     },
+    "Grafana": {
+      "file": "/assets/img/home/logos/tech/grafana.svg",
+      "source": "devicon",
+      "title": "Grafana"
+    },
     "GraphQL": {
       "file": "/assets/img/home/logos/tech/graphql.svg",
       "source": "devicon",
       "title": "GraphQL"
+    },
+    "Helm": {
+      "file": "/assets/img/home/logos/tech/helm.svg",
+      "source": "devicon",
+      "title": "Helm"
     },
     "Hybrid RAG": {
       "file": "/assets/img/home/logos/tech/qdrant.svg",
       "source": "simple-icons",
       "title": "Qdrant"
     },
+    "JUnit 5": {
+      "file": "/assets/img/home/logos/tech/junit5.svg",
+      "source": "simple-icons",
+      "title": "JUnit5"
+    },
     "JWT + RBAC": {
       "file": "/assets/img/home/logos/tech/jsonwebtokens.svg",
       "source": "simple-icons",
       "title": "JSON Web Tokens"
+    },
+    "Java": {
+      "file": "/assets/img/home/logos/tech/java.svg",
+      "source": "devicon",
+      "title": "Java"
     },
     "JavaScript": {
       "file": "/assets/img/home/logos/tech/javascript.svg",
@@ -106,6 +146,11 @@
       "file": "/assets/img/home/logos/tech/jest.svg",
       "source": "devicon",
       "title": "Jest"
+    },
+    "Kafka": {
+      "file": "/assets/img/home/logos/tech/apachekafka.svg",
+      "source": "devicon",
+      "title": "Kafka"
     },
     "Kubernetes": {
       "file": "/assets/img/home/logos/tech/kubernetes.svg",
@@ -192,10 +237,20 @@
       "source": "devicon",
       "title": "OpenAPI"
     },
+    "PHP": {
+      "file": "/assets/img/home/logos/tech/php.svg",
+      "source": "devicon",
+      "title": "PHP"
+    },
     "PgBouncer": {
       "file": "/assets/img/home/logos/tech/postgresql.svg",
       "source": "devicon",
       "title": "PgBouncer"
+    },
+    "Pipecat": {
+      "file": "/assets/img/home/logos/tech/pipecat.svg",
+      "source": "simple-icons",
+      "title": "Pipecat"
     },
     "Playwright": {
       "file": "/assets/img/home/logos/tech/playwright.svg",
@@ -231,6 +286,11 @@
       "file": "/assets/img/home/logos/tech/prisma.svg",
       "source": "devicon",
       "title": "Prisma"
+    },
+    "Prometheus": {
+      "file": "/assets/img/home/logos/tech/prometheus.svg",
+      "source": "devicon",
+      "title": "Prometheus"
     },
     "Python": {
       "file": "/assets/img/home/logos/tech/python.svg",
@@ -287,6 +347,11 @@
       "source": "devicon",
       "title": "Solidity"
     },
+    "Spring Boot": {
+      "file": "/assets/img/home/logos/tech/springboot.svg",
+      "source": "simple-icons",
+      "title": "Spring Boot"
+    },
     "Tailwind CSS": {
       "file": "/assets/img/home/logos/tech/tailwindcss.svg",
       "source": "devicon",
@@ -307,6 +372,11 @@
       "source": "simple-icons",
       "title": "TanStack"
     },
+    "Terraform": {
+      "file": "/assets/img/home/logos/tech/terraform.svg",
+      "source": "devicon",
+      "title": "Terraform"
+    },
     "TypeScript": {
       "file": "/assets/img/home/logos/tech/typescript.svg",
       "source": "devicon",
@@ -316,6 +386,16 @@
       "file": "/assets/img/home/logos/tech/vitest.svg",
       "source": "devicon",
       "title": "Vitest"
+    },
+    "gRPC": {
+      "file": "/assets/img/home/logos/tech/grpc.svg",
+      "source": "devicon",
+      "title": "gRPC"
+    },
+    "k6": {
+      "file": "/assets/img/home/logos/tech/k6.svg",
+      "source": "devicon",
+      "title": "k6"
     },
     "pytest": {
       "file": "/assets/img/home/logos/tech/pytest.svg",
