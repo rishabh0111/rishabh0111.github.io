@@ -10,7 +10,6 @@
      splitName()     Split Text      the hero name, letter by letter (when Warp can't run)
      blurText()      Blur Text       "Hi, I'm", word by word
      rotatingRole()  Rotating Text   the role eyebrow, one word at a time
-     profileCard()   Profile Card    the portrait card: tilt, glare, sheen
      magnet()        Magnet          link pills pull toward the pointer
      clickSpark()    Click Spark     a burst of lines on every click
      gridSpotlight() Magic Bento     a soft light over the project grid
@@ -494,60 +493,6 @@
     }, 2600);
   }
 
-  /* ── 5 · Profile Card: the portrait card follows the pointer ─────
-     After React Bits ProfileCard's tilt engine: the pointer's place
-     on the card becomes a set of custom properties (--pointer-x/y,
-     --rotate-x/y, --background-x/y, --pointer-from-*) that the CSS
-     turns into tilt, glare, sheen and the avatar's parallax. The
-     values ease toward the pointer (tau 0.14s) and back to centre on
-     leave. Fine pointers only; the still card is what touch gets. */
-  function profileCard() {
-    var wrap = document.getElementById("portrait");
-    var shell = document.getElementById("pcard");
-    if (!wrap || !shell || reduce || !fine) return;
-    wrap.classList.add("is-live");
-    var cur = [0, 0], tgt = [0, 0], raf = 0, last = 0, running = false;
-    var TAU = 0.14;
-    function clamp(v, a, b) { return Math.min(Math.max(v, a), b); }
-    function adjust(v, fMin, fMax, tMin, tMax) { return tMin + ((tMax - tMin) * (v - fMin)) / (fMax - fMin); }
-    function setVars(x, y) {
-      var w = shell.clientWidth || 1, h = shell.clientHeight || 1;
-      var px = clamp((100 / w) * x, 0, 100), py = clamp((100 / h) * y, 0, 100);
-      var cx = px - 50, cy = py - 50;
-      var st = wrap.style;
-      st.setProperty("--pointer-x", px.toFixed(2) + "%");
-      st.setProperty("--pointer-y", py.toFixed(2) + "%");
-      st.setProperty("--background-x", adjust(px, 0, 100, 35, 65).toFixed(2) + "%");
-      st.setProperty("--background-y", adjust(py, 0, 100, 35, 65).toFixed(2) + "%");
-      st.setProperty("--pointer-from-center", clamp(Math.hypot(py - 50, px - 50) / 50, 0, 1).toFixed(3));
-      st.setProperty("--pointer-from-top", (py / 100).toFixed(3));
-      st.setProperty("--pointer-from-left", (px / 100).toFixed(3));
-      st.setProperty("--rotate-x", (-(cx / 5)).toFixed(2) + "deg");
-      st.setProperty("--rotate-y", (cy / 4).toFixed(2) + "deg");
-    }
-    function step(ts) {
-      if (!running) return;
-      if (!last) last = ts;
-      var dt = (ts - last) / 1000; last = ts;
-      var k = 1 - Math.exp(-dt / TAU);
-      cur[0] += (tgt[0] - cur[0]) * k;
-      cur[1] += (tgt[1] - cur[1]) * k;
-      setVars(cur[0], cur[1]);
-      if (Math.abs(tgt[0] - cur[0]) > 0.05 || Math.abs(tgt[1] - cur[1]) > 0.05) raf = requestAnimationFrame(step);
-      else { running = false; last = 0; raf = 0; }
-    }
-    function target(x, y) { tgt = [x, y]; if (!running) { running = true; last = 0; raf = requestAnimationFrame(step); } }
-    function toCenter() { target(shell.clientWidth / 2, shell.clientHeight / 2); }
-    shell.addEventListener("pointerenter", function () { wrap.classList.add("active"); });
-    shell.addEventListener("pointermove", function (e) {
-      var r = shell.getBoundingClientRect();
-      target(e.clientX - r.left, e.clientY - r.top);
-    });
-    shell.addEventListener("pointerleave", function () { wrap.classList.remove("active"); toCenter(); });
-    cur = [shell.clientWidth / 2, shell.clientHeight / 2];
-    setVars(cur[0], cur[1]);
-  }
-
   /* ── 6 · Magnet: pills pull toward a pointer that comes near ────── */
   function magnet() {
     if (reduce || !fine) return;
@@ -636,7 +581,6 @@
   if (!warpName()) splitName();
   blurText();
   rotatingRole();
-  profileCard();
   magnet();
   clickSpark();
   gridSpotlight();

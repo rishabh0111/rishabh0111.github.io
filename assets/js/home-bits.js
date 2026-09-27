@@ -94,7 +94,7 @@
     document.body.classList.add("has-tc");
     var dot = wrap.querySelector(".tc-dot");
     var corners = Array.prototype.slice.call(wrap.querySelectorAll(".tc-c"));
-    var SEL = "a, button, summary, .tile, .proj, .pcard, .tool, .chips li, .drail a";
+    var SEL = "a, button, summary, .tile, .proj, .tool, .chips li, .drail a";
     var x = window.innerWidth / 2, y = window.innerHeight / 2, tx = x, ty = y;
     var active = null, raf = 0;
     var HOME = [[-18, -18], [6, -18], [6, 6], [-18, 6]];
