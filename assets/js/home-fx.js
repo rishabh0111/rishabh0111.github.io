@@ -260,7 +260,7 @@
       "  vec2 uv = vUv; float aspect = uResolution.x / max(uResolution.y, 1.0); float time = uTime * uSpeed; float scale = max(uWarpScale, 0.001);",
       "  vec2 drift = vec2(time * 0.055, -time * 0.045);",
       "  float n1 = fbm(uv * scale * 3.1 + drift); float n2 = fbm((uv + 19.17) * scale * 3.4 - drift.yx);",
-      "  vec2 ambient = (vec2(n1, n2) - 0.5) * uWarpStrength * 0.045 * uMotion;",
+      "  vec2 ambient = (vec2(n1, n2) - 0.5) * uWarpStrength * 0.045 * uMotion * vec2(1.0, aspect * 0.5);",
       "  vec2 pd = uv - uPointer; vec2 ad = vec2(pd.x * aspect, pd.y); float dist = length(ad);",
       "  float radius = max(uPointerInfluence, 0.001); float t = clamp(dist / radius, 0.0, 1.0);",
       "  float lens = smoothstep(radius, 0.0, dist) * uPointerActive;",
@@ -295,11 +295,15 @@
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.uniform1i(U.uTextTexture, 0);
 
-    // Gentler than the demo: a serif at this size wants a slow
-    // undulation and a soft lens, not a funhouse.
-    gl.uniform1f(U.uWarpStrength, 0.06); gl.uniform1f(U.uWarpScale, 1.7);
-    gl.uniform1f(U.uSpeed, 0.45); gl.uniform1f(U.uPointerInfluence, 0.42);
-    gl.uniform1f(U.uPointerStrength, 0.34); gl.uniform1f(U.uRefraction, 0.014);
+    // Strong enough to read as glass at a glance, short of a funhouse:
+    // the undulation bends each letter by a few pixels (the y term is
+    // scaled by the aspect in the shader, so the wave shows in the
+    // letters' height, not only as a sideways sway), the lens visibly
+    // swells what it passes over, and the colour split shows at the
+    // glass's edge.
+    gl.uniform1f(U.uWarpStrength, 0.3); gl.uniform1f(U.uWarpScale, 0.6);
+    gl.uniform1f(U.uSpeed, 0.6); gl.uniform1f(U.uPointerInfluence, 0.36);
+    gl.uniform1f(U.uPointerStrength, 0.75); gl.uniform1f(U.uRefraction, 0.028);
     gl.uniform1f(U.uRipple, 1); gl.uniform1f(U.uMotion, 1);
 
     canvas.className = "hero-name-warp";
@@ -382,7 +386,9 @@
       var on = pointer.activeTarget > 0;
       var tx = on ? pointer.tx : idleX, ty = on ? pointer.ty : idleY, damp = on ? 0.12 : 0.035;
       pointer.x += (tx - pointer.x) * damp; pointer.y += (ty - pointer.y) * damp;
-      pointer.active += ((on ? 1 : 0.18) - pointer.active) * 0.06;
+      // With no pointer on it the lens keeps drifting at half
+      // strength, so the name is visibly glass before anyone hovers.
+      pointer.active += ((on ? 1 : 0.5) - pointer.active) * 0.06;
       gl.uniform2f(U.uPointer, pointer.x, pointer.y);
       gl.uniform1f(U.uPointerActive, pointer.active);
       gl.uniform1f(U.uTime, t);
