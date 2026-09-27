@@ -2779,7 +2779,7 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   filter: brightness(0.8) contrast(1.2);
   opacity: 0.6;
 }
-/* The identity strip: glass along the card's foot. */
+/* The identity strip: a tinted band along the card's foot. */
 .pcard-info {
   position: absolute; z-index: 5; pointer-events: auto;
   --ui-inset: 12px;
@@ -2789,7 +2789,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   border-radius: calc(var(--pcard-radius) - var(--ui-inset) + 6px);
   background: rgba(20, 24, 31, 0.42);
   border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .pcard-user { display: flex; align-items: center; gap: 9px; min-width: 0; }
