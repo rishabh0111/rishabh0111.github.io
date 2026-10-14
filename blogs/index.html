@@ -122,13 +122,13 @@ title: Blog
           {% endfor %}
           {% assign s_ranked = s_ranked | sort %}
           <li class="bt-item bt-series">
+            <span class="bt-when">{% if last_date != first_date %}<span>{{ first_date }} –</span> <span>{{ last_date }}</span>{% else %}<span>{{ last_date }}</span>{% endif %}</span>
             <div class="bt-stack">
             <details class="series-card">
               <summary>
                 <span class="bt-meta">
                   <span class="bt-kind">Series</span>
                   <span class="group-count" data-total="{{ items.size }}" data-unit="part">{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span>
-                  <span>{{ first_date }}{% if last_date != first_date %} – {{ last_date }}{% endif %}</span>
                   {% if minutes > 0 %}<span>{{ minutes }} min</span>{% endif %}
                 </span>
                 <span class="bt-title">{{ s }}</span>
@@ -160,12 +160,12 @@ title: Blog
           {% assign tag_str = post.tags | join: ' ' %}
           {% assign hay = post.title | append: ' ' | append: post.excerpt | append: ' ' | append: tag_str %}
           <li class="bt-item bt-post">
+            <span class="bt-when"><span>{{ post.date | date: "%b %Y" }}</span></span>
             <a class="bt-card" href="{{ post.url | relative_url }}"
                data-tags="{{ post.tags | join: '|' | escape }}"
                data-search="{{ hay | strip_html | strip_newlines | downcase | escape }}">
               <span class="bt-meta">
                 <span class="bt-kind">Post</span>
-                <span>{{ post.date | date: "%b %-d" }}</span>
                 {% if post.read_time %}<span>{{ post.read_time }} min</span>{% endif %}
               </span>
               <span class="bt-title">{{ post.title }}</span>

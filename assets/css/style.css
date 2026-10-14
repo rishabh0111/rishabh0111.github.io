@@ -1322,8 +1322,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    and lists its parts when opened. One card against a stack is the
    whole distinction; nothing else about the two differs in weight. */
 .bt-year {
-  --bt-gutter: 32px;
-  --bt-rail: 7px;                  /* x of the line, from the gutter's left */
+  --bt-stamp: 76px;                /* the date column, left of the line */
+  --bt-rail: calc(var(--bt-stamp) + 14px);   /* x of the line, from the gutter's left */
+  --bt-gutter: calc(var(--bt-rail) + 25px);
   position: relative;
   padding: var(--s4) 0 var(--s1) var(--bt-gutter);
   scroll-margin-top: calc(var(--h-header) + var(--s4));
@@ -1367,6 +1368,21 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 /* the stack's two back cards hang below the front one */
 .bt-series { margin-bottom: calc(var(--s2) + 22px); }
+
+/* The entry's date, set on the line: right-aligned against the node,
+   a series' range stacked over two lines. Narrow screens move it above
+   the card, beside the node (see the 640px block). */
+.bt-when {
+  position: absolute; top: 18px;
+  left: calc(var(--bt-rail) - var(--bt-gutter) - 14px - var(--bt-stamp));
+  width: var(--bt-stamp);
+  text-align: right; white-space: nowrap;
+  font-family: var(--f-mono); font-size: 9px; line-height: 14px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-3);
+}
+.bt-when > span { display: block; }
+.bt-series .bt-when { color: var(--text-2); }
 
 /* The card, shared by both kinds */
 .bt-card, .series-card {
@@ -1549,6 +1565,13 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 
 @media (max-width: 640px) {
   .bt-year { --bt-gutter: 24px; --bt-rail: 5px; }
+  .bt-item::before { top: 4px; }   /* the node now marks the date line */
+  .bt-when {
+    position: static; display: block; width: auto;
+    text-align: left; white-space: normal;
+    line-height: 16px; margin-bottom: 6px;
+  }
+  .bt-when > span { display: inline; }
   .bt-card, .series-card > summary { padding-left: var(--s2); padding-right: var(--s2); }
   .series-card > summary { padding-right: calc(var(--s2) + 22px); }
   .series-card > summary::after { right: var(--s2); }
