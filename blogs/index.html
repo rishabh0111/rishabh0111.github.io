@@ -129,7 +129,7 @@ title: Blog
                 <span class="bt-meta">
                   <span class="bt-kind">Series</span>
                   <span class="group-count" data-total="{{ items.size }}" data-unit="part">{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span>
-                  {% if minutes > 0 %}<span>{{ minutes }} min</span>{% endif %}
+                  {% if minutes > 0 %}<span class="bt-time">{% include icon.html name="clock" %}{{ minutes }} min</span>{% endif %}
                 </span>
                 <span class="bt-title">{{ s }}</span>
                 {% if s_ranked.size > 0 %}
@@ -166,7 +166,7 @@ title: Blog
                data-search="{{ hay | strip_html | strip_newlines | downcase | escape }}">
               <span class="bt-meta">
                 <span class="bt-kind">Post</span>
-                {% if post.read_time %}<span>{{ post.read_time }} min</span>{% endif %}
+                {% if post.read_time %}<span class="bt-time">{% include icon.html name="clock" %}{{ post.read_time }} min</span>{% endif %}
               </span>
               <span class="bt-title">{{ post.title }}</span>
               {% if post.tags and post.tags.size > 0 %}

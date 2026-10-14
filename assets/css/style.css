@@ -1407,6 +1407,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   text-transform: uppercase; color: var(--text-3);
 }
 .bt-kind { color: var(--text-2); }
+/* read time sits at the far end of the meta row, opposite the kind */
+.bt-time {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-left: auto; color: var(--text-2);
+}
+.bt-time svg { width: 11px; height: 11px; opacity: 0.8; }
 .bt-series .bt-kind { color: var(--accent); }
 .bt-title {
   font-family: var(--f-display); font-weight: var(--w-display);
