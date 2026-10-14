@@ -28,6 +28,15 @@
   <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
        title is suppressed, because the em-dash form above is the one we want. -->
   {% seo title=false %}
+  {% if page.url == '/' %}
+  <!-- seo-tag describes the home page as a WebSite. This adds the Person it
+       is about, with the profiles from _data/social.yml as sameAs, so search
+       engines can tie the site to those accounts. -->
+  {%- assign same_as = site.data.social | where_exp: 'l', "l.url contains 'https://'" | map: 'url' %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Person","name":{{ site.author.name | jsonify }},"url":{{ site.url | append: '/' | jsonify }},"jobTitle":"AI Engineer","worksFor":{"@type":"Organization","name":"Kleeto"},"description":{{ page.description | default: site.description | jsonify }},"sameAs":{{ same_as | jsonify }}}
+  </script>
+  {% endif %}
 
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
   <link rel="icon" type="image/x-icon" href="{{ '/assets/img/favicon.ico' | relative_url }}">
