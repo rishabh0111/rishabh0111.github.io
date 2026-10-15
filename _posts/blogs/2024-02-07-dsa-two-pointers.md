@@ -9,47 +9,53 @@ series_order: 3
 series_total: 19
 links_new_tab: true
 tags: [dsa, two-pointers, sorting, python, series]
-read_time: 19
+read_time: 21
 permalink: /blogs/dsa-two-pointers/
-excerpt: "Two pointers is not a trick for walking an array from both ends. It is a way of proving, one comparison at a time, that a whole row of candidate pairs can never be the answer."
+excerpt: "Two pointers looks like walking an array from both ends. What makes it work is that one comparison can prove a whole row of candidate pairs is never the answer, so you can drop them all at once."
 ---
 
-Two pointers is usually learned as a shape, one index at each end moving inward, but the shape is not what makes it correct. Every pointer move claims that each pair involving the index just left behind is already decided; this post is about making that claim true for the comparison you made, and telling when the technique applies at all. It builds on [Arrays & Hashing](/blogs/dsa-arrays-and-hashing/) and leads into [Binary Search](/blogs/dsa-binary-search/), [Sliding Window](/blogs/dsa-sliding-window/) and [Linked List](/blogs/dsa-linked-list/).
+Most people learn two pointers as a shape: one index at each end, both moving inward. The shape is easy to copy, but it isn't what makes the algorithm correct. Each time a pointer moves, it leaves an index behind for good. That move is only safe if you've already settled every pair that index could still be part of.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+This post is about how one comparison lets you settle all those pairs at once, and how to tell when the technique applies at all. It builds on [Arrays & Hashing](/blogs/dsa-arrays-and-hashing/) and leads into [Binary Search](/blogs/dsa-binary-search/), [Sliding Window](/blogs/dsa-sliding-window/) and [Linked List](/blogs/dsa-linked-list/).
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Two Pointers
 
 ### Foundation
 
-Picture two people searching a long, sorted bookshelf for a pair of books whose combined page count is under some limit. One starts at the thinnest book, the other at the thickest. They compare the pair they are holding, and that single comparison lets one of them walk away from their end of the shelf for good. Neither ever walks back. After at most one step per book, every pair has been accounted for.
+Picture a long bookshelf, sorted from the thinnest book to the thickest. Two friends want to find pairs of books whose page counts add up to less than some limit. One friend stands at the thin end, the other at the thick end, and each holds one book.
 
-That is the whole mental model. Two indices bound a region of the input that is still undecided. Each step looks at the two boundary elements, and a property of the input (usually sortedness) guarantees that one boundary element has nothing more to offer, so the region shrinks by one. The problem it solves is the brute-force pair search: checking all n(n-1)/2 pairs costs O(n^2), and two pointers cuts that to O(n) whenever each comparison can settle every pair involving one of the two indices.
+They add up the two books they're holding. That one sum is enough for one of them to put their book back and step inward, and they never need to come back to that spot. Each book gets stepped past at most once, so after a single walk along the shelf every pair has been dealt with.
 
-The worked example for this whole module, which is not a problem from this topic's list:
+Let's turn that into code terms. The two friends are two indices, left and right. Everything between them (both ends included) is the part of the array we haven't finished with yet. At each step we look at the two elements at the ends. Because the array is sorted, one of those two elements can't form any more useful pairs, so we drop it and the undecided part gets one element shorter.
+
+Why bother? The brute-force way to search pairs is to check all n(n-1)/2 of them, which costs O(n^2). Two pointers does the same job in O(n), as long as each comparison can settle every pair that involves one of the two indices.
+
+Here is the worked example we'll use for the whole post. It isn't one of this topic's problems:
 
 Given a sorted array nums and a number target, count the index pairs (i, j) with i < j and nums[i] + nums[j] < target.
 
-We use nums = [-4, -1, 2, 3, 5, 8] and target = 4. The answer is 6: the pairs (-4, -1), (-4, 2), (-4, 3), (-4, 5), (-1, 2) and (-1, 3), with sums -5, -2, -1, 1, 1 and 2.
+We'll use nums = [-4, -1, 2, 3, 5, 8] and target = 4. The answer is 6. The six pairs are (-4, -1), (-4, 2), (-4, 3), (-4, 5), (-1, 2) and (-1, 3), and their sums are -5, -2, -1, 1, 1 and 2.
 
 ### Mechanics
 
-Think of every candidate pair as a cell in a grid: row i, column j, only the cells with i < j. For six elements that is 15 cells. Brute force visits all 15. Two pointers visits one cell per step and uses it to decide an entire row or an entire column.
+It helps to see every possible pair as a cell in a grid. Row i, column j holds the pair (i, j), and we only care about cells where i < j. With six elements that's 15 cells. Brute force looks at all 15. Two pointers looks at one cell per step, and uses that one cell to settle a whole row or a whole column.
 
-Start with left = 0 and right = 5, the two ends. The undecided region is every pair with both indices in left..right inclusive. The current cell (left, right) is special inside that region:
+We start with left = 0 and right = 5, the two ends of the array. The pairs we haven't settled yet are the ones where both indices sit somewhere in left..right (inclusive). Inside that range, the cell (left, right) is special in two ways:
 
-- It has the **largest** sum in row left, because nums[right] is the largest value still in play and every other partner nums[j] for j in left+1..right-1 is less than or equal to it.
-- It has the **smallest** sum in column right, because nums[left] is the smallest value still in play and every other partner nums[i] for i in left+1..right-1 is greater than or equal to it.
+- It has the **largest** sum in row left. Every other partner for nums[left] is some nums[j] with j in left+1..right-1, and since the array is sorted, each of those is less than or equal to nums[right].
+- It has the **smallest** sum in column right. Every other partner for nums[right] is some nums[i] with i in left+1..right-1, and each of those is greater than or equal to nums[left].
 
-That double extremity is the invariant that makes the moves safe:
+This is the fact everything else rests on. A fact that stays true at every step of a loop is called an **invariant**, and this one is what makes each move safe:
 
-1. If nums[left] + nums[right] < target, the largest sum in row left already passes, so every cell in that row passes. Add all of them at once, which is right - left pairs (the partners j in left+1..right), then move left forward. Row left is finished.
-2. Otherwise the sum is at least target. The smallest sum in column right already fails, so every cell in that column fails. Move right backward. Column right is finished.
-3. Stop when left == right. There is no pair left inside the region.
+1. If nums[left] + nums[right] < target, then the *largest* sum in row left already passes. So every cell in that row passes too. That's right - left pairs (one for each partner j in left+1..right), and we add them all at once. Then we move left forward, because row left is finished.
+2. Otherwise the sum is at least target. Now the *smallest* sum in column right already fails, so every cell in that column fails too. We move right backward, because column right is finished.
+3. We stop when left == right. At that point there are no pairs left to check.
 
-Both moves are safe for the same reason: you only discard an index after proving something about every pair it could still form. Neither move can skip a valid pair, because the pairs that pointer would have formed later are exactly the ones you just decided.
+Both moves follow the same rule: you only drop an index after you've settled every pair it could still form. So a move can never skip a valid pair. The pairs that index would have formed later are exactly the ones you just counted (or ruled out).
 
-Here is the arithmetic on the worked example, step by step:
+Here is the arithmetic on the worked example, one step at a time:
 
 | Step | left | right | nums[left] + nums[right] | < 4? | Action | count |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -59,11 +65,19 @@ Here is the arithmetic on the worked example, step by step:
 | 4 | 1 | 3 | -1 + 3 = 2 | yes | row 1 passes, add 3 - 1 = 2, left becomes 2 | 6 |
 | 5 | 2 | 3 | 2 + 3 = 5 | no | column 3 fails, right becomes 2 | 6 |
 
-After step 5, left == right == 2 and the loop ends with count = 6, matching the brute-force count. Five comparisons decided all 15 cells.
+After step 5, left == right == 2, so the loop ends with count = 6. That matches the brute-force answer. Five comparisons settled all 15 cells.
 
-Notice what step 1 does. The pair (0, 5) sums to exactly 4, which is not less than 4, so index 5 is dropped. That is safe because -4 is the smallest value, so every other partner for 8 only makes the sum bigger. The equality case has to land in a branch, and you have to check that the branch's claim still holds when the sum equals target exactly. Here it does, because "at least target" is what the else-branch needs.
+Look again at step 1, because it's the one people get wrong. The pair (0, 5) sums to exactly 4. That's not less than 4, so we drop index 5. Is that safe? Yes: -4 is the smallest value in play, so pairing 8 with any other element only makes the sum bigger, and bigger than 4 still fails.
 
-The same idea shows up in three shapes across the problem set. Opposite ends converging, as above, is what this topic's list mostly uses. Two indices moving the same direction at different speeds (a reader and a writer, or a fast and a slow pointer) returns in [Sliding Window](/blogs/dsa-sliding-window/) and [Linked List](/blogs/dsa-linked-list/). One pointer per sequence, walking two sorted sequences side by side, is what merge does. The shape changes; the requirement that each move be justified by a proof about what you are leaving behind does not.
+The general lesson is about ties. When the sum equals target exactly, it has to go into one of the two branches. Whichever branch you pick, check that its claim still holds for a tie. Here the else-branch only needs "the sum is at least target", and 4 is at least 4, so it works.
+
+You'll meet this idea in three shapes across the problem set:
+
+- **Opposite ends moving inward**, as above. Most of this topic's problems use this one.
+- **Two indices moving the same way at different speeds**, like a reader and a writer, or a fast and a slow pointer. This comes back in [Sliding Window](/blogs/dsa-sliding-window/) and [Linked List](/blogs/dsa-linked-list/).
+- **One pointer per sequence**, walking two sorted lists side by side. This is how merge works.
+
+The shape differs each time. What stays the same is the rule: before a pointer moves, you need a reason why the index it leaves behind has nothing more to offer.
 
 ### Diagram
 
@@ -71,7 +85,7 @@ The same idea shows up in three shapes across the problem set. Opposite ends con
 
 <figure class="sketch">{% include sketches/dsa-two-pointers/pair-grid.svg %}</figure>
 
-Every `+` step fills a row segment, every `×` step fills a column segment, and together they tile the whole triangle with no gaps and no overlaps. That picture is the correctness proof. Six cells are green, which is the answer.
+Each `+` step fills in part of a row, and each `×` step fills in part of a column. Put together, they cover the whole triangle of pairs, with no cell missed and no cell counted twice. That picture is the proof that the algorithm is correct. Six cells are green, and six is the answer.
 
 ### Implementation
 
@@ -108,39 +122,47 @@ print(count_pairs_less([7], 4))                   # 0  (left == right == 0, loop
 print(count_pairs_less([1, 1, 1, 1], 3))          # 6  (all 4 * 3 / 2 index pairs sum to 2)
 ```
 
-Running it prints 6, 0, 0, 6. I also checked it against a brute-force count over every pair on 2,000 random sorted arrays of length 0 to 9; they agreed every time.
+Running it prints 6, 0, 0, 6. I also checked it against a brute-force count of every pair, on 2,000 random sorted arrays of length 0 to 9. The two agreed every time.
 
-Complexity, with n = len(nums): **O(n) time**, because right - left starts at n - 1 and every iteration reduces it by exactly 1, so the loop runs at most n - 1 times. **O(1) extra space**: three integers. If the input arrives unsorted and the question only cares about values, sort first and the total becomes O(n log n) time (recalled: Python's list.sort is Timsort, O(n log n) worst case, and it needs up to n/2 extra slots of temporary memory, so "O(1) space" is only true of the pointer pass itself).
+Complexity, with n = len(nums):
+
+- **O(n) time.** The gap right - left starts at n - 1, and every pass through the loop shrinks it by exactly 1. So the loop runs at most n - 1 times.
+- **O(1) extra space.** We only keep three integers.
+
+If the input arrives unsorted and the question only cares about values, you can sort it first. The total then becomes O(n log n) time. One caveat, from memory rather than derived here: Python's list.sort is Timsort, which is O(n log n) in the worst case and can use up to n/2 extra slots of temporary memory. So "O(1) space" is only true of the pointer pass itself, not of the sort.
 
 ### Recognition
 
-Signals that two pointers is worth trying:
+These are the signals that two pointers is worth trying:
 
-- **The input is sorted**, or the question asks for values rather than original positions, so you are free to sort it yourself.
-- **You are looking for a pair (or a small tuple) whose combined value** is compared against a target: a sum, a difference, a product, a distance.
-- **The relationship is monotone**: moving one index in one direction can only push the combined value one way. That monotonicity is what lets one comparison settle a whole row or column.
-- **Symmetric positions are compared**: first against last, second against second-to-last.
-- **The answer depends on a left boundary and a right boundary**, and you can argue which boundary is the limiting one.
-- **The constraint asks for O(1) extra space** or an in-place answer, which rules out the hash-map route.
+- **The input is sorted.** Or the question asks for values rather than original positions, which means you're free to sort it yourself.
+- **You're looking for a pair (or a small group) whose combined value gets compared to a target.** That value might be a sum, a difference, a product or a distance.
+- **The relationship is monotone.** Monotone means it only ever moves one way: moving an index in one direction can only push the combined value up, or only push it down. This is what lets one comparison settle a whole row or column.
+- **Mirror positions get compared.** First against last, second against second-to-last, and so on.
+- **The answer depends on a left boundary and a right boundary**, and you can argue which of the two is holding the answer back.
+- **The problem asks for O(1) extra space** or an in-place answer. That rules out the hash-map approach.
 
-In this topic's list: Two Sum II Input Array Is Sorted states the sortedness outright. 3Sum asks for values, not indices, which is the licence to sort. Valid Palindrome compares symmetric positions. Container With Most Water and Trapping Rain Water both have answers that depend on a left and a right boundary.
+Here is where those signals show up in this topic's list. Two Sum II Input Array Is Sorted tells you the input is sorted. 3Sum asks for values, not indices, so you're allowed to sort. Valid Palindrome compares mirror positions. Container With Most Water and Trapping Rain Water both have answers that depend on a left and a right boundary.
 
 When not to use it:
 
-- **Unsorted input where you must return original indices** and you need an exact match: a hash map gives O(n) time without sorting, as in [Arrays & Hashing](/blogs/dsa-arrays-and-hashing/). Sorting would lose the indices unless you sort (value, index) pairs.
-- **The condition is not monotone**, for example "sum divisible by k". Moving a pointer tells you nothing about the pairs you would skip, so there is no elimination argument, and the algorithm silently misses answers.
-- **The question is about a contiguous stretch** (the longest or shortest subarray satisfying something). Both pointers then move the same direction and the region between them is the answer itself. That is [Sliding Window](/blogs/dsa-sliding-window/), Part 6.
+- **The input is unsorted, you need an exact match, and you must return the original indices.** A hash map solves this in O(n) time without sorting, as in [Arrays & Hashing](/blogs/dsa-arrays-and-hashing/). Sorting would lose the original indices, unless you sort (value, index) pairs.
+- **The condition isn't monotone**, for example "the sum is divisible by k". Moving a pointer then tells you nothing about the pairs you're skipping. There's no reason to believe they've been settled, and the algorithm quietly misses answers.
+- **The question is about a contiguous stretch**, like the longest or shortest subarray with some property. There, both pointers move in the same direction, and the stretch between them is the answer itself. That's [Sliding Window](/blogs/dsa-sliding-window/), Part 6.
 
-Distinguishing it from its neighbours: binary search can also find a partner for each element in a sorted array, at O(log n) per element and O(n log n) total. Two pointers gets O(n) by noticing that as left moves right, the useful partner can only move left, so there is no reason to restart the search each time. A hash set gets O(n) time without sorting but pays O(n) space and only answers exact-match questions, not "less than" or "closest to".
+How it compares with its neighbours:
+
+- **Binary search** can also find a partner for each element in a sorted array. That costs O(log n) per element, so O(n log n) in total. Two pointers gets down to O(n) by noticing something binary search ignores: as left moves right, the useful partner can only move left. So there's no need to restart the search from scratch each time.
+- **A hash set** gets O(n) time without sorting. But it costs O(n) space, and it can only answer exact-match questions, not "less than" or "closest to".
 
 ### Pitfalls
 
-- **Missing the sortedness precondition.** On the unsorted [8, -4, 5] the "largest sum in row left" claim is false: with target 2 the function returns 0, although -4 + 5 = 1 qualifies, and nothing raises an error. If you sort to make it work, remember that original indices are gone.
-- **`left <= right` instead of `left < right`.** With `<=`, the loop considers left == right, which pairs an element with itself. For the count above it happens to be harmless (at left == right == 2 the sum is 2 + 2 = 4, the else-branch runs once more, and the count stays 6), but in a "find a pair" problem the same bug returns an index paired with itself.
-- **A branch that moves nothing.** Every branch must move at least one pointer, or the loop never ends. Watch the equality case in particular: decide which branch it belongs to and check that branch's claim holds when the values are exactly equal.
-- **Counting by index vs by value.** On [1, 1, 1, 1] with target 3 the count is 6, because the six index pairs are distinct even though the values repeat. If a problem wants distinct value combinations, you need to skip over equal neighbours, and the skip loop needs its own bounds check (`while left < right and nums[left] == nums[left - 1]`) or it walks off the array.
-- **Empty and single-element inputs.** With [] the initial right is -1; with one element, left == right == 0. The `left < right` condition handles both, but only because the loop condition is checked before any indexing.
-- **Complexity inside an outer loop.** One two-pointer pass is O(n). If you run a fresh pass for each of n outer choices, the total is O(n^2), not O(n). That can still be a big win over O(n^3), but state it correctly.
+- **Forgetting that the input must be sorted.** On the unsorted array [8, -4, 5], the claim "(left, right) has the largest sum in row left" is simply false. With target 2 the function returns 0, even though -4 + 5 = 1 qualifies, and nothing raises an error. If you sort to fix this, remember that the original indices are gone.
+- **Writing `left <= right` instead of `left < right`.** With `<=`, the loop also runs when left == right, which pairs an element with itself. In the count above it happens to do no harm: at left == right == 2 the sum is 2 + 2 = 4, the else-branch runs once more, and the count stays 6. But in a "find a pair" problem, the same bug can return an index paired with itself.
+- **A branch that doesn't move anything.** Every branch has to move at least one pointer, or the loop never ends. The tie case (sum exactly equal to target) is where this usually goes wrong. Decide which branch a tie belongs to, then check that the branch's claim still holds when the values are exactly equal.
+- **Counting by index vs by value.** On [1, 1, 1, 1] with target 3, the count is 6. The values repeat, but the six index pairs are all different. If a problem wants distinct value combinations instead, you have to skip over equal neighbours. That skip loop needs its own bounds check (`while left < right and nums[left] == nums[left - 1]`), or it walks off the end of the array.
+- **Empty and single-element inputs.** With [], right starts at -1. With one element, left == right == 0. The `left < right` check handles both, but only because the loop checks its condition before it reads any element.
+- **Getting the complexity wrong inside an outer loop.** One two-pointer pass is O(n). If you run a fresh pass for each of n outer choices, the total is O(n^2), not O(n). That can still be a big improvement over O(n^3), but say it correctly.
 
 ### Active Recall
 
@@ -166,7 +188,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Container With Most Water and Trapping Rain Water each need their own independent argument for which pointer is safe to move, so the technique gets exercised from scratch when you solve those directly.
+Skipped for this topic. Container With Most Water and Trapping Rain Water each need their own argument for which pointer is safe to move. So you'll practise building that argument from scratch when you solve them.
 
 ### Transfer test
 
@@ -180,9 +202,13 @@ Ask me whether I would use two pointers here and why, and wait for my answer. Th
 
 ## Integration
 
-With one module, the connection to the topic is direct, but it is worth being precise about what the module did and did not give you. It gave you a frame: the candidates form a grid, two indices bound the undecided region, and each step is a small proof that one row or column is finished. It did not give you the proof for any specific problem. Each problem in this topic's list has its own reason why moving a particular pointer is safe, and that reason is the actual content of the problem. If you catch yourself moving a pointer because "that's what two pointers does", stop and write the one-sentence claim about the index you are leaving behind. If you cannot write it, the move is not justified yet.
+This topic has only one module, so the link between the module and the problems is direct. Still, be clear about what the module gave you and what it didn't.
 
-Competing approaches for a "find or count pairs" question:
+It gave you a way to think. The candidate pairs form a grid. Two indices mark off the part you haven't settled yet. And each step is a small proof that one row or one column is finished.
+
+It didn't give you that proof for any specific problem. Each problem in this topic's list has its own reason why moving a particular pointer is safe, and finding that reason is the real work of the problem. If you catch yourself moving a pointer because "that's what two pointers does", stop. Write one sentence about the index you're leaving behind: why can it not be part of the answer? If you can't write that sentence, the move isn't justified yet.
+
+The competing approaches for a "find or count pairs" question:
 
 | Approach | Needs | Time | Extra space | Good for |
 | --- | --- | --- | --- | --- |
@@ -204,7 +230,15 @@ Recognition checklist for an unfamiliar problem:
 
 ## The problems
 
-Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, one key sentence written in your own words, spaced repetition. During the struggle for this topic, ask: can a hash map or set give O(1) lookups? Would prefix sums help? Can two pointers shrink the search space, and what exactly does one comparison let me throw away? The insight is usually the right data structure, or reframing the question as a pair or window condition.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute struggle, write down the one key sentence in your own words, then review it with spaced repetition.
+
+While you struggle with a problem from this topic, ask yourself:
+
+- Can a hash map or set give me O(1) lookups?
+- Would prefix sums help?
+- Can two pointers shrink the search space? What exactly does one comparison let me throw away?
+
+The breakthrough is usually picking the right data structure, or restating the question as a condition on a pair or a window.
 
 {% include dsa-problems.html slug="dsa-two-pointers" %}
 

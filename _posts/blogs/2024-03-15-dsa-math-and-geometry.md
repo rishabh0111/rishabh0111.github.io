@@ -5,22 +5,31 @@ date: 2024-03-15 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, math, geometry, python, series]
-read_time: 47
+read_time: 50
 permalink: /blogs/dsa-math-and-geometry/
-excerpt: "The last topic has no single pattern, just five small ones: matrix index maps, carrying digits, squaring exponents, catching sequences that loop, and counting points with a hash map. Each fails on one specific input you need to see coming."
+excerpt: "The last topic has no single pattern. It has five small ones: matrix index maps, carrying digits, squaring exponents, catching sequences that loop, and counting points with a hash map. Each one breaks on one specific input you need to see coming."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 19
 series_total: 19
 links_new_tab: true
 ---
 
-Math & Geometry has no single pattern. Its problems use five small techniques, each short and implementation-heavy, and each broken by one specific input: the idea fits in a sentence, and the bug hides in an index, a carry, a sign or a duplicate. It comes last because it builds on [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/) (comfort with `(r, c)` grid indices) and [Bit Manipulation](/blogs/dsa-bit-manipulation/) (`& 1`, `>>= 1` and reading a number as bits); there are no separate prerequisites, and nothing comes after it.
+Math & Geometry has no single pattern. Its problems use five small techniques instead. Each one is short to state but fiddly to code. And each one is broken by one specific input.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+So the idea usually fits in a sentence, and the bug hides somewhere small: an index, a carry, a sign or a duplicate.
+
+This topic comes last because it builds on two earlier ones:
+
+- [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/), for comfort with `(r, c)` grid indices.
+- [Bit Manipulation](/blogs/dsa-bit-manipulation/), for `& 1`, `>>= 1` and reading a number as bits.
+
+There are no separate prerequisites, and nothing comes after it.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Foundation
 
-Every problem in this topic comes down to replacing a picture or a piece of arithmetic with an exact rule over integers:
+Every problem in this topic comes down to one move. You take a picture or a piece of arithmetic and replace it with an exact rule over integers. Here are the five versions of that move:
 
 - A rotation or reflection becomes a formula that maps `(r, c)` to the cell's new `(r, c)`.
 - Grade-school addition becomes a loop that carries a digit from right to left.
@@ -28,13 +37,15 @@ Every problem in this topic comes down to replacing a picture or a piece of arit
 - "Does this number sequence go on forever?" becomes "the values are bounded, so some value must repeat".
 - "Which points form this shape?" becomes "fix what the query gives you, and look up the rest in a hash map".
 
-None of these is a big algorithm. The skill is writing the rule down before you write code, and then checking the rule on the degenerate input that breaks it. The five sub-parts below are ordered roughly the way the problem list uses them.
+None of these is a big algorithm. The skill is in two habits. First, write the rule down before you write code. Second, check the rule on the degenerate input that breaks it. A degenerate input is a tiny or lopsided case, like a single row, a zero, or a duplicate point.
+
+The five sub-parts below come in roughly the order the problem list uses them.
 
 ## Part A: Matrix index transformations
 
 ### Mechanics
 
-**Index maps.** Treat every in-place matrix operation as a function from an old position to a new one. For an R × C matrix:
+**Index maps.** Think of every in-place matrix operation as a function. It takes a cell's old position and gives you its new position. We call that function an index map. For an R × C matrix (R rows, C columns):
 
 | Operation | (r, c) goes to | Square only? |
 | --- | --- | --- |
@@ -43,21 +54,41 @@ None of these is a big algorithm. The skill is writing the rule down before you 
 | Flip top-bottom | (R-1-r, c) | no |
 | Rotate 180° | (R-1-r, C-1-c) | no |
 
-To derive a map you don't remember, track where the corners go. For rotating 180°, the top-left corner `(0, 0)` must end at the bottom-right corner `(R-1, C-1)`, so both coordinates get reversed. The 180° map is also the mirror followed by the flip: `(r, c) → (r, C-1-c) → (R-1-r, C-1-c)`. Composing simple maps is how you build complicated ones.
+What if you forget a map? You can rebuild it by tracking where the corners go. Take rotating 180°. The top-left corner `(0, 0)` has to end up at the bottom-right corner `(R-1, C-1)`. So both coordinates get reversed.
 
-Doing it **in place** is the hard part. Each of these maps is its own inverse: apply it twice and every cell is back where it started. So the cells split into pairs that trade places, plus fixed cells that map to themselves. Swap each pair exactly once. Rotating 180° shows this cleanly if you flatten `(r, c)` to the row-major index `i = r·C + c`. The target `(R-1-r, C-1-c)` has flat index `(R-1-r)·C + (C-1-c) = R·C - 1 - i`. So the map just reverses the flat index, and swapping `i` with `R·C-1-i` for `i` in `0 .. R·C//2 - 1` touches every pair once.
+You can also get the 180° map by doing two simple maps in a row: the mirror, then the flip. That gives `(r, c) → (r, C-1-c) → (R-1-r, C-1-c)`. Chaining simple maps like this is how you build complicated ones.
 
-Worked example, the 3 × 4 matrix with values 1 to 12. `R·C = 12`, so `i` runs over 0..5 and its partners are 11..6. Index 0 is cell (0,0) holding 1, and its partner 11 is (2,3) holding 12. Index 5 is (1,1) holding 6, and its partner 6 is (1,2) holding 7.
+The hard part is doing it **in place**, without a second grid. Here's what helps. Each of these maps is its own inverse: apply it twice and every cell is back where it started. That means the cells split into two kinds:
 
-**Layer boundaries.** A matrix is also a set of nested rings. A cell's ring is its distance to the nearest edge: `k = min(r, c, R-1-r, C-1-c)`. Ring `k` spans rows `k .. R-1-k` and columns `k .. C-1-k`, inclusive, and there are `(min(R, C) + 1) // 2` rings. In the 3 × 4 example that's 2 rings. Ring 1 spans rows 1..1 and columns 1..2. It's a single row, not a loop, and that degenerate innermost ring is where layer code breaks.
+- pairs of cells that trade places with each other, and
+- fixed cells that map to themselves.
 
-**In-place markers.** Sometimes each cell's new value depends on its neighbours' old values. Write new values straight into the grid and later cells read values that have already changed. With O(1) extra space, the fix is to store both values in the same cell. The Bit Manipulation trick fits here: keep the old value in bit 0 and write the new value into bit 1. Reads use `cell & 1`, which setting bit 1 can't disturb. A final pass does `cell >>= 1` to promote new over old.
+So the job is to swap each pair exactly once.
 
-Worked example: "dilate" a 0/1 grid, where a cell becomes 1 if it or an orthogonal neighbour was 1.
+Rotating 180° shows this cleanly once you flatten the grid. Number the cells row by row, so `(r, c)` gets the flat index `i = r·C + c` (this is called row-major order). The target cell `(R-1-r, C-1-c)` then has flat index `(R-1-r)·C + (C-1-c) = R·C - 1 - i`. In other words, the 180° rotation just reverses the flat index. Swapping `i` with `R·C-1-i` for `i` in `0 .. R·C//2 - 1` touches every pair once.
+
+Let's try it on the 3 × 4 matrix holding the values 1 to 12. Here `R·C = 12`, so `i` runs over 0..5 and the partners are 11..6:
+
+- Index 0 is cell (0,0), which holds 1. Its partner 11 is cell (2,3), which holds 12.
+- Index 5 is cell (1,1), which holds 6. Its partner 6 is cell (1,2), which holds 7.
+
+**Layer boundaries.** You can also see a matrix as a set of nested rings, like the layers of an onion. A cell's ring number is its distance to the nearest edge: `k = min(r, c, R-1-r, C-1-c)`. Ring `k` covers rows `k .. R-1-k` and columns `k .. C-1-k`, inclusive. There are `(min(R, C) + 1) // 2` rings in total.
+
+In the 3 × 4 example that's 2 rings. Ring 1 covers rows 1..1 and columns 1..2. That's a single row, not a loop. This degenerate innermost ring is exactly where layer code tends to break.
+
+**In-place markers.** Sometimes a cell's new value depends on its neighbours' old values. If you write new values straight into the grid, later cells will read values that have already changed. With only O(1) extra space, the fix is to store both values in the same cell.
+
+The Bit Manipulation trick fits here:
+
+- Keep the old value in bit 0, and write the new value into bit 1.
+- Read the old value with `cell & 1`. Setting bit 1 can't disturb it.
+- At the end, one more pass does `cell >>= 1`. That shifts the new value down into bit 0 and throws the old one away.
+
+Here's a worked example. We'll "dilate" a 0/1 grid: a cell becomes 1 if it, or a neighbour directly above, below, left or right of it (an orthogonal neighbour), was 1.
 
 <figure class="sketch">{% include sketches/dsa-math-and-geometry/dilate-markers.svg %}</figure>
 
-The naive version sets (0,1) to 1 because of (1,1). Then, reading row-major, it reaches (0,2), sees the freshly written 1 at (0,1), and sets (0,2) as well. The 1s leak across the whole grid.
+Here's what goes wrong without markers. The naive version sets (0,1) to 1 because of (1,1). It reads the grid row by row, so next it reaches (0,2). It sees the 1 it just wrote at (0,1), and sets (0,2) as well. That keeps happening, and the 1s leak across the whole grid.
 
 ### Diagram
 
@@ -132,24 +163,36 @@ print(dilate_in_place([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]]))
 # [[0, 1, 0, 0], [1, 1, 1, 1], [0, 1, 1, 1]]
 ```
 
-Ring 1 is cells (1,1) and (1,2), holding 6 + 7 = 13. Ring 0 is everything else, 78 - 13 = 65. I also ran the edge cases: `[[1]]` stays `[[1]]`, a single row `[[1, 2, 3]]` becomes `[[3, 2, 1]]`, a single column `[[1], [2]]` becomes `[[2], [1]]`, and `ring_sums([[1, 2, 3, 4, 5]])` is `[15]`.
+Where do the ring sums come from? Ring 1 is cells (1,1) and (1,2), which hold 6 + 7 = 13. Ring 0 is everything else. The whole grid adds up to 78, so ring 0 is 78 - 13 = 65.
 
-Complexity: every function is O(R · C) time for an R × C grid. Extra space is O(1) for the rotation, the transpose and the dilation, and O(min(R, C)) for the list of ring sums.
+I also ran the edge cases:
+
+- `[[1]]` stays `[[1]]`.
+- A single row `[[1, 2, 3]]` becomes `[[3, 2, 1]]`.
+- A single column `[[1], [2]]` becomes `[[2], [1]]`.
+- `ring_sums([[1, 2, 3, 4, 5]])` is `[15]`.
+
+Complexity: every function takes O(R · C) time for an R × C grid. Extra space is O(1) for the rotation, the transpose and the dilation. The ring sums need O(min(R, C)) space for the list of sums.
 
 ### Recognition
 
-- The statement says "in place" or "O(1) extra space" about a matrix, or describes a rotation, reflection or traversal order.
-- The output order is defined by position (a border, a diagonal, a ring) rather than by value.
+- The statement says "in place" or "O(1) extra space" about a matrix. Or it describes a rotation, a reflection or an order to visit cells in.
+- The output order depends on position (a border, a diagonal, a ring) rather than on value.
 - A cell's update depends on other cells' old values while you're overwriting the grid.
 
-When not to use it: if extra space is allowed, `[row[::-1] for row in grid[::-1]]` or a fresh output grid is simpler and harder to get wrong. Separately, an update rule that spreads ("everything reachable from a 1") is a graph traversal from [Graphs](/blogs/dsa-graphs/), not a single index map. In the list, Rotate Image, Spiral Matrix and Set Matrix Zeroes show these signals.
+When not to use it:
+
+- If extra space is allowed, `[row[::-1] for row in grid[::-1]]` or a fresh output grid is simpler and harder to get wrong.
+- If the update rule spreads ("everything reachable from a 1"), it's a graph traversal from [Graphs](/blogs/dsa-graphs/), not a single index map.
+
+In the list, Rotate Image, Spiral Matrix and Set Matrix Zeroes show these signals.
 
 ### Pitfalls
 
-- Swapping every pair twice. Any in-place involution needs a loop over one half of the index space.
-- Transposing a non-square matrix in place doesn't work, because its shape changes from R × C to C × R.
-- Degenerate rings: a single row or single column in the middle (3 × 4, 5 × 3), or a single cell (odd n × n). Code that walks four sides of a ring visits that row or column twice.
-- Reading a value you already overwrote. Either keep a copy, or encode old and new together as with the markers above.
+- Swapping every pair twice, which puts everything back. A map that is its own inverse is called an involution. Doing one in place needs a loop over only half of the indices.
+- Transposing a non-square matrix in place doesn't work. Its shape changes from R × C to C × R, so the result doesn't fit in the old grid.
+- Degenerate rings. The middle ring can be a single row or single column (3 × 4, 5 × 3), or a single cell (odd n × n). Code that walks the four sides of a ring visits that row or column twice.
+- Reading a value you already overwrote. Either keep a copy, or store old and new together with the markers above.
 - `R - 1 - r` versus `R - r`. Test the map on a corner first: `(0, 0)` must land on a real cell.
 
 ### Active Recall
@@ -177,7 +220,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Rotate Image, Spiral Matrix and Set Matrix Zeroes each make you derive an index map, a layer walk or a marker scheme from scratch, so those three problems exercise this sub-part on their own.
+Skipped. Rotate Image, Spiral Matrix and Set Matrix Zeroes each make you work out an index map, a layer walk or a marker scheme from scratch. So those three problems already give this sub-part plenty of practice.
 
 ### Transfer test
 
@@ -193,11 +236,9 @@ Ask me whether I would use matrix index transformations here and why, and wait f
 
 ### Mechanics
 
-When a number is too big for the language, or the problem hands it to you as a string or a list of digits and forbids converting it, you do arithmetic the way you learned it on paper. Line the numbers up at the **right** (the ones place), work leftward, and carry.
+Sometimes a number is too big for the language. Or the problem hands it to you as a string or a list of digits and forbids converting it. Either way, you do arithmetic the way you learned it on paper. Line the numbers up at the **right** (the ones place), work leftward, and carry.
 
-The invariant: after processing the rightmost k columns, the output holds the correct last k digits of the sum, and `carry` is exactly the amount that spills into column k+1. It's safe to emit each digit immediately because nothing to the left can change a column to its right. Carries only travel leftward.
-
-Worked example, `"987" + "2345"`:
+Here's the worked example, `"987" + "2345"`:
 
 | column | a digit | b digit | carry in | s | digit out | carry out |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -206,12 +247,16 @@ Worked example, `"987" + "2345"`:
 | hundreds | 9 | 3 | 1 | 13 | 3 | 1 |
 | thousands | (none) → 0 | 2 | 1 | 3 | 3 | 0 |
 
-Result `"3332"`, and 987 + 2345 = 3332. Two decisions make the loop general:
+The result is `"3332"`, and sure enough 987 + 2345 = 3332.
 
-- A missing digit counts as 0. That handles numbers of different lengths without padding.
-- `carry, digit = divmod(s, base)` splits any column sum into "what stays" and "what moves left". In base 10 the largest column sum is 9 + 9 + 1 = 19, so the carry is always 0 or 1. Don't rely on that, though: other operations produce larger carries.
+Why is it safe to write down the ones digit 2 straight away? Because nothing to the left can change a column to its right. Carries only travel leftward. Stated as a rule, this is the loop's invariant (a fact that stays true at every step): after the rightmost k columns, the output holds the correct last k digits of the sum, and `carry` is exactly the amount that spills into column k+1.
 
-The reverse direction, peeling digits off an integer, is the same `divmod`: `n, d = divmod(n, 10)` gives the last digit `d` and drops it from `n`. Part D uses this.
+Two decisions make the loop work for any input:
+
+- A missing digit counts as 0. That handles numbers of different lengths without padding. In the example, "987" has no thousands digit, so we use 0.
+- `carry, digit = divmod(s, base)` splits any column sum into "what stays" and "what moves left". In base 10 the largest column sum is 9 + 9 + 1 = 19, so the carry is always 0 or 1. Don't rely on that, though. Other operations, like multiplication, produce larger carries.
+
+The same `divmod` also works in reverse, for peeling digits off an integer. `n, d = divmod(n, 10)` gives you the last digit `d` and drops it from `n`. Part D uses this.
 
 ### Diagram
 
@@ -252,25 +297,34 @@ print(add_digit_strings("1011", "111", 2))  # 10010  (11 + 7 = 18)
 print(digits_of(4096))                      # [6, 9, 0, 4]
 ```
 
-Edge cases I ran: `"0" + "0"` gives `"0"`, two empty strings give `"0"`, and `"007" + "5"` gives `"012"`, so leading zeros in the input survive into the output.
+Edge cases I ran:
 
-Complexity: O(max(len(a), len(b))) time and O(max(len(a), len(b))) space for the output, one iteration per column plus at most one for the final carry. `digits_of` is O(d) for a d-digit number.
+- `"0" + "0"` gives `"0"`.
+- Two empty strings give `"0"`.
+- `"007" + "5"` gives `"012"`. So leading zeros in the input survive into the output.
+
+Complexity: O(max(len(a), len(b))) time, and the same O(max(len(a), len(b))) space for the output. The loop runs once per column, plus at most once more for the final carry. `digits_of` is O(d) for a d-digit number.
 
 ### Recognition
 
-- The numbers arrive as strings, lists or linked lists of digits, or the statement says "do not convert to integer" or "no built-in big-integer library".
+- The numbers arrive as strings, lists or linked lists of digits. Or the statement says "do not convert to integer" or "no built-in big-integer library".
 - The numbers can be far longer than 64 bits.
 - The problem asks about a number's digits: their sum, their squares, reversing them.
 
-When not to use it: in Python, if conversion is allowed and the inputs are modest, `int(a) + int(b)` is correct and simpler. Carry-based addition is also different from the bitwise addition in [Part 18](/blogs/dsa-bit-manipulation/), which computes carries with `&` and `<<` instead of column by column. In the list, Plus One and Multiply Strings work on digit sequences, and Happy Number needs the digit-peeling loop.
+When not to use it:
+
+- In Python, if conversion is allowed and the inputs are modest, `int(a) + int(b)` is correct and simpler.
+- Don't mix it up with the bitwise addition in [Part 18](/blogs/dsa-bit-manipulation/). That one computes carries with `&` and `<<`, not column by column.
+
+In the list, Plus One and Multiply Strings work on digit sequences, and Happy Number needs the digit-peeling loop.
 
 ### Pitfalls
 
 - Forgetting the final carry. Without `or carry` in the loop condition, `"999" + "1"` returns `"000"`.
-- Emitting digits most-significant-first. They come out ones-first, so reverse once at the end, and don't prepend in the loop (prepending to a string or list is O(n) each time).
-- Index misalignment. Align at the right end with two separate pointers, never by the same index from the left.
-- `digits_of(0)` returns `[]`, since the loop body never runs. The digit sum (0) is still right, but a digit count would come out 0 instead of 1.
-- Negative input to the peeling loop. `divmod(-7, 10)` is `(-1, 3)`, then `divmod(-1, 10)` is `(-1, 9)` forever, which I confirmed by running it. Peel `abs(n)` and handle the sign separately.
+- Writing digits out most-significant-first. They come out ones-first, so reverse once at the end. Don't prepend inside the loop, because prepending to a string or list costs O(n) each time.
+- Lining up the indices wrong. Align at the right end with two separate pointers. Never use the same index counted from the left.
+- `digits_of(0)` returns `[]`, because the loop body never runs. The digit sum (0) is still right, but a digit count would come out 0 instead of 1.
+- Negative input to the peeling loop. `divmod(-7, 10)` is `(-1, 3)`. Then `divmod(-1, 10)` is `(-1, 9)`, and that repeats forever (I confirmed this by running it). Peel `abs(n)` and handle the sign separately.
 
 ### Active Recall
 
@@ -294,7 +348,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Multiply Strings makes you build a carry scheme from scratch, and it's more demanding than addition, so the list exercises this sub-part directly.
+Skipped. Multiply Strings makes you build a carry scheme from scratch, and it's harder than addition. So the problem list already gives this sub-part direct practice.
 
 ### Transfer test
 
@@ -310,16 +364,18 @@ Ask me whether I would use digit-by-digit arithmetic with carry here and why, an
 
 ### Mechanics
 
-Computing `x^n` by multiplying n times is O(n), which is hopeless when n is around 10⁹ or 10¹⁸. The fix comes from writing the exponent in binary. `13 = 1101₂ = 8 + 4 + 1`, so `3^13 = 3^8 · 3^4 · 3^1`. The powers `3^1, 3^2, 3^4, 3^8` each come from squaring the previous one, and you multiply into the result only the powers whose bit in the exponent is 1.
+Computing `x^n` by multiplying n times is O(n). That's hopeless when n is around 10⁹ or 10¹⁸.
 
-The loop state is `(result, base, exp)`. The invariant is `result · base^exp = x^n` (mod m) at the top of every iteration, and each step keeps it true:
+The fix comes from writing the exponent in binary. Take `13 = 1101₂ = 8 + 4 + 1`. That means `3^13 = 3^8 · 3^4 · 3^1`. Now look at the powers `3^1, 3^2, 3^4, 3^8`. Each one is just the previous one squared. So you square your way up, and multiply into the result only the powers whose bit in the exponent is 1.
 
-- If `exp` is odd: `base^exp = base · base^(exp-1)`, so move one `base` into `result`, leaving an even exponent.
-- Then `base^exp = (base²)^(exp//2)`, so square `base` and halve `exp` (`exp >>= 1`, the Bit Manipulation shift).
+The loop keeps three variables: `(result, base, exp)`. Its invariant is `result · base^exp = x^n` (mod m), checked at the top of every iteration. At the start, result is 1, base is x and exp is n, so it holds trivially. Each step keeps it true:
 
-When `exp` reaches 0, `base^0 = 1`, so `result` is the answer. `exp` halves every iteration, so there are `exp.bit_length()` iterations, about log₂ n.
+- If `exp` is odd, `base^exp = base · base^(exp-1)`. So move one `base` into `result`. That leaves an even exponent.
+- Now `base^exp = (base²)^(exp//2)`. So square `base` and halve `exp` (`exp >>= 1`, the Bit Manipulation shift).
 
-Worked example, `3^13 mod 1000`. I checked that `3^13 = 1594323`, so the answer should be 323:
+When `exp` reaches 0, `base^0 = 1`, so `result` alone is the answer. Since `exp` halves every iteration, the loop runs `exp.bit_length()` times, which is about log₂ n.
+
+Here's the worked example, `3^13 mod 1000`. I checked that `3^13 = 1594323`, so the answer should be 323:
 
 | exp (binary) | bit 0 | result before | base before | result after | base after |
 | --- | --- | --- | --- | --- | --- |
@@ -328,9 +384,14 @@ Worked example, `3^13 mod 1000`. I checked that `3^13 = 1594323`, so the answer 
 | 3 (11) | 1 | 3 | 81 | 243 | 6561 mod 1000 = 561 |
 | 1 (1) | 1 | 243 | 561 | 243 · 561 = 136323 → 323 | 721 |
 
-Check the invariant at the third row: `3 · 81³ = 3 · 531441 = 1594323`, which is `323 mod 1000`. I computed `result · base^exp mod 1000` at the top of all four iterations and got 323 every time.
+Let's check the invariant at the third row, where result is 3, base is 81 and exp is 3. Then `3 · 81³ = 3 · 531441 = 1594323`, which is `323 mod 1000`. I computed `result · base^exp mod 1000` at the top of all four iterations and got 323 every time.
 
-**Negative exponents.** `x^(-n) = (x⁻¹)^n`. Invert the base once, negate the exponent, and run the same loop. With real numbers the inverse is `1 / x`, and `x = 0` has no inverse. In modular arithmetic the inverse of `x` is the number `y` with `x · y ≡ 1 (mod m)`, and it exists only when `gcd(x, m) = 1`. `3⁻¹ mod 1000 = 667`, because `3 · 667 = 2001 ≡ 1`.
+**Negative exponents.** Since `x^(-n) = (x⁻¹)^n`, you invert the base once, make the exponent positive, and run the same loop.
+
+What "invert" means depends on the numbers:
+
+- With real numbers, the inverse is `1 / x`. And `x = 0` has no inverse.
+- In modular arithmetic, the inverse of `x` is the number `y` with `x · y ≡ 1 (mod m)`. It exists only when `gcd(x, m) = 1`. For example, `3⁻¹ mod 1000 = 667`, because `3 · 667 = 2001 ≡ 1`.
 
 ### Diagram
 
@@ -365,25 +426,32 @@ print(mod_pow(2, 10, 10**9 + 7)) # 1024
 print(mod_pow(-2, 3, 7))         # 6, same as (-8) % 7
 ```
 
-The negative case checks out: 387 · 323 = 125001, which is 1 mod 1000, so 387 really is the inverse of 3^13. It also matches Python's built-in `pow(3, -13, 1000)`. `mod_pow(2, -1, 4)` raises `ValueError: base is not invertible for the given modulus`, because 2 · k mod 4 is always even and never 1.
+The negative case checks out. 387 · 323 = 125001, which is 1 mod 1000, so 387 really is the inverse of 3^13. It also matches Python's built-in `pow(3, -13, 1000)`.
 
-Complexity: O(log |exp|) multiplications, exactly `exp.bit_length()` loop iterations, and O(1) space. Reducing mod m after every multiply keeps every intermediate value below m².
+What about a base with no inverse? `mod_pow(2, -1, 4)` raises `ValueError: base is not invertible for the given modulus`. That's because 2 · k mod 4 is always even, so it can never be 1.
+
+Complexity: O(log |exp|) multiplications, from exactly `exp.bit_length()` loop iterations, and O(1) space. Reducing mod m after every multiply keeps every intermediate value below m².
 
 ### Recognition
 
-- An exponent, repeat count or step count that's huge (10⁹, 10¹⁸) while the operation itself is simple.
+- An exponent, repeat count or step count that's huge (10⁹, 10¹⁸), while the operation itself is simple.
 - "Return the answer modulo 10⁹ + 7" next to a power or a repeated transformation.
-- Anything that means "apply the same associative operation n times". Numbers are one case. Matrices, permutations and function composition are others.
+- Anything that means "apply the same associative operation n times". (Associative means the grouping doesn't matter: (a·b)·c = a·(b·c). That's what lets you square partial results.) Numbers are one case. Matrices, permutations and function composition are others.
 
-When not to use it: small fixed exponents (`x * x * x` is clearer), and cases where you need every intermediate power anyway, where a running product is already O(n). Don't confuse it with binary search. Both halve something, but here the halving is applied to the exponent while an invariant is preserved, not to a search range. In the list, Pow(x, n) shows these signals.
+When not to use it:
+
+- Small fixed exponents. `x * x * x` is clearer.
+- Cases where you need every intermediate power anyway. A running product is already O(n) there.
+
+Don't confuse it with binary search. Both halve something. But here you halve the exponent while keeping an invariant true, not a search range. In the list, Pow(x, n) shows these signals.
 
 ### Pitfalls
 
-- Forgetting the odd case, or squaring before multiplying into `result`. The order within one iteration matters.
-- Negative exponents: `x = 0` (division by zero) and bases that aren't invertible mod m.
-- Negating the most negative 32-bit integer overflows in fixed-width languages. Python ints don't overflow, but know why other people's solutions special-case it.
-- Floating point: repeated squaring of a float accumulates rounding error, and `1 / x` for tiny `x` can overflow to infinity. Compare floats with a tolerance.
-- Without the `% mod` after each multiply, Python stays correct, but the numbers grow to millions of digits and every multiply gets slow.
+- Forgetting the odd case, or squaring before multiplying into `result`. The order inside one iteration matters.
+- Negative exponents. Watch for `x = 0` (division by zero) and for bases that aren't invertible mod m.
+- In fixed-width languages, negating the most negative 32-bit integer overflows. Python ints don't overflow, but it helps to know why other people's solutions special-case it.
+- Floating point. Repeated squaring of a float builds up rounding error, and `1 / x` for tiny `x` can overflow to infinity. Compare floats with a tolerance.
+- Leaving out the `% mod` after each multiply. Python still gets the right answer, but the numbers grow to millions of digits and every multiply gets slow.
 
 ### Active Recall
 
@@ -407,7 +475,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Pow(x, n) makes you derive squaring, including negative exponents, from scratch, so it covers this sub-part directly.
+Skipped. Pow(x, n) makes you work out squaring from scratch, negative exponents included. So it already covers this sub-part.
 
 ### Transfer test
 
@@ -423,22 +491,49 @@ Ask me whether I would use exponentiation by squaring here and why, and wait for
 
 ### Mechanics
 
-Take a function `f` from integers to integers and iterate it: `x₀, f(x₀), f(f(x₀)), …`. If the values can only come from a finite set, some value must eventually repeat (pigeonhole). From the first repeat onward, the sequence loops forever, because `f` is deterministic. The shape is a **rho** (ρ): a tail of length μ that leads into a cycle of length λ. You met this shape in [Linked List](/blogs/dsa-linked-list/), where it was nodes and next-pointers. Here `f` plays the role of `.next`.
+Take a function `f` from integers to integers and keep feeding it its own output: `x₀, f(x₀), f(f(x₀)), …`. Suppose the values can only come from a finite set. Then some value must eventually repeat. This is the pigeonhole principle: if you have more steps than possible values, two steps must share a value.
+
+Once a value repeats, the sequence loops forever. That's because `f` is deterministic: the same input always gives the same next value. So the sequence has the shape of the Greek letter **rho** (ρ). There's a tail of length μ (mu), which leads into a cycle of length λ (lambda).
+
+You met this shape in [Linked List](/blogs/dsa-linked-list/), where it was nodes and next-pointers. Here `f` plays the role of `.next`.
 
 So the technique has two steps:
 
-1. **Prove the values are bounded.** That's what makes a cycle unavoidable, so "does it loop forever?" becomes "which cycle does it end in?".
-2. **Detect the cycle.** Either store every value seen (dict or set, O(μ + λ) memory), or use Floyd's tortoise and hare (O(1) memory).
+1. **Prove the values are bounded.** That's what makes a cycle unavoidable. The question "does it loop forever?" turns into "which cycle does it end in?".
+2. **Detect the cycle.** Either store every value you've seen (a dict or set, O(μ + λ) memory), or use Floyd's tortoise and hare (O(1) memory).
 
-Worked example: `f(n) = sum of the cubes of n's digits`, starting from 4.
+Here's the worked example: `f(n) = sum of the cubes of n's digits`, starting from 4.
 
 <figure class="sketch">{% include sketches/dsa-math-and-geometry/cube-sequence.svg %}</figure>
 
-`f(4) = 64`. `f(64) = 216 + 64 = 280`. `f(280) = 8 + 512 + 0 = 520`. `f(520) = 125 + 8 + 0 = 133`. `f(133) = 1 + 27 + 27 = 55`. `f(55) = 125 + 125 = 250`. `f(250) = 8 + 125 + 0 = 133`, which repeats. So μ = 4 (the cycle starts at index 4, value 133) and λ = 3 (133 → 55 → 250 → 133).
+Let's compute it step by step:
 
-Why is it bounded for every start? A d-digit number is at least 10^(d-1), and f of it is at most 729·d (every digit a 9, and 9³ = 729). For d = 5, n is at least 10000 while f(n) is at most 3645, and the gap only widens as d grows. So any n ≥ 10000 maps to something strictly smaller, and the sequence drops below 10000. Once it's below 10000 it has at most 4 digits, so f is at most 4 · 729 = 2916, and it stays below 10000. The values end up trapped in 0..9999, so once the sequence is below 10000, a repeat is guaranteed within 10001 more steps.
+- `f(4) = 64`.
+- `f(64) = 216 + 64 = 280`.
+- `f(280) = 8 + 512 + 0 = 520`.
+- `f(520) = 125 + 8 + 0 = 133`.
+- `f(133) = 1 + 27 + 27 = 55`.
+- `f(55) = 125 + 125 = 250`.
+- `f(250) = 8 + 125 + 0 = 133`. That's a repeat.
 
-**Floyd's version.** Move `slow` one step and `fast` two steps until they're equal. Both are then inside the cycle, and the meeting time t is a multiple of λ. From the example: they meet at t = 6 on value 250, since `x₆ = x₁₂ = 250`, and 6 is a multiple of 3. Reset `slow` to `x₀` and step both pointers one at a time. After μ steps, `slow` is at `x_μ`, and `fast` is at `x_(t+μ)`, which equals `x_μ` because t is a multiple of λ. So they meet exactly at the cycle start: `x₁₀ = x₄ = 133`. (The general proof is in [Part 7](/blogs/dsa-linked-list/). I've only re-checked it on this example.)
+So μ = 4, because the cycle starts at index 4, on value 133. And λ = 3, because the cycle is 133 → 55 → 250 → 133.
+
+Why is the sequence bounded, whatever number you start from? Compare a number with f of that number:
+
+- A d-digit number is at least 10^(d-1).
+- f of it is at most 729·d. That's the case where every digit is 9, and 9³ = 729.
+
+For d = 5, n is at least 10000, while f(n) is at most 3645. As d grows, the gap only gets wider. So any n ≥ 10000 maps to something strictly smaller, and the sequence keeps dropping until it's below 10000.
+
+Once it's below 10000, it has at most 4 digits. So f is at most 4 · 729 = 2916, and the sequence stays below 10000. The values end up trapped in 0..9999. That means once the sequence is below 10000, a repeat is guaranteed within 10001 more steps.
+
+**Floyd's version.** This finds the cycle without storing anything. It runs in two phases.
+
+Phase 1: move `slow` one step and `fast` two steps at a time, until they're equal. When they meet, both are inside the cycle, and the meeting time t is a multiple of λ. In the example they meet at t = 6 on value 250, since `x₆ = x₁₂ = 250`. And 6 is indeed a multiple of 3.
+
+Phase 2: reset `slow` to `x₀`, and step both pointers one at a time. After μ steps, `slow` is at `x_μ`. Meanwhile `fast` is at `x_(t+μ)`. Because t is a multiple of λ, going t extra steps around the cycle lands you back where you were, so `x_(t+μ)` equals `x_μ`. That's why they meet exactly at the cycle start: `x₁₀ = x₄ = 133`.
+
+(The general proof is in [Part 7](/blogs/dsa-linked-list/). I've only re-checked it on this example.)
 
 ### Diagram
 
@@ -495,24 +590,29 @@ print(cycle_floyd(cube_digit_sum, 153))    # (0, 1, 153): 1 + 125 + 27 = 153
 print(cycle_floyd(cube_digit_sum, 9999))   # (7, 1, 153)
 ```
 
-I checked that both versions agree for every start from 0 to 19999. Starting at 0 gives `(0, 1, 0)` and starting at 1 gives `(0, 1, 1)`. Those are fixed points, cycles of length 1.
+I checked that both versions agree for every start from 0 to 19999. Starting at 0 gives `(0, 1, 0)`, and starting at 1 gives `(0, 1, 1)`. Those are fixed points: values where f(x) = x, which makes them cycles of length 1.
 
-Complexity: both are O(μ + λ) calls to `f`, and each call here is O(number of digits). The dict version uses O(μ + λ) extra space, and Floyd uses O(1). Floyd calls `f` roughly three times per step in phase 1, so when `f` is expensive and memory is fine, the dict is often faster in practice.
+Complexity: both versions make O(μ + λ) calls to `f`, and each call here is O(number of digits). The dict version uses O(μ + λ) extra space, and Floyd uses O(1). But Floyd calls `f` roughly three times per step in phase 1. So when `f` is expensive and memory is fine, the dict is often faster in practice.
 
 ### Recognition
 
-- "Repeat this process until it ends, or forever": a deterministic step applied to its own output.
-- The state space is finite, or you can bound it (digit functions, `mod m`, a fixed-size board).
-- The question asks about eventual behaviour: does it reach X, what does it settle into, what's the value after 10¹⁸ steps. For the last one, find μ and λ, then index into the cycle with `(k - μ) % λ`.
+- "Repeat this process until it ends, or forever." That is, a deterministic step applied to its own output.
+- The set of possible states is finite, or you can bound it (digit functions, `mod m`, a fixed-size board).
+- The question asks what happens eventually: does it reach X, what does it settle into, what's the value after 10¹⁸ steps. For the last one, find μ and λ, then index into the cycle with `(k - μ) % λ`.
 
-When not to use it: if the values can grow without bound (`n → 2n`), there's no cycle to find, so bound the values first. If the step isn't deterministic (random, or depending on outside input), the rho argument fails. Don't confuse it with cycle detection in a general graph ([Graphs](/blogs/dsa-graphs/)): there each node can have many out-edges, and you need DFS colouring or a topological sort. Here every value has exactly one successor. In the list, Happy Number shows these signals.
+When not to use it:
+
+- If the values can grow without bound (`n → 2n`), there's no cycle to find. Bound the values first.
+- If the step isn't deterministic (random, or depending on outside input), the rho argument fails.
+
+Don't confuse it with cycle detection in a general graph ([Graphs](/blogs/dsa-graphs/)). There, each node can have many outgoing edges, and you need DFS colouring or a topological sort. Here, every value has exactly one next value. In the list, Happy Number shows these signals.
 
 ### Pitfalls
 
-- Assuming termination without proving a bound. Write the bound down, even roughly.
-- A fixed point is a cycle of length 1. A check like "stop when we see 1" and a check like "stop on a repeat" both have to handle it.
-- In Floyd's, starting `slow` and `fast` both at `x₀` and testing equality before the first move makes them "meet" instantly.
-- In phase 2, moving `fast` two steps (as in phase 1) instead of one gives the wrong μ. Both pointers move one step.
+- Assuming the process ends without proving a bound. Write the bound down, even roughly.
+- Forgetting fixed points. A fixed point is a cycle of length 1. A check like "stop when we see 1" and a check like "stop on a repeat" both have to handle it.
+- In Floyd's, starting `slow` and `fast` both at `x₀` and testing equality before the first move. They "meet" instantly.
+- In phase 2, moving `fast` two steps (as in phase 1) instead of one. That gives the wrong μ. In phase 2 both pointers move one step.
 - Forgetting that each `f` call has a cost. Floyd's O(1) memory is paid for with extra calls.
 
 ### Active Recall
@@ -537,7 +637,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Happy Number makes you notice the bound and the cycle from scratch, so it exercises this sub-part on its own.
+Skipped. Happy Number makes you spot the bound and the cycle on your own. So it already gives this sub-part direct practice.
 
 ### Transfer test
 
@@ -553,18 +653,23 @@ Ask me whether I would use cycle detection in number sequences here and why, and
 
 ### Mechanics
 
-Geometry problems on an integer grid usually ask "how many shapes of a certain kind touch this point?". The brute force tries every pair or triple of stored points, O(n²) or O(n³) per query. The hash-counting technique replaces that with lookups:
+Geometry problems on an integer grid usually ask "how many shapes of a certain kind touch this point?". The brute force tries every pair or triple of stored points. That's O(n²) or O(n³) per query. Hash counting replaces it with a few lookups, in three steps:
 
-1. **Key points by exact integer coordinates.** Use a `Counter` keyed by `(x, y)`, so duplicate points become a count instead of repeated entries.
-2. **Index them by the lines the queries care about.** For example, keep a count of points on each vertical line `x = k` and each horizontal line `y = k`.
-3. **At query time, fix what the query gives you, enumerate the smallest remaining freedom, and look up everything else.** Counts of independent choices multiply.
+1. **Key points by exact integer coordinates.** Use a `Counter` keyed by `(x, y)`. Then duplicate points become a count instead of repeated entries.
+2. **Index them by the lines the queries care about.** For example, keep a count of points on each vertical line `x = k` and on each horizontal line `y = k`.
+3. **At query time, fix what the query gives you, loop over the smallest thing still free, and look up everything else.** When two choices are independent, their counts multiply.
 
-Worked example: count axis-parallel right triangles whose right angle is at the query point q. One leg is vertical and one is horizontal. The vertical leg's other end is any stored point with the same x and a different y. The horizontal leg's other end is any stored point with the same y and a different x. The two choices are independent, so the count is `vertical × horizontal`. No enumeration is needed at all.
+Here's the worked example. We want to count right triangles whose right angle sits at the query point q, with one leg vertical and one leg horizontal (axis-parallel):
+
+- The vertical leg's other end can be any stored point with the same x and a different y.
+- The horizontal leg's other end can be any stored point with the same y and a different x.
+
+Picking one doesn't limit the other, so the two choices are independent. The count is just `vertical × horizontal`. You don't need to loop over anything at all.
 
 Stored points: (1,1), (1,4), (1,4), (5,1), (3,1), (1,7), (3,3). Note that (1,4) appears twice. Query q = (1,1):
 
-- On line x = 1 there are 4 points: (1,1), (1,4), (1,4), (1,7). One of them is q itself, a zero-length leg, so vertical = 4 - 1 = 3.
-- On line y = 1 there are 3 points: (1,1), (5,1), (3,1). Minus q gives horizontal = 2.
+- On line x = 1 there are 4 points: (1,1), (1,4), (1,4), (1,7). One of them is q itself, which would give a zero-length leg. So vertical = 4 - 1 = 3.
+- On line y = 1 there are 3 points: (1,1), (5,1), (3,1). Leaving out q gives horizontal = 2.
 - Triangles = 3 × 2 = 6. The two copies of (1,4) count as different triangles.
 
 I checked this against a brute force over all pairs, on this example and on 2000 random small point sets.
@@ -612,25 +717,38 @@ print(idx.right_angles_at(1, 4))   # 0: no other point on y = 4
 print(idx.right_angles_at(2, 2))   # 0: nothing on x = 2
 ```
 
-Complexity: `add` is O(1). `right_angles_at` is O(1). Space is O(P + X + Y) for P distinct points, X distinct x values and Y distinct y values. Brute force over pairs would be O(n²) per query for n stored points.
+Complexity: `add` is O(1), and `right_angles_at` is O(1). Space is O(P + X + Y), for P distinct points, X distinct x values and Y distinct y values. Brute force over pairs would be O(n²) per query for n stored points.
 
-When a shape isn't axis-aligned, the same idea needs a hashable key for "direction". For collinearity, key by the direction `(dx, dy)` reduced by `gcd(dx, dy)` with a fixed sign. I ran the normalisation: (2, 4) and (-1, -2) both become (1, 2), (0, -5) becomes (0, 1), and (-3, 0) becomes (1, 0). Never key by a float slope. `0.1 + 0.2 == 0.3` is `False`, and vertical lines divide by zero.
+What if a shape isn't lined up with the axes? The same idea still works, but you need a hashable key for "direction". For points on a common line (collinear points), key by the direction `(dx, dy)`, divided by `gcd(dx, dy)` and given a fixed sign. Then every direction along the same line gets the same key.
+
+I ran this normalisation:
+
+- (2, 4) and (-1, -2) both become (1, 2).
+- (0, -5) becomes (0, 1).
+- (-3, 0) becomes (1, 0).
+
+Never key by a float slope. Floats aren't exact: `0.1 + 0.2 == 0.3` is `False`. And vertical lines divide by zero.
 
 ### Recognition
 
-- Points on an integer grid, often with duplicates allowed, and many `add` / `count` queries interleaved.
-- Shapes defined by axis-aligned or otherwise rigid relationships (same x, same y, equal side lengths, fixed offsets), so a few coordinates determine the rest.
+- Points on an integer grid, often with duplicates allowed, and many `add` / `count` queries mixed together.
+- Shapes defined by axis-aligned or other rigid relationships (same x, same y, equal side lengths, fixed offsets), so a few coordinates pin down the rest.
 - A counting question ("how many ways") rather than a construction question.
 
-When not to use it: range queries over a region ("how many points in this rectangle") are better served by 2-D prefix sums on a bounded grid or by a sorted structure. Nearest-neighbour questions need sorting or a heap, as in [Heap / Priority Queue](/blogs/dsa-heaps/). The difference: hash counting answers "how many points are exactly at these coordinates", not "near" or "between". In the list, Detect Squares shows these signals.
+When not to use it:
+
+- Range queries over a region ("how many points in this rectangle"). These are better served by 2-D prefix sums on a bounded grid, or by a sorted structure.
+- Nearest-neighbour questions. These need sorting or a heap, as in [Heap / Priority Queue](/blogs/dsa-heaps/).
+
+The difference is this. Hash counting answers "how many points are exactly at these coordinates". It can't answer "near" or "between". In the list, Detect Squares shows these signals.
 
 ### Pitfalls
 
-- Storing points in a set, which silently drops duplicates when the problem counts them separately.
-- Counting the query point as its own partner (zero-length sides or legs).
-- `defaultdict` inserts a key whenever you read a missing one, so queries for absent points grow memory. `Counter` returns 0 without inserting.
+- Storing points in a set. That silently drops duplicates when the problem counts them separately.
+- Counting the query point as its own partner, which gives zero-length sides or legs.
+- Using `defaultdict`. It inserts a key whenever you read a missing one, so queries for absent points grow memory. `Counter` returns 0 without inserting.
 - Float keys for slopes or distances. Use integer tuples, gcd-normalised directions, or squared distances.
-- A normalised direction for `(0, 0)` means two identical points, and `gcd(0, 0) = 0` would divide by zero. Handle duplicates before normalising.
+- Normalising a direction of `(0, 0)`. That only happens with two identical points, and `gcd(0, 0) = 0` would divide by zero. Handle duplicates before normalising.
 
 ### Active Recall
 
@@ -654,7 +772,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Detect Squares makes you design the counting index and the enumeration from scratch, so it exercises this sub-part directly.
+Skipped. Detect Squares makes you design the counting index and the loop from scratch. So it already gives this sub-part direct practice.
 
 ### Transfer test
 
@@ -668,9 +786,17 @@ Ask me whether I would use hash counting over points here and why, and wait for 
 
 ## Integration
 
-Math & Geometry problems rarely hide their technique. The difficulty is precision: turning a shape or a rule into an exact integer statement, and then catching the one input where it breaks. The five sub-parts map onto the problems as tools rather than patterns. Index maps and markers handle matrix transformations in place. Carry loops handle numbers the language can't or mustn't hold. Squaring handles huge repeat counts. Rho detection handles processes that run "until something happens". Hash counting handles shape queries over points.
+Math & Geometry problems rarely hide their technique. The hard part is precision. You have to turn a shape or a rule into an exact statement about integers, and then catch the one input where it breaks.
 
-Telling competing approaches apart:
+Think of the five sub-parts as tools you pick up for a job, not patterns you have to spot:
+
+- Index maps and markers handle matrix transformations in place.
+- Carry loops handle numbers the language can't or mustn't hold.
+- Squaring handles huge repeat counts.
+- Rho detection handles processes that run "until something happens".
+- Hash counting handles shape queries over points.
+
+Here's how to choose between competing approaches:
 
 | Choice | Pick the first when | Pick the second when |
 | --- | --- | --- |
@@ -688,15 +814,25 @@ A recognition checklist for an unfamiliar problem in this area:
 3. **Is a count or exponent astronomically large?** Look for an associative step to square, and state the invariant `result · base^exp = answer`.
 4. **Does a process repeat "until"?** Bound the state space, then pick a dict or Floyd. Watch for fixed points.
 5. **Are there points and a shape?** Decide what the query fixes, what one freedom remains, and which counts multiply. Keep coordinates as integers.
-6. **For all of the above: hand-trace a 3 × 3 or 3-digit case before coding.** In this topic, most wrong answers come from an unchecked boundary rather than a wrong idea.
+6. **For all of the above: trace a 3 × 3 or 3-digit case by hand before coding.** In this topic, most wrong answers come from a boundary nobody checked, not from a wrong idea.
 
 ## The problems
 
-Solve these with the six-step cycle from [the method](/blogs/dsa-the-method/): 15 minutes of struggle, the "I'm stuck because ___" sentence, the key sentence in your log, and spaced repetition. Math & Geometry is closest to the pattern-driven note. During the struggle, work a 3 × 3 or 3-digit example by hand, write the index map or invariant down before any code, and list the degenerate inputs (single row, zero, negative exponent, a carry out of the top digit, duplicate points) that could break it.
+Solve these with the six-step cycle from [the method](/blogs/dsa-the-method/): 15 minutes of struggle, the "I'm stuck because ___" sentence, the key sentence in your log, and spaced repetition. Of the notes in the method, Math & Geometry is closest to the pattern-driven one.
+
+During the struggle, do three things:
+
+- Work a 3 × 3 or 3-digit example by hand.
+- Write the index map or invariant down before any code.
+- List the degenerate inputs that could break it: a single row, zero, a negative exponent, a carry out of the top digit, duplicate points.
 
 {% include dsa-problems.html slug="dsa-math-and-geometry" %}
 
-That's the last topic and the last of the 150 problems, and the end of the series. Finishing the lessons isn't the goal, though. The goal is still being able to solve these problems cold a month from now. That comes from the loop in [Part 1](/blogs/dsa-the-method/): a key sentence for every problem, then reviews at 1, 3, 7 and 14 days, with any failed review resetting to day 1. Keep that loop running across all 18 topics. If you are starting over or picking the series up cold, that is also where the method and the topic map live.
+That's the last topic, the last of the 150 problems, and the end of the series.
+
+Finishing the lessons isn't the goal, though. The goal is still being able to solve these problems cold a month from now. That comes from the loop in [Part 1](/blogs/dsa-the-method/). You write a key sentence for every problem, then review it at 1, 3, 7 and 14 days. Any failed review resets that problem to day 1. Keep that loop running across all 18 topics.
+
+If you're starting over, or picking the series up cold, Part 1 is also where the method and the topic map live.
 
 ## Take this lesson as a live session
 

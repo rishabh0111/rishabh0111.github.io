@@ -9,41 +9,64 @@ series_order: 16
 series_total: 19
 links_new_tab: true
 tags: [dsa, graphs, shortest-path, python, series]
-read_time: 47
+read_time: 51
 permalink: /blogs/dsa-advanced-graphs/
-excerpt: "Advanced graph algorithms look like five things to memorise. Each one repeats the same move: pick the next node you can prove is safe to finalise. What changes is the proof."
+excerpt: "Advanced graph algorithms look like five separate things to memorise. But each one repeats the same move: pick the next node you can prove is safe to finalise. Only the proof changes."
 ---
 
-Plain graphs ask whether you can get somewhere; advanced graphs ask what it costs, what it costs to connect everything, or what order things may come in. Every algorithm here repeats one step, finalise the node you can prove is safe and then update its neighbours, and most wrong answers come from using that step where its proof doesn't hold. It builds on [Heap / Priority Queue](/blogs/dsa-heaps/) and [Graphs](/blogs/dsa-graphs/) (DFS, BFS, 3-colour cycle detection and Union-Find live there and are only referenced here), nothing later in the series builds on it, and Bellman-Ford is added at the end because one of the problems limits how many edges a path may use.
+Plain graph questions ask whether you can get from one place to another. Advanced graph questions ask harder things. What does the cheapest route cost? What does it cost to connect everything? In what order may things happen?
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+Every algorithm in this post repeats the same step. Pick the next node you can prove is safe to finalise, then update its neighbours. "Finalise" means you decide its answer now and never change it again. Most wrong answers come from using that step in a situation where its proof doesn't hold.
+
+This post builds on [Heap / Priority Queue](/blogs/dsa-heaps/) and [Graphs](/blogs/dsa-graphs/). DFS, BFS, 3-colour cycle detection and Union-Find are taught there, so here we only refer to them. Nothing later in the series builds on this post. Bellman-Ford is added at the end, because one of the problems limits how many edges a path may use.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Dijkstra's
 
 ### Foundation
 
-Picture a fire starting at the source and spreading along every road at the same speed. Each town catches fire at the time given by its shortest distance, and towns catch fire in order of that distance. Dijkstra's algorithm simulates this: it always handles the unhandled town that is closest to the source.
+Picture a fire that starts in one town, the source. It spreads along every road at the same speed. Each town catches fire at a time equal to its shortest distance from the source. So towns catch fire in order of that distance: the closest first, then the next closest, and so on.
 
-It solves single-source shortest paths when every edge weight is non-negative. BFS from Part 14 is the special case where all weights are equal.
+Dijkstra's algorithm simulates this fire. At every step it handles the closest town it hasn't handled yet.
+
+The problem it solves is called single-source shortest paths: the cheapest distance from one starting node to every other node. It only works when every edge weight is non-negative (zero or more). BFS from Part 14 is the special case where all weights are equal.
 
 ### Mechanics
 
-Keep `dist[v]`, the best distance found so far, plus a min-heap of `(distance, node)` candidates. Repeat:
+We keep two things:
+
+- `dist[v]`, the best distance to `v` found so far.
+- A min-heap of `(distance, node)` candidates. A min-heap always hands back its smallest entry first.
+
+A node is **settled** once its distance is final. Then we repeat these steps:
 
 1. Pop the smallest `(d, u)`.
 2. If `u` is already settled, this entry is stale, so skip it.
 3. Otherwise settle `u`: `d` is final.
 4. For every edge `u -> v` of weight `w`, if `d + w < dist[v]`, set `dist[v] = d + w` and push `(d + w, v)`.
 
-**The invariant.** When `(d, u)` is the smallest entry in the heap and `u` is unsettled, `d` is the true shortest distance to `u`. Why this is safe: any other path to `u` has to leave the settled set at some point, through an edge into some unsettled node `x`. The cost of reaching `x` is at least the smallest heap key, and that is `d`. Everything after `x` adds weights that are ≥ 0. So no other path costs less than `d`. **The whole proof depends on the "≥ 0".** A negative edge after `x` could pull the total below `d`, which is why Dijkstra is wrong with negative weights.
+Step 4 is called **relaxing** an edge: you check whether going through `u` gives `v` a cheaper distance, and if so you record it.
 
-**Stale entries (lazy deletion).** Python's `heapq` can't lower an existing key (recalled: it has no decrease-key), so when a better distance turns up we just push a second entry. The older, larger entry stays in the heap and gets skipped when it is popped.
+**The invariant.** An invariant is a fact that stays true at every step of the loop. Here it is: when `(d, u)` is the smallest entry in the heap and `u` is unsettled, `d` is the true shortest distance to `u`.
+
+Why is that safe? Think about any other path to `u`. It starts inside the settled set (the source is settled first). At some point it has to step out of that set, through an edge into some unsettled node `x`. Reaching `x` costs at least the smallest key in the heap, and that smallest key is `d`. Everything after `x` only adds weights that are ≥ 0. So that other path costs at least `d`, and none can cost less.
+
+**The whole proof depends on the "≥ 0".** A negative edge after `x` could pull the total below `d`. That's why Dijkstra gives wrong answers when weights can be negative.
+
+**Stale entries (lazy deletion).** Sometimes we find a better distance for a node that is already in the heap. Ideally we'd lower its key in place. Python's `heapq` can't do that (recalled: it has no decrease-key operation). So we just push a second, smaller entry. The older, larger entry stays in the heap. When it's eventually popped, its node is already settled, so we call it **stale** and skip it.
 
 Worked example: a directed graph, source 0.
 
 Edges: `0->1 (4)`, `0->2 (1)`, `2->1 (2)`, `1->3 (1)`, `2->3 (5)`, `3->4 (3)`.
 
-The direct edge `0->1` costs 4, but `0->2->1` costs 1 + 2 = 3. Node 3 is first reached through `0->2->3` for 1 + 5 = 6, then improved through `0->2->1->3` to 3 + 1 = 4. Node 4 gets 4 + 3 = 7. Final distances: `[0, 3, 1, 4, 7]`.
+Let's work out the answers by hand first:
+
+- Node 1: the direct edge `0->1` costs 4, but `0->2->1` costs 1 + 2 = 3. So node 1 gets 3.
+- Node 3: it's first reached through `0->2->3`, for 1 + 5 = 6. Later it's improved through `0->2->1->3`, to 3 + 1 = 4.
+- Node 4: 4 + 3 = 7.
+
+Final distances: `[0, 3, 1, 4, 7]`.
 
 ### Diagram
 
@@ -51,7 +74,7 @@ The direct edge `0->1` costs 4, but `0->2->1` costs 1 + 2 = 3. Node 3 is first r
 
 <figure class="sketch">{% include sketches/dsa-advanced-graphs/dijkstra-heap.svg %}</figure>
 
-Steps 4 and 6 are the lazy-deletion entries. Node 1 was first pushed at 4 and node 3 at 6, and both were improved before those entries came up.
+Steps 4 and 6 are the stale entries from lazy deletion. Node 1 was first pushed at 4, and node 3 at 6. Both got better distances before those old entries reached the top of the heap.
 
 ### Implementation
 
@@ -87,34 +110,43 @@ edges = [(0, 1, 4), (0, 2, 1), (2, 1, 2), (1, 3, 1), (2, 3, 5), (3, 4, 3)]
 print(dijkstra(5, edges, 0))             # [0, 3, 1, 4, 7]
 ```
 
-Edge cases I ran: a single node gives `[0]`, an unreachable node stays `inf` (`[0, 2, inf]` for one edge `0->1 (2)` among 3 nodes), zero-weight edges work (`[0, 0, 0]`), and parallel edges keep the cheaper one.
+Edge cases I ran:
 
-**Complexity.** V = nodes, E = edges. Each edge pushes at most once, so the heap holds at most E + 1 entries and each push or pop costs O(log E). Total time is O((V + E) log E), which is the same as O((V + E) log V) because log E ≤ 2 log V. Space is O(V + E).
+- A single node gives `[0]`.
+- An unreachable node stays `inf`. With 3 nodes and one edge `0->1 (2)`, the result is `[0, 2, inf]`.
+- Zero-weight edges work (`[0, 0, 0]`).
+- Parallel edges (two edges between the same pair of nodes) keep the cheaper one.
+
+**Complexity.** Let V be the number of nodes and E the number of edges.
+
+- Each edge causes at most one push. So the heap never holds more than E + 1 entries, and each push or pop costs O(log E).
+- Total time is O((V + E) log E). That's the same as O((V + E) log V), because a graph without parallel edges has at most V² edges, so log E ≤ 2 log V.
+- Space is O(V + E).
 
 ### Recognition
 
 Signals:
 
 - The question asks for a minimum total cost, time or distance from one source, and **edge weights differ and are non-negative**.
-- A grid or state space where moves cost different amounts. The "graph" can be implicit, with nodes as states and edges as moves.
-- The cost of a path is built by adding up its steps, or more generally by any rule that never gets cheaper as the path gets longer.
+- A grid or state space where moves cost different amounts. The "graph" doesn't have to be given to you. It can be implicit, with nodes as states and edges as moves.
+- The cost of a path is built by adding up its steps. More generally, any cost rule works if a path never gets cheaper as it gets longer.
 
 When not to use it:
 
 - All weights are equal. Plain BFS gives the answer in O(V + E).
-- Some weights are negative. The proof breaks, and you need Bellman-Ford (last module).
-- The path has a limit on how many edges it may use. Dijkstra settles each node once at its cheapest cost, and that cheapest path might use too many edges. This also goes to the last module.
-- You need all pairs of nodes on a small graph. Floyd-Warshall is simpler there (not needed for this list).
+- Some weights are negative. The proof breaks, and you need Bellman-Ford (the last module).
+- The path has a limit on how many edges it may use. Dijkstra settles each node once, at its cheapest cost. But that cheapest path might use too many edges. This case also goes to the last module.
+- You need the distance between every pair of nodes on a small graph. Floyd-Warshall is simpler there (not needed for this list).
 
-On the list, Network Delay Time shows the plain signal. Swim In Rising Water shows the "cheapest path under a cost rule you have to define" signal, where the cost isn't a plain sum. Min Cost to Connect All Points *looks* like a Dijkstra problem because it says "min cost", but it asks for something else (see Prim's).
+Here is where the signals show up on the list. Network Delay Time shows the plain signal. Swim In Rising Water shows a different one: the cheapest path under a cost rule you have to define yourself, where the cost isn't a plain sum. Min Cost to Connect All Points *looks* like a Dijkstra problem because it says "min cost". But it asks for something else (see Prim's).
 
 ### Pitfalls
 
-- **Settling on push instead of on pop.** In the example, node 3 is first pushed at 6. If you finalised it then, you would keep 6 instead of 4.
-- **Missing the stale check.** Without `if u in done`, the stale `(4,1)` would relax node 1's edges a second time. Here that does no harm, but with many improvements per node the same edges get relaxed over and over and the time blows up.
-- **Negative edges.** On `0->1 (2)`, `0->2 (3)`, `2->1 (-2)`, `1->3 (1)`, the code returns `dist[3] = 3`, but the true answer is 2 (0→2→1→3 = 3 − 2 + 1). Node 1 was settled at 2 before the negative edge was seen, and node 3 had already been relaxed from that wrong value.
-- **Unreachable nodes.** Decide what `inf` means for your answer before returning it.
-- **Undirected graphs.** Add both directions.
+- **Settling on push instead of on pop.** In the example, node 3 is first pushed at 6. If you finalised it at that moment, you'd keep 6 instead of the correct 4.
+- **Missing the stale check.** Without `if u in done`, the stale `(4,1)` would relax node 1's edges a second time. In this example that does no harm. But if a node improves many times, its edges get relaxed over and over, and the running time blows up.
+- **Negative edges.** Take `0->1 (2)`, `0->2 (3)`, `2->1 (-2)`, `1->3 (1)`. The code returns `dist[3] = 3`, but the true answer is 2 (0→2→1→3 = 3 − 2 + 1). Here's what went wrong. Node 1 was settled at 2 before the negative edge was seen. Node 3 had then already been relaxed from that wrong value.
+- **Unreachable nodes.** Decide what `inf` should mean in your answer before you return it.
+- **Undirected graphs.** Add each edge in both directions.
 
 ### Active Recall
 
@@ -138,7 +170,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Swim In Rising Water requires re-deriving why the settle-on-pop guarantee still holds under its own path-cost rule, so this technique gets exercised from scratch there.
+Skipped for this module. In Swim In Rising Water you have to work out again why settling on pop is still safe under that problem's own path-cost rule. So you'll practise this technique from scratch there.
 
 ### Transfer test
 
@@ -154,17 +186,23 @@ Ask me whether I would use Dijkstra's algorithm here and why, and wait for my an
 
 ### Foundation
 
-You have to cable together every office in a campus, and each possible cable has a price. You don't care how far any office is from any other. You only want every office connected at the lowest total price. The cheapest such set of cables forms a tree (any cycle has a cable you could remove), called the **minimum spanning tree (MST)**: V − 1 edges that touch every node.
+You have to cable together every office on a campus, and each possible cable has a price. You don't care how far any office is from any other. You only want every office connected, at the lowest total price.
 
-Prim's grows a single connected blob. It starts at any node and, every step, buys the cheapest cable that leaves the blob.
+The cheapest set of cables that does this always forms a tree. Why? If your cables formed a cycle, you could remove one cable from it and everything would still be connected, for less money. This cheapest tree is called the **minimum spanning tree (MST)**. "Spanning" means it touches every node. A tree on V nodes always has V − 1 edges.
+
+Prim's algorithm grows one connected blob of offices. It starts at any node. At every step, it buys the cheapest cable that leaves the blob.
 
 ### Mechanics
 
-**The cut property** is what makes the greedy choice safe. Split the nodes into any two groups. The cheapest edge crossing between them belongs to some MST. Exchange argument: take an MST that doesn't contain that edge `e`. Adding `e` creates a cycle, and the cycle must cross the split a second time through another edge `f`. `f` costs at least as much as `e`, so swapping `f` out for `e` gives a spanning tree that costs no more.
+Why is it safe to always grab the cheapest cable? The reason is called **the cut property**.
 
-Prim's always uses the split (blob, everything else), so the cheapest edge leaving the blob is always safe to take.
+A **cut** is any split of the nodes into two groups. The cut property says: the cheapest edge crossing between the two groups belongs to some MST.
 
-The loop has the same shape as Dijkstra's, with one difference that matters: **the heap key is the weight of the single edge, `w`, not the path total `d + w`.** Prim's asks "how cheap is it to attach this node to the tree?", not "how far is this node from the start?".
+Here's the proof, an exchange argument. Call that cheapest crossing edge `e`. Take any MST that doesn't contain `e`. Adding `e` to it creates a cycle. That cycle crosses the split once through `e`, so it has to cross back through some other edge `f`. Since `e` is the cheapest crossing edge, `f` costs at least as much as `e`. Swap `f` out and `e` in. You still have a spanning tree, and it costs no more. So some MST contains `e`.
+
+Prim's always uses the same cut: (the blob, everything else). So the cheapest edge leaving the blob is always safe to take. The blob is itself a tree at every step, so from here on we'll just call it the tree.
+
+The loop has the same shape as Dijkstra's, with one difference that matters: **the heap key is the weight of the single edge, `w`, not the path total `d + w`.** Prim's asks "how cheap is it to attach this node to the tree?" It doesn't ask "how far is this node from the start?"
 
 1. Push `(0, start)`.
 2. Pop the smallest `(w, u)`. If `u` is already in the tree, it's stale, so skip it.
@@ -215,24 +253,41 @@ edges = [(0, 1, 4), (0, 2, 1), (1, 2, 2), (1, 3, 5), (2, 3, 8), (3, 4, 3), (2, 4
 print(prim(5, edges))                    # 11
 ```
 
-Edge cases I ran: `n = 1` gives 0, a disconnected graph gives `None`, and a triangle of equal weights gives 2. I also checked it against the Kruskal version from the next module on 300 random graphs, and the totals matched every time.
+Edge cases I ran:
 
-**Complexity.** O(E log E) time with the heap and O(V + E) space. On a dense graph where every pair of nodes has an edge, E is about V²/2, and a heap-free version that keeps a `best[v]` array and scans it for the minimum each round runs in O(V²) (recalled). That is better than O(V² log V) when the graph is complete.
+- `n = 1` gives 0.
+- A disconnected graph gives `None`.
+- A triangle of equal weights gives 2.
+
+I also checked it against the Kruskal version from the next module on 300 random graphs. The totals matched every time.
+
+**Complexity.** With the heap, it's O(E log E) time and O(V + E) space.
+
+Dense graphs are a special case. If every pair of nodes has an edge (a **complete** graph), E is about V²/2. There's a heap-free version of Prim's that keeps a `best[v]` array and scans the whole array for the minimum each round. That version runs in O(V²) (recalled). On a complete graph, that beats the heap version's O(V² log V).
 
 ### Recognition
 
-Signals: "connect all", "every node must be reachable", "minimum total cost to link", undirected, **no source node**. The answer is one number for the whole network, not one per node.
+Signals:
 
-Shortest-path trees and spanning trees are different things. On the same example, Dijkstra from 0 (treating edges as undirected) gives distances `[0, 3, 1, 8, 10]` using edges `0-2, 2-1, 1-3, 2-4`, for a total edge weight of 17. The MST uses `3-4` instead of `2-4` and totals 11. The MST doesn't try to keep node 4 close to node 0, so it pays 3 for node 4 instead of 9.
+- Phrases like "connect all", "every node must be reachable" or "minimum total cost to link".
+- The graph is undirected.
+- There is **no source node**. The answer is one number for the whole network, not one number per node.
 
-Min Cost to Connect All Points shows the "connect all, no source" signal on a complete graph, which is also where the dense-graph note above matters.
+A shortest-path tree and a spanning tree are different things. Let's compare them on the same example graph.
+
+- Run Dijkstra from 0, treating the edges as undirected. It gives distances `[0, 3, 1, 8, 10]`, using edges `0-2, 2-1, 1-3, 2-4`. Those edges have a total weight of 17.
+- The MST uses `3-4` instead of `2-4`, and totals 11.
+
+The difference is node 4. Dijkstra wants node 4 as close to node 0 as possible, so it uses the edge `2-4` for 9. The MST doesn't care how far node 4 is from node 0, so it attaches node 4 for just 3.
+
+Min Cost to Connect All Points shows the "connect all, no source" signal. Its graph is complete, so that's also where the dense-graph note above matters.
 
 ### Pitfalls
 
-- **Using `d + w` as the key.** That turns Prim's into Dijkstra and gives the shortest-path tree (17 here), not the MST (11).
-- **Adding `w` before the stale check.** The stale `(4,1)` would be counted and the total would come out 15.
-- **Disconnected input.** The loop ends with fewer than V nodes in the tree. Return a sentinel, not a partial sum.
-- **Directed graphs.** MST is defined for undirected graphs. The directed version (arborescence) is a different algorithm.
+- **Using `d + w` as the key.** That turns Prim's into Dijkstra. You get the shortest-path tree (17 here), not the MST (11).
+- **Adding `w` before the stale check.** Then the stale `(4,1)` gets counted, and the total comes out as 15.
+- **Disconnected input.** The loop ends with fewer than V nodes in the tree. Return a sentinel value (like `None`), not the partial sum.
+- **Directed graphs.** An MST is defined for undirected graphs. The directed version (called an arborescence) needs a different algorithm.
 
 ### Active Recall
 
@@ -256,13 +311,13 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included. Min Cost to Connect All Points is a direct MST instance, not a from-scratch derivation of this technique, so the mechanics need their own workout here.
+Included for this module. Min Cost to Connect All Points is a straight MST problem. Solving it doesn't make you rebuild this technique from scratch, so the mechanics get their own workout here.
 
 A village has `n` houses numbered 1 to `n`. House `i` can get water by digging its own well for `well[i-1]`, or by laying a pipe to another house. `pipes` lists `(a, b, cost)` for the pipes that can be laid, and water flows both ways along a pipe. Find the minimum total cost so that every house has water.
 
 Example: `well = [5, 4, 3, 6]`, `pipes = [(1,2,2), (2,3,2), (3,4,1), (1,4,7)]`. The answer is 8.
 
-Before opening the chat, write down: the observation, the approach, why it's correct, the complexity.
+Before you open the chat, write down four things: the key observation, your approach, why it's correct, and its complexity.
 
 {% capture coach %}
 You are my coding-interview coach. Here is a problem I haven't seen:
@@ -285,27 +340,36 @@ Ask me whether I would use Prim's algorithm here and why, and wait for my answer
 
 ### Foundation
 
-Kruskal's builds the same MST from the other direction. Instead of growing one blob, you sort **all** the cables by price and go down the list, buying each cable unless its two ends are already connected. Early on you have many small islands, and they merge until there is one.
+Kruskal's builds the same MST from the other direction. It doesn't grow one blob. Instead, you sort **all** the cables by price and go down the list. You buy each cable unless its two ends are already connected.
+
+Early on you have many small islands of connected offices. As you buy cables, the islands merge, until there is just one.
 
 ### Mechanics
 
+We'll call each island a **component**: a group of nodes that are all connected to each other by the edges taken so far.
+
 1. Sort the edges by weight.
-2. For each edge `(u, v, w)`: if `u` and `v` are in different components, take it and merge the components. Otherwise skip it, because it would close a cycle.
+2. For each edge `(u, v, w)`: if `u` and `v` are in different components, take the edge and merge the two components. Otherwise skip it, because it would close a cycle.
 3. Stop after V − 1 edges have been taken.
 
-"Are they in the same component?" and "merge them" are exactly Union-Find's `find` and `union` from [Part 14](/blogs/dsa-graphs/). I'm not re-teaching it here. The version below uses path halving and union by size.
+Step 2 needs two operations: "are these in the same component?" and "merge them". Those are exactly Union-Find's `find` and `union` from [Part 14](/blogs/dsa-graphs/). I'm not re-teaching Union-Find here. The version below uses path halving and union by size.
 
-**Why taking the edge is safe.** When `(u, v, w)` is taken, consider the cut (u's current component, everything else). Every edge cheaper than `w` has already been looked at. Each one was either taken, so it's inside some component, or skipped because its ends were already in one component. Either way, no cheaper edge crosses this cut, so `(u, v, w)` is the cheapest crossing edge, and the cut property from Prim's says it's safe. **The same cut property proves both algorithms.** They just pick different cuts.
+**Why taking the edge is safe.** Say we take `(u, v, w)`. Look at the cut (u's current component, everything else). Every edge cheaper than `w` has already been looked at, and each one went one of two ways:
 
-**Why skipping is safe.** A skipped edge joins two nodes that are already connected by edges no heavier than it, so it would only close a cycle.
+- It was taken, so it now sits inside some component.
+- It was skipped, because its ends were already in one component.
 
-The worked example is the same graph as Prim's.
+Either way, that cheaper edge doesn't cross our cut. So `(u, v, w)` is the cheapest edge crossing the cut, and the cut property from Prim's says it's safe to take. **The same cut property proves both algorithms.** They just use different cuts.
+
+**Why skipping is safe.** A skipped edge joins two nodes that are already connected, by edges no heavier than it. Adding it would only close a cycle.
+
+The worked example is the same graph we used for Prim's.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-advanced-graphs/kruskal-trace.svg %}</figure>
 
-Kruskal's takes `3-4 (3)` before `1-3 (5)`. Prim's took them the other way round because node 4 wasn't reachable from its blob until node 3 had joined. The edges and the total (11) are the same.
+Kruskal's takes `3-4 (3)` before `1-3 (5)`. Prim's took them the other way round. That's because Prim's could only reach node 4 from its tree once node 3 had joined. The final edges and the total (11) are the same.
 
 ### Implementation
 
@@ -350,25 +414,34 @@ edges = [(0, 1, 4), (0, 2, 1), (1, 2, 2), (1, 3, 5), (2, 3, 8), (3, 4, 3), (2, 4
 print(kruskal(5, edges))                 # 11
 ```
 
-Edge cases I ran: `n = 1` gives 0 (zero edges are needed, and `taken == n - 1 == 0` holds from the start), a disconnected graph gives `None`, and a triangle of equal weights gives 2.
+Edge cases I ran:
 
-**Complexity.** The sort costs O(E log E). The Union-Find operations are almost O(1) each (recalled: inverse Ackermann amortised, with path compression or halving plus union by size). Total time is O(E log E), and space is O(V + E): O(V) for the DSU plus O(E) for the sorted copy of the edges.
+- `n = 1` gives 0. Zero edges are needed, and `taken == n - 1 == 0` is true from the start.
+- A disconnected graph gives `None`.
+- A triangle of equal weights gives 2.
+
+**Complexity.**
+
+- The sort costs O(E log E).
+- Each Union-Find operation is almost O(1) (recalled: it's the inverse Ackermann function, amortised, when you use path compression or halving plus union by size). "Amortised" means averaged over many operations: a single call can be slower, but the average stays tiny.
+- So the total time is O(E log E).
+- Space is O(V + E): O(V) for the DSU (the Union-Find structure) plus O(E) for the sorted copy of the edges.
 
 ### Recognition
 
 Kruskal's fits better than Prim's when:
 
 - The input is already an **edge list**, and you don't want to build an adjacency list.
-- You care about the **order in which components merge** as the allowed weight grows. Processing edges in increasing order answers questions like "which nodes are connected using only edges ≤ t?" for every t in a single pass.
-- The graph is sparse. On a complete graph with about V²/2 edges, sorting them all is more expensive than dense Prim's O(V²).
+- You care about the **order in which components merge** as the allowed weight grows. Because edges are processed from lightest to heaviest, one pass answers "which nodes are connected using only edges ≤ t?" for every t at once.
+- The graph is sparse (few edges). On a complete graph with about V²/2 edges, sorting them all costs more than dense Prim's O(V²).
 
-A useful property of the merge order: the moment two nodes first land in the same component, the weight of the edge being processed is the smallest possible value of the heaviest edge on any path between them. Keep it in mind for "minimise the worst single step" questions.
+The merge order has one more useful property. Take any two nodes. Watch for the moment they first land in the same component, and look at the weight of the edge being processed right then. That weight is the smallest possible value of the heaviest edge on any path between them. Keep this in mind for "minimise the worst single step" questions.
 
 ### Pitfalls
 
-- **Forgetting to sort**, or sorting by the wrong tuple field.
+- **Forgetting to sort**, or sorting by the wrong field of the tuple.
 - **Assuming the graph is connected.** Check `taken == n - 1`.
-- **Hand-rolled Union-Find without path compression or union by size.** It can degrade to O(V) per `find` on a chain.
+- **A hand-rolled Union-Find without path compression or union by size.** On a long chain, each `find` can slow down to O(V).
 - **Node labels that aren't `0..n-1`.** Map them to indices first, or back the DSU with a dict.
 
 ### Active Recall
@@ -393,13 +466,13 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included. No list problem requires deriving Kruskal's from scratch, so the mechanics get their own workout here.
+Included for this module. No problem on the list makes you derive Kruskal's from scratch, so the mechanics get their own workout here.
 
 You have `n` items and the distance between every pair. Split them into exactly `k` non-empty groups so that the **smallest distance between two items in different groups** is as large as possible, and return that distance.
 
 Example: points on a line at positions `[0, 1, 3, 10, 11, 20]`, where distance is `|a - b|`. With `k = 3`, the answer is 7. With `k = 2` it's 9, and with `k = 4` it's 2.
 
-Before opening the chat, write down: the observation, the approach, why it's correct, the complexity.
+Before you open the chat, write down four things: the key observation, your approach, why it's correct, and its complexity.
 
 {% capture coach %}
 You are my coding-interview coach. Here is a problem I haven't seen:
@@ -422,27 +495,31 @@ Ask me whether I would use Kruskal's idea here and why, and wait for my answer. 
 
 ### Foundation
 
-A to-do list with "X must happen before Y" rules. A topological order lists every item so that each rule points forward. One exists exactly when the rules have no cycle, which means the graph is a DAG (directed acyclic graph).
+Think of a to-do list with rules like "X must happen before Y". A **topological order** lists every item so that each rule points forward: X always appears before Y.
 
-Part 14 found cycles with 3-colour DFS. This module uses **Kahn's algorithm**, which builds the order directly and detects a cycle by coming up short.
+Such an order exists exactly when the rules have no cycle. A graph like that is called a DAG (directed acyclic graph: edges have a direction, and there are no cycles).
+
+Part 14 found cycles with 3-colour DFS. This module uses **Kahn's algorithm** instead. Kahn's builds the order directly. It detects a cycle by coming up short: it can't place every item.
 
 ### Mechanics
 
-**Step zero: turn constraints into edges.** This is where most mistakes happen, before any algorithm runs.
+**Step zero: turn the rules into edges.** Most mistakes happen here, before any algorithm runs.
 
-- **Direction.** An edge points from what comes first to what comes after. "a needs b", "b before a", "a depends on b" and "b unlocks a" all become the edge `b -> a`. Write down one example constraint and its arrow before you write any code.
-- **Every item is a node**, including items that appear in no constraint. They have indegree 0 and can go anywhere, but they still have to appear in the output.
-- **One piece of evidence gives one edge.** Add only what the input directly states. Transitive facts ("a before b, b before c, so a before c") don't need their own edges, because the order will respect them anyway.
-- **Duplicates** are harmless if the edge list and the indegree count are updated together. They break if you deduplicate one and not the other.
+- **Direction.** An edge points from what comes first to what comes after. "a needs b", "b before a", "a depends on b" and "b unlocks a" all become the same edge, `b -> a`. Before you write any code, write down one example rule and its arrow.
+- **Every item is a node**, including items that appear in no rule. Those items have indegree 0 (defined below), so they can go anywhere in the order. But they still have to appear in the output.
+- **One piece of evidence gives one edge.** Add only what the input directly states. Say you know "a before b" and "b before c". You don't need a separate edge for "a before c". The order will respect it anyway, because it follows from the other two.
+- **Duplicate rules** are harmless if you update the edge list and the indegree count together. They break things if you deduplicate one and not the other.
 - **Contradictions** in the input show up as a cycle.
 
-**Kahn's loop.** `indegree[v]` is the number of v's prerequisites that haven't been placed yet.
+**Kahn's loop.** A node's **indegree** is the number of edges pointing into it. In Kahn's loop, `indegree[v]` counts v's prerequisites that haven't been placed yet. A node with indegree 0 is ready to go.
 
 1. Put every node with `indegree == 0` in a queue.
-2. Pop `u`, append it to the output, and decrement `indegree[v]` for each edge `u -> v`. Any `v` that reaches 0 joins the queue.
+2. Pop `u` and append it to the output. For each edge `u -> v`, decrement `indegree[v]`. Any `v` that reaches 0 joins the queue.
 3. If the output ends up shorter than the number of nodes, there is a cycle.
 
-**Why placing a zero-indegree node is safe:** everything it depends on is already in the output, so no rule can point backwards to it later. **Why "came up short" means a cycle:** when the queue empties, every leftover node still has an unplaced prerequisite among the leftovers. Follow those prerequisites backwards from any leftover node. There are finitely many leftovers, so the walk eventually repeats a node, and that is a cycle.
+**Why placing a zero-indegree node is safe.** Everything it depends on is already in the output. So no rule can later point backwards to it.
+
+**Why coming up short means a cycle.** Suppose the queue empties while some nodes are still unplaced. Call them the leftovers. Every leftover still has a prerequisite that hasn't been placed, and that prerequisite is also a leftover. So start at any leftover and walk backwards, from each node to one of its unplaced prerequisites. There are only finitely many leftovers, so the walk must eventually revisit a node. That repeated stretch is a cycle.
 
 Worked example: a build pipeline.
 
@@ -491,25 +568,42 @@ print(topo_order(items, needs + [("fetch", "ship")]))
 # None
 ```
 
-Edge cases I ran: no items gives `[]`, a single item gives `['a']`, a duplicated rule `("a","b")` twice still gives `['b', 'a']`, and a self-rule `("a","a")` gives `None`.
+Edge cases I ran:
 
-**Complexity.** O(V + E) time: each node is queued once and each edge is decremented once. O(V + E) space.
+- No items gives `[]`.
+- A single item gives `['a']`.
+- The rule `("a","b")` given twice still gives `['b', 'a']`.
+- A rule where an item needs itself, `("a","a")`, gives `None`.
+
+**Complexity.** O(V + E) time, because each node is queued once and each edge is decremented once. O(V + E) space.
 
 ### Recognition
 
-Signals: "prerequisites", "dependencies", "must come before", "order of tasks/courses/letters", "is there a valid ordering", "detect a circular dependency". The input is a set of pairwise order constraints, and the output is either one full ordering or a yes/no answer about whether one exists.
+Signals:
 
-Kahn versus DFS (Part 14): both run in O(V + E). Kahn gives you the cycle signal as a simple count, it lets you swap in a heap for the smallest-first order, and its queue length tells you whether the order is unique. DFS gives reverse postorder and fits naturally if you're already doing a DFS.
+- Words like "prerequisites", "dependencies" or "must come before".
+- "Order of tasks/courses/letters", or "is there a valid ordering".
+- "Detect a circular dependency".
 
-On the list, Alien Dictionary shows the signal: an order you have to infer, where the edges are hidden in the input rather than handed to you.
+The input is a set of rules, each about the order of two items. The output is either one full ordering, or a yes/no answer about whether one exists.
+
+Kahn versus DFS (Part 14): both run in O(V + E). Kahn has a few practical advantages:
+
+- It gives you the cycle signal as a simple count.
+- You can swap the queue for a heap to get the smallest-first order.
+- The queue length tells you whether the order is unique.
+
+DFS gives the order as reverse postorder, and it fits naturally if you're already doing a DFS.
+
+On the list, Alien Dictionary shows the signal. You have to infer an order, and the edges are hidden in the input rather than handed to you.
 
 ### Pitfalls
 
-- **Reversed edges.** The code runs happily and returns a valid order for the reversed rules. Here that gives `['ship', 'docs', 'test', 'lint', 'build', 'fetch']`: ship first, which is wrong. Nothing crashes, so this bug is silent.
-- **Missing isolated nodes.** If you build nodes only from the rules, `docs` disappears from the output.
-- **Forgetting the length check.** Without it, a cyclic input returns a partial order (`['docs']` in the cycle example) as if it were an answer.
+- **Reversed edges.** The code runs happily and returns a valid order, but for the reversed rules. Here that gives `['ship', 'docs', 'test', 'lint', 'build', 'fetch']`. Ship comes first, which is wrong. Nothing crashes, so this bug is silent.
+- **Missing isolated nodes.** If you only create nodes from the rules, `docs` disappears from the output.
+- **Forgetting the length check.** Without it, a cyclic input returns a partial order as if it were an answer (`['docs']` in the cycle example).
 - **Deduplicating edges but not indegrees**, or the other way round.
-- **Assuming uniqueness.** Many orders are usually valid. If a question wants one specific order, it must say which one (for example, smallest first).
+- **Assuming the order is unique.** Usually many orders are valid. If a question wants one specific order, it has to say which one (for example, smallest first).
 
 ### Active Recall
 
@@ -533,7 +627,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Alien Dictionary requires deriving its edges from the input from scratch, which is this module's hard part, so we cover that reasoning when we solve it directly.
+Skipped for this module. In Alien Dictionary you have to work out the edges from the input yourself, and that's the hard part of this module. So we'll cover that reasoning when we solve it directly.
 
 ### Transfer test
 
@@ -547,35 +641,47 @@ Ask me whether I would use a topological sort here and why, and wait for my answ
 
 ## Bellman-Ford and bounded-edge shortest paths
 
-The problems below also need this: Cheapest Flights Within K Stops caps how many edges a path may use, and Dijkstra's settle-once rule can't respect that cap.
+The problems below also need this module. Cheapest Flights Within K Stops caps how many edges a path may use. Dijkstra settles each node once, and that rule has no way to respect the cap.
 
 ### Foundation
 
-Instead of a fire that settles each town once, think of rounds. In round 1 you know the cheapest way to reach anything with 1 edge. In round 2, you know it with up to 2 edges, built by extending round 1's answers by one more edge. After r rounds you have the cheapest path using **at most r edges**. Nothing gets settled early, so there's no greedy step for a negative edge or a hop limit to break.
+Forget the fire that settles each town once. Think in rounds instead.
+
+- After round 1, you know the cheapest way to reach anything using 1 edge.
+- After round 2, you know the cheapest way using up to 2 edges. You get it by extending round 1's answers by one more edge.
+- After r rounds, you have the cheapest path using **at most r edges**.
+
+Nothing gets settled early. So there's no greedy step for a negative edge or a hop limit to break.
 
 ### Mechanics
 
-**Invariant:** after round r, `dist[v]` = the minimum cost over all paths from src to v with ≤ r edges.
+**Invariant:** after round r, `dist[v]` is the minimum cost over all paths from src to v that use ≤ r edges.
 
-Round r: take a snapshot `prev = dist[:]`, which holds round r − 1's values. Then for every edge `(u, v, w)`, if `prev[u] + w < dist[v]`, set `dist[v] = prev[u] + w`.
+Each round r works like this. First take a snapshot, `prev = dist[:]`. It holds the values from round r − 1. Then, for every edge `(u, v, w)`: if `prev[u] + w < dist[v]`, set `dist[v] = prev[u] + w`.
 
-**Why the snapshot matters.** If you read from `dist` while you're writing it, an edge processed later in the same round can extend a path that was improved earlier in that round, so one round can add several edges. That's harmless for classic Bellman-Ford (more progress per round is fine when there's no cap). It's wrong when rounds are the edge budget.
+**Why the snapshot matters.** Suppose you read from `dist` while you're also writing to it. An edge processed later in the round can then extend a path that was improved earlier in the same round. So one round can add several edges to a path, not just one. For classic Bellman-Ford that's harmless: with no cap, more progress per round is fine. But when the rounds are your edge budget, it gives wrong answers.
 
-**Classic Bellman-Ford:** a shortest simple path has at most V − 1 edges, so V − 1 rounds (in place, no snapshot) handle any graph with negative edges but no negative cycle. If a V-th round still improves something, a negative cycle is reachable from the source.
+**Classic Bellman-Ford.** A shortest simple path (one that never repeats a node) has at most V − 1 edges. So V − 1 rounds, done in place with no snapshot, handle any graph that has negative edges but no negative cycle. A **negative cycle** is a loop whose weights add up to less than zero, so going around it again always lowers the cost. If a V-th round still improves something, a negative cycle is reachable from the source.
 
-**Early exit:** if a whole round changes nothing, later rounds would see the same inputs and change nothing either, so you can stop.
+**Early exit.** If a whole round changes nothing, the next round sees exactly the same inputs. So it would change nothing too, and you can stop.
 
 Worked example: 4 nodes, source 0, and we care about node 1.
 
 Edges, in this list order: `0->2 (1)`, `2->3 (1)`, `3->1 (1)`, `0->1 (5)`, `2->1 (3)`.
 
-The paths to node 1 are: `0->1` = 5 (1 edge), `0->2->1` = 1 + 3 = 4 (2 edges), and `0->2->3->1` = 1 + 1 + 1 = 3 (3 edges). The cheapest path overall uses 3 edges. With a budget of 2 edges the answer is 4, and with 1 edge it's 5. Dijkstra would settle node 1 at 3 and couldn't give you the 2-edge answer.
+There are three paths to node 1:
+
+- `0->1` = 5, using 1 edge.
+- `0->2->1` = 1 + 3 = 4, using 2 edges.
+- `0->2->3->1` = 1 + 1 + 1 = 3, using 3 edges.
+
+So the cheapest path overall uses 3 edges. With a budget of 2 edges, the answer is 4. With a budget of 1 edge, it's 5. Dijkstra would settle node 1 at 3, and it has no way to give you the 2-edge answer.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-advanced-graphs/bellman-rounds.svg %}</figure>
 
-The last row is the snapshot bug in action. With in-place updates and this edge order, round 1 already reports a 3-edge path.
+The last row shows the snapshot bug in action. With in-place updates and this edge order, round 1 already reports a 3-edge path.
 
 ### Implementation
 
@@ -602,24 +708,37 @@ edges = [(0, 2, 1), (2, 3, 1), (3, 1, 1), (0, 1, 5), (2, 1, 3)]
 print([bounded_shortest(4, edges, 0, k)[1] for k in (1, 2, 3, 4)])   # [5, 4, 3, 3]
 ```
 
-Edge cases I ran: `max_edges = 0` leaves only the source at 0 (`[0, inf, inf]`), a single node gives `[0]`, and a negative edge (`0->1 (4)`, `1->2 (-3)`, `0->2 (2)`, budget 2) gives `[0, 4, 1]`, which is correct because 4 − 3 = 1 beats the direct 2.
+Edge cases I ran:
 
-**Complexity.** k = the edge budget. O(k · E) time and O(V) space (two arrays). Classic Bellman-Ford is O(V · E).
+- `max_edges = 0` leaves only the source at 0 (`[0, inf, inf]`).
+- A single node gives `[0]`.
+- A graph with a negative edge (`0->1 (4)`, `1->2 (-3)`, `0->2 (2)`, budget 2) gives `[0, 4, 1]`. That's correct, because 4 − 3 = 1 beats the direct edge's 2.
+
+**Complexity.** Let k be the edge budget. It's O(k · E) time and O(V) space (two arrays). Classic Bellman-Ford is O(V · E).
 
 ### Recognition
 
-Signals: "at most k edges/stops/steps/transfers", negative weights, "detect a negative cycle" or "arbitrage". The cost of a path depends on both its total and its length.
+Signals:
 
-It's distinct from Dijkstra, which is faster with non-negative weights and no length cap but breaks with either. It's also distinct from BFS over (node, edges-used) states, which is another way to handle a cap and costs O(k · (V + E)) in the worst case.
+- "At most k edges/stops/steps/transfers".
+- Negative weights.
+- "Detect a negative cycle", or "arbitrage".
 
-On the list, Cheapest Flights Within K Stops shows the "at most k" signal. How its stop limit maps onto a number of rounds is part of solving it.
+In all of these, the cost of a path depends on both its total and its length.
+
+How it differs from its neighbours:
+
+- **Dijkstra** is faster when weights are non-negative and there's no length cap. But it breaks if either of those fails.
+- **BFS over (node, edges-used) states** is another way to handle a cap. It costs O(k · (V + E)) in the worst case.
+
+On the list, Cheapest Flights Within K Stops shows the "at most k" signal. Working out how its stop limit maps onto a number of rounds is part of solving it.
 
 ### Pitfalls
 
-- **In-place updates with an edge budget.** You get the wrong answer (3 instead of 5 at budget 1).
-- **Off-by-one between the budget and rounds.** Make sure you know whether your limit counts edges or intermediate nodes. They differ by one.
-- **`INF` arithmetic.** In Python, `float('inf') + w` is still `inf` (recalled). If you use a large integer sentinel instead, check `prev[u] != INF` explicitly, or `INF + (-3)` will look like a real distance.
-- **Early exit with `dist == prev`** is safe only because each round's values depend only on the previous round's.
+- **In-place updates with an edge budget.** You get the wrong answer: 3 instead of 5 at budget 1.
+- **Off-by-one between the budget and the rounds.** Make sure you know whether your limit counts edges or the nodes in between. They differ by one.
+- **`INF` arithmetic.** In Python, `float('inf') + w` is still `inf` (recalled). If you use a large integer as the sentinel instead, check `prev[u] != INF` explicitly. Otherwise `INF + (-3)` will look like a real distance.
+- **Early exit with `dist == prev`** is safe only because each round's values depend on nothing but the previous round's values.
 
 ### Active Recall
 
@@ -643,7 +762,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Cheapest Flights Within K Stops is the only list problem that uses this, and it requires deriving how its own stop limit becomes the round budget, so we cover that when we solve it directly.
+Skipped for this module. Cheapest Flights Within K Stops is the only problem on the list that uses it. There you have to work out how the stop limit becomes the round budget, so we'll cover that when we solve it directly.
 
 ### Transfer test
 
@@ -657,7 +776,7 @@ Ask me whether I would use Bellman-Ford here and why, and wait for my answer. Th
 
 ## Integration
 
-**How they connect to Advanced Graphs.** All five modules share one loop: keep a frontier, pick the next thing, update its neighbours. What changes is what you pick and why that pick is safe:
+**How they connect to Advanced Graphs.** All five modules share one loop. Keep a **frontier** (the set of candidates you could handle next), pick the next one, then update its neighbours. What changes from algorithm to algorithm is what you pick, and why that pick is safe:
 
 | Algorithm | Frontier | Pick | Safe because |
 | --- | --- | --- | --- |
@@ -667,31 +786,38 @@ Ask me whether I would use Bellman-Ford here and why, and wait for my answer. Th
 | Kahn | queue of indegree-0 nodes | any ready node | all its prerequisites are already placed |
 | Bellman-Ford | no frontier; every edge each round | nothing is final | round r covers every path of ≤ r edges |
 
-The heap from [Part 10](/blogs/dsa-heaps/) powers the first two, and Union-Find from [Part 14](/blogs/dsa-graphs/) powers the third.
+The heap from [Part 10](/blogs/dsa-heaps/) powers the first two. Union-Find from [Part 14](/blogs/dsa-graphs/) powers the third.
 
-**Distinguishing the competing approaches:**
+**Telling the competing approaches apart:**
 
-- **Shortest path or spanning tree?** Is there a source, and is the answer per node or per route? If yes, it's a shortest path. Is the answer one total for connecting everything? Then it's an MST. The example graph showed how the two differ: the shortest-path tree totalled 17 and the MST 11.
-- **Dijkstra or BFS?** Equal weights mean BFS. Unequal non-negative weights mean Dijkstra.
-- **Dijkstra or Bellman-Ford?** Negative weights, a cap on edges, or a negative-cycle question all mean Bellman-Ford (or BFS over (node, edges-used) states for the cap).
-- **Prim or Kruskal?** Adjacency list or dense graph, go with Prim. Edge list, sparse graph, or you need the merge order by threshold, go with Kruskal.
-- **Kahn or DFS topo sort?** Either works. Kahn when you need the cycle count, smallest-first order, or a uniqueness check. DFS when you're already doing a DFS.
-- **Something none of these covers:** "use every edge exactly once" is an Eulerian path, not a shortest path. The standard tool is Hierholzer's algorithm (recalled: a DFS that consumes each edge once and records a node only after all its edges are used, then reverses the recording). It's not taught here. Reconstruct Itinerary shows this signal.
+- **Shortest path or spanning tree?** Ask: is there a source, and is the answer per node or per route? If yes, it's a shortest path. Is the answer one total for connecting everything? Then it's an MST. The example graph showed how different they are: the shortest-path tree totalled 17, and the MST totalled 11.
+- **Dijkstra or BFS?** Equal weights mean BFS. Unequal, non-negative weights mean Dijkstra.
+- **Dijkstra or Bellman-Ford?** Negative weights, a cap on edges, or a question about negative cycles all mean Bellman-Ford. For the cap, BFS over (node, edges-used) states also works.
+- **Prim or Kruskal?** If you have an adjacency list or a dense graph, go with Prim. If you have an edge list or a sparse graph, or you need the merge order by threshold, go with Kruskal.
+- **Kahn or DFS topological sort?** Either works. Use Kahn when you need the cycle count, the smallest-first order, or a uniqueness check. Use DFS when you're already doing a DFS.
+- **Something none of these covers.** "Use every edge exactly once" asks for an Eulerian path, not a shortest path. The standard tool is Hierholzer's algorithm (recalled: a DFS that uses up each edge once and records a node only after all its edges are used, then reverses that record). It's not taught here. Reconstruct Itinerary shows this signal.
 
 **Recognition checklist for an unfamiliar graph problem:**
 
 1. What are the nodes and edges? Are they given, or hidden in a grid, a set of states, or a set of constraints? Directed or undirected?
 2. Is there a source? Is the answer per node, a single total, or an ordering?
 3. Are weights all equal, non-negative, or possibly negative?
-4. How is a path's cost combined: sum, max of steps, count of edges? Does the "settle once" argument still hold for that rule?
+4. How is a path's cost combined: a sum, the max of its steps, a count of edges? Does the "settle once" argument still hold for that rule?
 5. Is there a limit on path length (edges, stops, transfers)?
 6. Does every node need to be included (spanning), or every edge used once (Eulerian)?
-7. Are there order constraints? Which way does each arrow point, and could they contradict each other (a cycle)?
-8. What's the size? Dense graphs change which version is fastest (O(V²) Prim, all-pairs methods for tiny V).
+7. Are there order rules? Which way does each arrow point, and could the rules contradict each other (a cycle)?
+8. How big is the input? Dense graphs change which version is fastest (O(V²) Prim, or all-pairs methods when V is tiny).
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, a one-sentence key insight, then spaced repetition. During the struggle, sketch a small example first and ask: DFS, BFS, Dijkstra, or topological sort? Do I need cycle detection, or just a visited set? Simulate by hand before coding, and be able to explain the traversal order and what stops an infinite loop.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute struggle, write down the key insight in one sentence, then review it with spaced repetition.
+
+During the struggle, sketch a small example first. Then ask yourself:
+
+- DFS, BFS, Dijkstra, or topological sort?
+- Do I need cycle detection, or just a visited set?
+
+Simulate by hand before you code. You should be able to explain the order nodes are visited in, and what stops an infinite loop.
 
 {% include dsa-problems.html slug="dsa-advanced-graphs" %}
 

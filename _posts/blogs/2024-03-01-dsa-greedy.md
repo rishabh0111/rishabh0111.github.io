@@ -5,50 +5,69 @@ date: 2024-03-01 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, greedy, kadane, python, series]
-read_time: 30
+read_time: 32
 permalink: /blogs/dsa-greedy/
-excerpt: "A greedy algorithm commits to the choice that looks best right now and never goes back. Writing one takes minutes; knowing why that choice can't cost you the optimum is the actual skill, and it starts with Kadane's algorithm."
+excerpt: "A greedy algorithm picks the choice that looks best right now and never goes back. Writing one takes minutes. The real skill is knowing why that choice can't cost you the best answer, and it starts with Kadane's algorithm."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 13
 series_total: 19
 links_new_tab: true
 ---
 
-A greedy algorithm makes the choice that looks best right now and never goes back. The code is short, but plenty of plausible rules pass the examples and then fail on an input nobody thought of, so this post teaches Kadane's algorithm first, then how to check that a greedy choice is safe before you trust it. It comes after [Heaps](/blogs/dsa-heaps/), which often serve up "the best available choice", next to [Intervals](/blogs/dsa-intervals/), which are mostly greedy after a sort; nothing later depends on it, but Kadane's algorithm reappears as a one-variable DP in [1-D Dynamic Programming](/blogs/dsa-1d-dynamic-programming/).
+A greedy algorithm makes the choice that looks best right now and never goes back to change it. The code is usually short. The trouble is that plenty of rules sound right, pass the examples, and then fail on an input nobody thought of.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+So this post does two things. First it teaches Kadane's algorithm. Then it shows how to check that a greedy choice is safe before you trust it.
+
+Where it fits in the series:
+
+- It comes after [Heaps](/blogs/dsa-heaps/). A heap is often what hands a greedy algorithm "the best available choice".
+- It sits next to [Intervals](/blogs/dsa-intervals/), whose problems are mostly greedy after a sort.
+- Nothing later depends on it. But Kadane's algorithm comes back as a one-variable DP in [1-D Dynamic Programming](/blogs/dsa-1d-dynamic-programming/).
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Kadane's Algorithm
 
 ### Foundation
 
-You run a food stall and log each day's profit or loss. At the end of the season you want the best run: the stretch of consecutive days with the largest total. You also want to know which days those were.
+You run a food stall and write down each day's profit or loss. At the end of the season you want your best run: the stretch of consecutive days with the largest total. You also want to know which days those were.
 
-The brute force checks every (first day, last day) pair, which is O(n²) pairs even if each total is computed in O(1) with prefix sums. Kadane's algorithm gets the answer in one pass by noticing one thing. A run of days whose total is negative never helps whatever comes after it. If you're carrying a negative total into today, today does better alone.
+The brute force tries every (first day, last day) pair. That's O(n²) pairs. Even if prefix sums let you get each total in O(1), you still have O(n²) pairs to check.
+
+Kadane's algorithm finds the answer in one pass. It rests on one observation. Say the days just before today add up to a negative number. Tacking them onto today can only pull today's total down. So if you're carrying a negative total into today, today does better on its own.
 
 ### Mechanics
 
-Worked example, eight days of profit and loss:
+Here is the worked example, eight days of profit and loss:
 
 `pnl = [3, -5, 4, -1, 2, 6, -9, 5]` (days 0 through 7)
 
-Build the answer from one smaller question, asked once per day: **what is the best total of a stretch that ends exactly on day i?** Call it `cur(i)`. Every stretch ends on some day, so the overall answer is the largest `cur(i)` over all days.
+Instead of attacking the whole question, we ask a smaller one, once per day: **what is the best total of a stretch that ends exactly on day i?** Call that number `cur(i)`. Every stretch has to end on some day. So once we know `cur(i)` for every day, the overall answer is simply the largest of them.
 
-A stretch ending on day i is one of two things:
+How do we get `cur(i)`? A stretch that ends on day i can only be one of two things:
 
-1. Day i alone, total `pnl[i]`.
-2. Some stretch ending on day i−1, plus day i. The best of these uses the best stretch ending on day i−1, so its total is `cur(i-1) + pnl[i]`.
+1. Day i on its own. Its total is `pnl[i]`.
+2. Some stretch that ends on day i−1, with day i added on. Of all these, the best one uses the best stretch ending on day i−1. Its total is `cur(i-1) + pnl[i]`.
 
-So `cur(i) = pnl[i] + max(cur(i-1), 0)`. That one line is the whole algorithm. The `max(..., 0)` is where the greedy decision happens, and it's worth being precise about why it's safe:
+Pick whichever is bigger, and you get `cur(i) = pnl[i] + max(cur(i-1), 0)`. That one line is the whole algorithm. The `max(..., 0)` is where the greedy decision happens. Here is why each branch is safe:
 
-- **If `cur(i-1) < 0`**, drop everything before day i. `cur(i-1)` is the *best* total of any stretch ending on day i−1, so every such stretch totals at most `cur(i-1)`, which is below 0. Attaching any of them to day i lowers day i's total. One comparison rules out every start day from the current stretch's start through i−1, all at once. That's the part that makes it linear.
-- **If `cur(i-1) >= 0`**, extend. Adding a non-negative number never lowers the total, so extending is at least as good as starting fresh.
+- **If `cur(i-1) < 0`, drop everything before day i.** Remember that `cur(i-1)` is the *best* total of any stretch ending on day i−1. So every stretch ending on day i−1 totals at most `cur(i-1)`, which is below 0. Attaching any of them to day i would lower day i's total. That one comparison rules out every possible start day, from the current stretch's start through i−1, all at once. This is what makes the algorithm linear.
+- **If `cur(i-1) >= 0`, extend.** Adding a number that is zero or more never lowers a total. So extending is at least as good as starting fresh.
 
-To report the days, keep `lo`, the first day of the stretch `cur` currently describes. `lo` moves only on a reset, to `i`. Whenever `cur` beats the best seen so far, record `(lo, i)`.
+We also want to report which days won. For that, keep `lo`, the first day of the stretch that `cur` currently describes. `lo` only moves when we reset, and then it moves to `i`. Whenever `cur` beats the best total seen so far, record `(lo, i)`.
 
-On the example: day 0 gives `cur = 3`. Day 1 adds −5, giving `cur = -2`. Going into day 2, `cur = -2 < 0`, so days 0 and 1 are dropped: `cur = 0 + 4 = 4`, `lo = 2`. Days 3, 4 and 5 extend: `4 − 1 = 3`, `3 + 2 = 5`, `5 + 6 = 11`, and 11 is the new best, days 2 through 5. Day 6 brings `11 − 9 = 2`. That's still non-negative, so day 7 extends: `2 + 5 = 7`, which doesn't beat 11. Answer: **total 11, days 2 through 5** (4 − 1 + 2 + 6 = 11).
+Let's run it on the example:
 
-Notice day 6. The stretch went through a −9 and survived because its running total stayed at 2, not below 0. Kadane's doesn't reset on a bad *day*, only on a bad *running total*.
+- Day 0 gives `cur = 3`.
+- Day 1 adds −5, so `cur = -2`.
+- Going into day 2, `cur = -2`, which is below 0. So days 0 and 1 are dropped: `cur = 0 + 4 = 4`, and `lo = 2`.
+- Days 3, 4 and 5 extend: `4 − 1 = 3`, then `3 + 2 = 5`, then `5 + 6 = 11`. 11 is the new best, covering days 2 through 5.
+- Day 6 brings `11 − 9 = 2`.
+- That 2 is still not negative, so day 7 extends: `2 + 5 = 7`. That doesn't beat 11.
+
+Answer: **total 11, days 2 through 5** (4 − 1 + 2 + 6 = 11).
+
+Look again at day 6. The stretch took a −9 hit and survived, because its running total only fell to 2, not below 0. Kadane's doesn't reset on a bad *day*. It resets only on a bad *running total*.
 
 ### Diagram
 
@@ -87,39 +106,42 @@ print(best_stretch([7]))                           # (7, 0, 0)
 print(best_stretch([2, -2, 3]))                    # (3, 0, 2)
 ```
 
-I ran all four, and the printed values match the comments. I also compared the function with an O(n²) brute force on 20,000 random lists of lengths 1 to 9 and values −6 to 6. The totals matched every time, and the reported range always summed to the reported total.
+I ran all four, and the printed values match the comments. I also compared the function with an O(n²) brute force on 20,000 random lists, with lengths 1 to 9 and values −6 to 6. The totals matched every time, and the reported range always added up to the reported total.
 
-Complexity: O(n) time, where n is the number of days (one pass, O(1) work per day), and O(1) extra space.
+Complexity, with n as the number of days:
 
-It's fair to ask whether this is greedy or dynamic programming. It's both. `cur(i) = pnl[i] + max(cur(i-1), 0)` is a DP recurrence whose state is a single number. "Drop a negative prefix and never look at it again" is the greedy way of reading the same line. You'll see the DP view again in [Part 15](/blogs/dsa-1d-dynamic-programming/).
+- **O(n) time.** It's one pass, with O(1) work per day.
+- **O(1) extra space.** We only keep a handful of numbers.
+
+You might wonder whether this is greedy or dynamic programming. It's both. `cur(i) = pnl[i] + max(cur(i-1), 0)` is a DP recurrence (a rule that builds each answer from the previous one), and its state is a single number. "Drop a negative prefix and never look at it again" is the greedy way of reading the same line. You'll see the DP view again in [Part 15](/blogs/dsa-1d-dynamic-programming/).
 
 ### Recognition
 
-Signals:
+These are the signals that Kadane's algorithm fits:
 
-- **Contiguous** is in the statement: subarray, stretch, consecutive days, a segment.
-- You're **maximizing (or minimizing) a sum**.
-- **Negative values are allowed.** This matters. If every value is non-negative, the whole array is the answer and you don't need Kadane.
-- The problem can be restated as a ±1 or gain/loss score per element, then "the best segment". This is the disguised form. If flipping, taking or skipping a segment changes each element's contribution independently, turn each element into its gain and run Kadane on the gains.
+- **The statement says contiguous**, or something that means it: subarray, stretch, consecutive days, a segment.
+- **You're maximizing (or minimizing) a sum.**
+- **Negative values are allowed.** This one matters. If every value is zero or more, the whole array is the answer and you don't need Kadane.
+- **The problem can be restated as a score per element, then "find the best segment".** The score might be ±1, or a gain or loss. This is the disguised form. Say flipping, taking or skipping a segment changes each element's contribution on its own, without affecting its neighbours. Then turn each element into its gain and run Kadane on the gains.
 
 When NOT to use it, and what to use instead:
 
-- **Subsequence, not subarray.** If the elements don't have to be adjacent, take every positive value. No scan needed.
-- **Length limits** ("at most k days", "exactly k days"). With exactly k days it's a fixed-size sliding window ([Part 6](/blogs/dsa-sliding-window/)). With at most k days, the reset rule is no longer enough. See the Transfer test.
+- **Subsequence, not subarray.** If the chosen elements don't have to sit next to each other, just take every positive value. No scan needed.
+- **Length limits**, like "at most k days" or "exactly k days". Exactly k days is a fixed-size sliding window ([Part 6](/blogs/dsa-sliding-window/)). With at most k days, the reset rule is no longer enough. See the Transfer test.
 - **Counting subarrays with a given sum.** That's prefix sums plus a hash map ([Part 2](/blogs/dsa-arrays-and-hashing/)), not a max.
-- **Products instead of sums.** A negative number can turn the worst product into the best one, so you track a running max and a running min together. Maximum Product Subarray, in the 1-D DP list, is that variant.
-- **Variable-size sliding window vs Kadane.** A window needs a condition that stays broken as the window grows, so shrinking from the left is safe. With negative numbers, a sum doesn't behave that way, so a window can't decide when to shrink. Kadane doesn't need that monotone property.
+- **Products instead of sums.** Multiplying by a negative number can turn the worst product into the best one. So you have to track a running max and a running min together. Maximum Product Subarray, in the 1-D DP list, is that variant.
+- **Variable-size sliding window vs Kadane.** A window needs a condition that, once broken, stays broken as the window grows. That's what makes shrinking from the left safe. A condition like that is called monotone: it only ever changes in one direction. With negative numbers, a sum isn't monotone, so a window can't tell when to shrink. Kadane doesn't need that property.
 
-On this topic's list, **Maximum Subarray** is a direct instance of this module. It asks for the best sum only, not the range. Nothing else on the list is Kadane itself, but several of them reuse the idea underneath it: a running total that, once it crosses a line, rules out a whole block of candidates. The next module is about that idea.
+On this topic's list, **Maximum Subarray** is a direct use of this module. It only asks for the best sum, not the range of days. Nothing else on the list is Kadane itself. But several problems reuse the idea underneath it: a running total that, once it crosses a line, rules out a whole block of candidates. The next module is about that idea.
 
 ### Pitfalls
 
-- **Starting `best` at 0.** On `[-4, -2, -7]` a version that starts at 0 returns 0. That's the total of an empty stretch, which the problem usually doesn't allow. Start from `pnl[0]` or `float('-inf')`.
-- **Resetting on a negative day instead of a negative running total.** On the example, day 6 is −9, but the running total stays at 2 and day 7 correctly extends.
-- **Returning `cur` instead of `best`.** At the end, `cur` is the best stretch ending on the *last* day (7 on the example), not the best overall (11).
-- **Moving `lo` in the wrong place.** `lo` changes only on a reset. The best range is copied only when `best` improves. If you update `best_lo` on every reset, you get a range that doesn't match `best`.
-- **Ties.** `cur < 0` versus `cur <= 0` doesn't change the total, but it changes which range you report. On `[2, -2, 3]`, `< 0` reports days 0 to 2 (2 − 2 + 3 = 3), and `<= 0` reports day 2 alone (also 3). Check which one the problem wants.
-- **Empty input.** Decide explicitly. The function above raises an error.
+- **Starting `best` at 0.** On `[-4, -2, -7]`, a version that starts at 0 returns 0. That's the total of an empty stretch, and the problem usually doesn't allow one. Start from `pnl[0]` or `float('-inf')` instead.
+- **Resetting on a negative day instead of a negative running total.** In the example, day 6 is −9. But the running total only drops to 2, so day 7 correctly extends.
+- **Returning `cur` instead of `best`.** At the end, `cur` is the best stretch ending on the *last* day (7 in the example). That isn't the best overall (11).
+- **Moving `lo` in the wrong place.** `lo` changes only on a reset. The best range gets copied only when `best` improves. If you update `best_lo` on every reset, you end up with a range that doesn't match `best`.
+- **Ties.** Writing `cur < 0` or `cur <= 0` doesn't change the total. It does change which range you report. On `[2, -2, 3]`, `< 0` reports days 0 to 2 (2 − 2 + 3 = 3), while `<= 0` reports day 2 alone (also 3). Check which one the problem wants.
+- **Empty input.** Decide on purpose what should happen. The function above raises an error.
 
 ### Active Recall
 
@@ -145,7 +167,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: Maximum Subarray is a labeled instance of Kadane, so it doesn't count. No other problem on the list requires deriving the best-ending-here recurrence itself, so this checkpoint stays.
+Judgment call: this checkpoint stays. Maximum Subarray doesn't count, because it's a labeled use of Kadane. No other problem on the list makes you derive the best-ending-here recurrence yourself.
 
 You're given a string of `0`s and `1`s. You must pick exactly one non-empty contiguous segment and flip every bit in it (0 becomes 1, 1 becomes 0). What is the largest possible number of `1`s in the string afterwards?
 
@@ -172,51 +194,65 @@ Ask me whether I would use Kadane's algorithm as written here and why, and wait 
 
 ## Proving a greedy choice
 
-The problems below also need this. Kadane's algorithm is one algorithm. Every other problem on this list asks you to invent a local rule and convince yourself it can't lose the optimum, and that takes a method of its own.
+The problems below need this too. Kadane's algorithm is just one algorithm. Every other problem on this list asks you to invent a local rule and then convince yourself it can't lose the best answer. That takes a method of its own.
 
 ### Foundation
 
-A greedy algorithm is a sequence of choices you never undo, each made by a simple rule ("take the shortest", "go as far as you can", "drop the prefix once it goes negative"). The code is easy. The only real question is: **can committing to this choice cost me the best answer?**
+A greedy algorithm is a series of choices you never undo. Each choice comes from a simple rule, like "take the shortest", "go as far as you can" or "drop the prefix once it goes negative". The code is easy. The only real question is: **can committing to this choice cost me the best answer?**
 
-"It worked on the examples" doesn't answer that question. Most wrong greedy rules pass the examples in the statement. What does answer it is one of a small number of argument shapes, plus a quick mechanical check that kills bad rules before you spend time trying to prove them.
+"It worked on the examples" doesn't answer that. Most wrong greedy rules pass the examples in the problem statement. Two things do answer it:
+
+- a quick mechanical check that catches bad rules before you spend time trying to prove them, and
+- one of a small number of argument shapes that proves a good rule is safe.
 
 ### Mechanics
 
-Worked example: four jobs with durations `[4, 1, 3, 2]` minutes share one machine and run back to back. A job's waiting time is its start time. Choose the order that minimizes total waiting time.
+Here is the worked example. Four jobs, with durations `[4, 1, 3, 2]` minutes, share one machine and run back to back. A job's waiting time is its start time. We want the order that makes the total waiting time as small as possible.
 
-In the given order the jobs start at minutes 0, 4, 5 and 8, for a total of **17**. Obvious rule: run the shortest job first.
+In the given order, the jobs start at minutes 0, 4, 5 and 8. That's a total of **17**. The obvious rule to try: run the shortest job first.
 
-**Step 1: try to break the rule mechanically.** Before any proof, compare the rule with brute force on every small input. For four jobs that's only 24 orders. If a counterexample exists among small inputs, it usually shows up here in seconds. For shortest-first, the check finds none. For longest-first, it finds `[1, 2]` straight away.
+**Step 1: try to break the rule mechanically.** Before writing any proof, compare the rule with brute force on every small input. For four jobs there are only 24 orders to try. If the rule fails on some small input, this check usually finds it in seconds. For shortest-first, it finds no failure. For longest-first, it finds one straight away: `[1, 2]`.
 
-**Step 2: pick an argument shape.** There are three you'll need for this list.
+**Step 2: pick an argument shape.** You'll need three of them for this list.
 
-**Exchange argument.** Take any optimal answer. If it differs from what greedy would do, change it one step toward greedy's answer without making it worse. Repeat until it *is* greedy's answer. Then greedy is optimal too.
+**Exchange argument.** Start from any optimal answer. If it differs from what greedy would do, change it one step toward greedy's answer without making it worse. Keep going until it *is* greedy's answer. Since you never made it worse, greedy's answer is optimal too.
 
-For the jobs: suppose some order has a job of length x directly before a job of length y, with x > y. Swap just those two:
+Let's do this for the jobs, starting with the example. Swap the first pair, 4 then 1, to get `[1, 4, 3, 2]`. The total drops from 17 to 14, a change of −3. And −3 is exactly 1 − 4.
 
-- the shorter job (y) now starts x minutes earlier
-- the longer job (x) now starts y minutes later
-- every other job starts at exactly the same time, because the pair takes x + y minutes in either order
+Now the general case. Suppose some order has a job of length x directly before a job of length y, with x > y. Swap just those two:
 
-The total changes by y − x, which is negative. So any order containing such an adjacent pair is not optimal. An order with no such pair is sorted ascending, so shortest-first is optimal. On the example, swapping the first pair (4 then 1) changes 17 to 14, and 14 − 17 = −3 = 1 − 4. The fully sorted order `[1, 2, 3, 4]` starts jobs at 0, 1, 3, 6, total **10**, which matches brute force's minimum of 10.
+- The shorter job (y) now starts x minutes earlier.
+- The longer job (x) now starts y minutes later.
+- Every other job starts at exactly the same time, because the pair takes x + y minutes in either order.
 
-**Stays ahead (frontier) argument.** Define a measure of progress after k steps: how far you've reached, or how many items you've handled. Then show, by induction on k, that greedy's progress is at least as good as any other strategy's after *every* step. If greedy is never behind, it can't finish worse. A tiny example: to check whether `"ace"` is a subsequence of `"abcde"`, match each pattern letter at its earliest possible position in the text. After k letters, greedy's position in the text is at or before any other valid matching's position, so greedy always has at least as much text left to match the rest. Matching late only uses up text.
+So the total changes by y − x. Since x > y, that's negative. This means any order with a longer job directly before a shorter one can be improved, so it isn't optimal. The only orders with no such pair are sorted shortest to longest. So shortest-first is optimal.
 
-**Running balance (invariant) argument.** Keep one number that summarizes everything about the prefix that matters. Show two things: the number tells you whether the prefix is still usable, and once it crosses a line, a whole block of candidates is ruled out together. You've already seen one. Kadane's reset says: the running total is negative, so every start day in `lo..i-1` is dead. The whole proof of a running-balance greedy is choosing the right number and proving that "crossed the line" really does rule out that block.
+On the example, the fully sorted order `[1, 2, 3, 4]` starts the jobs at 0, 1, 3 and 6, for a total of **10**. That matches the brute-force minimum of 10.
 
-The common thread: each argument compares greedy with an *arbitrary* competitor (any optimal order, any other matching, any start day in the block), never with one example.
+**Stays ahead (frontier) argument.** First pick a way to measure progress after k steps, such as how far you've reached or how many items you've handled. Then show, by induction on k, that greedy's progress is at least as good as any other strategy's after *every* step. If greedy is never behind, it can't finish worse.
+
+A tiny example: is `"ace"` a subsequence of `"abcde"`? The greedy rule matches each letter of `"ace"` at its earliest possible position in `"abcde"`. After k letters, greedy's position in the text is at or before where any other valid matching would be. So greedy always has at least as much text left for the remaining letters. Matching a letter later than necessary only uses up text.
+
+**Running balance (invariant) argument.** An invariant is a fact that stays true at every step of a loop. Here the fact is about one number that sums up everything that matters about the prefix so far. You show two things:
+
+- the number tells you whether the prefix is still worth keeping, and
+- once the number crosses a line, a whole block of candidates is ruled out together.
+
+You've already seen one. Kadane's reset says: the running total is negative, so every start day in `lo..i-1` is dead. The whole proof of a running-balance greedy comes down to choosing the right number, then proving that "crossed the line" really does rule out that block.
+
+All three arguments have one thing in common. Each compares greedy with an *arbitrary* competitor (any optimal order, any other matching, any start day in the block), never with just one example.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-greedy/exchange-jobs.svg %}</figure>
 
-Swapping the first pair moves the 1-minute job 4 minutes earlier and the 4-minute job 1 minute later. The 3 and 2 jobs don't move, because the pair occupies minutes 0 to 5 either way.
+Swapping the first pair moves the 1-minute job 4 minutes earlier and the 4-minute job 1 minute later. The 3-minute and 2-minute jobs don't move, because the pair fills minutes 0 to 5 in either order.
 
 <figure class="sketch">{% include sketches/dsa-greedy/greedy-workflow.svg %}</figure>
 
 ### Implementation
 
-The greedy, a brute force, and the checker that tries every small input. The checker is the tool to keep. It's how you find out a rule is wrong before an interviewer does.
+Below are the greedy, a brute force, and a checker that tries every small input. The checker is the part worth keeping. It's how you find out a rule is wrong before an interviewer does.
 
 ```python
 from itertools import permutations, product
@@ -263,33 +299,50 @@ print(find_counterexample(lambda d: sorted(d, reverse=True)))  # [1, 2]
 print(find_counterexample(lambda d: d))                        # [2, 1]
 ```
 
-All five printed values are what the code produced when I ran it. The checker proves nothing: "no counterexample up to length 5" is evidence, not a proof. But a rule that fails it is definitely wrong, and wrong rules are the common case.
+All five printed values are what the code produced when I ran it.
 
-Complexity: the greedy is O(n log n) time for n jobs, dominated by the sort (recalled: Python's `sorted` is O(n log n)), plus O(n) for `total_wait`. The brute force is O(n! · n), which is why the checker only goes up to length 5. The checker's cost is the sum over n = 1..5 of 4ⁿ lists, each costing O(n! · n). It's fine for small limits and nothing else.
+Be careful about what the checker tells you. "No counterexample up to length 5" is evidence, not a proof. But a rule that fails the check is definitely wrong. And wrong rules are the common case.
+
+Complexity, with n jobs:
+
+- **The greedy is O(n log n) time.** The sort dominates (recalled, not derived here: Python's `sorted` is O(n log n)). `total_wait` adds O(n).
+- **The brute force is O(n! · n).** That's why the checker stops at length 5.
+- **The checker** tries 4ⁿ lists for each n from 1 to 5, and each list costs O(n! · n). That's fine for small limits and nothing else.
 
 ### Recognition
 
 Signals that a greedy rule might exist:
 
-- The problem asks for a **yes/no feasibility** answer ("can you reach", "can you complete", "is it possible to arrange"), a **minimum count** ("fewest steps", "fewest groups"), or a **maximum** where choices happen in a natural order.
-- After **sorting** by some key, or while **scanning left to right**, the best next move can be decided from a small summary of the past (a farthest point, a running total, a count).
-- Making a choice now **doesn't take options away** from the future compared with the alternatives. That's the property every one of the three argument shapes ends up proving.
+- **The question has a certain shape.** It asks for a **yes/no feasibility** answer ("can you reach", "can you complete", "is it possible to arrange"). Or it asks for a **minimum count** ("fewest steps", "fewest groups"). Or it asks for a **maximum** where the choices happen in a natural order.
+- **A small summary of the past is enough to pick the next move.** This happens after **sorting** by some key, or while **scanning left to right**. The summary might be a farthest point, a running total or a count.
+- **Making a choice now doesn't take options away** from the future, compared with the alternatives. That's the property all three argument shapes end up proving.
 
-On this list, the statements themselves show the signals. Jump Game, Gas Station, Hand of Straights, Merge Triplets to Form Target Triplet and Valid Parenthesis String ask yes/no feasibility questions. Jump Game II asks for a minimum count. Partition Labels asks for as many parts as possible. Maximum Subarray asks for a best contiguous sum. Which rule and which argument fit each one is the work of solving it.
+On this list, the problem statements themselves show the signals:
+
+- Jump Game, Gas Station, Hand of Straights, Merge Triplets to Form Target Triplet and Valid Parenthesis String ask yes/no feasibility questions.
+- Jump Game II asks for a minimum count.
+- Partition Labels asks for as many parts as possible.
+- Maximum Subarray asks for a best contiguous sum.
+
+Working out which rule and which argument fit each one is the work of solving it.
 
 When NOT to use greedy:
 
-- **The checker finds a counterexample.** Usually the choices interact, so one choice changes what the others are worth. That's DP ([1-D](/blogs/dsa-1d-dynamic-programming/), [2-D](/blogs/dsa-2d-dynamic-programming/)).
-- You need **all** valid answers, or n is tiny and there's no safe rule: [backtracking](/blogs/dsa-backtracking/).
-- Greedy vs heap: these don't compete. A heap is often how a greedy rule gets "the current best choice" quickly when the candidates keep changing ([Part 10](/blogs/dsa-heaps/)).
-- Greedy vs sliding window: a variable-size window is itself a greedy argument, "grow while valid, shrink when broken", and it's safe only when the window condition behaves the same way as the window grows.
+- **The checker finds a counterexample.** Usually that means the choices interact: one choice changes what the others are worth. That's DP ([1-D](/blogs/dsa-1d-dynamic-programming/), [2-D](/blogs/dsa-2d-dynamic-programming/)).
+- **You need all valid answers**, or n is tiny and there's no safe rule. Use [backtracking](/blogs/dsa-backtracking/).
+- **Greedy vs heap.** These don't compete. When the candidates keep changing, a heap is often how a greedy rule gets "the current best choice" quickly ([Part 10](/blogs/dsa-heaps/)).
+- **Greedy vs sliding window.** A variable-size window is itself a greedy argument: "grow while valid, shrink when broken". It's safe only when the window condition behaves the same way as the window grows.
 
 ### Pitfalls
 
-- **Greedy by the wrong key.** Give each job a weight too, and minimize the sum of weight × waiting time. Shortest-first is now wrong. With jobs (duration 3, weight 10) and (duration 1, weight 1), shortest-first gives 0·1 + 1·10 = 10, and running the heavy job first gives 0·10 + 3·1 = 3. The right key is duration ÷ weight, smallest first (recalled: this is Smith's rule). Exhaustive checking up to four jobs with durations and weights 1 to 3 finds no counterexample for that key. The exchange argument has to be redone for each new objective. Here, with job (x, w_x) directly before job (y, w_y), the swap changes the total by `y·w_x − x·w_y`, not `y − x`. On the pair above that is 3·1 − 1·10 = −7, and 10 − 7 = 3.
-- **Ties are part of the rule.** For the weighted version, the same exhaustive check on the shortest-first key finds `[(1, 1), (1, 2)]` first. Both durations equal 1, so the tie is broken by input order, and the lighter job goes first: total 2 instead of 1. If equal keys can occur, decide what to do with them and check that case.
-- **Proof by one example.** Showing greedy is optimal on the example is not an exchange argument. The argument has to start from an *arbitrary* optimal answer.
-- **Stays-ahead must hold at every step.** It isn't enough for greedy to be ahead at the end on your example. The induction has to show it's never behind after any step.
+- **Greedy by the wrong key.** Now give each job a weight as well, and minimize the sum of weight × waiting time. Shortest-first is now wrong. Take two jobs: (duration 3, weight 10) and (duration 1, weight 1). Shortest-first gives 0·1 + 1·10 = 10. Running the heavy job first gives 0·10 + 3·1 = 3.
+
+  The right key is duration ÷ weight, smallest first (recalled: this is Smith's rule). An exhaustive check, up to four jobs with durations and weights 1 to 3, finds no counterexample for that key.
+
+  The lesson is that the exchange argument has to be redone for each new objective. Here, with job (x, w_x) directly before job (y, w_y), the swap changes the total by `y·w_x − x·w_y`, not `y − x`. On the pair above that's 3·1 − 1·10 = −7, and 10 − 7 = 3.
+- **Ties are part of the rule.** Run the same exhaustive check on the weighted version with the shortest-first key. The first failure it finds is `[(1, 1), (1, 2)]`. Both durations are 1, so the tie is broken by input order, and the lighter job goes first. That gives a total of 2 instead of 1. If equal keys can happen, decide what to do with them and check that case.
+- **Proof by one example.** Showing that greedy is optimal on the example is not an exchange argument. The argument has to start from an *arbitrary* optimal answer.
+- **Stays-ahead must hold at every step.** It isn't enough for greedy to come out ahead at the end of your example. The induction has to show greedy is never behind after any step.
 - **Forgetting the sort in the complexity.** A one-pass greedy after a sort is O(n log n), not O(n).
 
 ### Active Recall
@@ -316,7 +369,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: every problem on this list after Maximum Subarray needs its own safety argument built from scratch, so that's where this module gets practised. Skipping the mini-task and going straight to the Transfer test.
+Judgment call: skipped. Every problem on this list after Maximum Subarray needs its own safety argument built from scratch. That's where you'll practise this module, so we go straight to the Transfer test.
 
 ### Transfer test
 
@@ -330,7 +383,18 @@ Ask me whether I would use that greedy rule here and why, and wait for my answer
 
 ## Integration
 
-**How the two modules connect to Greedy.** Kadane's algorithm is the smallest complete example of what this topic asks for: one scan, a small state, a rule that throws away a whole block of candidates, and an argument that the throwaway can't lose the optimum. The second module generalizes that argument. Every greedy problem on the list follows the same template: an order to process things in (the given order, or sorted, or served by a heap or hash map), a local rule, and one of three reasons the rule is safe. That's an exchange, stays ahead, or a running balance that certifies the prefix.
+**How the two modules connect to Greedy.** Kadane's algorithm is the smallest complete example of what this topic asks for. It has:
+
+- one scan,
+- a small state,
+- a rule that throws away a whole block of candidates, and
+- an argument that throwing them away can't lose the best answer.
+
+The second module takes that argument and makes it general. Every greedy problem on the list follows the same template:
+
+1. An order to process things in. That could be the given order, a sorted order, or whatever a heap or hash map serves up.
+2. A local rule.
+3. One of three reasons the rule is safe: an exchange, stays ahead, or a running balance that certifies the prefix.
 
 **Distinguishing competing approaches:**
 
@@ -355,7 +419,14 @@ Ask me whether I would use that greedy rule here and why, and wait for my answer
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, then spaced repetition. For greedy, the struggle question is always *why does the local choice stay globally optimal?* Is the order a sort or a heap, and which of the three arguments makes the choice safe? If you watch a video walkthrough of the problem, justify the greedy decision in your own words afterwards, and put that justification in your key sentence.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute honest struggle, write one key sentence for it, then review it with spaced repetition.
+
+For greedy, the question to wrestle with is always the same: *why does the local choice stay globally optimal?* Break it down:
+
+- Is the order a sort or a heap?
+- Which of the three arguments makes the choice safe?
+
+If you watch a video walkthrough of a problem, justify the greedy decision in your own words afterwards. Then put that justification in your key sentence.
 
 {% include dsa-problems.html slug="dsa-greedy" %}
 

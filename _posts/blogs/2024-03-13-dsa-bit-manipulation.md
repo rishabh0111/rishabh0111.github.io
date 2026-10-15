@@ -5,39 +5,49 @@ date: 2024-03-13 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, bit-manipulation, twos-complement, python, series]
-read_time: 32
+read_time: 34
 permalink: /blogs/dsa-bit-manipulation/
-excerpt: "Bit problems turn on a handful of identities: what each operator does per position, why n & (n-1) drops a bit, why pairs cancel under XOR. In Python there is a second lesson: faking the 32-bit integers the problems assume."
+excerpt: "Bit problems come down to a few identities: what each operator does to every position, why n & (n-1) drops a bit, and why pairs cancel under XOR. Python adds a second lesson: faking the 32-bit integers the problems assume."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 18
 series_total: 19
 links_new_tab: true
 ---
 
-Bit manipulation treats an integer as a row of switches instead of a quantity. Each problem here is a few lines long and hinges on one identity, such as XOR cancelling pairs or `n & (n - 1)` dropping the lowest 1; Python adds a second job, imitating the 32-bit integers the problems were written for, which gets its own module. It follows [1-D Dynamic Programming](/blogs/dsa-1d-dynamic-programming/) and, together with [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/), leads to the last part, [Math & Geometry](/blogs/dsa-math-and-geometry/).
+Bit manipulation treats an integer as a row of switches, not as a quantity. Each problem in this topic is only a few lines long, and it turns on a single identity, such as XOR cancelling pairs, or `n & (n - 1)` dropping the lowest 1.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+Python adds a second job. The problems were written for 32-bit integers, and Python doesn't have them, so you have to imitate them yourself. That gets its own module.
+
+This post follows [1-D Dynamic Programming](/blogs/dsa-1d-dynamic-programming/). Together with [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/), it leads to the last part, [Math & Geometry](/blogs/dsa-math-and-geometry/).
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Bit Operations
 
 ### Foundation
 
-An integer in binary is a row of positions, and position `i` is worth 2^i. 12 is `1100`, meaning 8 + 4. A bitwise operator works on every position independently, as if you had 32 (or 64, or infinitely many) tiny one-bit machines working in parallel. There is no carrying between positions, which is the difference from `+`.
+Start with 12. In binary it's `1100`, which means 8 + 4. In general, an integer in binary is a row of positions, counted from 0 on the right, and position `i` is worth 2^i.
 
-That's why the technique is useful. A single integer can act as a set of flags, and one bitwise instruction does something to all of them at once. A handful of identities then turn questions like "which bit is lowest?", "is exactly one bit set?" or "which value is left after pairs cancel?" into O(1) expressions.
+A bitwise operator works on every position separately. Picture 32 (or 64, or infinitely many) tiny one-bit machines, one per position, all working at the same time. Nothing carries from one position to the next. That's the difference from `+`, where a carry can ripple left.
 
-Negative numbers use **two's complement**. In a w-bit integer the top position is worth −2^(w−1) instead of +2^(w−1), so a pattern with the top bit set reads as its unsigned value minus 2^w. Two consequences you'll use constantly:
+Here's why that's useful. One integer can act as a set of on/off flags, and one bitwise instruction changes all of them at once. A few identities then turn questions like these into O(1) expressions:
 
-- `-x == ~x + 1`. Negating means flip every bit, then add 1.
-- In Python, `~x == -x - 1` for every integer, because Python behaves as if every integer had infinitely many bits: non-negative numbers have infinitely many leading 0s, negative numbers have infinitely many leading 1s (recalled: this is how Python defines bitwise operations on its unbounded ints).
+- "Which bit is the lowest one that's set?"
+- "Is exactly one bit set?"
+- "Which value is left over after pairs cancel?"
+
+Negative numbers use **two's complement**. In a w-bit integer, the top position is worth −2^(w−1) instead of +2^(w−1). So a pattern with the top bit set reads as its unsigned value minus 2^w. (Unsigned means every position counts as positive.) You'll use two consequences of this all the time:
+
+- `-x == ~x + 1`. To negate a number, flip every bit, then add 1.
+- In Python, `~x == -x - 1` for every integer. That's because Python behaves as if every integer had infinitely many bits. Non-negative numbers have infinitely many leading 0s, and negative numbers have infinitely many leading 1s. (This is recalled, not derived here: it's how Python defines bitwise operations on its unbounded ints.)
 
 ### Mechanics
 
-One worked example for the whole module: **a = 12 (`1100`) and b = 10 (`1010`)**.
+We'll use one worked example for the whole module: **a = 12 (`1100`) and b = 10 (`1010`)**.
 
 **The operators, one position at a time.**
 
-The symbols are `&` (AND), `|` (OR), `^` (XOR), `~` (NOT), `<<` and `>>` (shifts).
+The symbols are `&` (AND), `|` (OR), `^` (XOR), `~` (NOT), and `<<` and `>>` (shifts). Each row below gives the rule for a single position, then the result on 12 and 10.
 
 | Operator | Rule per position | Applied to 12 and 10 |
 | --- | --- | --- |
@@ -48,28 +58,49 @@ The symbols are `&` (AND), `|` (OR), `^` (XOR), `~` (NOT), `<<` and `>>` (shifts
 | Left shift by k | move every bit up k positions, fill with 0; same as times 2^k | `12 << 1` = 24 |
 | Right shift by k | move every bit down k positions, the low k bits fall off; same as floor division by 2^k | `12 >> 2` = 3 |
 
-**Masks.** A mask is an integer built so its 1s mark the positions you care about. `1 << i` has a single 1 at position `i`. `(1 << k) - 1` has 1s at positions 0 to k−1 inclusive, so `(1 << 4) - 1` is `1111`. The single-bit operations below follow from what AND, OR and XOR do to one bit y: `y & 1 == y`, `y & 0 == 0`, `y | 0 == y`, `y | 1 == 1`, `y ^ 0 == y`, `y ^ 1 == not y`.
+**Masks.** A mask is an integer you build so that its 1s mark the positions you care about. Two masks come up again and again:
 
-- **Test** bit i: `(x >> i) & 1`. For 12 and i = 2: `12 >> 2` is `11`, and `11 & 1` is 1, so bit 2 is set. Bit 0 gives 0.
-- **Set** bit i: `x | (1 << i)`. The mask is 0 everywhere else, and OR with 0 keeps a bit, so only position i can change. Set bit 0 of 12: `1101` = 13.
-- **Clear** bit i: `x & ~(1 << i)`. The inverted mask is 1 everywhere except position i, and AND with 1 keeps a bit. Clear bit 3 of 12: `0100` = 4.
-- **Toggle** bit i: `x ^ (1 << i)`. XOR with 0 keeps, XOR with 1 flips. Toggle bit 1 of 12: `1110` = 14.
+- `1 << i` has a single 1, at position `i`.
+- `(1 << k) - 1` has 1s at positions 0 to k−1 inclusive. For example, `(1 << 4) - 1` is `1111`.
+
+To see why the single-bit operations below work, look at what AND, OR and XOR do to one bit y:
+
+- `y & 1 == y` and `y & 0 == 0`. AND with 1 keeps the bit, AND with 0 forces it to 0.
+- `y | 0 == y` and `y | 1 == 1`. OR with 0 keeps the bit, OR with 1 forces it to 1.
+- `y ^ 0 == y` and `y ^ 1 == not y`. XOR with 0 keeps the bit, XOR with 1 flips it.
+
+Now the operations, each tried on 12:
+
+- **Test** bit i: `(x >> i) & 1`. For 12 and i = 2, `12 >> 2` is `11`, and `11 & 1` is 1. So bit 2 is set. Testing bit 0 gives 0.
+- **Set** bit i: `x | (1 << i)`. The mask is 0 everywhere except position i, and OR with 0 keeps a bit. So only position i can change. Setting bit 0 of 12 gives `1101` = 13.
+- **Clear** bit i: `x & ~(1 << i)`. The flipped mask is 1 everywhere except position i, and AND with 1 keeps a bit. So only position i is forced to 0. Clearing bit 3 of 12 gives `0100` = 4.
+- **Toggle** bit i: `x ^ (1 << i)`. XOR with 0 keeps a bit and XOR with 1 flips it, so only position i flips. Toggling bit 1 of 12 gives `1110` = 14.
 - **Flip the low k bits**: `x ^ ((1 << k) - 1)`. 12 XOR `1111` is `0011` = 3.
 
-**`n & (n - 1)` clears the lowest set bit.** Look at what subtracting 1 does to 12 = `1100`. The lowest 1 is at position 2. Subtracting 1 has to borrow from it, so position 2 becomes 0 and the 0s below it (positions 0 and 1) become 1s: 11 = `1011`. Everything above position 2 is untouched. So `n` and `n - 1` agree above the lowest 1 and disagree from it downward. AND keeps the agreement and zeroes the rest: `1100 & 1011 = 1000` = 8. That's safe for every n > 0, because every n > 0 has a lowest 1 to borrow from.
+**`n & (n - 1)` clears the lowest set bit.** A "set" bit is just a bit that's 1. Let's see what subtracting 1 does to 12 = `1100`:
 
-Two consequences:
+- The lowest 1 is at position 2.
+- Subtracting 1 has to borrow from it. So position 2 becomes 0, and the 0s below it (positions 0 and 1) become 1s. That gives 11 = `1011`.
+- Everything above position 2 is untouched.
 
-- `n > 0 and n & (n - 1) == 0` means n had exactly one 1, so n is a power of two. 12 gives 8 (not a power), 8 gives `1000 & 0111 = 0` (a power).
-- The lowest set bit on its own is `n & -n`. `-n` is `~n + 1`. Flipping turns the trailing 0s of n into 1s, and the +1 carries through them and stops at the lowest 1 of n. So n and −n share exactly one bit. `12 & -12` = `0100` = 4. And `n & (n - 1)` plus `n & -n` add up to n: 8 + 4 = 12.
+So `n` and `n - 1` agree on every position above the lowest 1, and disagree from the lowest 1 downward. AND keeps the positions where both are 1 and zeroes the rest: `1100 & 1011 = 1000` = 8. This works for every n > 0, because every n > 0 has a lowest 1 to borrow from.
+
+This gives you two more tools:
+
+- **Power-of-two test.** If `n > 0 and n & (n - 1) == 0`, then n had exactly one 1, which means n is a power of two. 12 gives 8, so 12 isn't a power of two. 8 gives `1000 & 0111 = 0`, so 8 is.
+- **Lowest set bit on its own: `n & -n`.** Recall that `-n` is `~n + 1`. Flipping n turns its trailing 0s into 1s. Then the +1 carries through those 1s and stops at the position of n's lowest 1. So n and −n share exactly one bit. For 12, `12 & -12` = `0100` = 4. Notice that `n & (n - 1)` and `n & -n` add up to n: 8 + 4 = 12.
 
 **XOR cancellation.** Three properties make XOR special:
 
-1. `x ^ x == 0`. Every position matches itself.
+1. `x ^ x == 0`. Every position matches itself, so nothing differs.
 2. `x ^ 0 == x`.
-3. XOR is commutative and associative, so the order and grouping of a chain don't matter.
+3. XOR is commutative and associative. In plain words, the order and grouping of a chain of XORs don't change the result.
 
-So in any chain of XORs, equal values can be moved next to each other and wiped out in pairs. `12 ^ 10 ^ 12` regroups as `(12 ^ 12) ^ 10 = 0 ^ 10 = 10`. What XOR really tracks is **parity per position**: after a chain, bit i is 1 exactly when an odd number of the inputs had bit i set. A value that appears an even number of times contributes nothing. This is also why XOR is its own inverse: `m ^ k ^ k == m`, the basis of every "encrypt and decrypt with the same key" toy.
+Put those together. In any chain of XORs, you can move equal values next to each other and wipe them out in pairs. For example, `12 ^ 10 ^ 12` regroups as `(12 ^ 12) ^ 10 = 0 ^ 10 = 10`.
+
+What XOR really tracks is **parity per position**. Parity just means odd or even. After a chain, bit i is 1 exactly when an odd number of the inputs had bit i set. So a value that appears an even number of times contributes nothing.
+
+This is also why XOR undoes itself: `m ^ k ^ k == m`. Every "encrypt and decrypt with the same key" toy is built on that.
 
 ### Diagram
 
@@ -135,37 +166,52 @@ print(is_power_of_two(12), is_power_of_two(8), is_power_of_two(0), is_power_of_t
 # False True False True
 ```
 
-I ran this, plus edge cases: `get_bit(0, 5)` is 0, `clear_lowest_set_bit(0)` and `lowest_set_bit(0)` are both 0 (0 has no lowest bit, and both expressions return 0 rather than failing), `toggle_bit(0, 31)` is 2147483648, and `is_power_of_two(-8)` is False while `is_power_of_two(1 << 63)` is True.
+I ran this, plus some edge cases:
 
-Complexity: each operation is O(1) on fixed-width integers. On Python's unbounded ints it's O(w / 30), where w is the bit length, since CPython stores ints in 30-bit digits (recalled). For interview-sized numbers, treat it as O(1). Space O(1).
+- `get_bit(0, 5)` is 0.
+- `clear_lowest_set_bit(0)` and `lowest_set_bit(0)` are both 0. Zero has no lowest bit, and both expressions return 0 instead of failing.
+- `toggle_bit(0, 31)` is 2147483648.
+- `is_power_of_two(-8)` is False, while `is_power_of_two(1 << 63)` is True.
 
-Python has two built-ins worth knowing: `x.bit_length()` (12 gives 4) and `x.bit_count()`, the number of 1s (12 gives 2, available since Python 3.10, recalled). `bin(x)` and `format(x, "08b")` show the pattern. For negatives they show a minus sign and the magnitude, as the next module covers.
+Complexity: each operation is O(1) on fixed-width integers. Python's ints are unbounded, though, and CPython stores them in 30-bit chunks called digits (recalled). So on Python ints an operation is O(w / 30), where w is the number's bit length. For interview-sized numbers, treat it as O(1). Space is O(1).
+
+Python has two built-ins worth knowing:
+
+- `x.bit_length()` is the number of bits needed. 12 gives 4.
+- `x.bit_count()` is the number of 1s. 12 gives 2. It's been available since Python 3.10 (recalled).
+
+To look at the pattern itself, use `bin(x)` or `format(x, "08b")`. For negative numbers they show a minus sign and the magnitude, not the bits. The next module deals with that.
 
 ### Recognition
 
-Signals:
+These signals suggest bit manipulation:
 
-- **Pairs cancel, or something appears an odd number of times.** "Every element appears twice except…", "the one that's unmatched". XOR parity. Single Number shows this signal.
-- **A known range with one value absent or extra.** When you know in advance which values should be there, you may be able to compare expected against actual without storing either. Missing Number shows this signal.
-- **"Count the 1 bits", "reverse the bits", "the i-th bit".** The problem is literally about positions: Number of 1 Bits, Counting Bits, Reverse Bits.
-- **"Without using + or −", "without multiplication".** Arithmetic has to be rebuilt from bitwise operators: Sum of Two Integers.
-- **O(1) extra space where a hash set would be the obvious answer.** Often a hint that XOR or a bitmask replaces the set.
-- **Small n, n ≤ 20 or so, with subsets.** An integer from 0 to 2^n − 1 can encode a subset. That's bitmask DP or enumeration, the same mask mechanics.
-- **Powers of two, flags, permissions.** Single-bit tests and `n & (n - 1)`.
+- **Pairs cancel, or something appears an odd number of times.** Phrases like "every element appears twice except…" or "the one that's unmatched". Think XOR parity. Single Number shows this signal.
+- **A known range with one value missing or extra.** If you know in advance which values should be there, you may be able to compare expected against actual without storing either. Missing Number shows this signal.
+- **"Count the 1 bits", "reverse the bits", "the i-th bit".** The problem is literally about positions. Number of 1 Bits, Counting Bits and Reverse Bits are like this.
+- **"Without using + or −", "without multiplication".** You have to rebuild arithmetic from bitwise operators. That's Sum of Two Integers.
+- **O(1) extra space where a hash set would be the obvious answer.** This often hints that XOR or a bitmask can replace the set.
+- **Small n (n ≤ 20 or so) and subsets.** An integer from 0 to 2^n − 1 can encode a subset: bit i says whether item i is in. That's bitmask DP or enumeration, and it uses the same mask mechanics.
+- **Powers of two, flags, permissions.** Reach for single-bit tests and `n & (n - 1)`.
 
-When not to use it: when a set or counter says the same thing more clearly and the constraints allow the memory. Bit tricks are also narrower than they look. XOR recovers a value that appears an odd number of times, but it can't tell one occurrence from three, and it can't find two different unmatched values in one pass without extra work.
+When not to use it: when a set or a counter says the same thing more clearly, and the constraints allow the memory.
 
-Nearest look-alikes: **hashing** (Arrays & Hashing) solves most "find the unmatched element" questions in O(n) space. XOR is the O(1)-space version, and it only works because of the parity structure. **Arithmetic identities** (sum of 0..n) compete with XOR on "recover the missing value" questions. They work fine in Python, but in fixed-width languages the sum can overflow and XOR can't.
+Bit tricks are also narrower than they look. XOR recovers a value that appears an odd number of times. But it can't tell one occurrence from three. And it can't find two different unmatched values in one pass without extra work.
+
+The nearest look-alikes:
+
+- **Hashing** (Arrays & Hashing) solves most "find the unmatched element" questions, using O(n) space. XOR is the O(1)-space version, and it only works because of the parity structure.
+- **Arithmetic identities**, like the sum of 0..n, compete with XOR on "recover the missing value" questions. They work fine in Python. But in fixed-width languages the sum can overflow, and XOR can't.
 
 ### Pitfalls
 
-- **Precedence.** Arithmetic binds tighter than shifts, and shifts bind tighter than `&`, `^`, `|`. So `1 << i + 1` is `1 << (i + 1)`: `1 << 2 + 1` is 8. In Python, comparisons bind looser than bitwise operators, so `x & 1 == 0` means `(x & 1) == 0`. In C, Java and JavaScript `==` binds tighter than `&` (recalled), so parenthesise anyway. The code then ports and reads unambiguously.
+- **Precedence.** Arithmetic binds tighter than shifts, and shifts bind tighter than `&`, `^`, `|`. So `1 << i + 1` means `1 << (i + 1)`, and `1 << 2 + 1` is 8. In Python, comparisons bind looser than bitwise operators, so `x & 1 == 0` means `(x & 1) == 0`. In C, Java and JavaScript it's the other way round: `==` binds tighter than `&` (recalled). So add parentheses anyway. Then the code ports cleanly and nobody has to guess.
 - **`~` is not `not`.** `~12` is −13, and `~True` is −2. Use `not` for booleans.
-- **`n & (n - 1)` and `n & -n` at n = 0.** Both return 0, so a power-of-two test without `n > 0` wrongly accepts 0.
-- **Right shift of negatives floors.** `-5 >> 1` is −3, the same as `-5 // 2`, while C-style truncation `int(-5 / 2)` gives −2. Don't mix the two views.
-- **Negative shift counts raise.** `1 >> -1` is a `ValueError`, so guard computed shift amounts.
-- **Bit positions are 0-indexed from the right.** "The 3rd bit" in a problem statement might mean position 2 or position 3. Pin it down with a tiny example before coding.
-- **`bin(x)` has a `0b` prefix**, and for negative x a `-0b` prefix and the magnitude. Counting characters in it for negative numbers counts the wrong thing.
+- **`n & (n - 1)` and `n & -n` at n = 0.** Both return 0. So a power-of-two test without `n > 0` wrongly accepts 0.
+- **Right shift of a negative number rounds down.** `-5 >> 1` is −3, the same as `-5 // 2`. C-style truncation, `int(-5 / 2)`, gives −2 instead. Don't mix the two.
+- **Negative shift counts raise an error.** `1 >> -1` is a `ValueError`, so guard any shift amount you compute.
+- **Bit positions count from 0, starting on the right.** "The 3rd bit" in a problem statement might mean position 2 or position 3. Pin it down with a tiny example before you code.
+- **`bin(x)` starts with `0b`.** For negative x it starts with `-0b` and shows the magnitude. So counting characters in it for a negative number counts the wrong thing.
 
 ### Active Recall
 
@@ -195,7 +241,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Single Number and Missing Number each make you find a use for XOR cancellation from scratch, and Reverse Bits makes you drive single-bit tests and sets by position yourself, so the list already exercises this module's core. That reasoning happens when you solve them.
+Skipped for this topic. Single Number and Missing Number each make you find a use for XOR cancellation from scratch. Reverse Bits makes you drive single-bit tests and sets, position by position, yourself. So the problem list already practises this module's core, and you'll do that reasoning when you solve them.
 
 ### Transfer test
 
@@ -209,31 +255,56 @@ Ask me whether I would use Bit Operations here and why, and wait for my answer. 
 
 ## Fixed-width integers in Python
 
-Why the list needs it: Reverse Bits works on a 32-bit unsigned value, Sum of Two Integers is specified on 32-bit signed integers, and Reverse Integer must detect 32-bit overflow. Python has no 32-bit integers, so you have to build that behaviour yourself.
+Why the problem list needs this module:
+
+- Reverse Bits works on a 32-bit unsigned value.
+- Sum of Two Integers is specified on 32-bit signed integers.
+- Reverse Integer must detect 32-bit overflow.
+
+Python has no 32-bit integers, so you have to build that behaviour yourself.
 
 ### Foundation
 
-Imagine every Python integer as a tape of bits that goes on forever to the left: 0s forever for non-negative numbers, 1s forever for negative ones. A 32-bit machine keeps only the rightmost 32 squares of that tape and throws the rest away. Whether those 32 squares are read as unsigned (0 to 2^32 − 1) or signed (−2^31 to 2^31 − 1) is a matter of interpretation. The pattern itself is the same.
+Imagine every Python integer as a tape of bits that goes on forever to the left. For non-negative numbers the tape is 0s forever. For negative numbers it's 1s forever.
 
-So imitating fixed width in Python comes down to two moves: **cut the tape** to 32 squares (a mask), and **choose a reading** (unsigned or signed). Knowing when you must cut is the rest.
+A 32-bit machine keeps only the rightmost 32 squares of that tape and throws the rest away. Those 32 squares can be read in two ways. Read as unsigned, they cover 0 to 2^32 − 1. Read as signed, they cover −2^31 to 2^31 − 1. The bit pattern is the same either way. Only the reading changes.
+
+So imitating fixed width in Python comes down to two moves:
+
+1. **Cut the tape** to 32 squares, using a mask.
+2. **Choose a reading**: unsigned or signed.
+
+The rest of this module is about knowing when you have to cut.
 
 ### Mechanics
 
 The worked example for this module is **x = −12**, the negative of the previous module's a.
 
-**1. Cut: `x & 0xFFFFFFFF`.** `0xFFFFFFFF` has 1s at positions 0 to 31 inclusive. ANDing keeps those and zeroes everything above, so the result is always between 0 and 2^32 − 1 inclusive. For −12 the tape is `...1111 0100`, and the cut gives `0xFFFFFFF4` = 4294967284, the 32-bit pattern `11111111111111111111111111110100`, which has 29 ones.
+**1. Cut: `x & 0xFFFFFFFF`.** `0xFFFFFFFF` has 1s at positions 0 to 31 inclusive. AND with it keeps those 32 positions and zeroes everything above. So the result is always between 0 and 2^32 − 1 inclusive.
 
-**2. Read as signed.** In a 32-bit pattern, position 31 is worth −2^31 instead of +2^31, so a pattern with bit 31 set reads as its unsigned value minus 2^32. 4294967284 − 4294967296 = −12. If bit 31 is 0 (unsigned value 0 to 2^31 − 1 inclusive), the signed and unsigned readings agree. An equivalent one-liner is `(u ^ 0x80000000) - 0x80000000`.
+For −12, the tape is `...1111 0100`. The cut gives `0xFFFFFFF4` = 4294967284. That's the 32-bit pattern `11111111111111111111111111110100`, which has 29 ones.
 
-**3. When the cut can wait, and when it can't.** This is the invariant that matters: **for `+`, `-`, `*`, `&`, `|`, `^`, `~` and `<<`, the low 32 bits of the result depend only on the low 32 bits of the inputs.** Carries and shifts only move information upward, never down. So for a chain of those operations, cutting once at the end gives the same bits as cutting after every step (I checked this on 20,000 random pairs per operator). The other side:
+**2. Read as signed.** In a signed 32-bit pattern, position 31 is worth −2^31 instead of +2^31. So a pattern with bit 31 set reads as its unsigned value minus 2^32. For our example, 4294967284 − 4294967296 = −12.
 
-- **`>>` pulls high bits down**, so cutting after is wrong. `(-12 >> 1) & 0xFFFFFFFF` is `0xFFFFFFFA` (arithmetic shift, sign bits come in), while `(-12 & 0xFFFFFFFF) >> 1` is `0x7FFFFFFA` (logical shift, 0s come in). They differ. Cut before a right shift whenever you want the unsigned, logical behaviour.
-- **Comparisons, division, `%` and loop conditions** look at the whole number, so cut (and reinterpret) before them.
-- **Growth.** Even where cutting late is correct, the intermediate numbers keep growing. That costs time and memory, so in loops you usually cut every iteration anyway.
+If bit 31 is 0 (an unsigned value from 0 to 2^31 − 1 inclusive), the signed and unsigned readings agree. If you prefer a one-liner, `(u ^ 0x80000000) - 0x80000000` does the same thing.
 
-**4. Overflow.** A signed 32-bit result is valid only if it lies between −2^31 and 2^31 − 1 inclusive. Python computes the true result, so you can check after the fact: `INT32_MIN <= r <= INT32_MAX`. In a language where the result itself would already have wrapped, you check before computing, rearranged so the check can't overflow. For `a + b` with b > 0, `a + b > INT32_MAX` is the same as `a > INT32_MAX - b`, and `INT32_MAX - b` is in range. What wrapping looks like: 2,000,000,000 + 2,000,000,000 is 4,000,000,000 in Python, but read as 32-bit signed it's −294967296.
+**3. When the cut can wait, and when it can't.** Here is the rule that matters most. **For `+`, `-`, `*`, `&`, `|`, `^`, `~` and `<<`, the low 32 bits of the result depend only on the low 32 bits of the inputs.**
 
-**5. Loops that never end.** `while n: n >>= 1` terminates for n ≥ 0, but for n = −12 the values are −12, −6, −3, −2, −1, −1, −1, and so on. An arithmetic shift of −1 is −1 forever. Either cut first (then n reaches 0 within 32 shifts) or loop a fixed 32 times.
+Why? Carries and left shifts only move information upward, never down. So nothing above position 31 can leak into positions 0 to 31. That means for a chain of those operations, cutting once at the end gives the same bits as cutting after every step. (I checked this on 20,000 random pairs per operator.)
+
+Here's where that rule stops helping:
+
+- **`>>` pulls high bits down**, so cutting after the shift is wrong. `(-12 >> 1) & 0xFFFFFFFF` is `0xFFFFFFFA`. That's an arithmetic shift: copies of the sign bit come in from the left. But `(-12 & 0xFFFFFFFF) >> 1` is `0x7FFFFFFA`. That's a logical shift: 0s come in. The two results differ. So whenever you want the unsigned, logical behaviour, cut before a right shift.
+- **Comparisons, division, `%` and loop conditions** look at the whole number. So cut (and pick a reading) before them.
+- **Growth.** Even where cutting late gives the right bits, the numbers in between keep growing. That costs time and memory. So in a loop you usually cut on every iteration anyway.
+
+**4. Overflow.** A signed 32-bit result is valid only if it lies between −2^31 and 2^31 − 1 inclusive. Here's what going past that looks like. In Python, 2,000,000,000 + 2,000,000,000 is 4,000,000,000. Read as 32-bit signed, the same bits are −294967296. That jump is called wrapping.
+
+Python always computes the true result, so you can check after the fact: `INT32_MIN <= r <= INT32_MAX`.
+
+In a language where the result would already have wrapped, that check comes too late. There you check before computing, and you rearrange the check so it can't overflow itself. For `a + b` with b > 0, `a + b > INT32_MAX` is the same as `a > INT32_MAX - b`. And `INT32_MAX - b` is always in range.
+
+**5. Loops that never end.** `while n: n >>= 1` finishes for n ≥ 0. But for n = −12 the values are −12, −6, −3, −2, −1, −1, −1, and so on. An arithmetic shift of −1 is −1 forever, so n never reaches 0. There are two fixes. Either cut first (then n reaches 0 within 32 shifts), or loop a fixed 32 times.
 
 ### Diagram
 
@@ -303,33 +374,40 @@ print(add_overflows_i32(INT32_MAX, 1), add_overflows_i32(INT32_MIN, -1))   # Tru
 print(add_overflows_i32(INT32_MAX, -1), add_overflows_i32(-12, 0))         # False False
 ```
 
-Checked beyond the example: `to_i32(0)` is 0, `to_i32(0xFFFFFFFF)` is −1, `to_i32(0x80000000)` is −2147483648, `lsr32(-1, 31)` is 1. On 100,000 random pairs of 32-bit signed values, `add_overflows_i32(a, b)` agreed with `not fits_i32(a + b)` every time, and `to_i32(to_u32(a)) == a` always held.
+I also checked some cases beyond the example:
 
-The `12 << 29` line is worth a second look. 12 is `1100`, so shifting by 29 puts its two 1s at positions 31 and 32. The cut drops position 32 and keeps position 31, the sign bit, so a positive 12 shifted left becomes INT32_MIN. That's exactly what a 32-bit machine would do.
+- `to_i32(0)` is 0.
+- `to_i32(0xFFFFFFFF)` is −1.
+- `to_i32(0x80000000)` is −2147483648.
+- `lsr32(-1, 31)` is 1.
 
-Complexity: every helper is O(1) time and O(1) space for inputs that fit in a few machine words.
+On 100,000 random pairs of 32-bit signed values, `add_overflows_i32(a, b)` agreed with `not fits_i32(a + b)` every time. And `to_i32(to_u32(a)) == a` always held.
+
+The `12 << 29` line is worth a second look. 12 is `1100`, so shifting it by 29 puts its two 1s at positions 31 and 32. The cut drops position 32 and keeps position 31, which is the sign bit. So a positive 12, shifted left, becomes INT32_MIN. That's exactly what a 32-bit machine would do.
+
+Complexity: every helper is O(1) time and O(1) space, for inputs that fit in a few machine words.
 
 ### Recognition
 
-Signals:
+These signals tell you to think about fixed width:
 
-- The statement says **"32-bit signed integer"**, **"unsigned integer"** or **"assume the environment cannot store 64-bit integers"**, or gives a range like −2^31 ≤ x ≤ 2^31 − 1. In this list: Reverse Bits, Sum of Two Integers, Reverse Integer.
-- The expected output for a negative input is a large positive number, or vice versa. The problem is reading a pattern under the other interpretation.
-- You're porting code from C, Java or Go that relies on wraparound: hashes, random number generators, checksums.
-- An operation lets a carry or a set bit travel upward forever. With a negative operand in Python, "forever" is literal, so a loop that expects the value to hit 0 may never stop.
+- The statement says **"32-bit signed integer"**, **"unsigned integer"** or **"assume the environment cannot store 64-bit integers"**. Or it gives a range like −2^31 ≤ x ≤ 2^31 − 1. In this list, that's Reverse Bits, Sum of Two Integers and Reverse Integer.
+- The expected output for a negative input is a large positive number, or the other way round. That means the problem is reading the bit pattern the other way (signed vs unsigned).
+- You're porting code from C, Java or Go that relies on wraparound. Hashes, random number generators and checksums often do.
+- An operation lets a carry or a set bit travel upward forever. With a negative operand in Python, "forever" is literal. So a loop that waits for the value to hit 0 may never stop.
 
-When not to use it: if the problem only involves non-negative values that stay far below 2^31 and no right shifts or wraparound are needed, masking is noise. Python's unbounded ints are then an advantage, not a problem.
+When not to use it: sometimes the problem only involves non-negative values that stay far below 2^31, with no right shifts and no wraparound. Then masking is just noise. Python's unbounded ints are an advantage there, not a problem.
 
-Nearest look-alike: **modular arithmetic** (`% MOD` in DP counting problems). Masking with 2^32 − 1 is exactly `% 2**32` for non-negative results, and Python's `%` also returns a non-negative result for negative inputs (recalled). But `MOD = 10**9 + 7` problems never need the signed reading, and bit problems usually do.
+The nearest look-alike is **modular arithmetic**, like `% MOD` in DP counting problems. Masking with 2^32 − 1 is exactly `% 2**32` for non-negative results. Python's `%` also returns a non-negative result for negative inputs (recalled). The difference is the reading. `MOD = 10**9 + 7` problems never need the signed reading, and bit problems usually do.
 
 ### Pitfalls
 
-- **`bin(-12)` is `'-0b1100'`**, and `format(-12, '032b')` is a minus sign followed by the zero-padded magnitude. Neither shows two's complement. Mask first.
-- **Counting 1s of a negative number counts the magnitude.** `bin(-12).count('1')` is 2, while the 32-bit pattern has 29 ones.
-- **Forgetting to convert back.** A function that should return a signed 32-bit value but returns `to_u32(...)` hands back 4294967284 instead of −12.
-- **Cutting after a right shift.** `(x >> k) & MASK32` is not a logical shift for negative x. Use `(x & MASK32) >> k`.
-- **Infinite loops on negatives.** `while n:` with `n >>= 1` never reaches 0 for n < 0. Anything that loops until a carry dies out has the same risk.
-- **Off-by-one on the range.** The signed range is −2^31 to 2^31 − 1 inclusive, which isn't symmetric. The magnitude 2^31 exists only as a negative.
+- **`bin(-12)` is `'-0b1100'`.** And `format(-12, '032b')` is a minus sign followed by the zero-padded magnitude. Neither one shows the two's complement bits. Mask first.
+- **Counting the 1s of a negative number counts its magnitude.** `bin(-12).count('1')` is 2, while the 32-bit pattern has 29 ones.
+- **Forgetting to convert back.** Say a function should return a signed 32-bit value, but it returns `to_u32(...)`. It hands back 4294967284 instead of −12.
+- **Cutting after a right shift.** For negative x, `(x >> k) & MASK32` isn't a logical shift. Use `(x & MASK32) >> k`.
+- **Infinite loops on negatives.** `while n:` with `n >>= 1` never reaches 0 when n < 0. Anything that loops until a carry dies out has the same risk.
+- **Off-by-one on the range.** The signed range is −2^31 to 2^31 − 1 inclusive, so it isn't symmetric. The magnitude 2^31 exists only as a negative number.
 
 ### Active Recall
 
@@ -359,7 +437,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped. Sum of Two Integers makes you work out, in Python, when and where the 32-bit cut and the signed reading have to happen for your own loop, which is this module's core applied from scratch. That reasoning belongs in its own solve.
+Skipped for this topic. Sum of Two Integers makes you work out, in Python, when and where your own loop needs the 32-bit cut and the signed reading. That's this module's core, applied from scratch, so you'll do that reasoning when you solve it.
 
 ### Transfer test
 
@@ -373,26 +451,41 @@ Ask me whether I would use this end-only cut here and why, and wait for my answe
 
 ## Integration
 
-Bit Operations gives you the vocabulary: per-position rules, masks, `n & (n - 1)`, `n & -n`, XOR parity. The fixed-width module gives you the ground those operations run on in the problems as written. A statement that says "32-bit" is describing a machine that cuts the tape at position 31, and in Python you have to do that cut yourself, in the right place. Almost every problem in this topic is one identity from the first module, plus possibly one decision from the second.
+The two modules do different jobs.
 
-Distinguishing competing approaches:
+Bit Operations gives you the vocabulary: the per-position rules, masks, `n & (n - 1)`, `n & -n` and XOR parity.
 
-- **XOR vs hash set vs arithmetic total**, for "find the unmatched or missing value". A hash set is O(n) space and handles any multiplicity. An arithmetic total (sum and subtract) is O(1) space but can overflow in fixed-width languages. XOR is O(1) space, can't overflow, and needs a parity structure: whatever you want cancelled has to appear an even number of times.
-- **Walk all w positions vs jump from 1 to 1.** A `for i in range(32)` loop with `(x >> i) & 1` is O(w), sees every position including the 0s, and runs a predictable number of times. Repeatedly taking `x & -x` and then `x &= x - 1` jumps straight from one set bit to the next, so it's O(number of set bits) but never looks at a 0. Choose based on whether the 0 positions matter to you.
-- **Bit reasoning vs arithmetic reasoning.** Reverse Integer is about decimal digits and 32-bit range, not bit positions. It lives here because of the fixed-width module, not the first one. If the statement talks about digits, think `% 10` and `// 10`. If it talks about bits, think masks and shifts.
-- **Bit tricks vs DP.** When a question asks for some bit property of every number in 0..n, per-number work is the fallback. That 1-D DP comes right before this topic in the topic map is a reminder to ask whether one number's answer can be reused for another.
+The fixed-width module gives you the ground those operations stand on in the problems as written. When a statement says "32-bit", it's describing a machine that cuts the tape at position 31. In Python you have to make that cut yourself, in the right place.
+
+Almost every problem in this topic is one identity from the first module, plus maybe one decision from the second.
+
+How to choose between competing approaches:
+
+- **XOR vs hash set vs arithmetic total**, for "find the unmatched or missing value".
+  - A hash set uses O(n) space, and it works however many times a value appears.
+  - An arithmetic total (add everything up, then subtract) uses O(1) space, but it can overflow in fixed-width languages.
+  - XOR uses O(1) space and can't overflow. But it needs a parity structure: whatever you want cancelled has to appear an even number of times.
+- **Walk all w positions vs jump from 1 to 1.** A `for i in range(32)` loop with `(x >> i) & 1` is O(w). It visits every position, 0s included, and always runs the same number of times. The other way is to repeatedly take `x & -x` and then do `x &= x - 1`. That jumps straight from one set bit to the next, so it's O(number of set bits), but it never looks at a 0. Pick based on whether the 0 positions matter to you.
+- **Bit reasoning vs arithmetic reasoning.** Reverse Integer is about decimal digits and the 32-bit range, not about bit positions. It's in this topic because of the fixed-width module, not the first one. If the statement talks about digits, think `% 10` and `// 10`. If it talks about bits, think masks and shifts.
+- **Bit tricks vs DP.** Some questions ask for a bit property of every number in 0..n. Working out each number on its own is the fallback. 1-D DP comes right before this topic in the topic map, and that's a good reminder: ask whether one number's answer can be reused for another.
 
 Recognition checklist for an unfamiliar problem:
 
-1. Does the statement say "without +/−", "O(1) extra space", "every element appears twice / k times except"? Think XOR, or per-bit counting.
-2. Is it about positions: the i-th bit, counting 1s, reversing, powers of two? Write the numbers in binary for n = 0..8 and look at which positions change.
+1. Does the statement say "without +/−", "O(1) extra space" or "every element appears twice / k times except"? Think XOR, or counting per bit.
+2. Is it about positions, like the i-th bit, counting 1s, reversing, or powers of two? Write the numbers for n = 0..8 in binary and look at which positions change.
 3. Is there a set of at most about 20 items? A mask from 0 to 2^n − 1 can stand for a subset.
-4. Does it name a width (32-bit, unsigned, "cannot store 64-bit")? Decide up front where you'll cut with `& 0xFFFFFFFF`, where you'll read as signed, and whether any right shift or loop condition sees a negative number.
+4. Does it name a width, like 32-bit, unsigned, or "cannot store 64-bit"? Decide up front where you'll cut with `& 0xFFFFFFFF` and where you'll read as signed. Also check whether any right shift or loop condition could see a negative number.
 5. Can the answer go out of range? Know the inclusive range −2^31 to 2^31 − 1, and whether you're allowed to compute first and check after.
 
 ## The problems
 
-Run each through the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, a key sentence, spaced repetition. For bit manipulation the struggle is concrete. Write small inputs in binary on paper, ask which identity (XOR cancel, `n & (n - 1)`, single-bit mask) matches what changes, and ask whether the problem assumes 32 bits before you write a loop.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute struggle, write down the one key sentence, then review it with spaced repetition.
+
+For bit manipulation the struggle is concrete. While you work on a problem:
+
+- Write small inputs in binary on paper.
+- Ask which identity matches what changes: XOR cancelling, `n & (n - 1)`, or a single-bit mask.
+- Before you write a loop, ask whether the problem assumes 32 bits.
 
 {% include dsa-problems.html slug="dsa-bit-manipulation" %}
 

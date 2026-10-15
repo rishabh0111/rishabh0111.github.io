@@ -5,53 +5,73 @@ date: 2024-03-06 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, dynamic-programming, palindromes, python, series]
-read_time: 36
+read_time: 39
 permalink: /blogs/dsa-1d-dynamic-programming/
-excerpt: "A backtracking tree that keeps asking the same question is a DP problem waiting to happen. Name the state, write the recurrence, pin the base cases, then shrink it from recursion to two variables."
+excerpt: "If a backtracking tree keeps asking the same question, you probably have a DP problem. Say what each subproblem means, write how it's built from smaller ones, fix the smallest answers, then shrink the code from recursion down to two variables."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 15
 series_total: 19
 links_new_tab: true
 ---
 
-When you only need a count, a minimum or a yes/no, [Backtracking](/blogs/dsa-backtracking/) wastes time re-solving the same subproblem from different directions. 1-D dynamic programming names each subproblem by a single index or amount, solves it once, and builds the answer from smaller ones; expand-around-center does the same for palindromic substrings. It borrows Kadane's "best ending here" from [Greedy](/blogs/dsa-greedy/) (tracking both a max and a min here), folds that and an amount-indexed table into the 1-Dimension DP module, and leads into [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/) and [Bit Manipulation](/blogs/dsa-bit-manipulation/).
+Sometimes you don't need every solution. You only need a count, a minimum, or a yes/no. In those cases [Backtracking](/blogs/dsa-backtracking/) wastes time, because it solves the same smaller problem again and again as it arrives from different directions.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+1-D dynamic programming fixes that. It labels each smaller problem with a single number, like a position or an amount. It solves each one once, then builds the final answer out of smaller answers. Expand-around-center, the second module here, does the same kind of thing for palindromic substrings.
+
+The post also borrows Kadane's "best ending here" idea from [Greedy](/blogs/dsa-greedy/), this time tracking both a max and a min. That idea and a table indexed by amount both live inside the 1-Dimension DP module. Next up are [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/) and [Bit Manipulation](/blogs/dsa-bit-manipulation/).
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## 1-Dimension DP
 
 ### Foundation
 
-Imagine asking a friend "how many ways can I fill a strip of length 30?" They say "depends on how many ways you can fill 29 and 28." You ask about 29, they ask about 28 and 27. Without notes you end up asking about 28 many times over. With a notebook, you answer each length once and look it up after that. That notebook is dynamic programming.
+Imagine you ask a friend, "How many ways can I fill a strip of length 30?" They say, "That depends on how many ways you can fill 29 and 28." So you ask about 29, and they say it depends on 28 and 27.
 
-Every DP solution is three decisions, and all three come before any code:
+Without notes, you end up asking about 28 many times over. With a notebook, you work out each length once, write it down, and just look it up after that. That notebook is dynamic programming (DP for short).
 
-1. **State.** What does `dp[i]` mean, in one sentence, with units? "The number of ways to fill a strip of length i." If you can't say it in one sentence, you don't have a state yet.
-2. **Recurrence.** How is `dp[i]` built from smaller states? You almost always get it by asking "what is the last decision?" and splitting on its possible values.
-3. **Base cases.** The smallest states whose answers you know directly, chosen so the recurrence never reads a state that doesn't exist.
+Every DP solution comes down to three decisions. You make all three before writing any code:
 
-DP applies when the problem has **overlapping subproblems** (the same smaller question comes up again and again) and **optimal substructure** (the answer to a big question really is a combination of answers to smaller ones, and nothing about how you got to a smaller state changes its answer).
+1. **State.** What does `dp[i]` mean? Say it in one sentence, with units. For example: "the number of ways to fill a strip of length i." If you can't say it in one sentence, you don't have a state yet.
+2. **Recurrence.** A recurrence is a formula that builds `dp[i]` from smaller states. You almost always find it by asking "what is the last decision?" and then splitting on each value that decision could take.
+3. **Base cases.** These are the smallest states, whose answers you know directly. Pick them so the recurrence never tries to read a state that doesn't exist.
+
+DP works when the problem has two properties:
+
+- **Overlapping subproblems.** The same smaller question comes up again and again.
+- **Optimal substructure.** The answer to a big question really is a combination of answers to smaller ones. And the path you took to reach a smaller state doesn't change that state's answer.
 
 ### Mechanics
 
-The worked example for this module, reused all the way down:
+Here is the worked example for this module. We'll reuse it all the way through:
 
 > A 1 × n strip is filled left to right with pieces of three kinds: a red square (length 1), a blue square (length 1), and a domino (length 2). How many different fillings are there? Worked example: n = 5.
 
 **State.** `ways(i)` = the number of fillings of a strip of length i.
 
-**Recurrence.** Look at the last piece of any filling of length i. It's red (the rest is any filling of length i − 1), blue (same, i − 1), or a domino (the rest is any filling of length i − 2). Those three groups don't overlap, because they differ in their last piece, and together they cover every filling. So:
+**Recurrence.** Take any filling of length i and look at its last piece. There are three options:
+
+- It's red. Then the rest is any filling of length i − 1.
+- It's blue. Again, the rest is any filling of length i − 1.
+- It's a domino. Then the rest is any filling of length i − 2.
+
+These three groups don't overlap, because each group has a different last piece. Together they cover every filling. So we can just add them up:
 
 ways(i) = ways(i − 1) + ways(i − 1) + ways(i − 2) = 2 · ways(i − 1) + ways(i − 2)
 
-**Base cases.** ways(0) = 1: an empty strip has exactly one filling, "place nothing". It isn't a trick; it's what makes the domino branch count correctly at i = 2 (a single domino is one filling, and it has to come from ways(0)). ways(1) = 2: a red square or a blue square. With those two, every call for i ≥ 2 reads i − 1 ≥ 1 and i − 2 ≥ 0, which always exist.
+**Base cases.** We need two, because the recurrence reaches back two steps.
 
-Now the four forms of the same idea. Each one is safe for the same reason: it computes exactly the recurrence above, just in a different order.
+- ways(0) = 1. An empty strip has exactly one filling: "place nothing". This isn't a trick. It's what makes the domino branch count correctly at i = 2. A strip of length 2 filled by a single domino is one filling, and that 1 has to come from ways(0).
+- ways(1) = 2. A length-1 strip holds either a red square or a blue square.
 
-1. **Plain recursion.** Translate the recurrence literally. Correct, but it re-solves the same lengths. For n = 5 it makes 15 calls; ways(1) alone is computed 5 times. For n = 30 it makes 2,692,537 calls. The number of calls grows exponentially: the call count C(n) satisfies C(n) = 1 + C(n − 1) + C(n − 2) (the "×2" is a multiplication, not a second call), so it grows by about 1.618 per extra unit of n, the same rate as Fibonacci numbers.
-2. **Memoization (top-down).** Same recursion, plus a cache keyed by i. The first call for a given i computes it; every later call returns the stored value. There are only n + 1 distinct states (0..n inclusive) and each does O(1) work outside its recursive calls, so it's O(n) time and O(n) space.
-3. **Tabulation (bottom-up).** Replace the recursion with a loop that fills `dp[0..n]` in increasing order. The order is safe because `dp[i]` only reads `dp[i − 1]` and `dp[i − 2]`, which are already filled by the time i is reached. Same O(n) time and O(n) space, no recursion depth problem.
-4. **O(1) space.** Look at which cells the recurrence actually reads: only the previous two. Everything older is dead. Keep two variables and slide them forward. O(n) time, O(1) space.
+With those two in place, every call for i ≥ 2 reads i − 1 ≥ 1 and i − 2 ≥ 0. Both of those always exist.
+
+Now let's write the same idea in four forms. Each form is correct for the same reason: it computes exactly the recurrence above. Only the order of work changes.
+
+1. **Plain recursion.** Translate the recurrence into code word for word. It's correct, but it solves the same lengths over and over. For n = 5 it makes 15 calls, and ways(1) alone gets computed 5 times. For n = 30 it makes 2,692,537 calls. Why so many? Let C(n) be the number of calls for n. Each call makes one call for n − 1 and one for n − 2 (the "×2" is a multiplication, not a second call). So C(n) = 1 + C(n − 1) + C(n − 2). That grows by about 1.618 times per extra unit of n, the same rate as Fibonacci numbers. In other words, it grows exponentially.
+2. **Memoization (top-down).** Memoization means "keep a memo of answers you've already found". We use the same recursion, plus a cache keyed by i. The first call for a given i computes the answer and stores it. Every later call for that i just returns the stored value. There are only n + 1 distinct states (0..n inclusive), and each one does O(1) work apart from its recursive calls. So it's O(n) time and O(n) space.
+3. **Tabulation (bottom-up).** Tabulation means filling in a table. We replace the recursion with a loop that fills `dp[0..n]` from small i to large i. That order is safe because `dp[i]` only reads `dp[i − 1]` and `dp[i − 2]`, and both are already filled by the time the loop reaches i. It's still O(n) time and O(n) space, but there's no recursion, so there's no recursion depth problem.
+4. **O(1) space.** Look at which cells the recurrence actually reads. It only reads the previous two. Everything older will never be read again, so we don't need to keep it. Hold two variables and slide them forward. That's O(n) time and O(1) space.
 
 For n = 5 the table comes out as:
 
@@ -59,23 +79,39 @@ For n = 5 the table comes out as:
 | --- | --- | --- | --- | --- | --- | --- |
 | ways(i) | 1 | 2 | 5 | 12 | 29 | 70 |
 
-Check one cell by hand: ways(4) = 2 · ways(3) + ways(2) = 2 · 12 + 5 = 29. ways(5) = 2 · 29 + 12 = 70.
+Check a couple of cells by hand. ways(4) = 2 · ways(3) + ways(2) = 2 · 12 + 5 = 29. Then ways(5) = 2 · 29 + 12 = 70.
 
 #### Two more state shapes the list needs
 
-The strip uses the most common shape: `dp[i]` is the answer for a **prefix** of length i. The problem list needs two more.
+The strip uses the most common shape. There, `dp[i]` is the answer for a **prefix** of length i, meaning the first i cells. The problem list needs two more shapes.
 
-**Shape 2: the amount is the index.** Generalise the strip: tiles come in a list of lengths, and you want the number of ordered fillings of exact length n. The state is the same, `dp[a]` = number of fillings of length exactly a, but the recurrence now loops over "which tile is last": dp[a] = sum of dp[a − t] over every tile length t ≤ a. With tiles [1, 1, 2] (red, blue, domino) this is exactly the strip again and gives 70 for a = 5. With tiles [3, 5] and a = 7 it gives 0, because 7 can't be written as 3s and 5s; the full table is [1, 0, 0, 1, 0, 1, 1, 0] for a = 0..7. The same table can hold other things instead of a count: a boolean ("can a be reached at all?", combine with `or`) or a minimum ("fewest tiles to reach a", combine with `min` and add 1). The skeleton doesn't change, only the combine operation and the initial value. That's the family Coin Change, Word Break and Partition Equal Subset Sum belong to, though each has its own twist on what the "amount" and the "items" are.
+**Shape 2: the amount is the index.** Let's generalise the strip. Now the tiles come as a list of lengths, and you want the number of ordered fillings of length exactly n. The state is the same: `dp[a]` = the number of fillings of length exactly a. What changes is the recurrence. It now loops over "which tile is last":
 
-**Shape 3: best ending exactly here, tracking both a max and a min.** Some questions are about contiguous pieces of an array, and the natural state is not "best in the first i elements" but "best among pieces that **end exactly at** index i". Kadane's algorithm from the Greedy post is this shape. The upgrade the list needs is carrying two of these states at once.
+dp[a] = sum of dp[a − t] over every tile length t ≤ a
 
-Small example, separate from the strip because it needs an array: the **maximum absolute subarray sum** of nums = [2, −5, 1, −4, 3, −2], meaning the largest |sum| over all non-empty contiguous subarrays.
+Try it on two inputs:
 
-- `hi[i]` = largest sum of a subarray ending exactly at i. Any such subarray is either `[nums[i]]` alone, or a subarray ending at i − 1 with `nums[i]` appended; the best of the latter is `hi[i − 1] + nums[i]`. So hi[i] = max(nums[i], hi[i − 1] + nums[i]).
-- `lo[i]` = smallest sum of a subarray ending exactly at i. Same split, minimising: lo[i] = min(nums[i], lo[i − 1] + nums[i]).
-- The answer is the max of |hi[i]| and |lo[i]| over every i, since the best subarray ends somewhere.
+- With tiles [1, 1, 2] (red, blue, domino), this is exactly the strip again, and it gives 70 for a = 5.
+- With tiles [3, 5] and a = 7, it gives 0, because you can't make 7 out of 3s and 5s. The full table is [1, 0, 0, 1, 0, 1, 1, 0] for a = 0..7.
 
-Why track the min at all? Because the subarray with the largest absolute value here is [−5, 1, −4] with sum −8, and a max-only pass never sees it: tracking only `hi` returns 3. The general lesson: when the quantity you are optimising can flip direction (an absolute value, a sign change, a multiplication by a negative), the extreme on the other side can become the winner, so carry both extremes.
+The same table can hold other things instead of a count:
+
+- A boolean: "can a be reached at all?" You combine the options with `or`.
+- A minimum: "what's the fewest tiles that reach a?" You combine with `min` and add 1.
+
+The skeleton stays the same. Only the combine operation and the starting value change. Coin Change, Word Break and Partition Equal Subset Sum all belong to this family, though each has its own twist on what the "amount" and the "items" are.
+
+**Shape 3: best ending exactly here, tracking both a max and a min.** Some questions are about contiguous pieces of an array (pieces with no gaps, also called subarrays). For those, the natural state isn't "best in the first i elements". It's "best among pieces that **end exactly at** index i". Kadane's algorithm from the Greedy post uses this shape. The upgrade this list needs is carrying two of these states at the same time.
+
+We need an array for this one, so here is a small example separate from the strip. Find the **maximum absolute subarray sum** of nums = [2, −5, 1, −4, 3, −2]. That means the largest |sum| over all non-empty contiguous subarrays. We keep two states:
+
+- `hi[i]` = the largest sum of a subarray ending exactly at i. Any such subarray is one of two things. Either it's `[nums[i]]` alone, or it's a subarray ending at i − 1 with `nums[i]` added on the end. The best of the second kind is `hi[i − 1] + nums[i]`. So hi[i] = max(nums[i], hi[i − 1] + nums[i]).
+- `lo[i]` = the smallest sum of a subarray ending exactly at i. It's the same split, but we take the minimum: lo[i] = min(nums[i], lo[i − 1] + nums[i]).
+- The answer is the max of |hi[i]| and |lo[i]| over every i. That covers everything, because the best subarray has to end somewhere.
+
+Why track the min at all? Because here the subarray with the largest absolute value is [−5, 1, −4], with sum −8. A max-only pass never sees it. Tracking only `hi` returns 3.
+
+The general lesson: sometimes the quantity you're optimising can flip direction. Examples are an absolute value, a sign change, or multiplying by a negative. When that happens, the extreme on the other side can become the winner. So carry both extremes.
 
 | i | nums[i] | hi | lo | best so far |
 | --- | --- | --- | --- | --- |
@@ -86,13 +122,13 @@ Why track the min at all? Because the subarray with the largest absolute value h
 | 4 | 3 | 3 | −5 | 8 |
 | 5 | −2 | 1 | −7 | 8 |
 
-At i = 3, lo = min(−4, −4 + (−4)) = −8: extending the smallest sum ending at 2 (which was −4, the subarray [−5, 1]) beats starting fresh.
+Look at i = 3. There, lo = min(−4, −4 + (−4)) = −8. The smallest sum ending at index 2 was −4, from the subarray [−5, 1]. Adding −4 to it gives −8, which beats starting fresh with just −4.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-1d-dynamic-programming/recursion-tree.svg %}</figure>
 
-15 calls: ways(3) twice, ways(2) three times, ways(1) five times, ways(0) three times. Memoization keeps only the leftmost spine (ways(5), ways(4), ways(3), ways(2), ways(1), ways(0)) as real work; every other node becomes a lookup.
+The tree has 15 calls. ways(3) appears twice, ways(2) three times, ways(1) five times and ways(0) three times. With memoization, only the leftmost spine does real work: ways(5), ways(4), ways(3), ways(2), ways(1), ways(0). Every other node becomes a lookup.
 
 <figure class="sketch">{% include sketches/dsa-1d-dynamic-programming/table-read.svg %}</figure>
 
@@ -159,7 +195,7 @@ print(ways_memo(5), ways_table(5), ways(5))   # 70 70 70
 print(ways(1), ways_table(1), ways(0))        # 2 2 1
 ```
 
-The amount-indexed shape, on the same strip (tiles [1, 1, 2]) and on the unreachable case:
+Here is the amount-indexed shape. We run it on the same strip (tiles [1, 1, 2]) and on the case where the length can't be reached:
 
 ```python
 def count_fills(n, tiles):
@@ -201,20 +237,27 @@ print(max_abs_subarray_sum([-7]))                   # 7
 print(max_abs_subarray_sum([3, -1, 4]))             # 6, from [3, -1, 4]
 ```
 
-Here `hi` and `lo` don't read each other, so updating them one after the other is fine. If a recurrence ever needs the old `lo` to compute the new `hi` (a sign flip does exactly that), compute both from the old values in one tuple assignment.
+Here `hi` and `lo` don't read each other, so it's fine to update them one after the other. But some recurrences need the old `lo` to compute the new `hi`. A sign flip does exactly that. In that case, compute both from the old values in one tuple assignment.
 
-Complexity. Plain recursion: exponential time (15 calls at n = 5, 2,692,537 at n = 30), O(n) stack depth. Memoization: O(n) time, O(n) space for the cache plus O(n) recursion depth. Tabulation: O(n) time, O(n) space. Two variables: O(n) time, O(1) space. `count_fills`: O(n · k) time and O(n) space, where k is the number of tile types. `max_abs_subarray_sum`: O(m) time and O(1) space for an array of length m.
+Complexity for each version:
+
+- **Plain recursion:** exponential time (15 calls at n = 5, 2,692,537 at n = 30), and O(n) stack depth.
+- **Memoization:** O(n) time. O(n) space for the cache, plus O(n) recursion depth.
+- **Tabulation:** O(n) time, O(n) space.
+- **Two variables:** O(n) time, O(1) space.
+- **`count_fills`:** O(n · k) time and O(n) space, where k is the number of tile types.
+- **`max_abs_subarray_sum`:** O(m) time and O(1) space, for an array of length m.
 
 ### Recognition
 
-Signals that a problem is 1-D DP:
+These are the signals that a problem is 1-D DP:
 
-- The question asks for a **count** ("how many ways"), an **optimum** ("minimum cost", "maximum amount"), or **feasibility** ("can you reach", "is it possible"), not a list of every solution.
-- There's a sequence of decisions, and the future only depends on a small summary of the past: a position, or a remaining amount. That summary is your state.
-- You can sketch a backtracking tree and see the same subproblem appear on different branches.
-- Constraints around n ≤ 10^4 (or amount ≤ 10^4) with a small number of choices per step, which fits O(n · choices).
+- The question asks for a **count** ("how many ways"), an **optimum** ("minimum cost", "maximum amount"), or **feasibility** ("can you reach", "is it possible"). It doesn't ask for a list of every solution.
+- There's a sequence of decisions, and the future only depends on a small summary of the past, like a position or a remaining amount. That summary is your state.
+- You can sketch a backtracking tree and see the same subproblem show up on different branches.
+- The constraints are around n ≤ 10^4 (or amount ≤ 10^4), with only a few choices per step. That fits O(n · choices).
 
-Which state shape:
+Which state shape to pick:
 
 | Shape | dp[i] means | Answer lives at |
 | --- | --- | --- |
@@ -222,25 +265,31 @@ Which state shape:
 | Amount | answer for an exact total a | dp[target] |
 | Ending exactly here | best among things that end at index i | max (or min) over all i |
 
-In the list: "number of ways" shows up in Decode Ways; "minimum" in Min Cost Climbing Stairs and Coin Change; feasibility over an amount in Partition Equal Subset Sum, and over a prefix in Word Break; "ending here" in Maximum Product Subarray and Longest Increasing Subsequence; a "can't take adjacent" constraint in House Robber and House Robber II.
+Here is where those signals show up in this topic's list:
+
+- "Number of ways": Decode Ways.
+- "Minimum": Min Cost Climbing Stairs and Coin Change.
+- Feasibility over an amount: Partition Equal Subset Sum. Feasibility over a prefix: Word Break.
+- "Ending here": Maximum Product Subarray and Longest Increasing Subsequence.
+- A "can't take two neighbours" rule: House Robber and House Robber II.
 
 When not to use it, and what it's easily confused with:
 
-- **You need every solution, not a summary of them.** That's backtracking; the output itself is exponential, so no cache helps.
-- **A local choice is provably safe.** Greedy is simpler and usually O(n) or O(n log n). DP is what you fall back to when you can build a counterexample to the greedy choice.
-- **The future depends on the whole history** (which items have been used, in what arrangement). Then the state isn't one index, and 1-D DP doesn't fit; you need a second dimension or a bitmask.
-- **Contiguous with a monotone condition.** If every element is non-negative and you want the longest window under a budget, a sliding window is enough. Negative numbers break the window's "shrinking only helps" property, and that's when the "ending here" DP takes over.
+- **You need every solution, not a summary of them.** That's backtracking. The output itself is exponential in size, so no cache can help.
+- **A local choice is provably safe.** Then greedy is simpler, and usually O(n) or O(n log n). DP is what you fall back to when you can build a counterexample to the greedy choice.
+- **The future depends on the whole history**, such as which items have been used and in what arrangement. Then the state isn't one index, and 1-D DP doesn't fit. You need a second dimension or a bitmask.
+- **A contiguous piece with a monotone condition.** Monotone means it only moves one way as the piece grows. If every element is non-negative and you want the longest window under a budget, a sliding window is enough. Negative numbers break the window's rule that "shrinking only helps", and that's when the "ending here" DP takes over.
 
 ### Pitfalls
 
-- **Wrong base case.** Setting dp[0] = 0 in a counting problem silently zeroes every count that passes through it. For the strip, dp[0] = 0 gives dp[2] = 2 · 2 + 0 = 4, which misses the single-domino filling.
-- **Table size off by one.** States 0..n inclusive need `n + 1` slots, and the answer is `dp[n]`, not `dp[n - 1]`.
-- **Too few base cases for the recurrence's reach.** If dp[i] reads dp[i − 2], you need two base cases, and inputs smaller than both (n = 0 here) need an early return before you write `dp[1]`.
-- **Initial value for min/max tables.** For "fewest pieces", initialise every unreachable cell to infinity, not 0, or `min` will happily pick the fake 0. For counts, 0 is right. For feasibility, `False`.
-- **Recursion depth.** Memoised recursion on n = 5000 raises `RecursionError` under Python's default limit of 1000 (recalled, and confirmed by running it). Convert to tabulation rather than raising the limit.
-- **Loop order changes what you count.** In the amount shape, putting the amount loop outside and the tile loop inside counts **ordered** sequences; putting the tile loop outside counts **unordered** combinations. Tiles [1, 3], length 4: ordered gives 3 (1+1+1+1, 1+3, 3+1), unordered gives 2 (four 1s, or one 1 and one 3).
-- **Reuse versus use-once.** A 1-D boolean table over amounts, scanned upward, lets an item be reused within the same pass. Items [2, 3], target 4: scanning upward marks 4 reachable via 2 + 2; if each item may be used at most once, 4 is not reachable. Scanning the amount downward for each item fixes that, because each cell then reads only values from before this item was considered.
-- **Forgetting the "ending here" answer is a max over all i.** Returning `hi` at the last index answers "best subarray ending at the end", which is a different question.
+- **Wrong base case.** In a counting problem, setting dp[0] = 0 quietly zeroes every count built on top of it. For the strip, dp[0] = 0 gives dp[2] = 2 · 2 + 0 = 4. That misses the single-domino filling.
+- **Table size off by one.** States 0..n inclusive need `n + 1` slots. The answer is `dp[n]`, not `dp[n - 1]`.
+- **Too few base cases for how far back the recurrence reads.** If dp[i] reads dp[i − 2], you need two base cases. Inputs smaller than both (n = 0 here) need an early return before you write `dp[1]`.
+- **Wrong starting value in min/max tables.** For "fewest pieces", start every unreachable cell at infinity, not 0. Otherwise `min` will happily pick the fake 0. For counts, 0 is right. For feasibility, use `False`.
+- **Recursion depth.** Memoised recursion on n = 5000 raises `RecursionError` under Python's default limit of 1000 (recalled, and confirmed by running it). Switch to tabulation rather than raising the limit.
+- **Loop order changes what you count.** In the amount shape, if the amount loop is outside and the tile loop inside, you count **ordered** sequences. If the tile loop is outside, you count **unordered** combinations. Take tiles [1, 3] and length 4. Ordered gives 3 (1+1+1+1, 1+3, 3+1). Unordered gives 2 (four 1s, or one 1 and one 3).
+- **Reuse versus use-once.** Say you have a 1-D boolean table over amounts and you scan it upward. Then an item can be reused within the same pass. With items [2, 3] and target 4, scanning upward marks 4 as reachable via 2 + 2. But if each item may be used at most once, 4 isn't reachable. The fix is to scan the amount downward for each item. Then each cell only reads values from before this item was considered.
+- **Forgetting the "ending here" answer is a max over all i.** If you return `hi` at the last index, you've answered "best subarray ending at the end". That's a different question.
 
 ### Active Recall
 
@@ -266,7 +315,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: several list problems (Decode Ways, House Robber among them) require choosing a state and deriving a recurrence from scratch, so the core technique gets independent practice there.
+Skipped for this topic. Several problems in the list, including Decode Ways and House Robber, make you choose a state and work out a recurrence from scratch. So you'll practise the core technique on your own when you solve them.
 
 ### Transfer test
 
@@ -282,21 +331,25 @@ Ask me whether I would use 1-D dynamic programming here and why, and wait for my
 
 ### Foundation
 
-A palindrome reads the same in both directions, which is the same as saying it's mirror-symmetric around its middle. So instead of asking "is this substring a palindrome?" for each of the roughly n²/2 substrings (each check costing O(n), O(n³) total), stand at a middle and grow outward while the mirror holds. Every palindrome has exactly one middle, so covering every possible middle covers every palindrome.
+A palindrome reads the same in both directions. Another way to say that: it's a mirror image of itself around its middle.
+
+The slow way is to take each substring and ask "is this a palindrome?". There are roughly n²/2 substrings, and each check costs O(n), so that's O(n³) in total. The faster way is to stand at a middle and grow outward for as long as the two sides still mirror each other. Every palindrome has exactly one middle. So if you try every possible middle, you find every palindrome.
 
 ### Mechanics
 
 Worked example: s = "abacca", n = 6.
 
-**Centers.** An odd-length palindrome is centered on a character; an even-length one is centered on the gap between two characters. That gives n character centers plus n − 1 gap centers: 2n − 1 = 11 centers for "abacca". Forgetting the gaps is the classic bug: "acca" has no middle character.
+**Centers.** A center is the middle point a palindrome is built around. An odd-length palindrome, like "aba", is centered on a character. An even-length one, like "acca", is centered on the gap between two characters. That gives n character centers plus n − 1 gap centers, so 2n − 1 centers in total. For "abacca" that's 11. Forgetting the gaps is the classic bug, because "acca" has no middle character to start from.
 
-A single loop covers both kinds: for c in 0..2n − 2 inclusive, set l = c // 2 and r = l + (c % 2). Even c gives l = r (a character center), odd c gives r = l + 1 (a gap center).
+A single loop covers both kinds. For c in 0..2n − 2 inclusive, set l = c // 2 and r = l + (c % 2). When c is even, l = r, which is a character center. When c is odd, r = l + 1, which is a gap center.
 
-**Expansion.** Start with the window s[l..r]. While l ≥ 0, r < n and s[l] == s[r], widen: l −= 1, r += 1. When it stops, the widest palindrome at that center is s[l + 1 .. r − 1].
+**Expansion.** Start with the window s[l..r]. While l ≥ 0, r < n and s[l] == s[r], widen it: l −= 1, r += 1. When the loop stops, the widest palindrome at that center is s[l + 1 .. r − 1].
 
-**Why stopping at the first mismatch is safe.** Suppose s[l] ≠ s[r]. Every longer substring with the same center contains both l and r, at mirrored positions. A palindrome needs mirrored positions to match, so none of those longer substrings can be one. Nothing is lost by stopping. And every shorter substring with this center was already confirmed to be a palindrome on the way out, because each step checked one more mirrored pair on top of an already-palindromic core.
+**Why is it safe to stop at the first mismatch?** Suppose s[l] ≠ s[r]. Every longer substring with the same center contains both l and r, at mirrored positions. A palindrome needs every mirrored pair to match. So none of those longer substrings can be a palindrome, and nothing is lost by stopping.
 
-**Result for "abacca".** Going through all 11 centers:
+What about the shorter ones with this center? They were all confirmed on the way out. Each step checked one more mirrored pair around a core that was already a palindrome.
+
+**Result for "abacca".** Here are all 11 centers:
 
 | c | center | widest palindrome | bounds |
 | --- | --- | --- | --- |
@@ -312,11 +365,20 @@ A single loop covers both kinds: for c in 0..2n − 2 inclusive, set l = c // 2 
 | 9 | gap 4\|5 | (none) | empty |
 | 10 | s[5] | a | 5..5 |
 
-Every palindromic substring of "abacca" is some center's widest palindrome, or a shorter one nested inside it at the same center. For example, "cc" (3..4) sits inside "acca" at center 7.
+Every palindromic substring of "abacca" is either some center's widest palindrome, or a shorter one nested inside it at the same center. For example, "cc" (3..4) sits inside "acca" at center 7.
 
-**Why it's O(n²), and why that's tight.** There are 2n − 1 centers, and one expansion can take up to about n/2 steps, so O(n²) total. The bound is reached: on "aaaa…a" every comparison succeeds until a boundary, and the total number of successful expansion steps is n(n + 1)/2 (10 for n = 4, 5,050 for n = 100). On "abacca" it's only 9 successful steps. Extra space is O(1): two indices.
+**Why it's O(n²), and why that's tight.** There are 2n − 1 centers, and one expansion can take up to about n/2 steps. That's O(n²) in total.
 
-**The DP view.** Define pal(i, j) = "s[i..j] is a palindrome". Then pal(i, j) = (s[i] == s[j]) and pal(i + 1, j − 1), with base cases pal(i, i) = true and pal(i, i + 1) = (s[i] == s[i + 1]). That's a 2-D DP with O(n²) states and O(n²) space. Expand-around-center is the same recurrence, walked outward along one center at a time: pal(i + 1, j − 1) is exactly the window you just confirmed, so you never need to store it. Same O(n²) time, O(1) space. (There's also Manacher's algorithm, which finds every center's widest palindrome in O(n) total by reusing mirror information across centers; recalled, not derived here, and not needed for this list.)
+"Tight" means some inputs really do cost that much. On "aaaa…a", every comparison succeeds until it hits the edge of the string. The total number of successful expansion steps is n(n + 1)/2. That's 10 for n = 4 and 5,050 for n = 100. On "abacca" it's only 9 successful steps. Extra space is O(1), since we only keep two indices.
+
+**The DP view.** Define pal(i, j) = "s[i..j] is a palindrome". Then:
+
+- pal(i, j) = (s[i] == s[j]) and pal(i + 1, j − 1)
+- Base cases: pal(i, i) = true, and pal(i, i + 1) = (s[i] == s[i + 1]).
+
+That's a 2-D DP with O(n²) states and O(n²) space. Expand-around-center uses the same recurrence, but walks it outward along one center at a time. The pal(i + 1, j − 1) it needs is exactly the window you just confirmed, so you never have to store it. Same O(n²) time, but O(1) space.
+
+There's also Manacher's algorithm. It finds every center's widest palindrome in O(n) total, by reusing mirror information across centers. That's recalled, not derived here, and you don't need it for this list.
 
 ### Diagram
 
@@ -355,30 +417,32 @@ print([s for s in ("abacca"[lo:hi + 1] for lo, hi in widest_per_center("abacca")
 print(widest_per_center(""), widest_per_center("z"))  # [] [(0, 0)]
 ```
 
-Complexity: O(n²) time in the worst case (2n − 1 centers × up to about n/2 steps each), O(1) extra space per expansion; `widest_per_center` also stores 2n − 1 pairs, O(n).
+Complexity: O(n²) time in the worst case (2n − 1 centers × up to about n/2 steps each). Each expansion uses O(1) extra space. `widest_per_center` also stores 2n − 1 pairs, which is O(n).
 
 ### Recognition
 
+These are the signals that expand-around-center fits:
+
 - The problem mentions palindromes, "reads the same backwards", or mirror symmetry of a **contiguous** piece of a string.
-- n is up to a few thousand, so O(n²) is fine and O(n³) isn't.
-- You need information about many palindromic substrings at once (the longest, how many, all of them, which ones touch an edge). Expand-around-center enumerates all of them in O(n²).
+- n is up to a few thousand. So O(n²) is fine, and O(n³) isn't.
+- You need information about many palindromic substrings at once: the longest, how many there are, all of them, or which ones touch an edge. Expand-around-center lists all of them in O(n²).
 
 In the list, Longest Palindromic Substring and Palindromic Substrings show these signals directly.
 
-When not to use it, and neighbours to tell apart:
+When not to use it, and the neighbours to tell it apart from:
 
-- **Checking one given string.** Two pointers from both ends, O(n); that's Part 3's [Two Pointers](/blogs/dsa-two-pointers/) territory, not center expansion.
-- **Palindromic subsequences** (characters may be skipped). The mirror argument breaks because skipped characters mean there's no fixed center; that's an interval DP over (i, j), which is 2-D DP.
+- **Checking one given string.** Use two pointers from both ends, in O(n). That's Part 3's [Two Pointers](/blogs/dsa-two-pointers/) territory, not center expansion.
+- **Palindromic subsequences**, where characters may be skipped. The mirror argument breaks, because skipped characters mean there's no fixed center. That's an interval DP over (i, j), which is 2-D DP.
 - **n around 10^5 or more, or many queries.** O(n²) is too slow. Manacher's algorithm or hashing is the tool (recalled).
-- **"Can the letters be rearranged into a palindrome?"** That's a character-count question (at most one odd count), a hash map, not substrings.
+- **"Can the letters be rearranged into a palindrome?"** That's a character-count question (at most one letter may have an odd count). You answer it with a hash map, not by looking at substrings.
 
 ### Pitfalls
 
-- **Only odd centers.** Misses every even-length palindrome; "acca" is invisible.
-- **Off-by-one on the way out.** The loop overshoots both ends, so the palindrome is s[l + 1 .. r − 1]; its length is r − l − 1, not r − l + 1.
-- **Empty gap centers.** A gap center whose two sides differ yields an empty range (lo > hi). Code that slices or measures it must treat that as length 0, not crash or count it.
-- **Empty string.** `range(2 * 0 - 1)` is `range(-1)`, which is empty, so the loop is simply skipped; make sure the caller handles "no palindromes" correctly.
-- **Assuming O(n²) is loose.** It isn't; "aaaa…a" hits it. If n is 10^5, center expansion will time out.
+- **Only odd centers.** This misses every even-length palindrome. "acca" becomes invisible.
+- **Off-by-one on the way out.** The loop overshoots by one on both ends. So the palindrome is s[l + 1 .. r − 1], and its length is r − l − 1, not r − l + 1.
+- **Empty gap centers.** A gap center whose two sides differ gives an empty range (lo > hi). Code that slices or measures it must treat that as length 0. It shouldn't crash, and it shouldn't count it.
+- **Empty string.** `range(2 * 0 - 1)` is `range(-1)`, which is empty, so the loop is simply skipped. Make sure the caller handles "no palindromes" correctly.
+- **Assuming O(n²) is a loose bound.** It isn't, because "aaaa…a" actually hits it. If n is 10^5, center expansion will time out.
 
 ### Active Recall
 
@@ -402,7 +466,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included: the two list problems that use this technique apply center expansion directly as a labelled pattern rather than having to discover it, so it gets independent practice here.
+Included for this topic. The two list problems that use this technique hand you center expansion as a known pattern. You never have to discover it yourself. So this task gives you that practice here.
 
 Given a string s, you may only add characters to its **front**. Return the shortest palindrome you can make this way. For s = "abacd" the answer is "dcabacd". Assume n ≤ 2000.
 
@@ -427,9 +491,20 @@ Ask me whether I would use expand-around-center here and why, and wait for my an
 
 ## Integration
 
-How the two modules connect to 1-D DP. The first module is the main engine: choose a one-index state, find the recurrence by splitting on the last decision, pin the base cases, then compress from recursion to memo to table to a few variables. Palindromes are the one place in this topic where the natural state is really two-dimensional, pal(i, j), and expand-around-center is the trick that walks that recurrence without storing the table. Palindromes show up in two roles: directly, where the answer is a fact about palindromic substrings (the two palindrome problems in this list), and as a building block that another search or prefix DP consults ("is this last piece a palindrome?"), which is how Palindrome Partitioning in the [Backtracking](/blogs/dsa-backtracking/) part used it. That second use is also a bridge to [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/), where the table stops being optional.
+How do the two modules connect to 1-D DP?
 
-Distinguishing competing approaches:
+The first module is the main engine. Choose a one-index state. Find the recurrence by splitting on the last decision. Fix the base cases. Then compress the code from recursion, to memo, to table, to a few variables.
+
+Palindromes are the one place in this topic where the natural state really has two indices: pal(i, j). Expand-around-center is the trick that walks that recurrence without storing the table.
+
+Palindromes show up in two roles:
+
+- **Directly**, where the answer is a fact about palindromic substrings. The two palindrome problems in this list work this way.
+- **As a building block** that another search or prefix DP asks: "is this last piece a palindrome?" That's how Palindrome Partitioning used it in the [Backtracking](/blogs/dsa-backtracking/) part.
+
+That second role is also a bridge to [2-D Dynamic Programming](/blogs/dsa-2d-dynamic-programming/), where storing the table stops being optional.
+
+How to tell competing approaches apart:
 
 | If you see | Consider | Tell-apart question |
 | --- | --- | --- |
@@ -444,19 +519,27 @@ Distinguishing competing approaches:
 
 Recognition checklist for an unfamiliar problem:
 
-1. What is being asked: all solutions, or a count / optimum / yes-no? Only the second is DP.
+1. What is being asked: all solutions, or a count / optimum / yes-no? Only the second one is DP.
 2. Sketch the backtracking tree for a tiny input. Do subproblems repeat? Which quantity identifies a subproblem (position, amount, end index)?
-3. Say the state in one sentence with units: "dp[i] = ___ for ___".
-4. Ask "what's the last decision?" and write the recurrence as a combine (sum / min / max / or) over its options.
-5. Base cases: the true answers for the smallest states; for counts, "one empty arrangement" at size 0; for min, 0 at the start and infinity elsewhere.
-6. Order of evaluation: which direction makes every read already filled? For use-once items over an amount, scan the amount downward.
-7. Which old states does the recurrence read? If only the last k, compress to k variables.
+3. Say the state in one sentence, with units: "dp[i] = ___ for ___".
+4. Ask "what's the last decision?" Then write the recurrence as a combine (sum / min / max / or) over its options.
+5. Base cases are the true answers for the smallest states. For counts, that's "one empty arrangement" at size 0. For min, it's 0 at the start and infinity everywhere else.
+6. Order of evaluation: which direction means every cell you read is already filled? For use-once items over an amount, scan the amount downward.
+7. Which old states does the recurrence read? If it only reads the last k, compress to k variables.
 8. If the objective can flip sign, carry both a max and a min "ending here".
-9. If palindromes of substrings are involved, enumerate 2n − 1 centers and expand; check whether n allows O(n²).
+9. If palindromic substrings are involved, go through all 2n − 1 centers and expand. Check whether n allows O(n²).
 
 ## The problems
 
-Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, then the one key sentence, then spaced repetition. For DP, during the struggle, write down before any code: what does the state represent? What's the recurrence? What are the base cases? If you're stuck after the struggle, take only the recurrence from a video walkthrough of the problem, then write it yourself as recurrence → memo → tabulation (→ O(1) space where the recurrence allows).
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute honest struggle, write down the one key sentence, then review it with spaced repetition.
+
+For DP, during the struggle, write these down before any code:
+
+- What does the state represent?
+- What's the recurrence?
+- What are the base cases?
+
+If you're still stuck after the struggle, take only the recurrence from a video walkthrough of the problem. Then write the code yourself as recurrence → memo → tabulation (→ O(1) space where the recurrence allows).
 
 {% include dsa-problems.html slug="dsa-1d-dynamic-programming" %}
 

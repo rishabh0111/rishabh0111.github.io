@@ -5,42 +5,46 @@ date: 2024-03-04 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, graphs, union-find, python, series]
-read_time: 50
+read_time: 54
 permalink: /blogs/dsa-graphs/
-excerpt: "Grids, adjacency lists, BFS layers, three-colour cycle detection and Union-Find, taught so the thirteen graph problems stop looking like thirteen different problems."
+excerpt: "Grids, adjacency lists, BFS layers, three-colour cycle detection and Union-Find. Learn these and the thirteen graph problems stop looking like thirteen different problems."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 14
 series_total: 19
 links_new_tab: true
 ---
 
-A graph is data that isn't a line, a chain or a hierarchy: things connect to other things, possibly in loops and in separate pieces, and the question is almost always "what can I reach from here, how fast, and in what order". The traversal is the DFS and BFS from [Trees](/blogs/dsa-trees/) and the mark-and-explore recursion from [Backtracking](/blogs/dsa-backtracking/), plus one thing trees never needed: a record of where you've already been. Directed cycle detection and ordering are folded into Adjacency List, Union-Find gets its own short module at the end, and all of it unlocks [Advanced Graphs](/blogs/dsa-advanced-graphs/) and [2-D DP](/blogs/dsa-2d-dynamic-programming/).
+Some data isn't a line, a chain or a hierarchy. Things connect to other things. The connections can form loops, and the data can come in separate pieces. That's a graph. The question you ask of one is almost always the same: what can I reach from here, how fast, and in what order?
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+You already know the tools for walking a graph. They are the DFS and BFS from [Trees](/blogs/dsa-trees/) and the mark-and-explore recursion from [Backtracking](/blogs/dsa-backtracking/). Graphs add one thing trees never needed: a record of where you've already been.
+
+Here is how the post is laid out. Directed cycle detection and ordering live inside the Adjacency List module. Union-Find gets its own short module at the end. All of it unlocks [Advanced Graphs](/blogs/dsa-advanced-graphs/) and [2-D DP](/blogs/dsa-2d-dynamic-programming/).
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Intro to Graphs
 
 ### Foundation
 
-A graph is a set of **vertices** (nodes) and a set of **edges** (connections between pairs of vertices). That's the whole definition. Everything else is a property of the edges:
+A graph has two parts. There is a set of **vertices**, also called nodes. And there is a set of **edges**, where each edge connects a pair of vertices. That's the whole definition. Everything else describes the edges:
 
-- **Directed or undirected.** A follow on a social network is directed (I follow you, you might not follow me). A friendship is undirected. An undirected edge is just a directed edge in both directions.
-- **Cycles.** A path that returns to its start. Trees are exactly the graphs where this can't happen.
-- **Connected components.** The separate pieces. A graph doesn't have to be one piece.
+- **Directed or undirected.** A follow on a social network is directed: I can follow you without you following me. A friendship is undirected, because it goes both ways. You can think of an undirected edge as two directed edges, one each way.
+- **Cycles.** A cycle is a path that comes back to where it started. Trees are exactly the graphs where this can't happen.
+- **Connected components.** These are the separate pieces of the graph. A graph doesn't have to be one piece.
 
-With V vertices there are at most V² directed edges, so E can be anywhere from 0 to roughly V². That range is why representation matters.
+We write V for the number of vertices and E for the number of edges. With V vertices there are at most V² directed edges. So E can be anywhere from 0 up to roughly V². That huge range is why the way you store a graph matters.
 
 ### Mechanics
 
 Interview problems hand you graphs in three shapes:
 
-1. **A grid (matrix).** Each cell is a vertex, and its neighbours are the cells up, down, left and right. The edges are never stored. You compute them from `(r ± 1, c)` and `(r, c ± 1)` when you need them.
-2. **An adjacency matrix.** A V × V table where `matrix[u][v] == 1` means an edge u → v. Checking one edge is O(1), but the table always costs V² memory, however few edges there are.
-3. **An adjacency list.** For every vertex, a list of its neighbours. It costs O(V + E) memory and makes "iterate over u's neighbours" cost exactly deg(u). This is what you build from an edge list almost every time.
+1. **A grid (matrix).** Each cell is a vertex. Its neighbours are the cells up, down, left and right. The edges are never stored. You work them out from `(r ± 1, c)` and `(r, c ± 1)` when you need them.
+2. **An adjacency matrix.** This is a V × V table. `matrix[u][v] == 1` means there is an edge u → v. Checking one edge is O(1). But the table always costs V² memory, however few edges there are.
+3. **An adjacency list.** Every vertex gets a list of its neighbours. It costs O(V + E) memory. A vertex's **degree**, written deg(u), is the number of neighbours it has, so looping over u's neighbours costs exactly deg(u). When you're given a list of edges, this is what you build almost every time.
 
-The worked example for this module: n = 5 vertices, undirected edges `[[0, 1], [0, 2], [1, 2], [3, 4]]`.
+The worked example for this module has n = 5 vertices and the undirected edges `[[0, 1], [0, 2], [1, 2], [3, 4]]`.
 
-The key property: in an undirected adjacency list, every edge appears twice, once in each endpoint's list. So the list lengths (the degrees) add up to 2E. Here that's 2 + 2 + 2 + 1 + 1 = 8 = 2 × 4.
+One property is worth remembering. In an undirected adjacency list, every edge shows up twice, once in each endpoint's list. Edge [0, 1] puts 1 in 0's list and 0 in 1's list. So the list lengths (the degrees) add up to 2E. Here that's 2 + 2 + 2 + 1 + 1 = 8, which is 2 × 4.
 
 ### Diagram
 
@@ -80,21 +84,21 @@ print(to_adj_list(5, edges, directed=True))
 # {0: [1, 2], 1: [2], 2: [], 3: [4], 4: []}
 ```
 
-Building either takes O(E) after initialisation. The matrix costs O(V²) time and space to initialise. The list costs O(V + E) in total.
+Filling in the edges takes O(E) for either one, once the empty structure exists. Setting up the empty matrix already costs O(V²) time and space. The list costs O(V + E) in total.
 
 ### Recognition
 
-- Any time the input is "n things and a list of pairs", build an adjacency list first. That covers Course Schedule, Course Schedule II, Graph Valid Tree, Number of Connected Components In An Undirected Graph and Redundant Connection.
-- A 2-D grid where cells relate to their neighbours is a graph with implicit edges. Don't convert it to an adjacency list. Number of Islands, Max Area of Island, Walls And Gates, Rotting Oranges, Pacific Atlantic Water Flow and Surrounded Regions all work straight on the grid.
+- Whenever the input is "n things and a list of pairs", build an adjacency list first. That covers Course Schedule, Course Schedule II, Graph Valid Tree, Number of Connected Components In An Undirected Graph and Redundant Connection.
+- A 2-D grid where each cell relates to its neighbours is a graph whose edges are implicit (worked out, not stored). Don't convert it to an adjacency list. Number of Islands, Max Area of Island, Walls And Gates, Rotting Oranges, Pacific Atlantic Water Flow and Surrounded Regions all work straight on the grid.
 - Clone Graph hands you the adjacency list already built into node objects (`node.neighbors`).
 - Reach for an adjacency matrix only when V is small and you need constant-time "is there an edge u → v?" checks.
 
 ### Pitfalls
 
-- **Forgetting the reverse edge** for undirected input. You'll get a traversal that works from one side of the graph and not the other.
-- **Missing isolated vertices.** If you build with a `defaultdict` and never touch vertex k, then `adj` has no key k. Looping over `adj` instead of `range(n)` silently skips it. That matters when you're counting components.
-- **Self-loops in undirected input.** Edge `[0, 0]` with the code above gives `adj[0] == [0, 0]`, one append for each direction. That's harmless for a traversal, since 0 is already marked when it sees itself. But if you read `len(adj[0])` as "number of distinct neighbours", you get 2 for a vertex whose only neighbour is itself.
-- **Choosing the matrix for a big sparse graph.** Take V = 10⁵ and E = 2 × 10⁵. The matrix has 10¹⁰ cells, and the list has 4 × 10⁵ entries.
+- **Forgetting the reverse edge** for undirected input. Your traversal will then work from one side of the graph but not from the other.
+- **Missing isolated vertices.** Say you build with a `defaultdict` and never touch vertex k. Then `adj` has no key k. If you loop over `adj` instead of `range(n)`, you skip k without any error. That matters when you're counting components.
+- **Self-loops in undirected input.** With the code above, edge `[0, 0]` gives `adj[0] == [0, 0]`, one append for each direction. A traversal doesn't care, because 0 is already marked when it sees itself. But if you read `len(adj[0])` as "number of distinct neighbours", you get 2 for a vertex whose only neighbour is itself.
+- **Choosing the matrix for a big sparse graph.** Sparse means few edges compared to V². Take V = 10⁵ and E = 2 × 10⁵. The matrix has 10¹⁰ cells, while the list has only 4 × 10⁵ entries.
 
 ### Active Recall
 
@@ -121,7 +125,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: none of the problems on this list exercises degree counting on its own (they all use the graph inside a traversal), so this checkpoint is included.
+Judgment call: none of the problems on this list practises degree counting on its own. They all use the graph inside a traversal. So this checkpoint is included.
 
 A town has n people labelled 1 to n. `trust` is a list of pairs `[a, b]` meaning "a trusts b". No pair appears twice, and nobody trusts themselves. There's a rumour that one person is the town judge. The judge trusts nobody, and everybody else trusts the judge. Return the judge's label, or -1 if no such person exists. For example, n = 3 and trust = `[[1, 3], [2, 3]]` returns 3.
 
@@ -148,7 +152,9 @@ Ask me whether I would use an adjacency matrix or an adjacency list here and why
 
 ### Foundation
 
-Think of a paint bucket tool. You click one pixel and every same-coloured pixel connected to it changes colour, spreading until it hits a boundary. That's depth-first search on a grid: go as deep as you can in one direction, back up when you're blocked, try the next direction. It answers "which cells can I reach from here?", and every time a cell is reached you can collect something from it.
+Think of the paint bucket tool in a drawing app. You click one pixel. Every same-coloured pixel connected to it changes colour, and the colour keeps spreading until it hits a boundary.
+
+That's depth-first search (DFS) on a grid. Go as deep as you can in one direction. When you're blocked, back up and try the next direction. It answers "which cells can I reach from here?" And each time it reaches a cell, you can collect something from that cell.
 
 ### Mechanics
 
@@ -156,23 +162,27 @@ The worked example is a 4 × 4 grid, with 0 for an open cell and 1 for a wall.
 
 <figure class="sketch">{% include sketches/dsa-graphs/grid.svg %}</figure>
 
-Flood fill from (0, 0) marks every reachable open cell as 2:
+Flood fill from (0, 0) marks every open cell it can reach as 2. It works like this:
 
-1. `dfs(r, c)` first checks whether the cell is off the grid, a wall, or already marked. If any is true, return. This one guard is the base case.
-2. Otherwise mark `grid[r][c] = 2` **before** recursing.
+1. `dfs(r, c)` first checks three things: is the cell off the grid, is it a wall, or is it already marked? If any is true, return. This one guard is the base case.
+2. Otherwise, mark `grid[r][c] = 2` **before** recursing.
 3. Recurse into the four neighbours.
 
-Why marking before recursing is the decision that matters: (0, 0) recurses into (0, 1), and (0, 1)'s neighbour list includes (0, 0) again. If (0, 0) were still 0 at that moment, the two cells would call each other forever. I ran a version that marks after the recursive calls on this grid and got a `RecursionError`. Marking first means that when (0, 1) looks back, it sees 2 and stops.
+Why does it matter that you mark before recursing? Follow the first step. (0, 0) recurses into (0, 1). But (0, 1) has (0, 0) as one of its neighbours. If (0, 0) were still 0 at that moment, (0, 1) would call back into it, and the two cells would call each other forever. I ran a version that marks after the recursive calls on this grid and got a `RecursionError`. When you mark first, (0, 1) looks back, sees 2, and stops.
 
-The invariant: **every cell is marked at most once, and once marked it is never explored again.** That's what makes the total work proportional to the grid size.
+An **invariant** is a fact that stays true the whole time the algorithm runs. Here it is: **every cell is marked at most once, and once marked it is never explored again.** That's why the total work grows with the grid size and no faster.
 
-Matrix DFS has a second classic use: counting **paths** from the top-left to the bottom-right. That changes one thing. A cell can sit on many different paths, so it's marked only while it's on the current path and unmarked on the way back out. That's the backtracking pattern. Flood fill asks "is this cell reachable?", which has one answer per cell. Path counting asks "how many routes are there?", where a cell can be reused by different routes.
+Matrix DFS has a second classic use: counting the **paths** from the top-left to the bottom-right. That changes one thing. A cell can sit on many different paths. So a cell is marked only while it's on the current path, and unmarked on the way back out. That's the backtracking pattern.
+
+The difference comes from the question. Flood fill asks "is this cell reachable?", which has one answer per cell. Path counting asks "how many routes are there?", and different routes can reuse the same cell.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-graphs/dfs-order.svg %}</figure>
 
-Follow the numbers. It goes right to (0, 1), down to (1, 1), down to (2, 1), and hits a dead end. It backs up to (1, 1), goes right to (1, 2), up to (0, 2), and hits another dead end. It backs up to (1, 2), goes right to (1, 3), then down, down, left. (3, 0) is open but boxed in by walls, so no path reaches it. Path counting, on the same grid, finds exactly two simple paths to (3, 3).
+Follow the numbers. DFS goes right to (0, 1), down to (1, 1), down to (2, 1), and hits a dead end. It backs up to (1, 1), goes right to (1, 2), up to (0, 2), and hits another dead end. It backs up to (1, 2), goes right to (1, 3), then down, down, left. (3, 0) is open, but walls box it in, so no path reaches it.
+
+Path counting on the same grid finds exactly two simple paths to (3, 3). A simple path is one that never visits the same cell twice.
 
 <figure class="sketch">{% include sketches/dsa-graphs/dfs-paths.svg %}</figure>
 
@@ -221,24 +231,29 @@ flood_fill(grid, 0, 0)
 # grid is now [[2,2,2,1], [1,2,2,2], [1,2,1,2], [0,1,2,2]]; (3, 0) stays 0
 ```
 
-Flood fill on an R × C grid takes O(R · C) time, because each cell is marked once and each marked cell checks 4 neighbours. Space is O(R · C) for the recursion stack in the worst case (a snake-shaped region). Path counting is exponential in the worst case, because it enumerates paths rather than cells.
+Flood fill on an R × C grid takes O(R · C) time. Each cell is marked once, and each marked cell checks 4 neighbours. Space is O(R · C) for the recursion stack in the worst case, which is a long snake-shaped region where every call waits on the next. Path counting is exponential in the worst case, because it lists every path, and there can be far more paths than cells.
 
-Edge cases I ran: starting on a wall (0, 3) marks nothing. Starting on the isolated (3, 0) marks only (3, 0). A 1 × 1 grid `[[0]]` becomes `[[2]]`. For path counting, `[[0]]` gives 1, `[[0, 1], [1, 0]]` gives 0, and an open 2 × 2 gives 2.
+Edge cases I ran:
+
+- Starting on the wall at (0, 3) marks nothing.
+- Starting on the isolated (3, 0) marks only (3, 0).
+- A 1 × 1 grid `[[0]]` becomes `[[2]]`.
+- For path counting, `[[0]]` gives 1, `[[0, 1], [1, 0]]` gives 0, and an open 2 × 2 gives 2.
 
 ### Recognition
 
-- Signals: a grid, and words like "connected", "region", "island", "enclosed", "reachable", "flows to". The question is about a whole group of cells, not the distance to one of them.
-- On this list: Number of Islands, Max Area of Island, Pacific Atlantic Water Flow and Surrounded Regions all show these signals.
-- Not DFS when the question is "fewest steps" or "minimum time". DFS reaches a cell by whichever path it tries first, not the shortest one. That's BFS, the next module.
-- Flood fill (mark permanently) versus path enumeration (mark and unmark): if the answer depends on the route taken, you're backtracking, and the cost is exponential.
+- **Signals:** a grid, plus words like "connected", "region", "island", "enclosed", "reachable" or "flows to". The question is about a whole group of cells, not the distance to one of them.
+- **On this list:** Number of Islands, Max Area of Island, Pacific Atlantic Water Flow and Surrounded Regions all show these signals.
+- **Not DFS when the question is "fewest steps" or "minimum time".** DFS reaches a cell by whichever path it tries first, which may not be the shortest one. That job belongs to BFS, the next module.
+- **Flood fill or path enumeration?** Flood fill marks cells for good. Path enumeration marks and then unmarks. If the answer depends on the route taken, you're backtracking, and the cost is exponential.
 
 ### Pitfalls
 
 - **Marking after recursing** causes infinite recursion (the `RecursionError` above).
-- **Recursion depth.** An all-open 200 × 200 grid can need a call stack 40,000 frames deep, and CPython's default limit is 1000 (recalled; `sys.getrecursionlimit()` printed 1000 on my machine). Use an explicit stack (the Iterative DFS pattern from Trees) or raise the limit.
-- **Mutating input you're not allowed to touch.** If the grid must survive, use a separate `visited` set, at the cost of O(R · C) extra space.
-- **Bounds check order.** Check `0 <= r < rows` before reading `grid[r][c]`. Python's `grid[-1]` doesn't crash. It quietly reads the last row.
-- **Forgetting to unmark in path counting.** I ran the version without `visit.remove`, and it returns 1 instead of 2, because path A's marks block path B.
+- **Recursion depth.** An all-open 200 × 200 grid can need a call stack 40,000 frames deep. CPython's default limit is 1000 (recalled; `sys.getrecursionlimit()` printed 1000 on my machine). Use an explicit stack instead (the Iterative DFS pattern from Trees), or raise the limit.
+- **Changing input you're not allowed to touch.** If the grid must stay as it was, keep a separate `visited` set. That costs O(R · C) extra space.
+- **Checking bounds in the wrong order.** Check `0 <= r < rows` before you read `grid[r][c]`. Python's `grid[-1]` doesn't crash. It quietly reads the last row.
+- **Forgetting to unmark in path counting.** I ran the version without `visit.remove`, and it returns 1 instead of 2. Path A's marks are left behind and block path B.
 
 ### Active Recall
 
@@ -265,7 +280,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: Pacific Atlantic Water Flow and Surrounded Regions each need their own derivation of how to apply flood fill, beyond running one, so this checkpoint is skipped and that reasoning happens when you solve them.
+Skipped for this module. Pacific Atlantic Water Flow and Surrounded Regions each make you work out how to apply flood fill, not just run it. So you'll practise that reasoning when you solve them.
 
 ### Transfer test
 
@@ -281,21 +296,25 @@ Ask me whether I would use matrix DFS (flood fill) here and why, and wait for my
 
 ### Foundation
 
-Drop a stone in a pond. The ripple reaches everything 1 unit away, then everything 2 units away, then 3. Breadth-first search works the same way. It visits cells in rings of equal distance from the start, so the first time it reaches any cell, it has reached it by the shortest route. It answers "what's the fewest number of moves?" when every move costs the same.
+Drop a stone in a pond. The ripple reaches everything 1 unit away, then everything 2 units away, then 3. Breadth-first search (BFS) works the same way. It visits cells in rings, where every cell in a ring is the same distance from the start. So the first time BFS reaches a cell, it got there by the shortest route. It answers "what's the fewest number of moves?" when every move costs the same.
 
 ### Mechanics
 
-Same grid, same start (0, 0), target (3, 3).
+We use the same grid and the same start, (0, 0), with (3, 3) as the target.
 
 1. Put the start in a queue and mark it seen.
-2. Process the queue **one layer at a time**. Read `len(q)` once, pop exactly that many cells, and push their unseen open neighbours. When the layer is done, `steps += 1`.
+2. Process the queue **one layer at a time**. A layer is one ring: all the cells at the same distance. Read `len(q)` once, pop exactly that many cells, and push their unseen open neighbours. When the layer is done, do `steps += 1`.
 3. When the target is popped, return `steps`.
 
-The invariant: **at the start of each layer, the queue holds exactly the cells at distance `steps`, and every closer cell has already been popped.** A cell's neighbours are at most one further away, so everything pushed during layer k is at distance k + 1. No shorter route can turn up later, because all shorter distances were fully processed first.
+The invariant (the fact that stays true at every step) is this: **at the start of each layer, the queue holds exactly the cells at distance `steps`, and every closer cell has already been popped.**
 
-Mark cells **when you enqueue them**, not when you pop them. A cell can be adjacent to several cells in the current layer. Marking on push means it enters the queue once. Marking on pop lets duplicates in. I counted pushes: 10 versus 11 on this grid, and 9 versus 13 on an open 3 × 3.
+Why does it hold? A cell's neighbours are at most one step further away than the cell itself. So everything pushed during layer k is at distance k + 1. And no shorter route can turn up later, because every shorter distance was fully processed first.
 
-The multi-source variant: if there are several starting cells, push **all** of them at distance 0 before the loop starts. Every cell then gets the distance to its **nearest** source. It's correct because it's the same as adding one imaginary vertex joined to every source and running ordinary BFS from it. Every distance shifts by one layer, and nothing else changes, in the reasoning or in the code.
+Mark cells **when you enqueue them**, not when you pop them. A cell can be next to several cells in the current layer. If you mark it on push, it enters the queue only once. If you wait until it's popped, each of those neighbours can push it again, so duplicates get in. I counted pushes: 10 versus 11 on this grid, and 9 versus 13 on an open 3 × 3.
+
+Now the multi-source variant. Say there are several starting cells. Push **all** of them at distance 0 before the loop starts. Every cell then gets its distance to the **nearest** source.
+
+Why is that correct? Imagine adding one extra vertex that is joined to every source, and running ordinary BFS from it. That's the same thing. Every distance shifts by one layer, and nothing else changes, in the reasoning or in the code.
 
 ### Diagram
 
@@ -303,7 +322,7 @@ The multi-source variant: if there are several starting cells, push **all** of t
 
 <figure class="sketch">{% include sketches/dsa-graphs/bfs-multi-source.svg %}</figure>
 
-(1, 3) drops from 4 to 2, because (3, 3) is closer. (3, 2) drops from 7 to 1.
+With (3, 3) added as a second source, (1, 3) drops from 4 to 2, because (3, 3) is closer to it. (3, 2) drops from 7 to 1.
 
 ### Implementation
 
@@ -348,22 +367,22 @@ print(shortest_path([[0]], [(0, 0)], (0, 0)))         # 0
 print(shortest_path([[1]], [(0, 0)], (0, 0)))         # -1: the only source is a wall
 ```
 
-Time O(R · C), because each cell is pushed and popped at most once and checks 4 neighbours. Space O(R · C) for `seen` and the queue.
+Time is O(R · C). Each cell is pushed and popped at most once, and each one checks 4 neighbours. Space is O(R · C) for `seen` and the queue.
 
 ### Recognition
 
-- Signals: "minimum number of steps / moves / minutes / transformations", with every move costing the same. If the answer is a count of hops, think BFS.
-- Several starting points spreading at the same time ("every X affects its neighbours each minute", "distance to the nearest Y") means multi-source BFS. Walls And Gates and Rotting Oranges show this signal.
-- The graph doesn't have to be a grid. Word Ladder asks for a minimum number of transformations, so it's BFS over vertices you generate yourself.
-- Not BFS when moves have different costs. That's Dijkstra ([Advanced Graphs](/blogs/dsa-advanced-graphs/)). And not needed when you only care whether a cell is reachable, not how far it is. DFS is simpler there.
+- **Signals:** "minimum number of steps / moves / minutes / transformations", where every move costs the same. If the answer is a count of hops, think BFS.
+- **Several starting points spreading at the same time** means multi-source BFS. Look for phrases like "every X affects its neighbours each minute" or "distance to the nearest Y". Walls And Gates and Rotting Oranges show this signal.
+- **The graph doesn't have to be a grid.** Word Ladder asks for a minimum number of transformations. So it's BFS over vertices you generate yourself.
+- **Not BFS when moves have different costs.** That's Dijkstra ([Advanced Graphs](/blogs/dsa-advanced-graphs/)). And you don't need BFS when you only care whether a cell is reachable, not how far away it is. DFS is simpler there.
 
 ### Pitfalls
 
-- **Marking on pop** lets duplicates into the queue (11 versus 10 pushes here, 13 versus 9 on an open 3 × 3). The answer is still right, but the work grows. With several sources it's also easy to count a cell twice.
-- **Incrementing `steps` per pop instead of per layer.** Then `steps` counts cells processed, not distance.
-- **Returning `steps` off by one.** Decide whether you count moves (start = 0) or cells on the path (start = 1), and check it against a 1 × 1 grid. Here `[[0]]` returns 0.
-- **Using a list as the queue.** `list.pop(0)` shifts every element, so the loop turns quadratic.
-- **A blocked source.** If the start cell is a wall, return -1 before the loop, which is what the `grid[r][c] == 0` check in the seeding loop does.
+- **Marking on pop** lets duplicates into the queue: 11 versus 10 pushes here, and 13 versus 9 on an open 3 × 3. The answer is still right, but you do more work. With several sources, it's also easy to count a cell twice.
+- **Adding 1 to `steps` on every pop instead of every layer.** Then `steps` counts how many cells you've processed, not the distance.
+- **Returning `steps` off by one.** Decide whether you count moves (start = 0) or cells on the path (start = 1). Then check against a 1 × 1 grid. Here `[[0]]` returns 0.
+- **Using a list as the queue.** `list.pop(0)` shifts every remaining element along by one, so the loop becomes quadratic.
+- **A blocked source.** If the start cell is a wall, return -1 before the loop. That's what the `grid[r][c] == 0` check in the seeding loop does.
 
 ### Active Recall
 
@@ -390,7 +409,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: Word Ladder has to be derived from scratch, starting with what counts as a vertex and what counts as a neighbour, before any BFS runs, so this checkpoint is skipped and that derivation happens when you solve it.
+Skipped for this module. In Word Ladder you have to work out from scratch what counts as a vertex and what counts as a neighbour, before any BFS runs. You'll practise that when you solve it.
 
 ### Transfer test
 
@@ -406,31 +425,42 @@ Ask me whether I would use matrix BFS here and why, and wait for my answer. Then
 
 ### Foundation
 
-Grids come with their edges built in. Most other graphs arrive as a list of pairs, and you build the adjacency list yourself (from the first module). Then DFS and BFS work exactly as they did on grids, except "the four neighbours" becomes "`adj[u]`". The new thing is **direction**. A directed edge u → v means "u leads to v" or "u must come before v", and that raises a question grids never did: can following the arrows bring you back to where you started? For dependencies ("build step u must run before step v"), a loop means no valid order exists. When there's no loop, you want an order.
+Grids come with their edges built in. Most other graphs arrive as a list of pairs, and you build the adjacency list yourself, as in the first module. After that, DFS and BFS work exactly as they did on grids. The only change is that "the four neighbours" becomes "`adj[u]`".
+
+The new thing is **direction**. A directed edge u → v means "u leads to v", or "u must come before v". That raises a question grids never did: can following the arrows bring you back to where you started? Think of dependencies, like "build step u must run before step v". If the arrows form a loop, no valid order exists. If there's no loop, you want an order.
 
 ### Mechanics
 
-The worked example: 6 build steps, directed edges `[[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [5, 4]]`, where u → v means "u before v".
+The worked example has 6 build steps and the directed edges `[[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [5, 4]]`. Here u → v means "u before v".
 
-**BFS on an adjacency list** is the Matrix BFS loop with `for v in adj[u]` as the neighbour loop. From 0, the fewest hops to 4 is 3 (0 → 1 → 3 → 4). From 4 to 0 it's -1, because edges only go one way.
+**BFS on an adjacency list** is the Matrix BFS loop, with `for v in adj[u]` as the neighbour loop. From 0, the fewest hops to 4 is 3 (0 → 1 → 3 → 4). From 4 to 0 the answer is -1, because edges only go one way.
 
-**Directed cycle detection with three colours.** A plain `visited` set isn't enough in a directed graph. Every vertex gets a colour:
+**Directed cycle detection with three colours.** In a directed graph, a plain `visited` set isn't enough (we'll see why in a moment). Instead, every vertex gets a colour:
 
 - **WHITE**: not visited yet.
-- **GRAY**: visited, and still on the current recursion path (we're inside its `dfs` call).
+- **GRAY**: visited, and still on the current recursion path. In other words, we're still inside its `dfs` call.
 - **BLACK**: finished. Every vertex reachable from it has been explored, and none of them led back.
 
-When `dfs(u)` looks at a neighbour v:
+When `dfs(u)` looks at a neighbour v, there are three cases:
 
-- v is **GRAY**: v is an ancestor of u on the current path, so there's a path v → … → u, and the edge u → v closes it into a cycle. Report the cycle.
-- v is **WHITE**: recurse into v.
-- v is **BLACK**: skip v. Is that safe? For u → v to be part of a cycle, v would need a path back to u. If it had one, v's own DFS would have walked that path. It would either have met u as GRAY and reported the cycle, or found u WHITE, visited it, and finished it, in which case u would already be BLACK and could not be GRAY now. Neither happened, so the path doesn't exist.
+- **v is GRAY.** Then v is an ancestor of u on the current path. So there's already a path v → … → u, and the edge u → v closes it into a cycle. Report the cycle.
+- **v is WHITE.** Recurse into v.
+- **v is BLACK.** Skip v.
 
-The BLACK case is why two colours aren't enough. In the example, 0 → 1 → 3 and 0 → 2 → 3 both reach 3 (a diamond). When `dfs(2)` looks at 3, 3 has already been visited through 1, but that's two routes to the same place, not a loop. I ran a visited-only version on this DAG and it wrongly reports a cycle.
+Is skipping a BLACK vertex safe? For u → v to be part of a cycle, v would need a path back to u. If v had one, v's own DFS would have walked it. Then one of two things would have happened:
 
-**Ordering for free.** Record each vertex when it turns BLACK (postorder). Then reverse the list. For every edge u → v, u comes before v. Why: when `dfs(u)` examines v, either v is WHITE (so it recurses and v finishes first), or v is already BLACK (already finished). GRAY would be a cycle. Either way v finishes before u, so v is earlier in the postorder and later in the reversed list.
+- It met u as GRAY, and reported the cycle.
+- It found u WHITE, visited it and finished it. Then u would already be BLACK, and couldn't be GRAY now.
 
-Finally, loop over **every** vertex and start a DFS from each one still WHITE. The graph may not be reachable from vertex 0 (vertex 5 isn't).
+Neither happened, so that path back to u doesn't exist.
+
+The BLACK case is why two colours (visited or not) aren't enough. In the example, 0 → 1 → 3 and 0 → 2 → 3 both reach 3. This shape is called a diamond. When `dfs(2)` looks at 3, 3 has already been visited through 1. But that's two routes to the same place, not a loop. A graph with directions and no cycles is called a DAG (directed acyclic graph). I ran a visited-only version on this DAG, and it wrongly reports a cycle.
+
+**Getting an order for free.** Record each vertex at the moment it turns BLACK. This finishing order is called the postorder. Then reverse the list. In the reversed list, u comes before v for every edge u → v.
+
+Why does that work? When `dfs(u)` examines v, v is either WHITE or BLACK. (GRAY would mean a cycle.) If v is WHITE, `dfs(u)` recurses into it, so v finishes first. If v is BLACK, it has already finished. Either way, v finishes before u. So v is earlier in the postorder, which puts it later in the reversed list.
+
+Finally, loop over **every** vertex and start a DFS from each one that is still WHITE. Not every vertex is reachable from vertex 0. Vertex 5 isn't.
 
 ### Diagram
 
@@ -501,25 +531,30 @@ print(cycle_or_order(6, adj))                    # (False, [5, 0, 2, 1, 3, 4])
 print(cycle_or_order(6, build(6, edges + [[4, 1]])))  # (True, [])
 ```
 
-Edge cases I ran: a single vertex with no edges gives `(False, [0])`. A self-loop `[[0]]` gives `(True, [])`, since 0 is GRAY when it sees itself. Three isolated vertices give `(False, [2, 1, 0])`, which is valid because there are no edges to violate. `0 → 1, 1 → 0` gives `(True, [])`.
+Edge cases I ran:
 
-Time O(V + E): each vertex goes WHITE → GRAY → BLACK once, and each edge is examined once from its source. Space O(V) for colours and the recursion stack, plus the O(V + E) adjacency list.
+- A single vertex with no edges gives `(False, [0])`.
+- A self-loop `[[0]]` gives `(True, [])`, because 0 is GRAY when it sees itself.
+- Three isolated vertices give `(False, [2, 1, 0])`. That's a valid order, because there are no edges to break.
+- `0 → 1, 1 → 0` gives `(True, [])`.
+
+Time is O(V + E). Each vertex goes WHITE → GRAY → BLACK once, and each edge is examined once, from its source. Space is O(V) for the colours and the recursion stack, plus the O(V + E) adjacency list.
 
 ### Recognition
 
-- Signals: "n items and a list of pairs", "dependencies", "prerequisites", "must happen before", "is it possible to finish", "return an order". Course Schedule and Course Schedule II show the directed cycle / ordering signals. Number of Connected Components In An Undirected Graph and Graph Valid Tree show explicit-edge, undirected signals.
-- Clone Graph gives you the adjacency list as objects. The `seen` structure can be a dict that maps each vertex to something you've built for it, not just a set.
-- Three colours are for **directed** graphs. For undirected graphs, "have I seen this vertex, and is it not the vertex I just came from?" detects a cycle, and so does Union-Find (next module).
-- Kahn's algorithm (repeatedly remove vertices with in-degree 0) is the BFS way to get the same ordering. It's taught with Topological Sort in [Advanced Graphs](/blogs/dsa-advanced-graphs/).
+- **Signals:** "n items and a list of pairs", "dependencies", "prerequisites", "must happen before", "is it possible to finish", "return an order". Course Schedule and Course Schedule II show the directed cycle and ordering signals. Number of Connected Components In An Undirected Graph and Graph Valid Tree show the signals for an undirected graph with its edges given explicitly.
+- **Clone Graph** gives you the adjacency list as objects. There, the `seen` structure can be a dict that maps each vertex to something you've built for it, not just a set.
+- **Three colours are for directed graphs.** In an undirected graph you can detect a cycle by asking "have I seen this vertex, and is it not the vertex I just came from?" Union-Find (the next module) also works.
+- **Kahn's algorithm** is the BFS way to get the same order. It repeatedly removes vertices with in-degree 0, meaning no arrows point into them. It's taught with Topological Sort in [Advanced Graphs](/blogs/dsa-advanced-graphs/).
 
 ### Pitfalls
 
-- **Two colours in a directed graph** give false cycles on diamonds (the visited-only version I ran says "cycle" on this DAG).
-- **Three colours on an undirected graph.** Edge {0, 1} is stored as 0 → 1 and 1 → 0. `dfs(1)` sees 0 as GRAY and reports a cycle on a single edge (I ran it, and it did). For undirected graphs, pass the parent and skip it.
-- **Edge direction backwards.** "[a, b] means b before a" is common in problem statements. Getting it backwards still finds cycles correctly but produces the order reversed. Check against one pair by hand.
-- **Starting only from vertex 0.** Unreachable vertices never get coloured, so they're missing from the order and their cycles go undetected.
-- **Forgetting to return early** once a cycle is found. The order then contains partial garbage.
-- **Recursion depth.** A dependency chain of 10⁴ vertices exceeds the default recursion limit of 1000 (recalled).
+- **Two colours in a directed graph** report false cycles on diamonds. The visited-only version I ran says "cycle" on this DAG.
+- **Three colours on an undirected graph.** Edge {0, 1} is stored as both 0 → 1 and 1 → 0. So `dfs(1)` sees 0 as GRAY and reports a cycle on a single edge. I ran it, and it did. For undirected graphs, pass along the parent (the vertex you came from) and skip it.
+- **Getting the edge direction backwards.** Problem statements often say "[a, b] means b before a". If you flip it, cycle detection still works, but the order comes out reversed. Check one pair by hand.
+- **Starting only from vertex 0.** Vertices you can't reach from 0 never get coloured. So they're missing from the order, and any cycles among them go undetected.
+- **Forgetting to return early** once a cycle is found. The order then holds a half-built, meaningless list.
+- **Recursion depth.** A dependency chain of 10⁴ vertices goes past the default recursion limit of 1000 (recalled).
 
 ### Active Recall
 
@@ -546,7 +581,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: Course Schedule and Course Schedule II require modelling the input as a directed graph and working out what the answer means in graph terms on your own, so this checkpoint is skipped and that happens when you solve them.
+Skipped for this module. Course Schedule and Course Schedule II make you model the input as a directed graph yourself, and work out what the answer means in graph terms. You'll practise that when you solve them.
 
 ### Transfer test
 
@@ -560,24 +595,28 @@ Ask me whether I would use three-colour DFS on an adjacency list here and why, a
 
 ## Union-Find
 
-The problems below also need this. Redundant Connection, Graph Valid Tree and Number of Connected Components In An Undirected Graph all ask undirected connectivity questions while edges arrive one at a time, and Union-Find answers those in near-constant time per edge.
+The problems below also need this. Redundant Connection, Graph Valid Tree and Number of Connected Components In An Undirected Graph all ask whether parts of an undirected graph are connected, while edges arrive one at a time. Union-Find answers those questions in near-constant time per edge.
 
 ### Foundation
 
-Picture companies merging. Every company has one CEO at the top. To ask "do these two employees work for the same company?", each walks up the reporting chain to their CEO, and you compare CEOs. When two companies merge, one CEO starts reporting to the other, and the whole company comes along in one move. Union-Find (a disjoint set union, or DSU) is exactly that. It keeps a set of groups that only ever merge, and answers "same group?" fast.
+Picture companies merging. Every company has one CEO at the top. Want to know whether two employees work for the same company? Each one walks up the reporting chain to their CEO, and you compare the two CEOs.
+
+When two companies merge, one CEO starts reporting to the other. The whole company comes along in that one move. Union-Find (also called a disjoint set union, or DSU) works exactly like that. It keeps track of groups that only ever merge, and it answers "same group?" fast.
 
 ### Mechanics
 
-State: `parent[x]` for each vertex. A vertex with `parent[x] == x` is a **root**, the group's representative.
+The only state is `parent[x]` for each vertex. A vertex with `parent[x] == x` is a **root**. The root stands for its whole group, like the CEO.
 
-- **find(x)**: follow `parent` until you reach a root. That root names x's group. **Path compression**: after finding the root, point every vertex on the path directly at it, so the next find is one hop.
-- **union(a, b)**: find both roots. If they're equal, a and b are already connected, so return False. Otherwise attach one root under the other and return True. **Union by size**: attach the smaller tree under the larger, so trees stay shallow.
+- **find(x)**: follow `parent` until you reach a root. That root names x's group. **Path compression** is a speed-up: after finding the root, point every vertex on the way directly at it. Then the next find from any of them takes one hop.
+- **union(a, b)**: find both roots. If they're the same, a and b are already connected, so return False. Otherwise attach one root under the other and return True. **Union by size** is the second speed-up: always attach the smaller tree under the larger one, so trees stay shallow.
 
-Why union by size keeps trees shallow: a vertex gets one level deeper only when its tree is attached under a tree at least as big, which at least doubles the size of the tree it belongs to. That can happen at most log₂ n times, so depth stays at or below log₂ n. With path compression added, the amortised cost per operation is O(α(n)), where α is the inverse Ackermann function, below 5 for any practical n (recalled, not derived here).
+Why does union by size keep trees shallow? A vertex only gets one level deeper when its tree is attached under a tree at least as big. That at least doubles the size of the tree the vertex belongs to. A size can double at most log₂ n times before it reaches n. So the depth stays at or below log₂ n.
 
-Invariant: **two vertices have the same root if and only if the edges processed so far connect them.** A union that returns False means the edge joins two vertices that were already connected. In an undirected graph, that edge closes a cycle.
+Add path compression on top, and the amortised cost per operation is O(α(n)). Amortised means averaged over a long run of operations: a single call can be slower, but the total stays low. α is the inverse Ackermann function, which is below 5 for any practical n (recalled, not derived here).
 
-The worked example: n = 6, edges processed in order `(0, 1), (2, 3), (1, 2), (4, 5), (0, 3)`.
+The invariant: **two vertices have the same root if and only if the edges processed so far connect them.** So a union that returns False means the edge joins two vertices that were already connected. In an undirected graph, that edge closes a cycle.
+
+The worked example has n = 6, with the edges processed in this order: `(0, 1), (2, 3), (1, 2), (4, 5), (0, 3)`.
 
 ### Diagram
 
@@ -620,24 +659,24 @@ for a, b in [(0, 1), (2, 3), (1, 2), (4, 5), (0, 3)]:
 print(d.parent, d.components)  # [0, 0, 0, 0, 4, 4] 2
 ```
 
-Edge cases I ran: `DSU(1).union(0, 0)` returns False with 1 component. On `DSU(3)`, `union(0, 1)` returns True, then `union(1, 0)` returns False, leaving 2 components.
+Edge cases I ran: `DSU(1).union(0, 0)` returns False and leaves 1 component. On `DSU(3)`, `union(0, 1)` returns True, then `union(1, 0)` returns False, leaving 2 components.
 
-Time: O(α(n)) amortised per `find`/`union` (recalled), so O(n + E · α(n)) for n vertices and E edges. Space O(n).
+Time is O(α(n)) amortised per `find` or `union` (recalled). So n vertices and E edges cost O(n + E · α(n)) in total. Space is O(n).
 
 ### Recognition
 
-- Signals: undirected connectivity; edges arriving one at a time, or all at once in no useful order; "are these connected", "how many groups", "which edge first created a cycle"; merges only, never splits. Redundant Connection, Graph Valid Tree and Number of Connected Components In An Undirected Graph show these signals.
-- Versus DFS/BFS: both answer connectivity. A traversal needs the whole graph up front and gives you paths and distances. Union-Find handles edges one at a time, needs no adjacency list, but can't tell you a path or a distance.
-- Not for directed graphs. Union-Find forgets direction. Edges 0 → 1, 1 → 2, 0 → 2 contain no directed cycle, but `union(0, 2)` returns False.
-- Not when edges get deleted. There's no cheap "split".
+- **Signals:** the question is about connectivity in an undirected graph. Edges arrive one at a time, or all at once in no useful order. You see phrases like "are these connected", "how many groups" or "which edge first created a cycle". Groups only merge, never split. Redundant Connection, Graph Valid Tree and Number of Connected Components In An Undirected Graph show these signals.
+- **Compared with DFS/BFS:** both can answer connectivity. A traversal needs the whole graph up front, and it can give you paths and distances. Union-Find handles edges one at a time and needs no adjacency list. But it can't tell you a path or a distance.
+- **Not for directed graphs.** Union-Find forgets direction. Edges 0 → 1, 1 → 2, 0 → 2 contain no directed cycle, yet `union(0, 2)` returns False.
+- **Not when edges get deleted.** There's no cheap way to split a group.
 
 ### Pitfalls
 
-- **Comparing `parent[a] == parent[b]` instead of `find(a) == find(b)`.** After `union(1, 2)` above, `parent[3] == 2` and `parent[1] == 0`, but 1 and 3 are connected.
-- **Attaching a vertex instead of a root.** `parent[a] = b` without finding roots first can cut a out of its existing group.
-- **Skipping both optimisations.** Unioning a chain naively (0 under 1, 1 under 2, …) gave me `parent = [1, 2, 3, 4, 4]`, a path of height 4. Finds degrade to O(n) each.
+- **Comparing `parent[a] == parent[b]` instead of `find(a) == find(b)`.** After `union(1, 2)` above, `parent[3] == 2` and `parent[1] == 0`. The parents differ, but 1 and 3 are connected.
+- **Attaching a vertex instead of a root.** Writing `parent[a] = b` without finding the roots first can cut a out of the group it was already in.
+- **Skipping both speed-ups.** I unioned a chain the naive way (0 under 1, 1 under 2, …) and got `parent = [1, 2, 3, 4, 4]`. That's a single path of height 4, so each find degrades to O(n).
 - **1-indexed input.** If vertices are labelled 1..n, allocate `n + 1` slots, or subtract 1 everywhere.
-- **Counting components with a separate pass** over `parent` instead of over `find(i)`. A non-root's `parent` entry isn't its group's name.
+- **Counting components with a separate pass over `parent`** instead of over `find(i)`. A non-root's `parent` entry is just the next step up, not its group's name.
 
 ### Active Recall
 
@@ -664,7 +703,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Judgment call: every list problem here that uses Union-Find hands you explicit edges to union. None of them makes you notice that a relation in the input behaves like connectivity, so this checkpoint is included.
+Judgment call: every problem on this list that uses Union-Find hands you the edges to union. None of them makes you notice, on your own, that some relation in the input behaves like connectivity. So this checkpoint is included.
 
 You're given equations over single lowercase letters, each either `"x==y"` or `"x!=y"` (always 4 characters). Return True if you can assign an integer to every letter so that all equations hold at the same time. For example, `["a==b", "b!=c", "c==a"]` returns False, and `["a==b", "b==c", "a==c"]` returns True.
 
@@ -689,14 +728,15 @@ Ask me whether I would use Union-Find here and why, and wait for my answer. Then
 
 ## Integration
 
-Every problem in this topic reduces to a traversal over some graph, with a choice about what "visited" means.
+Every problem in this topic comes down to walking some graph. The main choice is what "visited" means.
 
-- **Intro to Graphs** decides the shape. A grid means neighbours are computed. Pairs mean you build an adjacency list. Node objects mean the list is already built.
-- **Matrix DFS** and the DFS half of **Adjacency List** answer "what can I reach?" with a permanent visited mark. **Matrix BFS** answers "how few steps?" with the same mark set at enqueue time, processed layer by layer, and seeded from one source or many.
-- **Three colours** extend "visited" to "visited and still on my path", which is what directed cycles and dependency orders need.
-- **Union-Find** answers undirected connectivity without traversing at all, one edge at a time.
+- **Intro to Graphs** tells you what shape you're holding. A grid means you compute neighbours. A list of pairs means you build an adjacency list. Node objects mean the list is already built.
+- **Matrix DFS** and the DFS half of **Adjacency List** answer "what can I reach?" They mark a vertex as visited for good.
+- **Matrix BFS** answers "how few steps?" It uses the same kind of mark, but sets it at enqueue time. It works layer by layer, starting from one source or many.
+- **Three colours** stretch "visited" into "visited, and still on my current path". That's what directed cycles and dependency orders need.
+- **Union-Find** answers undirected connectivity without walking the graph at all. It takes one edge at a time.
 
-Distinguishing competing approaches:
+How to choose between competing approaches:
 
 | The question | Reach for | Not |
 | --- | --- | --- |
@@ -720,7 +760,14 @@ A recognition checklist for an unfamiliar problem:
 
 ## The problems
 
-Work them with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute struggle, the key sentence, spaced repetition. For graphs, spend the struggle this way. Sketch a small example first. Decide whether it's DFS, BFS, Dijkstra or a topological sort, and whether you need cycle detection or just a visited set. Simulate by hand before coding. Then explain the traversal order and exactly how your code avoids infinite loops.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute struggle, write down the one key sentence in your own words, then review it with spaced repetition.
+
+For graphs, spend the struggle like this:
+
+- Sketch a small example first.
+- Decide whether it's DFS, BFS, Dijkstra or a topological sort. Decide whether you need cycle detection or just a visited set.
+- Simulate it by hand before you code.
+- Then explain the order your traversal visits things in, and exactly how your code avoids infinite loops.
 
 {% include dsa-problems.html slug="dsa-graphs" %}
 

@@ -9,14 +9,21 @@ series_order: 11
 series_total: 19
 links_new_tab: true
 tags: [dsa, backtracking, recursion, python, series]
-read_time: 37
+read_time: 40
 permalink: /blogs/dsa-backtracking/
-excerpt: "Every backtracking problem is a DFS over a tree of decisions that you never build, with one list you keep mutating and restoring. Learn the four shapes that tree takes, and the ten problems stop looking like ten different problems."
+excerpt: "Every backtracking problem is a depth-first search over a tree of decisions you never actually build. You keep one list, change it as you go down, and restore it on the way back. Learn the four shapes that tree takes, and the ten problems stop looking like ten different problems."
 ---
 
-Backtracking enumerates every valid answer when there are too many to guess and no shortcut to compute them: build a candidate one decision at a time, abandon it the moment a constraint fails, and undo the last decision so one scratch list serves every branch. It sits right after [Trees](/blogs/dsa-trees/) because it *is* tree DFS, over a tree of decisions you never build, and it unlocks [Graphs](/blogs/dsa-graphs/) and [1-D DP](/blogs/dsa-1d-dynamic-programming/), which reuse the same recursion with a visited set or a memo attached. Tree Maze teaches the choose/explore/un-choose rhythm on a tree that already exists; Subsets, Combinations and Permutations are the three shapes a decision tree almost always takes.
+Some problems ask for every valid answer. There are too many to guess, and no formula hands them to you. Backtracking is how you list them all. You build a candidate one decision at a time. The moment a rule breaks, you abandon it. Then you undo your last decision and try the next option, so a single scratch list can serve every branch.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+This post comes right after [Trees](/blogs/dsa-trees/) because backtracking *is* tree DFS (depth-first search). The tree is made of decisions, and you never actually build it. It also leads into [Graphs](/blogs/dsa-graphs/) and [1-D DP](/blogs/dsa-1d-dynamic-programming/). Those reuse the same recursion, with a visited set or a memo attached.
+
+There are four modules:
+
+- **Tree Maze** teaches the rhythm of choose, explore, un-choose on a tree that already exists.
+- **Subsets**, **Combinations** and **Permutations** are the three shapes a decision tree almost always takes.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Tree Maze
 
@@ -24,7 +31,9 @@ How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no 
 
 You are walking a hedge maze with a ball of string. At every fork you pick a corridor and unspool string behind you. If you hit a wall, you reel the string back to the last fork and try the other corridor. When you reach an exit, the string on the ground *is* the route.
 
-That string is the whole idea. It's one list, `path`, that grows when you step forward and shrinks when you step back. Tree Maze asks: in a binary tree, is there a root-to-leaf path that never touches a node with value 0, and if so, what is it? A zero is a wall.
+In code, that string is one list, `path`. It grows when you step forward and shrinks when you step back.
+
+Here is the Tree Maze problem. You have a binary tree. Is there a path from the root down to a leaf that never touches a node with value 0? If so, what is it? Think of each 0 as a wall.
 
 ### Mechanics
 
@@ -36,15 +45,19 @@ At each node:
 4. **Explore.** Try the left subtree, then the right. If either succeeds, report success immediately, still without touching `path`.
 5. **Un-choose.** Both subtrees failed, so this node isn't on any valid route. Pop it and report failure.
 
-The invariant: **when a call returns, `path` is exactly what it was when the call started, unless the call returned success.** Step 1 pushes nothing, step 5 pops the one thing step 2 pushed, and on success we deliberately keep the route. Your parent can trust that a failed child left no debris behind, and that's why one shared list works for the whole search.
+An **invariant** is a fact that stays true every time the code reaches a certain point. Here it is: **when a call returns, `path` is exactly what it was when the call started, unless the call returned success.**
 
-Why is it safe to give up on a node the moment it's 0? Every root-to-leaf path through that node contains the 0, so no path in its subtree can be valid. Checking before recursing throws away the whole subtree in O(1). That's pruning, and it's the second half of backtracking.
+Check it against the steps. Step 1 pushes nothing. Step 5 pops the one value that step 2 pushed. On success we keep the route on purpose. So a parent call can trust that a failed child left nothing behind in `path`. That's why one shared list can work for the whole search.
 
-The worked example (used for the rest of this module):
+Why is it safe to give up on a node the moment it's 0? Every root-to-leaf path through that node contains the 0. So no path in its subtree can be valid. Checking before you recurse throws away that whole subtree in O(1). Cutting off a branch early like this is called **pruning**, and it's the second half of backtracking.
+
+Here is the worked example we'll use for the rest of this module:
 
 <figure class="sketch">{% include sketches/dsa-backtracking/maze-tree.svg %}</figure>
 
-The root's left child is a wall, so the 7 under it is never reached. Under 1, the node 3 looks promising, but its only child is 0 and 3 isn't a leaf (it has a child), so 3 is a dead end. The search backs out of 3 and finds the leaf 2. Answer: `[4, 1, 2]`.
+Let's walk it. The root is 4. Its left child is a wall, so the 7 under that wall is never reached.
+
+Next we try the right child, 1. Under 1, the node 3 looks promising. But its only child is 0. And 3 isn't a leaf, because it does have a child. So 3 is a dead end. The search backs out of 3 and finds the leaf 2. The answer is `[4, 1, 2]`.
 
 ### Diagram
 
@@ -94,24 +107,36 @@ path = []
 print(find_path(root, path), path)        # True [4, 1, 2]
 ```
 
-Checked edge cases: a root of 0 gives `False, []`; a single node 5 gives `True, [5]`; an empty tree gives `False, []`.
+Checked edge cases:
 
-Time O(n), n = number of nodes: each node is entered at most once, and pruning only reduces that (the example makes 7 calls: 6 of its 7 nodes plus the missing right child of 3, while 7 is never entered). Space O(h), h = tree height, for the recursion stack plus `path`. (Recalled: list `append` and `pop` from the end are amortized O(1) in CPython.)
+- A root of 0 gives `False, []`.
+- A single node 5 gives `True, [5]`.
+- An empty tree gives `False, []`.
+
+Complexity, with n = number of nodes and h = tree height:
+
+- **Time O(n).** Each node is entered at most once, and pruning only lowers that. The example makes 7 calls: 6 of its 7 nodes, plus the missing right child of 3. Node 7 is never entered.
+- **Space O(h)**, for the recursion stack plus `path`. (This part is recalled, not derived here: in CPython, list `append` and `pop` from the end are amortized O(1), meaning O(1) on average over many calls.)
 
 ### Recognition
 
-- You need a **route**, not just a yes/no or a count: the answer is the sequence of choices that led somewhere.
-- The structure branches, and some branches become invalid partway down (a wall, a used cell, a broken rule).
-- One mutable scratch structure is shared across the search and must be restored on the way back.
+- **You need a route**, not just a yes/no or a count. The answer is the sequence of choices that led somewhere.
+- **The structure branches, and some branches go bad partway down.** That might be a wall, a cell you already used, or a broken rule.
+- **One scratch structure is shared across the whole search.** You change it as you go, so you must restore it on the way back.
 
-When not to use it: if you only need a yes/no or a number and nothing about the route, plain DFS returning a value is simpler, with no shared list to maintain. If you need the *shortest* route in an unweighted structure, use BFS, since DFS finds *a* route, not the shortest. Word Search shows this "walk a path, undo on failure" signal on a grid instead of a tree.
+When not to use it:
+
+- If you only need a yes/no or a number, and nothing about the route, plain DFS that returns a value is simpler. There's no shared list to look after.
+- If you need the *shortest* route in an unweighted structure, use BFS. DFS finds *a* route, not the shortest one.
+
+Word Search shows this "walk a path, undo on failure" signal, on a grid instead of a tree.
 
 ### Pitfalls
 
-- Forgetting the pop. The boolean stays right but the path is garbage, so tests that only check True/False pass.
-- Popping on success. Then the caller receives an empty or truncated route.
-- Checking the wall after pushing. Then you have to remember to pop in that branch too; check first and there is nothing to undo.
-- Mistaking "has no valid children" for "is a leaf". Node 3 above is the trap.
+- **Forgetting the pop.** The True/False result stays right, but the path is garbage. So tests that only check True/False still pass.
+- **Popping on success.** Then the caller gets back an empty or cut-short route.
+- **Checking the wall after pushing.** Then you have to remember to pop in that branch too. If you check first, there's nothing to undo.
+- **Mistaking "has no valid children" for "is a leaf".** Node 3 above is the trap.
 
 ### Active Recall
 
@@ -135,7 +160,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Word Search needs this push, explore, undo walk derived from scratch on a grid, so that problem will exercise this module on its own.
+Skipped. Word Search makes you build this push, explore, undo walk from scratch on a grid. So that problem will give this module its own workout.
 
 ### Transfer test
 
@@ -151,21 +176,26 @@ Ask me whether I would use the Tree Maze pattern here and why, and wait for my a
 
 ### Foundation
 
-Packing for a trip with three items: a, b, c. For each item in turn you make a yes/no decision: bring it or don't. Three binary decisions give 2 × 2 × 2 = 8 possible bags, and every possible bag appears exactly once. That's a subset: one include/exclude decision per element, made in a fixed order.
+You're packing for a trip with three items: a, b and c. You go through them in turn, and for each one you make a yes/no decision: bring it or don't. Three yes/no decisions give 2 × 2 × 2 = 8 possible bags. Every possible bag shows up exactly once.
+
+Each of those bags is a **subset**. You get one by making one include/exclude decision per element, in a fixed order.
 
 ### Mechanics
 
-The state is `(i, path)`: `i` is the index of the next element to decide on, and `path` holds the elements included so far.
+The **state** is what the recursion carries from call to call. Here it's `(i, path)`. `i` is the index of the next element to decide on. `path` holds the elements included so far.
 
 1. **Goal.** If `i == len(items)`, every element has been decided. Record a *copy* of `path`.
 2. **Include.** Push `items[i]`, recurse on `i + 1`, pop.
 3. **Exclude.** Recurse on `i + 1` with `path` untouched.
 
-Why does this produce every subset exactly once? A subset is fully described by its answers to "is element 0 in? element 1? ...". Each root-to-leaf path in the recursion answers each of those questions exactly once, in order, so leaves and subsets are in one-to-one correspondence. No subset is missed (every combination of answers is some path) and none is repeated (two different paths differ in at least one answer).
+Why does this produce every subset exactly once? A subset is fully described by its answers to "is element 0 in? Is element 1 in? ...". Each root-to-leaf path in the recursion answers each of those questions exactly once, in order. So each leaf matches one subset, and each subset matches one leaf. That gives us two guarantees:
 
-Why copy? `path` is the one shared scratch list. If you append the list itself, every entry in `result` points at the same object, which ends empty after the last pop.
+- **No subset is missed**, because every combination of answers is some path.
+- **No subset is repeated**, because two different paths differ in at least one answer.
 
-The worked example is `"abc"`. There are 8 leaves, and 2^4 − 1 = 15 calls in total, because it's a full binary tree of depth 3.
+Why record a copy? `path` is the one shared scratch list. If you append the list itself, every entry in `result` points at the same object. That object ends up empty after the last pop.
+
+The worked example is `"abc"`. The recursion is a full binary tree of depth 3. So it has 8 leaves, and 2^4 − 1 = 15 calls in total.
 
 ### Diagram
 
@@ -198,25 +228,36 @@ print(all_subsets("abc"))
 # [['a', 'b', 'c'], ['a', 'b'], ['a', 'c'], ['a'], ['b', 'c'], ['b'], ['c'], []]
 ```
 
-Checked edge cases: `""` gives `[[]]` (one subset, the empty one), `"x"` gives `[['x'], []]`.
+Checked edge cases:
 
-Time O(n · 2^n), n = number of elements: 2^n leaves, each copying up to n items (the 2^(n+1) − 1 calls add only O(2^n)). Space O(n) for the recursion and `path`, not counting the output, which is itself O(n · 2^n).
+- `""` gives `[[]]`: one subset, the empty one.
+- `"x"` gives `[['x'], []]`.
 
-There's a second way to write the same tree: instead of a yes/no per index, loop "which element do I add next, from index `start` onward" and record at *every* node. That formulation is the bridge to the next module.
+Complexity, with n = number of elements:
+
+- **Time O(n · 2^n).** There are 2^n leaves, and each one copies up to n items. The 2^(n+1) − 1 calls themselves add only O(2^n).
+- **Space O(n)** for the recursion and `path`. That doesn't count the output, which is itself O(n · 2^n).
+
+There's a second way to write the same tree. Instead of a yes/no per index, each call loops over "which element do I add next, from index `start` onward?" and records a result at *every* node, not just at leaves. That version is the bridge to the next module.
 
 ### Recognition
 
-- "All subsets", "every selection", "each item can be in or out", "any subsequence (not necessarily contiguous)".
-- n is small, around 20 or less. 2^20 is about a million, so a search that touches every subset is feasible only there.
-- The order inside a chosen group doesn't matter: {a, b} and {b, a} are the same answer.
+- The wording says "all subsets", "every selection", "each item can be in or out", or "any subsequence (not necessarily contiguous)".
+- **n is small, around 20 or less.** 2^20 is about a million. A search that touches every subset is only feasible at that size.
+- **The order inside a chosen group doesn't matter.** {a, b} and {b, a} are the same answer.
 
-When not to use it: when you only need a count or a best value over subsets and the values are small integers, that's usually DP (subset-sum style tables, coming in the DP parts), not enumeration. When the elements are contiguous (subarrays), you want sliding window or prefix sums, not subsets. Subsets and Subsets II show the "every selection" signal directly. Subsets II adds duplicate input values, which is exactly the pitfall below.
+When not to use it:
+
+- **You only need a count or a best value over subsets, and the values are small integers.** That's usually DP (subset-sum style tables, coming in the DP parts), not listing every subset.
+- **The elements must be contiguous** (subarrays). Then you want sliding window or prefix sums, not subsets.
+
+Subsets and Subsets II show the "every selection" signal directly. Subsets II adds duplicate input values, which is exactly the last pitfall below.
 
 ### Pitfalls
 
-- `result.append(path)` instead of a copy: 8 references to one list that ends empty.
-- Forgetting the pop between include and exclude: the "exclude" branch still contains the included element, and paths keep growing.
-- Duplicate input values: the algorithm is index-based, not value-based. On `"aab"` it returns 8 lists, but only 6 are distinct, because choosing the first `a` and choosing the second `a` look identical. The fix of never trying the same value twice at one level is taught in the Permutations module.
+- **`result.append(path)` instead of a copy.** You get 8 references to one list, and that list ends empty.
+- **Forgetting the pop between include and exclude.** The "exclude" branch still contains the element you included, and paths keep growing.
+- **Duplicate input values.** The algorithm works on indices, not values. On `"aab"` it returns 8 lists, but only 6 are distinct. That's because choosing the first `a` and choosing the second `a` look identical. The fix is to never try the same value twice at one level of the tree. The Permutations module teaches it.
 
 ### Active Recall
 
@@ -240,11 +281,11 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included. Subsets and Subsets II are direct applications of this pattern rather than a fresh derivation, so this module needs its own exercise.
+Included. Subsets and Subsets II apply this pattern directly, so they don't make you work it out fresh. That's why this module gets its own exercise.
 
 A device has n feature flags in a row, each on (1) or off (0). Two adjacent flags must never both be on, because they share a power line. List every allowed configuration as a string. For n = 4 there are 8.
 
-Before any code, write down the observation, the approach, why it's correct, and the complexity.
+Before you write any code, write down four things: the key observation, your approach, why it's correct, and its complexity.
 
 {% capture coach %}
 You are my coding-interview coach. Here is a problem I haven't seen:
@@ -267,23 +308,25 @@ Ask me whether I would use subset enumeration here and why, and wait for my answ
 
 ### Foundation
 
-Choosing 2 people from a team of 4 to go to a conference. {Asha, Ben} is the same pair as {Ben, Asha}. The trick to never listing a pair twice is to always write names in one fixed order, alphabetical say. Then every pair has exactly one "canonical" spelling, and you only generate canonical spellings.
+You're choosing 2 people from a team of 4 to go to a conference. {Asha, Ben} is the same pair as {Ben, Asha}. How do you avoid listing a pair twice?
 
-That's C(n, k): the subsets of size exactly k. Instead of a yes/no per element, each level of the tree answers "which element comes next?", and the answer must be larger than the previous one.
+Always write the names in one fixed order, say alphabetical. Then every pair has exactly one standard way to be written. We'll call that its **canonical** spelling. If you only ever generate canonical spellings, you never get a repeat.
+
+That's C(n, k): the subsets of size exactly k. In Subsets, each level of the tree asked "include this element or not?". Here each level asks "which element comes next?", and the answer must be larger than the previous one.
 
 ### Mechanics
 
-Numbers 1..n, choose k. The state is `(start, path)`: `path` holds the chosen numbers in increasing order, and `start` is the smallest number the next choice may be.
+Take the numbers 1..n and choose k of them. The state is `(start, path)`. `path` holds the chosen numbers in increasing order. `start` is the smallest number the next choice is allowed to be.
 
 1. **Goal.** If `len(path) == k`, record a copy.
 2. **Choices.** For each x from `start` upward: push x, recurse with `start = x + 1`, pop.
-3. **Prune.** You still need `need = k - len(path)` numbers, and they must come from x..n, which has n − x + 1 numbers. So x is only worth trying if n − x + 1 ≥ need, meaning x ≤ n − need + 1.
+3. **Prune.** You still need `need = k - len(path)` numbers. They must come from x..n, which holds n − x + 1 numbers. So x is only worth trying if n − x + 1 ≥ need, which means x ≤ n − need + 1.
 
-Why `x + 1` and not `start + 1`? The next number must be larger than the one just chosen, x, so every path is strictly increasing, and each combination has exactly one increasing spelling. That's the "no duplicates" guarantee, and it's derived from the ordering, not checked afterwards.
+Why recurse with `x + 1` and not `start + 1`? Because the next number must be larger than the one you just chose, which is x. That keeps every path strictly increasing. And each combination has exactly one strictly increasing spelling, its canonical one. So there are no duplicates, and you never have to check for them afterwards. The ordering rules them out from the start.
 
-Why is the pruning safe? A branch whose x exceeds n − need + 1 can't collect `need` numbers from what remains, so none of its leaves reach length k. Cutting it removes zero valid answers.
+Why is the pruning safe? Say x is bigger than n − need + 1. Then there aren't enough numbers left after it to collect `need` of them. So none of that branch's leaves can reach length k, and cutting it removes zero valid answers.
 
-The worked example is n = 4, k = 2. At the root need = 2, so x runs over 1..3. Choosing 4 first would leave nothing larger to pair it with. The answer is `[1,2] [1,3] [1,4] [2,3] [2,4] [3,4]`, which is C(4,2) = 6.
+The worked example is n = 4, k = 2. At the root, need = 2, so x runs over 1..3. Choosing 4 first would leave nothing larger to pair it with. The answer is `[1,2] [1,3] [1,4] [2,3] [2,4] [3,4]`, which is C(4,2) = 6.
 
 ### Diagram
 
@@ -317,25 +360,37 @@ print(combine(4, 2))
 # [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
 ```
 
-Checked edge cases: `combine(4, 0)` gives `[[]]` (one way to choose nothing); `combine(4, 4)` gives `[[1, 2, 3, 4]]`; `combine(3, 5)` gives `[]`, because at the root the upper bound 3 − 5 + 1 = −1 makes the range empty.
+Checked edge cases:
 
-Time O(k · C(n, k)), with n = pool size and k = pick size. With the pruning every node lies on the way to at least one leaf, so there are at most (k + 1) · C(n, k) nodes, and each leaf copies k items. Space O(k) excluding output.
+- `combine(4, 0)` gives `[[]]`. There's one way to choose nothing.
+- `combine(4, 4)` gives `[[1, 2, 3, 4]]`.
+- `combine(3, 5)` gives `[]`. At the root the upper bound is 3 − 5 + 1 = −1, so the range is empty.
 
-The pruning line matters more than it looks. On n = 4, k = 2 it saves one call (10 versus 11). On n = 10, k = 8 it's 165 calls versus 1,013, because without it the search wanders into long dead chains that start too late to fill 8 slots.
+Complexity, with n = pool size and k = pick size:
+
+- **Time O(k · C(n, k)).** Thanks to the pruning, every node lies on the way to at least one leaf. So there are at most (k + 1) · C(n, k) nodes, and each leaf copies k items.
+- **Space O(k)**, not counting the output.
+
+The pruning line matters more than it looks. On n = 4, k = 2 it saves just one call (10 versus 11). On n = 10, k = 8 it's 165 calls versus 1,013. Without it, the search wanders into long dead chains that start too late to ever fill 8 slots.
 
 ### Recognition
 
-- "Choose k", "groups of size k", "pairs/teams/committees", and **order doesn't matter**.
-- A fixed pool, and each element used at most once, or explicitly "may be reused". The latter changes one argument, as in question 2 below.
-- Answers must be unique as sets, so you need a canonical ordering (the `start` index) instead of a dedupe step.
+- The wording says "choose k", "groups of size k", or "pairs/teams/committees", and **order doesn't matter**.
+- **There's a fixed pool**, and each element is used at most once. Or the problem says elements "may be reused". That changes one argument in the code, as question 2 below shows.
+- **Answers must be unique as sets.** So you need a canonical ordering (the `start` index) instead of a step that removes duplicates afterwards.
 
-When not to use it: if you want the single best group and the score is a simple sum of individual values, sort and take the top k (greedy), with no enumeration at all. If order matters, it's permutations. Combination Sum, Combination Sum II and Letter Combinations of a Phone Number all show the "build a group one pick at a time" signal. Watch what each says about reuse and duplicates.
+When not to use it:
+
+- **You want the single best group, and its score is just the sum of individual values.** Then sort and take the top k. That's a greedy approach, with no listing at all.
+- **Order matters.** Then it's permutations.
+
+Combination Sum, Combination Sum II and Letter Combinations of a Phone Number all show the "build a group one pick at a time" signal. Watch what each one says about reuse and duplicates.
 
 ### Pitfalls
 
-- `dfs(start + 1)` instead of `dfs(x + 1)`: the next level restarts just after `start`, not after the chosen x, so it can pick values less than or equal to x. You get `[2,2]`, `[3,2]` and friends, 9 results instead of 6.
-- Missing or wrong pruning bound: correct output, much slower. An off-by-one in the other direction (`n - need + 1` as the exclusive end) silently drops valid answers, so test with k = n.
-- Using `if len(path) == k` *after* the loop instead of as the base case: you'd recurse past size k for nothing.
+- **`dfs(start + 1)` instead of `dfs(x + 1)`.** The next level restarts just after `start`, not after the chosen x. So it can pick values less than or equal to x. You get `[2,2]`, `[3,2]` and friends: 9 results instead of 6.
+- **A missing or wrong pruning bound.** If it's missing, the output is correct but much slower. An off-by-one the other way (using `n - need + 1` as the exclusive end) silently drops valid answers. Test with k = n to catch it.
+- **Checking `if len(path) == k` *after* the loop instead of as the base case.** You'd recurse past size k for nothing.
 
 ### Active Recall
 
@@ -359,7 +414,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Combination Sum has to work out, on its own, what the next pick's starting index should be when an element may be reused, which exercises this module's core rule without help from here.
+Skipped. In Combination Sum an element may be reused, so you have to work out for yourself where the next pick should start. That exercises this module's core rule without any help from here.
 
 ### Transfer test
 
@@ -375,21 +430,27 @@ Ask me whether I would enumerate combinations here and why, and wait for my answ
 
 ### Foundation
 
-Seating three guests, a, b and c, in three chairs. For chair 1 you can pick any of the three. For chair 2, anyone not yet seated. For chair 3, whoever is left. 3 × 2 × 1 = 6 seatings. Unlike combinations, order is the whole point, so "bac" and "abc" are different answers.
+You're seating three guests, a, b and c, in three chairs. For chair 1 you can pick any of the three. For chair 2, anyone not yet seated. For chair 3, whoever is left. That's 3 × 2 × 1 = 6 seatings.
+
+In combinations, order didn't matter. Here order is the whole point. So "bac" and "abc" are different answers.
 
 ### Mechanics
 
-The state is `path` (who is seated, in order) plus `used[i]`, which is True if element i is already in `path`.
+The state has two parts. `path` is who is seated so far, in order. `used[i]` is True if element i is already in `path`.
 
 1. **Goal.** If `len(path) == len(s)`, record it.
-2. **Choices.** Every index i with `used[i]` False, in any position, including indices *smaller* than ones already chosen.
-3. **Choose / explore / un-choose.** Set `used[i] = True` and push `s[i]`, recurse, then pop and set `used[i] = False`. Two things are modified, so two things are restored.
+2. **Choices.** Any index i with `used[i]` False. That includes indices *smaller* than ones you already chose.
+3. **Choose / explore / un-choose.** Set `used[i] = True` and push `s[i]`. Recurse. Then pop and set `used[i] = False`. You changed two things, so you restore two things.
 
-Why can't we reuse the combinations `start` index? `start` forces increasing order, which is exactly what made {1, 2} and {2, 1} collapse into one answer. Here we *want* both orders, so earlier elements must stay available. `used` replaces "everything left of `start` is off-limits" with "exactly the elements already on the path are off-limits".
+Why can't we reuse the `start` index from combinations? Because `start` forces increasing order. That's exactly what made {1, 2} and {2, 1} collapse into one answer. Here we *want* both orders, so earlier elements must stay available.
 
-Duplicate letters. On `"aab"` the plain version returns 6 strings but only 3 are distinct, because picking the `a` at index 0 or the `a` at index 1 for a chair leads to identical subtrees. The rule: **at any single node, never branch on the same value twice.** Keep a small `tried` set local to each call. It has to be local: siblings share a node, but a value used at one level is perfectly legal again at the next.
+So `used` changes the rule. With `start`, everything to the left of `start` was off-limits. With `used`, only the elements already on the path are off-limits.
 
-This "same value, same level, skip it" rule is the general cure for duplicate inputs in all three shapes: include/exclude, start-index and used-array.
+Now, duplicate letters. On `"aab"` the plain version returns 6 strings, but only 3 are distinct. Why? Picking the `a` at index 0 or the `a` at index 1 for a chair leads to identical subtrees.
+
+The fix is one rule: **at any single node, never branch on the same value twice.** Keep a small `tried` set inside each call. It has to be local to the call. Sibling branches come from the same node, so they share it. But a value used at one level is perfectly legal again at the next level down.
+
+This "same value, same level, skip it" rule is the general cure for duplicate inputs. It works in all three shapes: include/exclude, start-index and used-array.
 
 The worked example is `"abc"`, which gives `abc, acb, bac, bca, cab, cba`. The tree has 1 + 3 + 6 + 6 = 16 nodes.
 
@@ -457,24 +518,37 @@ print(permutations("aab"))            # ['aab', 'aba', 'aab', 'aba', 'baa', 'baa
 print(distinct_permutations("aab"))   # ['aab', 'aba', 'baa']
 ```
 
-Checked edge cases: `""` gives `['']` (one empty arrangement), `"z"` gives `['z']`. `distinct_permutations` matched a brute-force `set(itertools.permutations(...))` on `"aabb"` (6), `"aaa"`, `"abcd"` and `"mississ"`.
+Checked edge cases:
 
-Time O(n · n!), n = length of the input. There are n! leaves, the internal node count is also O(n!) (about e · n! in total), and each node spends O(n) on its loop, plus O(n) per leaf to join. Space O(n) for `path`, `used` and the recursion, excluding output. With duplicates, `distinct_permutations` is O(n² · D), D = number of distinct arrangements: every node it opens leads to at least one new distinct leaf (a skipped branch would only have produced repeats), so there are at most (n + 1) · D nodes, each looping over n indices.
+- `""` gives `['']`: one empty arrangement.
+- `"z"` gives `['z']`.
+- `distinct_permutations` matched a brute-force `set(itertools.permutations(...))` on `"aabb"` (6), `"aaa"`, `"abcd"` and `"mississ"`.
+
+Complexity, with n = length of the input:
+
+- **Time O(n · n!).** There are n! leaves. The number of internal nodes is also O(n!), about e · n! nodes in total. Each node spends O(n) on its loop, and each leaf spends another O(n) on the join.
+- **Space O(n)** for `path`, `used` and the recursion, not counting the output.
+- **With duplicates, `distinct_permutations` is O(n² · D)**, where D = number of distinct arrangements. Every node it opens leads to at least one new distinct leaf, because a skipped branch would only have produced repeats. So there are at most (n + 1) · D nodes, and each loops over n indices.
 
 ### Recognition
 
-- "All arrangements", "orderings", "sequences using each item once", "every way to assign items to positions".
-- Order matters, and each element is used exactly once.
-- n is tiny: 8! = 40,320 is fine, 10! = 3,628,800 is slow in Python, and 12! = 479,001,600 is out.
+- The wording says "all arrangements", "orderings", "sequences using each item once", or "every way to assign items to positions".
+- **Order matters, and each element is used exactly once.**
+- **n is tiny.** 8! = 40,320 is fine. 10! = 3,628,800 is slow in Python. 12! = 479,001,600 is out.
 
-When not to use it: if you only need the *next* arrangement, or the k-th one, there are direct constructions that skip enumeration (the next arrangement takes O(n)). If you need an optimal ordering of more than about 10 items, look for a greedy argument (sort by some key) or DP over subsets. Permutations shows this signal directly, and N Queens also asks for every valid arrangement under constraints.
+When not to use it:
+
+- **You only need the *next* arrangement, or the k-th one.** There are direct ways to build those without listing everything. The next arrangement takes O(n).
+- **You need the best ordering of more than about 10 items.** Look for a greedy argument (sort by some key) or DP over subsets.
+
+Permutations shows this signal directly. N Queens also asks for every valid arrangement under some rules.
 
 ### Pitfalls
 
-- Restoring `path` but not `used` (or the reverse). Every piece of state you change in "choose" must be undone in "un-choose".
-- A global `tried` set instead of one per call: it blocks values at deeper levels where they're legal. On `"aab"` it returns nothing at all.
-- Deduplicating at the leaves with a set of strings: correct, but it still pays for every duplicate subtree.
-- Checking `ch not in path` instead of a `used` array: O(n) per check, and wrong as soon as the input has repeated values.
+- **Restoring `path` but not `used`, or the reverse.** Every piece of state you change in "choose" must be undone in "un-choose".
+- **One global `tried` set instead of one per call.** It blocks values at deeper levels, where they're actually legal. On `"aab"` it returns nothing at all.
+- **Removing duplicates at the leaves with a set of strings.** That's correct, but you still pay for every duplicate subtree.
+- **Checking `ch not in path` instead of a `used` array.** Each check costs O(n), and it gives wrong answers as soon as the input has repeated values.
 
 ### Active Recall
 
@@ -498,11 +572,11 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included. Permutations applies this template directly, so this module's mechanics would otherwise not be exercised on a fresh problem.
+Included. The Permutations problem applies this template directly. Without an exercise here, you'd never use this module's mechanics on a fresh problem.
 
 Given distinct digits, list every ordering in which no two neighbouring digits differ by exactly 1. For `[1, 2, 3, 4]` there are exactly two.
 
-Before any code, write down the observation, the approach, why it's correct, and the complexity.
+Before you write any code, write down four things: the key observation, your approach, why it's correct, and its complexity.
 
 {% capture coach %}
 You are my coding-interview coach. Here is a problem I haven't seen:
@@ -525,7 +599,7 @@ Ask me whether I would enumerate permutations here and why, and wait for my answ
 
 ### How the four modules make one technique
 
-Every backtracking solution is the same four decisions, and the modules are just different answers to the second one:
+Every backtracking solution comes down to the same four decisions. What's the state? What can I choose at a node? When am I done? How do I avoid repeats? The four modules are really just different answers to the second one:
 
 | | State | Choices at a node | Goal | How repeats are avoided |
 | --- | --- | --- | --- | --- |
@@ -534,9 +608,12 @@ Every backtracking solution is the same four decisions, and the modules are just
 | Combinations | start, path | any x ≥ start | len(path) == k | strictly increasing picks |
 | Permutations | used[], path | any unused index | len(path) == n | used[] flags |
 
-And on top of each: **pruning** (reject a choice before recursing when no leaf below it can be valid) and **level dedupe** (never branch on the same value twice at one node when the input has duplicates).
+Two extras can sit on top of any row:
 
-This is the skeleton to write early, before you know the details. It runs as-is. Only the `choices` function changes between modules:
+- **Pruning.** Reject a choice before recursing, when no leaf below it can be valid.
+- **Level dedupe.** When the input has duplicates, never branch on the same value twice at one node.
+
+Below is the skeleton to write early, before you know the details. It runs as it is. Between modules, only the `choices` function changes:
 
 ```python
 def backtrack(path, choices, is_complete, out):
@@ -558,28 +635,37 @@ backtrack([], lambda p: [ch for ch in "abc" if ch not in p], lambda p: len(p) ==
 print(["".join(p) for p in out])   # ['abc', 'acb', 'bac', 'bca', 'cab', 'cba']
 ```
 
-When you're stuck on a new problem, fill in the table row first: what's on the path, what can I choose next, when am I done, and what makes a choice illegal *right now*. The code follows from that.
+When you're stuck on a new problem, fill in its table row first. Ask four things:
+
+- What's on the path?
+- What can I choose next?
+- When am I done?
+- What makes a choice illegal *right now*?
+
+The code follows from those answers.
 
 ### Distinguishing it from its neighbours
 
-- **Backtracking vs DP.** Backtracking lists or explores every answer. DP computes a number (a count, a min, a max) when many branches recompute the same sub-state. If the question is "how many" or "what's the best" and the state after a choice can be described by a few integers, try DP first. If it says "return all", backtracking is unavoidable, because the output alone is exponential. The flags mini-task is the example: listing them is backtracking, counting them is Fibonacci.
-- **Backtracking vs BFS.** Want the *shortest* sequence of moves? BFS. Want *every* sequence, or any valid one? DFS with backtracking.
-- **Backtracking vs greedy.** If a local rule provably never needs undoing (the on-call trio), don't search. Backtracking is what you do when a choice might need to be undone.
-- **Subsets vs combinations vs permutations.** Does order matter? Then permutations. Is the size fixed? Then combinations. Otherwise subsets. Is reuse allowed? Then change what the recursive call's start becomes. Duplicates in the input? Sort if it helps and apply the same-level skip.
+- **Backtracking vs DP.** Backtracking lists or explores every answer. DP computes a single number (a count, a min, a max) in cases where many branches would recompute the same sub-state. If the question asks "how many" or "what's the best", and the state after a choice fits in a few integers, try DP first. If it says "return all", you can't avoid backtracking, because the output alone is exponential in size. The flags mini-task is an example: listing them is backtracking, but counting them is Fibonacci.
+- **Backtracking vs BFS.** Want the *shortest* sequence of moves? Use BFS. Want *every* sequence, or any valid one? Use DFS with backtracking.
+- **Backtracking vs greedy.** Sometimes a local rule provably never needs undoing, like picking the on-call trio. Then don't search at all. Backtracking is for when a choice might need to be undone.
+- **Subsets vs combinations vs permutations.** Does order matter? Then permutations. Is the size fixed? Then combinations. Otherwise, subsets. Is reuse allowed? Then change what `start` becomes in the recursive call. Duplicates in the input? Sort if that helps, and apply the same-level skip.
 
 ### Recognition checklist for an unfamiliar problem
 
-1. Does it say "all", "every", "list", "generate", or "return any valid" arrangement or configuration? Backtracking is likely.
-2. Are the constraints small (n ≤ ~20 for subsets, ≤ ~10 for orderings, or a small board)? That confirms an exponential search is intended.
-3. Can you name the decision made at each level (which item, which position, which neighbour, which character)? That's your `choices`.
-4. Can a partial answer already be invalid? Then prune there, before recursing. That's where most of the speed comes from.
-5. What state do you modify on "choose"? List every piece (path, used flags, board cells, running sums) and restore each one on "un-choose".
+1. Does it say "all", "every", "list", "generate", or "return any valid" arrangement or configuration? Then backtracking is likely.
+2. Are the constraints small? Think n ≤ ~20 for subsets, ≤ ~10 for orderings, or a small board. That confirms an exponential search is intended.
+3. Can you name the decision made at each level? It might be which item, which position, which neighbour or which character. That's your `choices`.
+4. Can a partial answer already be invalid? Then prune there, before recursing. Most of the speed comes from this.
+5. What state do you change on "choose"? List every piece (path, used flags, board cells, running sums). Restore each one on "un-choose".
 6. Can two siblings produce identical subtrees because of duplicate values? Then apply the level dedupe.
-7. Estimate the cost as (number of leaves) × (work per leaf) and check it against the limits before coding.
+7. Estimate the cost as (number of leaves) × (work per leaf). Check it against the limits before you start coding.
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, a one-sentence key insight when you're done, and spaced repetition. For backtracking, during the struggle ask: what are my choices at each step, what constraint makes a partial answer invalid, and where can I prune? Write the `backtrack(state)` skeleton in the first few minutes, even before the details are clear.
+Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/). That means a 15-minute honest struggle, a one-sentence key insight when you're done, and spaced repetition.
+
+For backtracking, ask three questions during the struggle. What are my choices at each step? What rule makes a partial answer invalid? Where can I prune? Write the `backtrack(state)` skeleton in the first few minutes, even before the details are clear.
 
 {% include dsa-problems.html slug="dsa-backtracking" %}
 

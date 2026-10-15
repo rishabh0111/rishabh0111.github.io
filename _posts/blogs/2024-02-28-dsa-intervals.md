@@ -9,57 +9,85 @@ series_order: 12
 series_total: 19
 links_new_tab: true
 tags: [dsa, intervals, sweep-line, python, series]
-read_time: 27
+read_time: 29
 permalink: /blogs/dsa-intervals/
-excerpt: "Almost every interval problem opens the same way: sort by start, then sweep while remembering one end time, or a heap of them. This part teaches the overlap test, the merge sweep and concurrency counting on a single day of studio bookings."
+excerpt: "Almost every interval problem starts the same way: sort by start time, then walk through the list remembering one end time, or a heap of them. This part teaches the overlap test, the merge sweep and counting how many things run at once, all on one day of studio bookings."
 ---
 
-Intervals are pairs that mean "from here to there" (meetings, bookings, IP ranges), and nearly every interval problem reduces to three moves: test two for overlap, sweep a sorted list while growing a block, and count how many are alive at once, all worked here on one day of studio bookings. This part comes right after [Heap / Priority Queue](/blogs/dsa-heaps/) because the third move is a min-heap of end times, and it runs alongside [Greedy](/blogs/dsa-greedy/), which picks up the question of which intervals to keep.
+An interval is a pair that means "from here to there". Meetings, bookings and IP ranges are all intervals. Nearly every interval problem comes down to three moves:
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+- test whether two intervals overlap,
+- walk a sorted list while growing a block of busy time,
+- count how many intervals are running at the same moment.
+
+We'll work all three on one day of studio bookings. This part comes right after [Heap / Priority Queue](/blogs/dsa-heaps/), because the third move uses a min-heap of end times. It runs alongside [Greedy](/blogs/dsa-greedy/), which takes on a different question: which intervals should you keep?
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Intervals
 
 ### Foundation
 
-Picture a recording studio with one shared booking sheet. Each line is a slot like 9 to 13. The questions people ask about that sheet are always the same kind: does this new slot clash with anything, when is the studio free today, and at the busiest moment how many people were trying to use it.
+Picture a recording studio with one shared booking sheet. Each line on the sheet is a slot, like 9 to 13. People keep asking the same kinds of questions about that sheet:
 
-The mental model: an interval is a segment on a number line, and a list of intervals is a set of segments dropped on that line in random order. Random order is the whole difficulty. Once the segments are sorted by where they start, you can walk the line left to right and every question above becomes a single pass with a tiny amount of state: one number (the furthest end you have seen) or one heap (the ends of everything still running).
+- Does this new slot clash with anything?
+- When is the studio free today?
+- At the busiest moment, how many people were trying to use it?
 
-What it solves: any question about coverage (what is busy, what is free), conflict (do two things clash) or load (how many things at once) over a collection of ranges, in O(n log n) instead of comparing every pair in O(n²).
+Now the same idea in maths terms. An interval is a segment on a number line. A list of intervals is a bunch of segments dropped onto that line in random order. That random order is what makes these problems hard.
+
+Once you sort the segments by where they start, you can walk the line from left to right. Every question above then becomes a single pass that remembers very little. Sometimes that's one number: the furthest end you've seen so far. Sometimes it's one heap: the end times of everything still running.
+
+What does this buy you? It answers questions about a collection of ranges in O(n log n), instead of comparing every pair in O(n²). Those questions come in three kinds:
+
+- **Coverage:** what is busy, and what is free?
+- **Conflict:** do two things clash?
+- **Load:** how many things are happening at once?
 
 ### Mechanics
 
-One worked example runs through the whole module. The studio has seven bookings for a day that runs from 8 to 20 (hours):
+We'll use one worked example for the whole module. The studio's day runs from 8 to 20 (in hours), and it has seven bookings:
 
 bookings = [(15, 17), (9, 13), (10, 11), (12, 14), (16, 17), (17, 18), (12, 13)]
 
-Sorted by start, and labelled so the diagram can refer to them:
+Here they are sorted by start time, with a letter each so the diagram can refer to them:
 
 | Label | A | B | C | D | E | F | G |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Booking | (9, 13) | (10, 11) | (12, 13) | (12, 14) | (15, 17) | (16, 17) | (17, 18) |
 
-**Step 1: pick an endpoint convention before anything else.** A booking (15, 17) followed by (17, 18) is not a clash: one person walks out at 17 and the next walks in. That is the half-open convention, [start, end), where the start instant is included and the end instant is not. Integer ranges like "addresses 1 to 3" are usually closed, [lo, hi], where both ends are included. Every comparison below has a strict version and a non-strict version, and the convention decides which one is correct. Most interval bugs are this decision made implicitly.
+**Step 1: decide what the endpoints mean, before anything else.** Take a booking (15, 17) followed by (17, 18). That's not a clash. One person walks out at 17 and the next one walks in.
 
-**Step 2: the overlap test.** Two half-open intervals a and b fail to overlap exactly when one finishes before the other starts: a.end <= b.start or b.end <= a.start. Negate that (De Morgan) and you get the test:
+This way of reading intervals is called **half-open**, written [start, end). The start instant is part of the interval, and the end instant isn't. Integer ranges like "addresses 1 to 3" are usually **closed** instead, written [lo, hi]. In a closed interval, both ends are included.
+
+Why does this matter so much? Every comparison below comes in a strict version (<) and a non-strict version (<=). The convention decides which one is correct. Most interval bugs come from making this choice without noticing you made it.
+
+**Step 2: the overlap test.** It's easier to start with when two half-open intervals a and b *don't* overlap. That happens exactly when one finishes before the other starts:
+
+a.end <= b.start or b.end <= a.start
+
+Flip that around (De Morgan's law: "not (X or Y)" is "not X and not Y") and you get the overlap test:
 
 a.start < b.end and b.start < a.end
 
-Check it on the example. A = (9, 13) and D = (12, 14): 9 < 14 and 12 < 13, so they overlap (on [12, 13)). E = (15, 17) and G = (17, 18): 15 < 18 but 17 < 17 is false, so they do not, which is the handover at 17 we wanted. For closed intervals both comparisons become <=, because [9, 13] and [13, 14] share the point 13.
+Let's check it on the example. Take A = (9, 13) and D = (12, 14). We have 9 < 14 and 12 < 13, so they overlap, on [12, 13). Now take E = (15, 17) and G = (17, 18). 15 < 18 holds, but 17 < 17 is false, so they don't overlap. That's the handover at 17 we wanted.
 
-**Step 3: sorting turns two comparisons into one.** If a comes before b in start order, then a.start <= b.start < b.end, so the first half of the test is already true. The only question left is b.start < a.end. That is why nearly every interval algorithm starts with a sort: after it, "does the next one overlap?" is one comparison against something to its left.
+For closed intervals, both comparisons become <=. That's because [9, 13] and [13, 14] both contain the point 13, so they do overlap.
 
-**Step 4: the merge sweep, and why you compare against the running end.** Walk the sorted bookings keeping cur_end, the furthest end seen so far in the current busy block. For each booking (start, end):
+**Step 3: sorting turns two comparisons into one.** Say a comes before b once the list is sorted by start. Then a.start <= b.start, and b.start < b.end, so a.start <= b.start < b.end. The first half of the test is already true for free.
 
-- If start > cur_end, nothing seen so far reaches start. Every earlier booking ends at or before cur_end (that is what cur_end means), and every later booking starts at or after start (that is what sorting guarantees). So [cur_end, start) is genuinely free, and a new block begins.
-- Otherwise the booking touches or overlaps the current block, and the block now reaches max(cur_end, end).
+The only question left is b.start < a.end. That's why nearly every interval algorithm starts with a sort. After it, "does the next one overlap?" is one comparison against something on its left.
 
-The invariant: after processing the first i sorted bookings, their union is a list of finished blocks plus one open block whose right edge is cur_end. A finished block never changes again, because every later booking starts at or after the start that closed it.
+**Step 4: the merge sweep, and why you compare against the running end.** A **sweep** just means walking through the sorted list once, from left to right. As we go, we keep one number, cur_end. It's the furthest end we've seen so far in the current busy block. For each booking (start, end):
 
-The word that matters is max. Booking B = (10, 11) sits entirely inside A = (9, 13). If you overwrite cur_end with B's end you would believe the block ends at 11, and then C = (12, 13) would look like it opens a new block after a free hour [11, 12) that never existed. The block's edge is the furthest end seen, not the most recent one.
+- **If start > cur_end**, nothing we've seen so far reaches start. Why can we be sure? Every earlier booking ends at or before cur_end, because that's what cur_end means. Every later booking starts at or after start, because the list is sorted. So [cur_end, start) really is free, and a new busy block begins.
+- **Otherwise**, the booking touches or overlaps the current block. The block now stretches to max(cur_end, end).
 
-Here is the sweep on the example, starting cur_end at the day's start, 8:
+Here's the fact that stays true at every step (the **invariant**). After the first i sorted bookings, the time they cover is a list of finished blocks plus one open block, and the open block's right edge is cur_end. A finished block never changes again. That's because every later booking starts at or after the start that closed it.
+
+The word that matters most here is max. Look at booking B = (10, 11). It sits entirely inside A = (9, 13). Suppose you overwrote cur_end with B's end. You'd think the block ends at 11. Then C = (12, 13) would look like it opens a new block, after a free hour [11, 12) that never existed. The block's edge is the furthest end seen so far, not the most recent one.
+
+Here is the sweep on the example. cur_end starts at the start of the day, 8:
 
 | Booking | cur_end before | start > cur_end? | Free gap found | cur_end after |
 | --- | --- | --- | --- | --- |
@@ -71,19 +99,32 @@ Here is the sweep on the example, starting cur_end at the day's start, 8:
 | F (16, 17) | 17 | no | none | 17 |
 | G (17, 18) | 17 | 17 > 17, no | none | 18 |
 
-After the loop cur_end = 18 < 20, so the tail (18, 20) is free as well. Free gaps: (8, 9), (14, 15), (18, 20). Busy blocks: [9, 14) and [15, 18). Note G: under half-open, 17 == 17 means "touching", and touching bookings leave no free time between them, so the non-strict branch is correct here.
+After the loop, cur_end = 18, which is less than 20. So the tail (18, 20) is free as well. That gives:
 
-**Step 5: counting concurrency.** The merge sweep answers "busy or not". The load question, "how many at once", needs a count, and there are two standard ways to keep it.
+- Free gaps: (8, 9), (14, 15), (18, 20).
+- Busy blocks: [9, 14) and [15, 18).
 
-*Event sweep.* Split every booking into two events: (start, +1) and (end, -1). Sort the events and add them up; the running total is the number of live bookings. The one decision is the tie at equal times. Under half-open, a booking that ends at 17 is gone at 17, so at the same time the -1 must be applied before the +1. Python's tuple sort gives you this for free because -1 < +1 (recalled: tuples compare element by element). On the example the running total goes:
+Look at G's row. Under half-open, 17 == 17 means the two bookings are "touching". Touching bookings leave no free time between them. So it's correct that 17 > 17 is false and G goes into the "otherwise" branch.
+
+**Step 5: counting how many run at once.** The merge sweep only tells you "busy or not". The load question, "how many at once?", needs a count. There are two standard ways to keep one.
+
+*Event sweep.* Split every booking into two events: (start, +1) and (end, -1). Sort the events and add up the +1s and -1s as you go. The running total is the number of **live** bookings, meaning the ones running right now.
+
+There's one decision to make: what happens when two events share a time? Under half-open, a booking that ends at 17 is already gone at 17. So at the same time, the -1 has to be applied before the +1. Python's tuple sort does this for you, because -1 < +1 (recalled: tuples compare element by element). On the example, the running total goes:
 
 9: 1, 10: 2, 11: 1, 12: 2 then 3, 13: 2 then 1, 14: 0, 15: 1, 16: 2, 17: 1 then 0 then 1, 18: 0.
 
-At 17, E and F end and G starts. Ends first gives 2, 1, 0, 1: the studio never holds more than one person at 17. Starts first would give 2, 3, 2, 1, and for an instant the count reads 3, reporting a three-way clash at 17 that did not happen.
+Zoom in on 17, where E and F end and G starts. With ends first, the count goes 2, 1, 0, 1. The studio never holds more than one person at 17. With starts first, it would go 2, 3, 2, 1. For an instant the count reads 3, which reports a three-way clash at 17 that never happened.
 
-*Min-heap of end times.* Process bookings in start order. Keep a min-heap holding the end times of bookings that have started. When a booking (start, end) arrives, pop every end <= start (those bookings finished at or before this one began), and the heap size is now exactly the number of bookings still running. Then push end.
+*Min-heap of end times.* Go through the bookings in start order. Keep a min-heap (a structure that always hands you its smallest item first) holding the end times of bookings that have started. When a booking (start, end) arrives:
 
-Why only the top matters: the heap's smallest end is the first booking to finish. If heap[0] > start, every other end in the heap is >= heap[0] > start, so all of them are still running and you can stop popping. Each end is pushed once and popped at most once, so the whole sweep costs O(n log n).
+1. Pop every end that is <= start. Those bookings finished at or before this one began.
+2. Now the heap size is exactly the number of bookings still running.
+3. Push end.
+
+Why is it enough to look only at the top of the heap? The smallest end belongs to the first booking that will finish. If heap[0] > start, then every other end in the heap is >= heap[0], which is > start. So all of them are still running, and you can stop popping.
+
+Each end is pushed once and popped at most once. So the whole sweep costs O(n log n).
 
 | Arriving booking | Popped (end <= start) | Live when it starts | Heap before pushing |
 | --- | --- | --- | --- |
@@ -95,17 +136,26 @@ Why only the top matters: the heap's smallest end is the first booking to finish
 | F (16, 17) | none | 1 | [17] |
 | G (17, 18) | 17, 17 | 0 | [] |
 
-The largest "live when it starts" is 2, at D, so with D included three bookings are running at 12, which matches the event sweep's peak of 3 at 12. The two methods answer slightly different questions: the event sweep gives the count at every moment (a load profile), the heap gives the count at each arrival and keeps the identities of running bookings (their ends) available, which is what you need when the question is about the arriving interval itself.
+The largest "live when it starts" is 2, at D. Count D itself too, and three bookings are running at 12. That matches the event sweep's peak of 3 at 12.
+
+The two methods answer slightly different questions:
+
+- **The event sweep** gives the count at every moment. That's called a **load profile**.
+- **The heap** gives the count at each arrival. It also keeps track of which bookings are running (through their end times). You need that when the question is about the arriving interval itself.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-intervals/studio-timeline.svg %}</figure>
 
-Three things to read off it. B hides inside A, which is why the merge sweep needs max. E and F both end exactly where G starts, which is where the tie rule lives. And the busy row is just "live >= 1" while the free row is "live == 0", so the merge sweep and the count sweep are two views of the same line.
+There are three things to read off it:
+
+- B hides inside A. That's why the merge sweep needs max.
+- E and F both end exactly where G starts. That's where the tie rule matters.
+- The busy row is just "live >= 1", and the free row is "live == 0". So the merge sweep and the count sweep are two views of the same line.
 
 ### Implementation
 
-The overlap test and the merge sweep, returning the free gaps in the day:
+First, the overlap test and the merge sweep. The sweep returns the free gaps in the day:
 
 ```python
 def overlaps(a, b):
@@ -147,7 +197,7 @@ print(overlaps((15, 17), (17, 18)))  # False
 print(free_gaps(bookings, 8, 20))    # [(8, 9), (14, 15), (18, 20)]
 ```
 
-The two concurrency sweeps, on the same bookings:
+Next, the two sweeps that count how many bookings run at once, on the same bookings:
 
 ```python
 import heapq
@@ -208,40 +258,59 @@ print(live_at_arrival(bookings))
 #  ((15, 17), 0), ((16, 17), 1), ((17, 18), 0)]
 ```
 
-Edge cases, run: free_gaps([], 8, 20) returns [(8, 20)]; free_gaps([(8, 20)], 8, 20) returns []; free_gaps([(9, 15), (10, 11), (12, 14)], 8, 20) returns [(8, 9), (15, 20)] (the containment case); load_profile([]) and live_at_arrival([]) return []; two identical bookings [(9, 11), (9, 11)] give the profile [(9, 2), (11, 0)] and live counts 0 then 1. I also checked every function against a brute-force "check every hour" version on 5,000 random booking sets.
+I ran these edge cases:
 
-Complexity, with n bookings: free_gaps, load_profile and live_at_arrival are O(n log n) time, dominated by the sort, plus (for live_at_arrival) n pushes and at most n pops on a heap of size at most n. Space is O(n) for the sorted copy, the 2n events or the heap. hours_at_least is O(n) over a profile of at most 2n points, and overlaps is O(1).
+- free_gaps([], 8, 20) returns [(8, 20)].
+- free_gaps([(8, 20)], 8, 20) returns [].
+- free_gaps([(9, 15), (10, 11), (12, 14)], 8, 20) returns [(8, 9), (15, 20)]. This is the containment case, where bookings sit inside another one.
+- load_profile([]) and live_at_arrival([]) both return [].
+- Two identical bookings [(9, 11), (9, 11)] give the profile [(9, 2), (11, 0)], and live counts of 0 then 1.
+
+I also checked every function against a brute-force version that checks every hour, on 5,000 random sets of bookings.
+
+Complexity, with n bookings:
+
+- **free_gaps, load_profile and live_at_arrival take O(n log n) time.** The sort is the most expensive part. live_at_arrival also does n pushes and at most n pops, on a heap that never holds more than n items.
+- **Their space is O(n).** That's for the sorted copy, the 2n events, or the heap.
+- **hours_at_least is O(n)**, since it walks a profile of at most 2n points.
+- **overlaps is O(1).**
 
 ### Recognition
 
-Signals that an interval sweep applies:
+These are the signals that an interval sweep applies:
 
-- The input is a list of (start, end) pairs, or can be turned into one: meetings, bookings, ranges, segments, "from day x to day y".
-- The words overlap, conflict, clash, merge, cover, free time, at the same time, simultaneously, how many at once, minimum number of rooms, servers or resources.
-- The order of the input is arbitrary and nothing in the problem depends on it, so sorting loses nothing.
-- n is large enough (thousands and up) that comparing every pair in O(n²) is too slow.
+- **The input is a list of (start, end) pairs, or can be turned into one.** Think meetings, bookings, ranges, segments, or "from day x to day y".
+- **The problem uses words like these:** overlap, conflict, clash, merge, cover, free time, at the same time, simultaneously, how many at once, minimum number of rooms, servers or resources.
+- **The input order is arbitrary, and nothing in the problem depends on it.** So sorting loses nothing.
+- **n is large enough (thousands and up)** that comparing every pair in O(n²) is too slow.
 
-Which list problems show which signal: Merge Intervals and Insert Interval are coverage questions (Insert Interval adds the signal "already sorted and non-overlapping", which means you can skip the sort). Meeting Rooms is a pure conflict question. Meeting Rooms II is a "how many at once" question. Non Overlapping Intervals asks you to choose which intervals to keep, which is a selection question more than a sweep question. Minimum Interval to Include Each Query has the "set of live intervals" signal plus a second list, the queries, that you also get to process in whatever order you like.
+Here's how those signals show up in this topic's list:
+
+- **Merge Intervals and Insert Interval** are coverage questions. Insert Interval adds one more signal: the input is "already sorted and non-overlapping", which means you can skip the sort.
+- **Meeting Rooms** is a pure conflict question.
+- **Meeting Rooms II** is a "how many at once" question.
+- **Non Overlapping Intervals** asks you to choose which intervals to keep. That's more a selection question than a sweep question.
+- **Minimum Interval to Include Each Query** has the "set of live intervals" signal. It also has a second list, the queries, which you're free to process in whatever order you like.
 
 When not to use it, and what it gets confused with:
 
-- Tiny bounded coordinates (say all times are whole hours in 0 to 24, or days in a year): a difference array over the timeline, +1 at start and -1 at end followed by a prefix sum, is O(n + T) for T time slots and needs no sort. That is the event sweep without the sort, and it only works when T is small.
-- Intervals arriving and disappearing online with queries in between: a single sort-and-sweep assumes you have everything up front. That needs a balanced tree or sorted container, not this.
-- Sliding window is not this. A sliding window is a contiguous range of indices in one array that you choose; interval problems hand you ranges and ask how they relate to each other.
-- Greedy selection is adjacent, not identical. The sweep tells you what overlaps; deciding which intervals to keep or drop needs its own argument about why the local choice is safe, and which endpoint you sort by is part of that argument. That is Part 13's job.
+- **The coordinates are tiny and bounded**, say all times are whole hours from 0 to 24, or days in a year. Then use a **difference array**: an array with one slot per time step, where you add +1 at each start and -1 at each end, then take a running total (a prefix sum). It costs O(n + T) for T time slots and needs no sort. It's the event sweep without the sort, and it only works when T is small.
+- **Intervals arrive and disappear over time, with queries in between** (an "online" problem). A single sort-and-sweep assumes you have everything up front. This case needs a balanced tree or a sorted container instead.
+- **Sliding window is a different thing.** In a sliding window, you choose a contiguous range of indices in one array. In interval problems, the ranges are handed to you, and the question is how they relate to each other.
+- **Greedy selection is a close neighbour, but not the same.** The sweep tells you what overlaps. Deciding which intervals to keep or drop needs its own argument for why each local choice is safe. Which endpoint you sort by is part of that argument. That's Part 13's job.
 
 ### Pitfalls
 
-- Convention drift. Using <= in the overlap test for half-open intervals makes (15, 17) and (17, 18) clash. Using < for closed integer ranges makes [9, 13] and [13, 14] look disjoint even though both contain 13. Decide once, write it down, check the touching case.
-- Overwriting instead of max. cur_end = end breaks on containment. On the example it invents a free gap (11, 12) because B = (10, 11) sits inside A = (9, 13).
-- Forgetting to flush. The loop emits something only when a later interval triggers it. The last block, or the free tail (18, 20) here, has to be handled after the loop.
-- Tie order in the event sweep. Ends before starts for half-open. For closed intervals it flips: [15, 17] and [17, 18] both contain 17, so the start at 17 must be counted before the end at 17, and you need an explicit sort key rather than relying on -1 < +1.
-- Heap pop condition. while ends[0] < start instead of <= keeps E and F alive when G starts, so G reports 2 live bookings instead of 0.
-- Sorting by the wrong key or not at all. sorted(bookings) sorts by start, then end. The merge sweep only needs start order; key=lambda b: b[0] works too. Sorting by end is a different algorithm with a different correctness argument, not a harmless variant.
-- Mutating the caller's list. list.sort() sorts in place; if the caller still needs their original order, use sorted().
-- Zero-length intervals (start == end). Under half-open they contain no instant, but the two-comparison test still says (19, 19) overlaps (15, 20) because 19 < 20 and 15 < 19. In the event sweep a lone (12, 12) makes the running count dip to -1 for a moment because its -1 sorts before its +1. Either filter them out or decide what they mean.
-- Empty input and single interval. Initialising cur_end to day_start (not to the first booking's end) makes the empty case return the whole day as free without a special branch.
-- Complexity claims. The sweep is O(n); the sort is O(n log n), so the whole thing is O(n log n). If the input is guaranteed sorted, say so and claim O(n).
+- **Convention drift.** Use <= in the overlap test for half-open intervals, and (15, 17) and (17, 18) clash. Use < for closed integer ranges, and [9, 13] and [13, 14] look disjoint, even though both contain 13. Decide on a convention once, write it down, and check the touching case.
+- **Overwriting instead of taking max.** cur_end = end breaks when one booking sits inside another. On the example, it invents a free gap (11, 12), because B = (10, 11) sits inside A = (9, 13).
+- **Forgetting to flush.** The loop only records something when a later interval triggers it. So the last block, or here the free tail (18, 20), has to be handled after the loop.
+- **Tie order in the event sweep.** For half-open intervals, ends go before starts. For closed intervals it flips. [15, 17] and [17, 18] both contain 17, so the start at 17 must be counted before the end at 17. That means you need an explicit sort key, rather than relying on -1 < +1.
+- **The heap pop condition.** Write while ends[0] < start instead of <=, and E and F stay alive when G starts. G then reports 2 live bookings instead of 0.
+- **Sorting by the wrong key, or not sorting at all.** sorted(bookings) sorts by start, then by end. The merge sweep only needs start order, so key=lambda b: b[0] works too. Sorting by end is a different algorithm with a different correctness argument. It isn't a harmless variant.
+- **Changing the caller's list.** list.sort() sorts in place. If the caller still needs their original order, use sorted().
+- **Zero-length intervals (start == end).** Under half-open, they contain no instant at all. But the two-comparison test still says (19, 19) overlaps (15, 20), because 19 < 20 and 15 < 19. In the event sweep, a lone (12, 12) makes the running count dip to -1 for a moment, because its -1 sorts before its +1. Either filter them out or decide what they mean.
+- **Empty input and a single interval.** Start cur_end at day_start, not at the first booking's end. Then the empty case returns the whole day as free, with no special branch.
+- **Complexity claims.** The sweep itself is O(n). The sort is O(n log n), so the whole thing is O(n log n). If the input is guaranteed to be sorted already, say so and claim O(n).
 
 ### Active Recall
 
@@ -267,7 +336,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-The list problems here all announce themselves: they hand you pairs called intervals and ask about overlap, rooms or merging, so none of them makes you derive the sweep from scratch in disguise. This checkpoint stays in so the mechanics get exercised on something that does not look like a textbook interval problem.
+Every problem in this topic's list announces itself. Each one hands you pairs called intervals and asks about overlap, rooms or merging. So none of them makes you spot the sweep when it's in disguise. That's why this checkpoint stays in: you get to practise the mechanics on something that doesn't look like a textbook interval problem.
 
 A firewall keeps a blocklist of IPv4 address ranges, stored as integers and written as inclusive pairs [lo, hi]. Different teams add ranges independently, so ranges repeat, overlap and nest. Given the list, return how many distinct addresses are blocked. There can be up to 10^5 ranges, and the addresses span about 4.3 billion values, so you cannot mark them one by one.
 
@@ -295,9 +364,15 @@ Ask me whether I would use interval sweeps here and why, and wait for my answer.
 
 ## Integration
 
-How the pieces connect to the topic. Every interval problem in this list is some combination of three things from this module: the overlap test under a chosen convention, a sort that makes one comparison against the left side enough, and a sweep that keeps the minimum state to answer the question. Coverage questions keep one number (the running end). Load questions keep a counter over events or a min-heap of ends. Questions about the arriving interval itself ("what is still alive when this one starts") keep a heap of the live intervals.
+Here's how the pieces connect to the topic. Every interval problem in this list combines three things from this module:
 
-Distinguishing competing approaches:
+- the overlap test, under a convention you've chosen,
+- a sort, so that one comparison against the left side is enough,
+- a sweep that remembers only what the question needs.
+
+What the sweep remembers depends on the question. Coverage questions keep one number, the running end. Load questions keep a counter over events, or a min-heap of end times. Questions about the arriving interval itself ("what is still running when this one starts?") keep a heap of the live intervals.
+
+How the competing approaches compare:
 
 | Approach | State kept | Answers | Cost |
 | --- | --- | --- | --- |
@@ -307,24 +382,36 @@ Distinguishing competing approaches:
 | Min-heap of ends | ends of live intervals | load at each arrival, which intervals are live | O(n log n) |
 | Difference array | array over time slots | load when coordinates are small integers | O(n + T) |
 
-Two questions separate them fast. Is the question about coverage (busy or not) or about load (how many)? And is it asked about every instant, or about each interval as it arrives? A third question sits on the boundary with Greedy: are you asked to choose intervals, not just describe them? Then the sort order is part of a correctness argument you have to make, and the sweep is only the vehicle.
+Two questions tell them apart quickly:
+
+1. Is the question about coverage (busy or not) or about load (how many)?
+2. Is it asked about every instant, or about each interval as it arrives?
+
+A third question sits on the border with Greedy: are you asked to *choose* intervals, not just describe them? If so, the sort order becomes part of a correctness argument you have to make yourself. The sweep is just how you carry it out.
 
 <figure class="sketch">{% include sketches/dsa-intervals/which-sweep.svg %}</figure>
 
 A recognition checklist for an unfamiliar problem:
 
-1. Can the input be read as ranges on a line? Times, positions, IDs, days, addresses all count.
+1. Can the input be read as ranges on a line? Times, positions, IDs, days and addresses all count.
 2. Is the endpoint convention half-open or closed? Write down what happens when one range ends exactly where another starts.
-3. Is order irrelevant, so sorting is free? If it is already sorted, can you skip the sort?
-4. Coverage, load, or choice? Coverage means a running end, load means a counter or heap, choice means a greedy argument.
-5. Every instant or each arrival? Every instant points to events, each arrival points to a heap.
-6. Is there a second list (queries, points, rooms) you can also sort and sweep against the first?
+3. Does the input order not matter, so you're free to sort? If it's already sorted, can you skip the sort?
+4. Is it about coverage, load, or choice? Coverage means a running end. Load means a counter or a heap. Choice means a greedy argument.
+5. Is it about every instant, or each arrival? Every instant points to events. Each arrival points to a heap.
+6. Is there a second list (queries, points, rooms) that you can also sort and sweep against the first?
 7. Is the coordinate range tiny? Then a difference array might beat the sort.
-8. Does the complexity target allow O(n²)? If not, the sort-plus-sweep is almost certainly the intended shape.
+8. Does the complexity target allow O(n²)? If not, sort-plus-sweep is almost certainly the intended shape.
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, spaced repetition. For Intervals the struggle questions are: why does the local choice stay globally optimal? Is it a sort, a heap, or both? After watching a solution, justify the greedy decision in your own words: why this sort key, why this comparison, why this tie rule.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute honest struggle, write down one key sentence per problem, then review it with spaced repetition.
+
+While you struggle with a problem from this topic, ask yourself:
+
+- Why does the local choice stay the best choice overall?
+- Is it a sort, a heap, or both?
+
+After you watch a solution, justify the greedy decision in your own words. Why this sort key? Why this comparison? Why this tie rule?
 
 {% include dsa-problems.html slug="dsa-intervals" %}
 

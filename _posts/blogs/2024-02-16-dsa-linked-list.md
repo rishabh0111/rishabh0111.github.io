@@ -5,18 +5,20 @@ date: 2024-02-16 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, linked-list, fast-slow-pointers, python, series]
-read_time: 36
+read_time: 38
 permalink: /blogs/dsa-linked-list/
-excerpt: "Every linked list bug is the same bug: you overwrote a .next before anything else was holding the node it pointed to. Pointer surgery, sentinels, and two runners at different speeds, then eleven problems to solve yourself."
+excerpt: "Every linked list bug is the same one: you overwrote a .next while nothing else was holding the node it pointed to. This post covers safe pointer rewiring, sentinel nodes, and two runners at different speeds, then gives you eleven problems to solve yourself."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 7
 series_total: 19
 links_new_tab: true
 ---
 
-A linked list gives up the one thing arrays are best at, jumping to index i, and gets cheap splicing in return, so every problem here is a question of which pointers you hold, in what order you overwrite them, and where a second pointer can stand. It comes after [Two Pointers](/blogs/dsa-two-pointers/), because half the tricks are two pointers moving over nodes instead of indices, and with [Binary Search](/blogs/dsa-binary-search/) it unlocks [Trees](/blogs/dsa-trees/), where every node has two `.next` fields instead of one. Finding where a loop starts (Floyd's second phase) is folded into Fast and Slow Pointers, because one of the problems needs it.
+Arrays are great at one thing: jumping straight to index i. A linked list gives that up. In return, it lets you splice nodes in and out cheaply. So every problem in this topic comes down to three questions. Which pointers are you holding? In what order do you overwrite them? And where could a second pointer stand?
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+This post comes after [Two Pointers](/blogs/dsa-two-pointers/), because half the tricks here are two pointers moving over nodes instead of indices. Together with [Binary Search](/blogs/dsa-binary-search/), it unlocks [Trees](/blogs/dsa-trees/), where every node has two `.next` fields instead of one. Finding where a loop starts (Floyd's second phase) is covered inside Fast and Slow Pointers, because one of the problems needs it.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Singly Linked Lists
 
@@ -24,37 +26,37 @@ How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no 
 
 Think of a scavenger hunt. You're handed the first clue, and each clue tells you where the next one is hidden. There's no map of all the clues. To reach clue 5 you have to read clues 1 through 4.
 
-That's a singly linked list: nodes that each hold a value and a reference to the next node, and a `head` reference to the first. The list *is* the head. Lose the head, or lose any `.next` in the middle, and everything after it is gone.
+That's a singly linked list. Each node holds a value and a reference to the next node. A separate `head` reference points at the first node. In practice, the list *is* the head: it's the only way in. Lose the head, or lose any `.next` in the middle, and everything after that point is gone.
 
-What you buy with that: once you're standing at a node, inserting or removing right after it is O(1), with no shifting of other elements. What you pay: reaching position k costs O(k), and you can only walk forward.
+Here's what you get for it. Once you're standing at a node, inserting or removing the node right after it is O(1). Nothing else has to shift. Here's what you pay. Reaching position k costs O(k), because you have to walk there, and you can only walk forward.
 
 ### Mechanics
 
 Three operations cover almost everything.
 
-1. **Traverse.** `cur = head`, then `while cur: ...; cur = cur.next`. Invariant: `cur` is the first node you haven't processed yet, and `None` means you've run off the end.
-2. **Insert after a node `p`.** Point the new node at `p.next` first, then point `p` at the new node. The order is the whole lesson: if you set `p.next = new` first, the only reference to the rest of the list is gone.
-3. **Delete the node after `p`.** `p.next = p.next.next`. Deletion is done from the *predecessor*. You can't delete a node you're standing on in a singly list, because you have no way back to the node before it.
+1. **Traverse.** Set `cur = head`, then run `while cur: ...; cur = cur.next`. An **invariant** is a fact that stays true at every step of a loop. Here it is: `cur` is always the first node you haven't processed yet. When `cur` is `None`, you've run off the end.
+2. **Insert after a node `p`.** First point the new node at `p.next`. Then point `p` at the new node. The order is the whole lesson. If you set `p.next = new` first, you've just overwritten the only reference to the rest of the list, and it's gone.
+3. **Delete the node after `p`.** Write `p.next = p.next.next`. Notice that you delete from the *predecessor*, the node just before the one you remove. In a singly list you can't delete the node you're standing on, because you have no way back to the node before it.
 
-That third point creates the classic special case: the head has no predecessor. The fix is a **dummy (sentinel) node**: a throwaway node whose `.next` is the head. Now every real node, including the head, has a predecessor, the same code handles all of them, and at the end you return `dummy.next`, which is whatever the head became.
+That third point creates a classic special case. The head has no predecessor, so how do you delete it? The fix is a **dummy node** (also called a sentinel). It's a throwaway node whose `.next` is the head. Now every real node, including the head, has a predecessor. The same code handles all of them. At the end you return `dummy.next`, which is whatever the head became.
 
-The rule that prevents most bugs in this category: **before you overwrite a `.next`, make sure something else still references the node it pointed to.**
+One rule prevents most bugs in this topic: **before you overwrite a `.next`, make sure something else still references the node it pointed to.**
 
-Worked example, reused through this module: remove every node with value 7 from `7 -> 3 -> 7 -> 7 -> 1`, then insert 5 after the new head.
+Here's the worked example we'll reuse through this module. Remove every node with value 7 from `7 -> 3 -> 7 -> 7 -> 1`, then insert 5 after the new head.
 
-Walk two pointers, `prev` (last node we're keeping) and `cur` (node being examined), starting at `prev = dummy`, `cur = first 7`.
+We walk two pointers. `prev` is the last node we're keeping. `cur` is the node we're examining. They start at `prev = dummy` and `cur = first 7`.
 
-- `cur` is 7: unlink it with `prev.next = cur.next`. The dummy now points at 3. `prev` stays on the dummy.
-- `cur` is 3: keep it, `prev` moves to 3.
-- `cur` is the second 7: unlink, 3 now points at the third 7. `prev` stays on 3.
-- `cur` is the third 7: unlink, 3 now points at 1. `prev` still on 3.
-- `cur` is 1: keep, `prev` moves to 1. `cur` becomes `None`, loop ends.
+- `cur` is 7. Unlink it with `prev.next = cur.next`. The dummy now points at 3. `prev` stays on the dummy.
+- `cur` is 3. Keep it. `prev` moves to 3.
+- `cur` is the second 7. Unlink it, so 3 now points at the third 7. `prev` stays on 3.
+- `cur` is the third 7. Unlink it, so 3 now points at 1. `prev` is still on 3.
+- `cur` is 1. Keep it. `prev` moves to 1. `cur` becomes `None`, and the loop ends.
 
-Result `3 -> 1`, returned as `dummy.next`. The first node of the original list was removed, and nothing special happened because of it. Inserting 5 after the head (the node 3) gives `3 -> 5 -> 1`.
+The result is `3 -> 1`, returned as `dummy.next`. The first node of the original list was removed, and the code needed no special case for it. Then inserting 5 after the head (the node 3) gives `3 -> 5 -> 1`.
 
-Why is `prev` not advanced after an unlink? Because `prev.next` is now a node nobody has checked yet. Two adjacent 7s are exactly the case that breaks if you advance anyway (Active Recall question 1).
+Why doesn't `prev` move forward after an unlink? Because `prev.next` is now a node nobody has checked yet. If you move `prev` anyway, you skip that check. Two 7s in a row are exactly the case that breaks (Active Recall question 1).
 
-Why is `cur = cur.next` safe after an unlink? The removed node's own `.next` was never touched, so it still points into the live list.
+Why is `cur = cur.next` still safe after an unlink? We never touched the removed node's own `.next`. So it still points into the live list, and `cur` lands on the right node.
 
 ### Diagram
 
@@ -131,32 +133,35 @@ Edge cases, run against `remove_all(build(values), 7)`:
 | `[3, 7]` | `[3]` |
 | `[7, 3]` | `[3]` |
 
-Complexity: `remove_all` is O(n) time for n nodes, each visited once, and O(1) extra space (two pointers and one dummy). `insert_after` is O(1). Reaching the node you want to insert after is the O(k) part, and it's separate.
+Complexity:
+
+- `remove_all` is O(n) time for n nodes, because each node is visited once. It uses O(1) extra space: two pointers and one dummy.
+- `insert_after` is O(1). Getting to the node you want to insert after is the O(k) part, and that cost is separate.
 
 ### Recognition
 
-Signals:
+These are the signals that you're doing linked list work:
 
-- The input is a `ListNode` head, and the question asks you to rearrange, splice, remove or build nodes rather than just read values.
-- "In place" or "O(1) extra memory". Copying the values into a Python list and back is the easy escape, and these constraints exist to close it.
-- The head might change: removed, replaced, or not known until you've built the answer. That's the dummy node signal.
-- You're producing a new list one node at a time. `build` above is the pattern: a dummy plus a `tail` pointer.
+- **The input is a `ListNode` head**, and the question asks you to rearrange, splice, remove or build nodes, not just read values.
+- **The problem says "in place" or "O(1) extra memory".** The easy escape is to copy the values into a Python list and back. These constraints exist to close that escape.
+- **The head might change.** It could be removed, replaced, or unknown until you've built the answer. That's the signal to use a dummy node.
+- **You're producing a new list one node at a time.** `build` above shows the pattern: a dummy plus a `tail` pointer.
 
-When not to use a linked list: if you need repeated random access by position, or you keep searching for a value, the O(k) walk dominates. In an interview, when the input is already a Python list and space isn't constrained, stay in arrays.
+When not to use a linked list: if you need repeated random access by position, or you keep searching for a value, the O(k) walk dominates the cost. In an interview, if the input is already a Python list and space isn't constrained, stay with arrays.
 
-Distinguish it from array two pointers ([Part 3](/blogs/dsa-two-pointers/)): there's no index arithmetic and no moving backwards, so a "right" pointer that walks left doesn't exist. Anything that needs to look behind must have been saved on the way forward.
+How it differs from array two pointers ([Part 3](/blogs/dsa-two-pointers/)): there's no index arithmetic, and you can't move backwards. So a "right" pointer that walks left doesn't exist. If you'll need to look behind you, you must save that node on the way forward.
 
-In this list: the head can change in Remove Nth Node From End of List, Merge Two Sorted Lists and Reverse Nodes In K Group. Building a result node by node shows up in Merge Two Sorted Lists and Add Two Numbers. In-place rewiring is the whole point of Reverse Linked List, Reorder List and Reverse Nodes In K Group.
+Here is where these signals show up in this topic's list. The head can change in Remove Nth Node From End of List, Merge Two Sorted Lists and Reverse Nodes In K Group. Building a result node by node shows up in Merge Two Sorted Lists and Add Two Numbers. In-place rewiring is the whole point of Reverse Linked List, Reorder List and Reverse Nodes In K Group.
 
 ### Pitfalls
 
-- **Losing the rest of the list.** Any assignment to `x.next` destroys the only reference to the old `x.next` unless you saved it first.
-- **Advancing `prev` after a removal.** Skips checking the next node. It's invisible until two targets are adjacent.
-- **`None` dereferences.** `cur.next.next` crashes when `cur.next` is `None`. Check the shorter chain first: `cur.next and cur.next.next`.
-- **Empty and single-node lists.** `head` can be `None`. Walk every function through `[]` and `[x]` before trusting it.
+- **Losing the rest of the list.** Assigning to `x.next` destroys the only reference to the old `x.next`, unless you saved it first.
+- **Moving `prev` forward after a removal.** This skips the check on the next node. You won't notice until two targets sit next to each other.
+- **Following a `None`.** `cur.next.next` crashes when `cur.next` is `None`. Check the shorter chain first: `cur.next and cur.next.next`.
+- **Empty and single-node lists.** `head` can be `None`. Walk every function through `[]` and `[x]` before you trust it.
 - **Returning `head` instead of `dummy.next`.** If the head was removed, `head` still points at the removed node.
-- **Accidental loops.** Rewiring in the wrong order can make a node point back at an earlier node. Your `to_list` then never returns, which feels like a timeout rather than a bug.
-- **Values versus identity.** Two nodes can hold the same value. Use `is` when you mean "the same node".
+- **Accidental loops.** Rewiring in the wrong order can make a node point back at an earlier node. Then your `to_list` never returns. It looks like a timeout, not a bug.
+- **Values versus identity.** Two different nodes can hold the same value. Use `is` when you mean "the same node".
 
 ### Active recall
 
@@ -180,7 +185,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Reverse Linked List makes you derive pointer rewiring from nothing, which is exactly this module's mechanics exercised independently, so a separate checkpoint would only duplicate it.
+Skipped for this module. Reverse Linked List makes you work out pointer rewiring from nothing, and that is exactly this module's mechanics. So you'll practise them on your own there, and a separate checkpoint here would only repeat it.
 
 ### Transfer test
 
@@ -196,27 +201,27 @@ Ask me whether I would use a singly linked list here and why, and wait for my an
 
 ### Foundation
 
-A train where every car is coupled to both neighbours. Standing in any car, you can walk forward or backward, and you can uncouple a car from the middle using only that car: it knows who's in front of it and who's behind it.
+Picture a train where every car is coupled to both of its neighbours. Standing in any car, you can walk forward or backward. You can also uncouple a car from the middle using only that car, because it knows who's in front of it and who's behind it.
 
-That's a doubly linked list: every node has `.prev` and `.next`. The payoff is one specific ability a singly list lacks: **remove a node in O(1) given only a reference to that node**. The cost is an extra pointer per node and twice as many pointer writes per insert.
+That's a doubly linked list: every node has both `.prev` and `.next`. You get one specific ability a singly list lacks. You can **remove a node in O(1) given only a reference to that node**. The cost is an extra pointer per node, and twice as many pointer writes per insert.
 
 ### Mechanics
 
-Use **two sentinels**, a `head` and a `tail` node that never hold data. The empty list is `head <-> tail`. Every real node then always has a real `prev` and `next`, so no operation ever checks for `None`.
+We use **two sentinels**. These are a `head` node and a `tail` node that never hold data. The empty list is just `head <-> tail`. Because of them, every real node always has a real `prev` and a real `next`. So no operation ever has to check for `None`.
 
-- **Insert `x` between neighbours `a` and `b`:** `x.prev = a`, `x.next = b`, `a.next = x`, `b.prev = x`. Four writes. The first two only touch `x`, so they're safe in any order. The last two overwrite links between `a` and `b`, and they're safe because you read `a` and `b` into variables before changing anything.
-- **Remove `x`:** `x.prev.next = x.next`, `x.next.prev = x.prev`. Two writes, both done from `x` itself. No search, no predecessor hunt.
+- **Insert `x` between neighbours `a` and `b`:** `x.prev = a`, `x.next = b`, `a.next = x`, `b.prev = x`. That's four writes. The first two only touch `x`, so their order doesn't matter. The last two overwrite the links between `a` and `b`. They're safe because you already read `a` and `b` into variables before changing anything.
+- **Remove `x`:** `x.prev.next = x.next`, `x.next.prev = x.prev`. That's two writes, and both go through `x` itself. There's no search and no hunting for the predecessor.
 - **Append at the back:** insert between `tail.prev` and `tail`.
 
-The invariant to protect: **for every node `n` other than the tail sentinel, `n.next.prev is n`.** Forward and backward traversal agree exactly when it holds. Each operation above changes a few links and restores it before returning.
+Here's the invariant to protect: **for every node `n` other than the tail sentinel, `n.next.prev is n`.** In plain words, if you step forward and then back, you end up where you started. When this holds, forward and backward traversal agree exactly. Each operation above changes a few links, and puts the invariant back before it returns.
 
-Worked example for this module: append A, B, C; remove B using only the reference to B; append B again.
+The worked example for this module: append A, B, C. Remove B using only the reference to B. Then append B again.
 
 - After three appends: `H <-> A <-> B <-> C <-> T`.
-- `remove(B)`: `B.prev.next = B.next` makes A point forward to C, `B.next.prev = B.prev` makes C point back to A. The list is `H <-> A <-> C <-> T`. B itself still has `prev = A` and `next = C`, but no node points at B, so it's out.
-- `append(B)`: `last = T.prev` is C. B's two stale pointers get overwritten with `prev = C`, `next = T`, then `C.next = B` and `T.prev = B`. The list is `H <-> A <-> C <-> B <-> T`.
+- `remove(B)`: `B.prev.next = B.next` makes A point forward to C. `B.next.prev = B.prev` makes C point back to A. The list is now `H <-> A <-> C <-> T`. B itself still has `prev = A` and `next = C`. But no node points at B any more, so it's out of the list.
+- `append(B)`: `last = T.prev` is C. B's two stale pointers get overwritten with `prev = C` and `next = T`. Then `C.next = B` and `T.prev = B`. The list is now `H <-> A <-> C <-> B <-> T`.
 
-Removing a node and re-inserting it elsewhere, both in O(1), is the main reason to pay for the extra pointer.
+Removing a node and putting it back somewhere else, both in O(1), is the main reason to pay for the extra pointer.
 
 ### Diagram
 
@@ -279,30 +284,38 @@ d.append(b)
 print(d.forward(), d.backward())   # ['A', 'C', 'B'] ['B', 'C', 'A']
 ```
 
-I also checked `n.next.prev is n` for every node after each step (true every time), and the single-node case: appending X, removing it, and appending it again gives `[]` and then `['X']` in both directions.
+I also checked `n.next.prev is n` for every node after each step, and it was true every time. I checked the single-node case too. Appending X, removing it, and appending it again gives `[]` and then `['X']`, in both directions.
 
-Complexity: `append` and `remove` are O(1) time. The list uses O(n) space for n nodes, two pointers each, plus two sentinels. Traversal is O(n).
+Complexity:
 
-Python note (recalled, not derived): `collections.deque` is implemented as a doubly linked list of fixed-size blocks, giving O(1) appends and pops at both ends, but `deque.remove(x)` searches by value in O(n). It can't give you O(1) removal of an arbitrary element you already hold, which is the one thing this module is for.
+- `append` and `remove` are O(1) time.
+- The list uses O(n) space for n nodes: two pointers per node, plus the two sentinels.
+- Traversal is O(n).
+
+A Python note, recalled rather than derived: `collections.deque` is implemented as a doubly linked list of fixed-size blocks. That gives it O(1) appends and pops at both ends. But `deque.remove(x)` searches by value, which is O(n). So a deque can't give you O(1) removal of an arbitrary element you're already holding, and that's the one thing this module is for.
 
 ### Recognition
 
-Signals:
+These are the signals that a doubly linked list is worth it:
 
-- You need to remove or move an **arbitrary** element in O(1), and you can get a direct reference to it some other way, typically a hash map from key to node.
-- An ordering changes as elements are touched ("most recent", "oldest", "move to the front"), and the operations must all be O(1).
-- You need to walk from both ends.
+- **You need to remove or move an arbitrary element in O(1)**, and you can get a direct reference to it some other way. Usually that's a hash map from key to node.
+- **An ordering changes as elements are touched** ("most recent", "oldest", "move to the front"), and every operation must be O(1).
+- **You need to walk from both ends.**
 
-When not to use one: if you only add and remove at the ends, `collections.deque` already does it. If you only walk forward, a singly list is half the bookkeeping. If you need the element with the smallest key rather than a recency order, that's a heap ([Part 10](/blogs/dsa-heaps/)), not a list.
+When not to use one:
 
-In this list, LRU Cache is the problem with these signals. Copy List With Random Pointer is a useful contrast: each node has two pointers, but `random` can point anywhere or nowhere, so it is not a doubly linked list and the invariant above doesn't apply.
+- If you only add and remove at the ends, `collections.deque` already does that.
+- If you only walk forward, a singly list is half the bookkeeping.
+- If you need the element with the smallest key rather than a recency order, you want a heap ([Part 10](/blogs/dsa-heaps/)), not a list.
+
+In this topic's list, LRU Cache is the problem with these signals. Copy List With Random Pointer makes a useful contrast. Each node there has two pointers too. But `random` can point anywhere, or nowhere, so it isn't a doubly linked list and the invariant above doesn't apply.
 
 ### Pitfalls
 
 - **Forgetting one of the four insert writes.** Forward traversal can still look right while backward traversal is broken, or the other way round. Test both directions.
-- **Writing through a neighbour after you've overwritten the pointer to it.** Read `a` and `b` into locals first, as `append` does with `last`.
-- **Removing a sentinel, or removing a node twice.** A second `remove(B)` writes through B's stale pointers. Right after the first removal that happens to be harmless, but once the neighbours change it isn't: with A, B, C, D, removing B, then C, then B again makes `forward()` return `['A', 'C', 'D']` while `backward()` returns `['D', 'A']`. C is back from the dead in one direction only. Only remove nodes you know are in the list.
-- **Skipping the sentinels.** Without them, insert and remove each grow `if node is self.first` / `if node is self.last` branches, and one of them will be wrong.
+- **Writing through a neighbour after you've overwritten the pointer to it.** Read `a` and `b` into local variables first, the way `append` does with `last`.
+- **Removing a sentinel, or removing a node twice.** A second `remove(B)` writes through B's stale pointers. Right after the first removal, that happens to do no harm. Once the neighbours change, it does. Take A, B, C, D and remove B, then C, then B again. Now `forward()` returns `['A', 'C', 'D']` but `backward()` returns `['D', 'A']`. C has come back from the dead, but only in one direction. Only remove nodes you know are in the list.
+- **Skipping the sentinels.** Without them, insert and remove each need extra `if node is self.first` / `if node is self.last` branches, and one of them will be wrong.
 
 ### Active recall
 
@@ -326,7 +339,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: LRU Cache requires designing and implementing a doubly linked list with sentinels from scratch alongside another structure, so this module's mechanics get exercised independently there.
+Skipped for this module. LRU Cache makes you design and build a doubly linked list with sentinels from scratch, alongside another structure. So you'll practise this module's mechanics on your own there.
 
 ### Transfer test
 
@@ -342,27 +355,41 @@ Ask me whether I would use a doubly linked list here and why, and wait for my an
 
 ### Foundation
 
-Two runners start together. One runs twice as fast. On a straight road, when the fast runner reaches the finish, the slow one is exactly halfway. On a circular track, the fast one eventually comes up behind the slow one and they're side by side again.
+Two runners start together, and one runs twice as fast as the other. On a straight road, when the fast runner reaches the finish, the slow one is exactly halfway. On a circular track, the fast runner eventually comes up behind the slow one, and they're side by side again.
 
-In a linked list, that gives you two things in one pass and O(1) memory: the **middle** of a list, and a way to tell a list that ends from one that **loops**, including (with a second phase) the exact node where the loop starts.
+In a linked list, that idea gives you two things in one pass with O(1) memory:
+
+- the **middle** of the list, and
+- a way to tell a list that ends from one that **loops**. With a second phase, you can even find the exact node where the loop starts.
 
 ### Mechanics
 
-**The middle.** Start `slow` and `fast` at the head. Each step, `slow` moves one node and `fast` moves two. Stop when `fast` can't take another double step: `while fast and fast.next`.
+**The middle.** Start `slow` and `fast` at the head. On each step, `slow` moves one node and `fast` moves two. Stop when `fast` can't take another double step: `while fast and fast.next`.
 
-Invariant: after k steps, `slow` is at index k and `fast` is at index 2k. The loop stops when index 2k is `None` or the last node, so for a list of n nodes it stops with `slow` at index n // 2. For the six nodes `1 -> 2 -> 3 -> 4 -> 5 -> 6` that's index 3, the node 4: the second of the two middles. For five nodes it's index 2, the true middle.
+The invariant: after k steps, `slow` is at index k and `fast` is at index 2k. The loop stops when index 2k is `None` or the last node. So for a list of n nodes, it stops with `slow` at index n // 2.
 
-Want the first middle (3 in the six-node list)? Stop one step earlier: `while fast.next and fast.next.next`. That returns index (n - 1) // 2.
+Take the six nodes `1 -> 2 -> 3 -> 4 -> 5 -> 6`. That's index 3, the node 4. An even-length list has two middles, and this is the second one. With five nodes it's index 2, the one true middle.
 
-**Loops.** Now make the same six nodes loop: point node 6 back at node 3. Call the number of nodes before the loop starts a (here a = 2, nodes 1 and 2) and the loop length L (here L = 4, nodes 3, 4, 5, 6). Nothing ever becomes `None` now, so the question is whether the runners meet.
+Want the first middle instead (3 in the six-node list)? Stop one step earlier with `while fast.next and fast.next.next`. That returns index (n - 1) // 2.
 
-Once both are in the loop, let g be how many single steps `fast` would need to reach `slow`. Each round `slow` moves 1 and `fast` moves 2, so g drops by exactly 1. It can't jump from 1 to -1, so it hits 0: they land on the same node within L steps of `slow` entering the loop. In the example `slow` enters (reaches node 3) after 2 steps, when `fast` is on 5 and needs 2 steps (5, 6, 3) to reach it. After step 3, g = 1. After step 4, g = 0: both are on node 5.
+**Loops.** Now make the same six nodes loop by pointing node 6 back at node 3. We need two names:
 
-**Where the loop starts (Floyd's second phase).** At the meeting point, `slow` has walked a + b steps, where b is how far past the entry it is. `fast` has walked 2(a + b). Both are on the same node, so `fast`'s extra a + b steps are whole laps: a + b = kL for some whole number k.
+- **a** is the number of nodes before the loop starts. Here a = 2 (nodes 1 and 2).
+- **L** is the loop length. Here L = 4 (nodes 3, 4, 5, 6).
 
-So starting at the meeting point, which is b steps past the entry, walking a more steps puts you b + a = kL steps past the entry: back on the entry. And a pointer starting at the head reaches the entry after exactly a steps. Put one pointer back at the head, leave the other at the meeting point, move both **one** step at a time, and they meet at the entry. You never need to know a, b or L.
+Nothing ever becomes `None` now. So the only question is whether the runners meet.
 
-In the example: a + b = 4 and L = 4, so k = 1, and b = 2 (node 5 is two past node 3). Phase 2 moves head-pointer 1 -> 2 -> 3 and meeting-pointer 5 -> 6 -> 3. They meet on node 3 after 2 = a steps.
+Once both runners are in the loop, call g the gap: how many single steps `fast` would need to reach `slow`. Each round, `slow` moves 1 and `fast` moves 2, so the gap drops by exactly 1. It can't jump from 1 to -1, so it must hit 0. That means they land on the same node within L steps of `slow` entering the loop.
+
+Let's check that on the example. `slow` enters the loop (reaches node 3) after 2 steps. At that moment `fast` is on 5 and needs 2 steps (5, 6, 3) to reach it, so g = 2. After step 3, g = 1. After step 4, g = 0, and both are on node 5.
+
+**Where the loop starts (Floyd's second phase).** Let b be how far past the entry the meeting point is. At the meeting point, `slow` has walked a + b steps, and `fast` has walked twice that, 2(a + b). They're on the same node. So `fast`'s extra a + b steps must be whole laps of the loop: a + b = kL for some whole number k.
+
+Here's why that helps. The meeting point is b steps past the entry. Walk a more steps from there, and you're b + a = kL steps past the entry. A whole number of laps puts you right back on the entry. Meanwhile, a pointer starting at the head also reaches the entry after exactly a steps.
+
+So here's phase 2. Put one pointer back at the head. Leave the other at the meeting point. Move both **one** step at a time. They meet at the entry, and you never need to know a, b or L.
+
+In the example, a + b = 4 and L = 4, so k = 1. And b = 2, because node 5 is two past node 3. Phase 2 moves the head pointer 1 -> 2 -> 3 and the meeting pointer 5 -> 6 -> 3. They meet on node 3 after 2 = a steps.
 
 ### Diagram
 
@@ -434,30 +461,37 @@ Edge cases, all run:
 
 (The `middle` column is for the straight version of each list, before the loop is added.)
 
-Complexity: `middle` is O(n) time for n nodes, since `fast` passes each node at most once, and O(1) space. `loop_entry` takes at most a + L steps in phase 1 (a to bring `slow` into the loop, then at most L more to close the gap; I checked the bound on every loop shape up to 39 nodes) and exactly a steps in phase 2, so O(n) time with n = a + L nodes, and O(1) space.
+Complexity:
+
+- `middle` is O(n) time for n nodes, because `fast` passes each node at most once. It uses O(1) space.
+- `loop_entry` takes at most a + L steps in phase 1. That's a steps to bring `slow` into the loop, then at most L more to close the gap. (I checked this bound on every loop shape up to 39 nodes.) Phase 2 takes exactly a steps. So it's O(n) time with n = a + L nodes, and O(1) space.
 
 ### Recognition
 
-Signals:
+These are the signals that fast and slow pointers are worth trying:
 
-- A linked list plus a position you'd find instantly in an array: the middle, a point some fraction of the way along.
-- "Might contain a cycle", "does it loop", or anything where following `.next` might never reach `None`.
-- O(1) extra memory. A `set` of visited nodes also detects loops, in O(n) space. Fast and slow is how you drop that set.
-- **Something that behaves like `.next` without being a node.** Any process where each state determines exactly one next state, over a finite set of states, must eventually repeat, which makes it a linked list with a loop even if it's stored as numbers in an array.
+- **A linked list, plus a position you'd find instantly in an array.** The middle, or a point some fraction of the way along.
+- **"Might contain a cycle", "does it loop"**, or anything where following `.next` might never reach `None`.
+- **O(1) extra memory.** A `set` of visited nodes also detects loops, but it uses O(n) space. Fast and slow is how you drop that set.
+- **Something that behaves like `.next` without being a node.** Take any process where each state decides exactly one next state, and there are only finitely many states. It must eventually repeat. That makes it a linked list with a loop, even if it's stored as numbers in an array.
 
-When not to use it: when you have random access, just index `n // 2`. When memory is free and clarity matters more, a visited set is simpler to get right. Fast and slow can't help when a node can have several successors; that's a graph ([Part 14](/blogs/dsa-graphs/)).
+When not to use it:
 
-Distinguish it from the Two Pointers of [Part 3](/blogs/dsa-two-pointers/): those pointers usually converge from both ends of an array using sortedness. Here both start at the same end and the only thing that differs is speed.
+- When you have random access, just index `n // 2`.
+- When memory is free and clarity matters more, a visited set is simpler to get right.
+- When a node can have several successors, fast and slow can't help. That's a graph ([Part 14](/blogs/dsa-graphs/)).
 
-In this list: Linked List Cycle carries the "might loop" signal directly. Reorder List needs the middle as one of its steps. Find The Duplicate Number carries the last signal, disguised. Seeing how is the problem itself.
+How it differs from the Two Pointers of [Part 3](/blogs/dsa-two-pointers/): those pointers usually move in from both ends of an array, and they rely on the array being sorted. Here both pointers start at the same end. The only thing that differs is their speed.
+
+Here is where these signals show up in this topic's list. Linked List Cycle carries the "might loop" signal directly. Reorder List needs the middle as one of its steps. Find The Duplicate Number carries the last signal, in disguise. Seeing how is the problem itself.
 
 ### Pitfalls
 
 - **Checking `slow is fast` before the first move.** They start on the same node, so you'd always report a meeting at step 0.
-- **Wrong loop condition for the middle you want.** `while fast and fast.next` gives the second middle on even lengths, `while fast.next and fast.next.next` gives the first, and the second one crashes on an empty list.
-- **Comparing values instead of nodes.** Duplicate values would make two different nodes look like a meeting. Use `is`.
-- **Moving the phase 2 pointers at different speeds.** Both must move one step. The argument only works if both walk exactly a steps.
-- **Printing a list with a loop.** `to_list` never terminates. Cap debugging walks at a fixed number of steps.
+- **The wrong loop condition for the middle you want.** `while fast and fast.next` gives the second middle on even lengths. `while fast.next and fast.next.next` gives the first, but it crashes on an empty list.
+- **Comparing values instead of nodes.** With duplicate values, two different nodes would look like a meeting. Use `is`.
+- **Moving the phase 2 pointers at different speeds.** Both must move one step at a time. The argument only works if both walk exactly a steps.
+- **Printing a list with a loop.** `to_list` never finishes. Cap any debugging walk at a fixed number of steps.
 - **Forgetting that `fast.next.next` needs `fast.next` to exist** on any list that might end.
 
 ### Active recall
@@ -482,7 +516,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Find The Duplicate Number requires deriving how this technique applies from scratch, so the pattern gets exercised independently there, and a separate checkpoint would only rehearse it.
+Skipped for this module. Find The Duplicate Number makes you work out from scratch how this technique applies. So you'll practise the pattern on your own there, and a separate checkpoint would only rehearse it.
 
 ### Transfer test
 
@@ -496,9 +530,15 @@ Ask me whether I would use fast and slow pointers here and why, and wait for my 
 
 ## Integration
 
-The three modules are one skill seen from three sides. Singly Linked Lists is **pointer surgery**: what you can change safely and in which order. Doubly Linked Lists is what you add when surgery needs to start from a node you're holding rather than from its predecessor. Fast and Slow Pointers is **navigation**: getting a pointer to a specific position (the middle, the loop entry) without counting and without extra memory. Most problems in this category are a sequence of these: navigate to a position, do surgery there, and sometimes navigate again.
+The three modules are one skill seen from three sides.
 
-Distinguishing competing approaches:
+- **Singly Linked Lists is pointer surgery.** It's about what you can change safely, and in which order.
+- **Doubly Linked Lists** is what you add when the surgery has to start from a node you're holding, not from its predecessor.
+- **Fast and Slow Pointers is navigation.** It gets a pointer to a specific position, like the middle or the loop entry, without counting and without extra memory.
+
+Most problems in this topic are a sequence of these steps. You navigate to a position, do surgery there, and sometimes navigate again.
+
+How to choose between competing approaches:
 
 | Decision | Option A | Option B | How to choose |
 | --- | --- | --- | --- |
@@ -520,7 +560,13 @@ Recognition checklist for an unfamiliar problem:
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): an honest 15-minute struggle, one key sentence per problem in your own words, and spaced repetition. For linked lists, during the struggle draw four or five boxes with arrows on paper and, before every pointer assignment, ask what would become unreachable, whether the head can change, and whether two pointers at different speeds can reach the position you need.
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem an honest 15-minute struggle, write down one key sentence in your own words, then review it with spaced repetition.
+
+For linked lists, draw four or five boxes with arrows on paper during the struggle. Before every pointer assignment, ask yourself:
+
+- What would become unreachable if I did this now?
+- Can the head change?
+- Can two pointers at different speeds reach the position I need?
 
 {% include dsa-problems.html slug="dsa-linked-list" %}
 

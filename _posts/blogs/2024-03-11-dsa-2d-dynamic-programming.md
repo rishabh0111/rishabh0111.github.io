@@ -5,69 +5,93 @@ date: 2024-03-11 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, dynamic-programming, knapsack, python, series]
-read_time: 54
+read_time: 57
 permalink: /blogs/dsa-2d-dynamic-programming/
-excerpt: "One index was enough for climbing stairs. Grids, budgets, two strings and ranges each need a second one, and the hard part is knowing which second index the problem is hiding and what order to fill the table in."
+excerpt: "Climbing stairs needed one index. Grids, budgets, two strings and ranges each need a second one. The hard part is spotting which second index the problem is hiding, and working out what order to fill the table in."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 17
 series_total: 19
 links_new_tab: true
 ---
 
-Most hard DP problems need two numbers to name a subproblem: a row and a column, an item and a budget, a position in each of two strings, or the two ends of a range. That second number changes the state, the fill order and how you shrink memory back to one row. It builds on [Part 15](/blogs/dsa-1d-dynamic-programming/) and [Graphs](/blogs/dsa-graphs/) (a DP table is a DAG filled in topological order), and with [Bit Manipulation](/blogs/dsa-bit-manipulation/) leads into [Math & Geometry](/blogs/dsa-math-and-geometry/). Interval DP gets its own module at the end.
+In most hard DP problems, you need two numbers to name a subproblem. That might be a row and a column, an item and a budget, a position in each of two strings, or the two ends of a range. The second number changes three things: what the state means, the order you fill the table in, and how you shrink memory back down to one row.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+This post builds on [Part 15](/blogs/dsa-1d-dynamic-programming/) and [Graphs](/blogs/dsa-graphs/). (A DP table is a DAG, a graph with no cycles, filled in topological order.) Together with [Bit Manipulation](/blogs/dsa-bit-manipulation/), it leads into [Math & Geometry](/blogs/dsa-math-and-geometry/). Interval DP gets its own module at the end.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## 2-Dimension DP
 
 ### Foundation
 
-Think of a spreadsheet where every cell's formula only refers to the cell above it and the cell to its left. The spreadsheet fills itself top to bottom, left to right, and every formula finds its inputs ready. A 2-D DP is exactly that spreadsheet, except you write the formula.
+Think of a spreadsheet where each cell's formula only uses the cell above it and the cell to its left. If you fill it top to bottom, left to right, every formula finds its inputs already worked out. A 2-D DP is that spreadsheet. The only difference is that you write the formula yourself.
 
-The mental model: `dp[r][c]` is the original question asked about a smaller piece of the input, and that piece needs two numbers to describe. The recurrence says which other cells a cell reads. The fill order is any order that computes those cells first.
+In DP terms, `dp[r][c]` is the original question asked about a smaller piece of the input. That piece takes two numbers to describe, which is why the table has two indices. The **recurrence** is the formula: it says which other cells a cell reads. The **fill order** can be any order that computes those cells first.
 
-The worked example for this module: the cheapest path through a grid from the top-left to the bottom-right, moving only right or down, where `#` cells are walls you cannot enter. The cost of a path is the sum of the cells it visits, both ends included.
+Here is the worked example for this module. You want the cheapest path through a grid, from the top-left corner to the bottom-right. You may only move right or down. Cells marked `#` are walls, and you can't enter them. A path's cost is the sum of the cells it visits, including the first and last cell.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/grid-input.svg %}</figure>
 
 ### Mechanics
 
-1. **State.** `dp[r][c]` = the cheapest cost of a path that starts at (0, 0) and ends on (r, c). If no path can reach (r, c), it is infinity. One index is not enough: "cheapest to reach column 2" means nothing until you say which row.
-2. **Last move.** Moves are only right or down, so the path into (r, c) arrived from (r-1, c) above or from (r, c-1) on the left. Nothing else. So `dp[r][c] = grid[r][c] + min(dp[r-1][c], dp[r][c-1])`.
-3. **Why taking the min of the two neighbours is safe.** Take a cheapest path to (r, c) and chop off its last cell. What is left is a path to one of the two neighbours. If that leftover were not the cheapest path to that neighbour, you could swap in the cheaper one and get a cheaper path to (r, c), which contradicts "cheapest". This is the optimal-substructure argument from Part 15, now with two predecessors instead of one.
-4. **Base cases.** `dp[0][0] = grid[0][0]`. Row 0 has no "above" and column 0 has no "left". A missing neighbour must count as infinity, not 0: 0 would claim there is a free path arriving from outside the grid. Walls stay infinity, and since infinity plus a number is still infinity, a wall only poisons paths that go through it.
-5. **Fill order.** Row by row, left to right. When you reach (r, c), cell (r-1, c) was finished during the previous row and (r, c-1) a moment ago in this row. Column by column also works; so does anti-diagonal by anti-diagonal. Any order that finishes both predecessors first is valid.
+1. **State.** `dp[r][c]` is the cheapest cost of a path that starts at (0, 0) and ends on (r, c). If no path can reach (r, c), it is infinity. Why do we need two indices? Because "the cheapest way to reach column 2" means nothing until you say which row.
+2. **Last move.** You can only move right or down. So the path into (r, c) arrived either from (r-1, c) above or from (r, c-1) on the left. There's no third option. That gives `dp[r][c] = grid[r][c] + min(dp[r-1][c], dp[r][c-1])`.
+3. **Why taking the min of the two neighbours is safe.** Take a cheapest path to (r, c) and chop off its last cell. What's left is a path to one of the two neighbours. Suppose that leftover were not the cheapest path to that neighbour. Then you could swap in the cheaper one and get a cheaper path to (r, c). That contradicts "cheapest". This is the **optimal-substructure** argument from Part 15 (a best answer is built from best answers to smaller pieces), now with two predecessors instead of one.
+4. **Base cases.** `dp[0][0] = grid[0][0]`. Row 0 has nothing above it, and column 0 has nothing to its left. A missing neighbour must count as infinity, not 0. A 0 would claim there's a free path coming in from outside the grid. Walls also stay at infinity. Infinity plus any number is still infinity, so a wall only blocks the paths that actually go through it.
+5. **Fill order.** Row by row, left to right. When you reach (r, c), cell (r-1, c) was finished during the previous row, and (r, c-1) was finished a moment ago in this row. Column by column also works, and so does one anti-diagonal at a time. Any order that finishes both predecessors first is valid.
 6. **Answer.** `dp[3][3]`.
 
-Two cells computed by hand. `dp[2][2] = 1 + min(dp[1][2], dp[2][1]) = 1 + min(10, 8) = 9`. `dp[3][3] = 1 + min(dp[2][3], dp[3][2]) = 1 + min(inf, 10) = 11`. The winning path is down, down, right, right, down, right: 1 + 1 + 4 + 2 + 1 + 1 + 1 = 11. The route along the top, 1 + 3 + 1 + 5 + 1 + 1 + 1, costs 13.
+Let's compute two cells by hand:
 
-**Space.** Each row only reads the row above it. So keep one row. When you are about to overwrite `row[c]`, it still holds `dp[r-1][c]` (the "above" value), and `row[c-1]` was already overwritten, so it holds `dp[r][c-1]` (the "left" value). One array, both neighbours, O(columns) memory.
+- `dp[2][2] = 1 + min(dp[1][2], dp[2][1]) = 1 + min(10, 8) = 9`.
+- `dp[3][3] = 1 + min(dp[2][3], dp[3][2]) = 1 + min(inf, 10) = 11`.
+
+The winning path is down, down, right, right, down, right. Its cost is 1 + 1 + 4 + 2 + 1 + 1 + 1 = 11. For comparison, the route along the top costs 1 + 3 + 1 + 5 + 1 + 1 + 1 = 13.
+
+**Space.** Each row only reads the row above it, so you can keep a single row. Look at the moment just before you overwrite `row[c]`:
+
+- `row[c]` still holds `dp[r-1][c]`, the "above" value, because you haven't touched it yet in this row.
+- `row[c-1]` was already overwritten, so it holds `dp[r][c-1]`, the "left" value.
+
+So one array gives you both neighbours, with O(columns) memory.
 
 ### The second index does not have to be a grid: state-machine DP
 
-Sometimes one index is time (day `i`) and the second is a small "mode" you are in: holding or not holding, resting or on a streak. The state is `dp[i][mode]`, and the recurrence is a list of which mode can follow which.
+Sometimes one index is time (day `i`), and the second is a small **mode**: a label for the situation you're in, such as holding or not holding, or resting versus partway through a streak. The state is `dp[i][mode]`, and the recurrence is just a list of which mode is allowed to follow which.
 
-Example: `points = [3, 2, 5, 10, 7]`. On day `i` you either run and earn `points[i]`, or rest and earn nothing. You may never run three days in a row. Maximize the total.
+Here's an example. `points = [3, 2, 5, 10, 7]`. On day `i` you either run and earn `points[i]`, or rest and earn nothing. You may never run three days in a row. Maximize the total.
 
-Why a single `dp[i]` fails: "the best total through day i" does not tell you whether you are allowed to run tomorrow. Take `[1, 1, 10]`: the best total through day 1 is 2 (run, run), but that plan must rest on day 2 and ends at 2, while the real optimum is 11 (run day 0, rest day 1, run day 2). Two plans with different totals have different futures, and the 1-D state threw away the thing that decides the future.
+Why doesn't a single `dp[i]` work? Because "the best total through day i" doesn't tell you whether you're allowed to run tomorrow. Take `[1, 1, 10]`:
 
-The rule: **add to the state exactly what the future needs to know about the past.** Here that is the current running streak, 0, 1 or 2. Three modes:
+- The best total through day 1 is 2 (run, run).
+- But that plan has to rest on day 2, so it finishes at 2.
+- The real optimum is 11: run on day 0, rest on day 1, run on day 2.
 
-- `rest[i]` = best total through day i, having rested on day i. Resting is allowed after anything: `rest[i] = max(rest[i-1], run1[i-1], run2[i-1])`.
-- `run1[i]` = ran on day i, rested on day i-1. `run1[i] = rest[i-1] + points[i]`.
-- `run2[i]` = ran on days i-1 and i. `run2[i] = run1[i-1] + points[i]`. There is no transition out of `run2` into another run, which is how "never three in a row" is enforced.
+So two plans with different totals can have different futures. The 1-D state threw away the one detail that decides the future.
 
-Before day 0 you are rested with 0 points, and `run1`, `run2` are impossible, so they start at minus infinity.
+That leads to the rule: **add to the state exactly what the future needs to know about the past.** Here, the future needs to know your current running streak: 0, 1 or 2. That gives three modes:
+
+- `rest[i]` is the best total through day i, having rested on day i. You can rest after anything, so `rest[i] = max(rest[i-1], run1[i-1], run2[i-1])`.
+- `run1[i]` means you ran on day i and rested on day i-1. So `run1[i] = rest[i-1] + points[i]`.
+- `run2[i]` means you ran on days i-1 and i. So `run2[i] = run1[i-1] + points[i]`. Nothing leads from `run2` into another run. That missing transition is how "never three in a row" is enforced.
+
+Before day 0 you're rested with 0 points. `run1` and `run2` are impossible at that point, so they start at minus infinity.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/training-trace.svg %}</figure>
 
-Answer: max(18, 15, 22) = 22. Reading back: `run2` on day 4 came from `run1` on day 3 (15), which came from `rest` on day 2 (5), which came from `run2` on day 1 (3 + 2). So run, run, rest, run, run: 3 + 2 + 10 + 7 = 22.
+The answer is max(18, 15, 22) = 22. To see which plan gives 22, read the trace backwards:
+
+- `run2` on day 4 came from `run1` on day 3 (15).
+- That came from `rest` on day 2 (5).
+- That came from `run2` on day 1 (3 + 2).
+
+So the plan is run, run, rest, run, run, for 3 + 2 + 10 + 7 = 22.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/grid-dp.svg %}</figure>
 
-Note `dp[1][3] = 8` is finite but useless: its only way forward is down into the wall at (2, 3).
+Look at `dp[1][3] = 8`. It's finite, but it doesn't help. Its only way forward is down, and the cell below it, (2, 3), is a wall.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/state-machine.svg %}</figure>
 
@@ -150,27 +174,30 @@ print(max_training_points([3, 2, 5, 10, 7]))              # 22
 print(max_training_points([]), max_training_points([4, 4, 4]))  # 0 8
 ```
 
-I ran these against the example, the edge cases shown, and a brute force over 2,000 random grids up to 4 by 4 (walls included) and 500 random point lists; all agree.
+I ran these against the example, the edge cases shown, and a brute force. The brute force covered 2,000 random grids up to 4 by 4 (walls included) and 500 random point lists. All of them agree.
 
-Complexity: grid DP is O(R × C) time for R rows and C columns, with O(R × C) space for the full table or O(C) for the one-row version. The state machine is O(n × S) time for n days and S modes (here S = 3, so O(n)), and O(S) space.
+Complexity:
+
+- **Grid DP** is O(R × C) time for R rows and C columns. Space is O(R × C) for the full table, or O(C) for the one-row version.
+- **The state machine** is O(n × S) time for n days and S modes. Here S = 3, so that's O(n). Space is O(S).
 
 ### Recognition
 
-- Naming one subproblem takes two numbers: (row, column), (day, mode), (item, budget), (position in string 1, position in string 2).
-- A grid where moves only go "forward" (right/down), and the question is a count, a minimum or a maximum over paths. Unique Paths shows this signal.
-- A sequence of days or steps where what you may do now depends on what you did recently (cooldown, "at most k in a row", holding or not holding). That is the state-machine signal, and Best Time to Buy And Sell Stock With Cooldown shows it.
-- Longest Increasing Path In a Matrix is a grid too, but its moves go in all four directions, so read the dependency-order pitfall below before assuming a row-by-row sweep works.
+- **Naming one subproblem takes two numbers.** For example (row, column), (day, mode), (item, budget), or (position in string 1, position in string 2).
+- **A grid where moves only go "forward"** (right or down), and the question asks for a count, a minimum or a maximum over paths. Unique Paths shows this signal.
+- **A sequence of days or steps where what you may do now depends on what you did recently.** Think cooldowns, "at most k in a row", or holding versus not holding. That's the state-machine signal, and Best Time to Buy And Sell Stock With Cooldown shows it.
+- Longest Increasing Path In a Matrix is a grid too. But its moves go in all four directions, so read the dependency-order pitfall below before assuming a row-by-row sweep works.
 
-When not to use it: if moves can go in any direction and costs are arbitrary, the cells depend on each other in cycles and no fill order exists. That is a shortest-path problem (Dijkstra, [Part 16](/blogs/dsa-advanced-graphs/)), or BFS if every step costs the same. DP needs the dependencies to form a DAG.
+When not to use it: suppose moves can go in any direction and costs are arbitrary. Then cells depend on each other in cycles, and no fill order exists. That's a shortest-path problem. Use Dijkstra ([Part 16](/blogs/dsa-advanced-graphs/)), or BFS if every step costs the same. DP needs the dependencies to form a DAG.
 
 ### Pitfalls
 
-- **Missing neighbours as 0 in a min problem.** On the example this gives 9 instead of 11. Missing means impossible, which is infinity for min, minus infinity for max, 0 for counting.
-- **`[[x] * cols] * rows`.** Every row is the same list; writing one cell writes the whole column.
-- **One-row overwrite order.** Left-to-right is right for "above and left". If a cell also read the up-left diagonal, `row[c-1]` has already been overwritten by the time you need the old value, so you have to save it in a variable first.
-- **Updating state-machine variables one at a time.** If you write `rest = ...` then `run1 = rest + p` then `run2 = run1 + p`, `run2` reads today's `run1`, which reads today's `rest`: on the example that "allows" running and resting on the same day and returns 54 instead of 22. Update all modes from yesterday's values at once.
-- **Unreachable modes initialised to 0.** For this machine it happens to be harmless (starting `run1` and `run2` at 0 still gives 22, because `run2` is never better to leave from than `run1`). In a machine where leaving an unreachable mode earns something, 0 invents free value. Use minus infinity by habit.
-- **Dependency order.** Row-by-row only works when every cell reads cells that come earlier in that order. When the "comes before" relation is something else (a value comparison, a range length), sweep in that order instead, or use top-down memoization and let the recursion find the order, provided there are no cycles.
+- **Treating missing neighbours as 0 in a min problem.** On the example this gives 9 instead of 11. A missing neighbour means "impossible". That's infinity for a min, minus infinity for a max, and 0 for counting.
+- **`[[x] * cols] * rows`.** This makes every row the same list object. Writing one cell writes the whole column.
+- **One-row overwrite order.** Left to right is correct when a cell reads "above and left". But suppose a cell also read the up-left diagonal. By the time you need that old value, `row[c-1]` has already been overwritten. So you have to save it in a variable first.
+- **Updating state-machine variables one at a time.** Say you write `rest = ...`, then `run1 = rest + p`, then `run2 = run1 + p`. Now `run2` reads today's `run1`, which reads today's `rest`. On the example that "allows" running and resting on the same day, and returns 54 instead of 22. Update all modes from yesterday's values at once.
+- **Starting unreachable modes at 0.** For this machine it happens to be harmless. Starting `run1` and `run2` at 0 still gives 22, because `run2` is never a better place to leave from than `run1`. But in a machine where leaving an unreachable mode earns something, 0 invents free value. Use minus infinity out of habit.
+- **Dependency order.** Row by row only works when every cell reads cells that come earlier in that order. Sometimes "comes before" means something else, like a value comparison or a range length. Then sweep in that order instead. Or use top-down memoization and let the recursion find the order, as long as there are no cycles.
 
 ### Active Recall
 
@@ -197,7 +224,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Interleaving String makes you invent a two-index state from scratch, and Best Time to Buy And Sell Stock With Cooldown makes you design its own state machine, so the list already exercises this module independently.
+Skipped. Interleaving String makes you invent a two-index state from scratch, and Best Time to Buy And Sell Stock With Cooldown makes you design its own state machine. So the problem list already gives this module a full workout on its own.
 
 ### Transfer test
 
@@ -213,36 +240,41 @@ Ask me whether I would use grid DP here and why, and wait for my answer. Then te
 
 ### Foundation
 
-You are packing a bag that holds a limited weight. Each item has a weight and a value, there is one copy of each, and every item is either in or out. Maximize the value you carry.
+You're packing a bag that can hold a limited weight. Each item has a weight and a value. There's one copy of each item, and each one is either in the bag or out. Maximize the value you carry.
 
-It needs two indices because a subproblem is "which items have I already decided about" plus "how much room do I have left". The same first three items with 2 kg of room and with 5 kg of room are different questions with different answers. Part 15's amount-indexed table (and its "scan the amount downward for use-once items" rule) was this problem with the item index already squeezed out. Here the hidden index comes back, and it explains why that scan direction works.
+Why two indices? A subproblem has two parts: "which items have I already decided about" and "how much room do I have left". Take the same first three items. With 2 kg of room and with 5 kg of room, those are different questions with different answers.
 
-Worked example for this module and the next: weights `[2, 3, 4]`, values `[3, 5, 6]`, capacity 6.
+You've seen this before. Part 15's table was indexed only by amount, and it had a rule: "scan the amount downward for use-once items". That was this same problem with the item index already squeezed out. Here the hidden index comes back, and it explains why that scan direction works.
 
-Greedy does not work here. By value per kilo the items rate 1.5, 1.67 and 1.5. Greedy takes the 3 kg item (5), then the 2 kg item (3), total weight 5, value 8, and the 4 kg item no longer fits. The best is the 2 kg and 4 kg items: weight 6, value 9.
+The worked example for this module and the next: weights `[2, 3, 4]`, values `[3, 5, 6]`, capacity 6.
+
+Greedy doesn't work here. By value per kilo, the items rate 1.5, 1.67 and 1.5. So greedy takes the 3 kg item first (value 5), then the 2 kg item (value 3). That's weight 5 and value 8, and now the 4 kg item no longer fits. The best choice is the 2 kg and 4 kg items: weight 6, value 9.
 
 ### Mechanics
 
-1. **State.** `dp[i][c]` = the best value using only the first i items (items 0 to i-1 inclusive) with total weight at most c.
-2. **Decision on item i-1.** Skip it: `dp[i-1][c]`. Take it, if its weight w fits (w ≤ c): `dp[i-1][c-w] + v`. Then `dp[i][c]` is the max of the options that exist.
-3. **Why it is safe.** Any optimal choice for (i, c) either excludes item i-1, in which case it is a valid choice for (i-1, c), or includes it, in which case removing it leaves a valid choice for (i-1, c-w). Both sub-answers are already optimal, so the max over the two branches is optimal.
-4. **Why "row i-1" on the take branch.** Reading `dp[i-1][c-w]` means "the rest of the bag was filled using only earlier items". That is what forbids taking item i-1 twice. This single index is the difference between this module and the next.
-5. **Base cases.** `dp[0][c] = 0` for every c from 0 to capacity inclusive: no items, no value. `dp[i][0]` is 0 naturally.
-6. **Fill order.** Row by row. Row i reads only row i-1, so any column order inside a row works for the full table.
+1. **State.** `dp[i][c]` is the best value using only the first i items (items 0 to i-1 inclusive), with total weight at most c.
+2. **Decision on item i-1.** You can skip it, which gives `dp[i-1][c]`. Or, if its weight w fits (w ≤ c), you can take it, which gives `dp[i-1][c-w] + v`. Then `dp[i][c]` is the max of whichever options exist.
+3. **Why it is safe.** Take any optimal choice for (i, c). Either it leaves out item i-1, and then it's a valid choice for (i-1, c). Or it includes item i-1, and removing that item leaves a valid choice for (i-1, c-w). Both sub-answers are already optimal, so the max over the two branches is optimal too.
+4. **Why "row i-1" on the take branch.** Reading `dp[i-1][c-w]` means "the rest of the bag was filled using only earlier items". That's what stops you taking item i-1 twice. This one index is the whole difference between this module and the next.
+5. **Base cases.** `dp[0][c] = 0` for every c from 0 to capacity inclusive, because no items means no value. `dp[i][0]` comes out as 0 on its own.
+6. **Fill order.** Row by row. Row i reads only row i-1, so for the full table any column order inside a row works.
 
-Two cells from the example. `dp[2][5] = max(dp[1][5], dp[1][2] + 5) = max(3, 3 + 5) = 8` (items of weight 2 and 3). `dp[3][6] = max(dp[2][6], dp[2][2] + 6) = max(8, 3 + 6) = 9` (items of weight 2 and 4).
+Here are two cells from the example:
 
-**Space.** Row i reads row i-1 at column c and at column c-w, both at or to the left of c. So keep one array and sweep c **downward**, from capacity to w. When you update `dp[c]`, the cell `dp[c-w]` is to the left and has not been touched yet in this pass, so it still holds row i-1's value.
+- `dp[2][5] = max(dp[1][5], dp[1][2] + 5) = max(3, 3 + 5) = 8`. That's the items of weight 2 and 3.
+- `dp[3][6] = max(dp[2][6], dp[2][2] + 6) = max(8, 3 + 6) = 9`. That's the items of weight 2 and 4.
+
+**Space.** Row i reads row i-1 at two columns, c and c-w. Both are at c or to its left. So you can keep one array and sweep c **downward**, from capacity to w. Why downward? When you update `dp[c]`, the cell `dp[c-w]` is to its left. Going downward, you haven't touched it yet in this pass, so it still holds row i-1's value.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/knap01-array.svg %}</figure>
 
-Sweeping upward instead, the first item alone produces `0 0 3 3 6 6 9`: at c = 4 it read the already-updated `dp[2] = 3` and took the 2 kg item a second time, and at c = 6 a third time. The final upward answer is 10, which is not a legal 0/1 answer. Keep that 10 in mind for the next module.
+What if you sweep upward instead? The first item alone produces `0 0 3 3 6 6 9`. At c = 4, the loop read `dp[2] = 3`, which it had already updated in this pass. So it took the 2 kg item a second time. At c = 6 it took it a third time. The final upward answer is 10, which isn't a legal 0/1 answer. Keep that 10 in mind for the next module.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/knap01-table.svg %}</figure>
 
-Both arrows come from row 2, never from row 3. That is "one copy".
+Both arrows come from row 2, never from row 3. That's what "one copy" looks like in the table.
 
 ### Implementation
 
@@ -279,24 +311,28 @@ print(knapsack_01_table([2, 3, 4], [3, 5, 6], 6), knapsack_01([2, 3, 4], [3, 5, 
 print(knapsack_01([], [], 5), knapsack_01([7], [9], 5), knapsack_01([2], [3], 0))        # 0 0 0
 ```
 
-Checked against a brute force over all subsets on 1,000 random instances (up to 5 items, capacity up to 10).
+I checked these against a brute force over all subsets, on 1,000 random instances (up to 5 items, capacity up to 10).
 
-Complexity: O(n × C) time for n items and capacity C. Space O(n × C) for the table, O(C) for the one-array version. This is "pseudo-polynomial": C is a number, not an input length, so a capacity of 10^9 makes the table impossible. (Recalled, not derived: 0/1 knapsack is NP-hard in general, which is why no algorithm polynomial in the number of digits of C is expected.)
+Complexity: O(n × C) time for n items and capacity C. Space is O(n × C) for the table, or O(C) for the one-array version.
+
+This is called **pseudo-polynomial**. The cost grows with the value of C, not with how many digits it takes to write C down. So a capacity of 10^9 makes the table impossible to build. (Recalled, not derived: 0/1 knapsack is NP-hard in general. That's why nobody expects an algorithm that is polynomial in the number of digits of C.)
 
 ### Recognition
 
-- You choose a subset: each element is used at most once.
-- There is a numeric budget or target on some sum (weight, cost, a target total), and the question is a max, a min, a count, or "is it reachable".
-- The numbers involved are small enough that "budget from 0 to C" fits in a table.
+- **You choose a subset.** Each element is used at most once.
+- **There's a numeric budget or target on some sum**, like a weight, a cost or a target total. The question asks for a max, a min, a count, or "is it reachable".
+- **The numbers are small enough** that "budget from 0 to C" fits in a table.
 - Target Sum shows this signal. Partition Equal Subset Sum from Part 15 was its yes/no cousin.
 
-Distinguish it from backtracking subsets ([Part 11](/blogs/dsa-backtracking/)): backtracking enumerates all 2^n subsets and is right when you must list them. Knapsack collapses every subset that reaches the same (items considered, budget used) into one cell, which is why it is O(n × C) instead of O(2^n). Distinguish it from unbounded knapsack by one question: can an item be used again?
+How is this different from backtracking over subsets ([Part 11](/blogs/dsa-backtracking/))? Backtracking goes through all 2^n subsets one by one. That's the right tool when you must list them. Knapsack merges every subset that reaches the same (items considered, budget used) into one cell. That's why it's O(n × C) instead of O(2^n).
+
+To tell it apart from unbounded knapsack, ask one question: can an item be used again?
 
 ### Pitfalls
 
-- **Upward loop in the one-array version.** Silently turns 0/1 into unbounded (10 instead of 9 on the example).
-- **"At most c" vs "exactly c".** "At most" starts every `dp[c]` at 0. "Exactly" starts `dp[0] = 0` and every other `dp[c]` at minus infinity, so unreachable sums stay unreachable. On the example, exactly 6 is still 9, but exactly 1 is impossible and stays minus infinity.
-- **Counting instead of maximizing.** Start `dp[0] = 1`, use `+` instead of `max`. The loop direction rule is the same.
+- **An upward loop in the one-array version.** It quietly turns 0/1 into unbounded, giving 10 instead of 9 on the example.
+- **"At most c" vs "exactly c".** For "at most", every `dp[c]` starts at 0. For "exactly", `dp[0]` starts at 0 and every other `dp[c]` starts at minus infinity, so sums you can't reach stay unreachable. On the example, exactly 6 is still 9. But exactly 1 is impossible, so it stays at minus infinity.
+- **Counting instead of maximizing.** Start `dp[0] = 1`, and use `+` instead of `max`. The loop direction rule stays the same.
 - **Zero or negative weights.** The recurrence assumes w ≥ 1, so that c - w is a smaller budget. Negative numbers need an offset or a different formulation.
 
 ### Active Recall
@@ -321,7 +357,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Target Sum requires reframing a plus-or-minus sign assignment into item choices on your own, which exercises this module from scratch; that reframing belongs to solving it.
+Skipped. In Target Sum you have to turn a choice of plus or minus signs into item choices on your own. That works this module from scratch, and the reframing belongs to solving that problem.
 
 ### Transfer test
 
@@ -337,21 +373,26 @@ Ask me whether I would use 0/1 knapsack here and why, and wait for my answer. Th
 
 ### Foundation
 
-Same bag, but now you are in a shop with unlimited stock. After taking an item you may take the same item again. The only question that changes is "after I take one, is this item still available?", and the answer is now yes.
+Same bag, but now you're in a shop with unlimited stock. After you take an item, you can take the same item again. Only one question changes: "after I take one, is this item still available?" The answer is now yes.
 
-Same worked example: weights `[2, 3, 4]`, values `[3, 5, 6]`, capacity 6, unlimited copies.
+Same worked example: weights `[2, 3, 4]`, values `[3, 5, 6]`, capacity 6, but now with unlimited copies.
 
 ### Mechanics
 
-1. **State.** `dp[i][c]` = the best value using item types 0 to i-1 inclusive, any number of copies, total weight at most c.
-2. **Decision.** Skip item type i-1 entirely: `dp[i-1][c]`. Take one copy (if w ≤ c): `dp[i][c-w] + v`, reading **row i**, because after taking one copy the same type is still on offer for the remaining c - w.
-3. **Why it is safe.** An optimal answer for (i, c) uses zero copies of type i-1, which makes it an answer for (i-1, c), or at least one copy. Remove one copy and the rest is a valid answer for (i, c-w), where type i-1 is still allowed. Both sub-answers are optimal, so the max is optimal.
-4. **Why it terminates.** `dp[i][c]` reads `dp[i][c-w]` in the same row, which looks circular, but c - w < c whenever w ≥ 1. Sweeping c upward means `dp[i][c-w]` is already done.
-5. **Fill order.** Row by row, c upward.
+1. **State.** `dp[i][c]` is the best value using item types 0 to i-1 inclusive, any number of copies of each, with total weight at most c.
+2. **Decision.** You can skip item type i-1 entirely, which gives `dp[i-1][c]`. Or, if w ≤ c, you can take one copy, which gives `dp[i][c-w] + v`. That reads **row i**, not row i-1. After you take one copy, the same type is still on offer for the remaining c - w.
+3. **Why it is safe.** An optimal answer for (i, c) uses either zero copies of type i-1 or at least one. With zero copies, it's an answer for (i-1, c). With at least one, remove one copy. What's left is a valid answer for (i, c-w), where type i-1 is still allowed. Both sub-answers are optimal, so the max is optimal.
+4. **Why it terminates.** `dp[i][c]` reads `dp[i][c-w]` in the same row. That looks circular. But c - w < c whenever w ≥ 1, so it always reads a smaller budget. If you sweep c upward, `dp[i][c-w]` is already done by the time you need it.
+5. **Fill order.** Row by row, with c going upward.
 
-Two cells. `dp[2][3] = max(dp[1][3], dp[2][0] + 5) = max(3, 0 + 5) = 5`. `dp[2][6] = max(dp[1][6], dp[2][3] + 5) = max(9, 5 + 5) = 10`: two copies of the 3 kg item. Note `dp[1][6] = 9` is three copies of the 2 kg item.
+Here are two cells:
 
-**Space.** With one array, "row i at column c - w" is exactly what an upward sweep gives you: `dp[c-w]` was already updated in this pass, so it may already contain this item. The loop you were warned about in the previous module is this module's correct loop.
+- `dp[2][3] = max(dp[1][3], dp[2][0] + 5) = max(3, 0 + 5) = 5`.
+- `dp[2][6] = max(dp[1][6], dp[2][3] + 5) = max(9, 5 + 5) = 10`. That's two copies of the 3 kg item.
+
+Also note that `dp[1][6] = 9` is three copies of the 2 kg item.
+
+**Space.** With one array, an upward sweep gives you exactly "row i at column c - w". By the time you reach `dp[c]`, `dp[c-w]` was already updated in this pass, so it may already contain this item. The loop you were warned about in the previous module is the correct loop here.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/unbounded-array.svg %}</figure>
 
@@ -359,7 +400,7 @@ Two cells. `dp[2][3] = max(dp[1][3], dp[2][0] + 5) = max(3, 0 + 5) = 5`. `dp[2][
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/unbounded-table.svg %}</figure>
 
-Compare with the 0/1 diagram: the take arrow now starts in the row being filled.
+Compare this with the 0/1 diagram. The take arrow now starts in the row being filled.
 
 ### Implementation
 
@@ -380,23 +421,25 @@ print(knapsack_unbounded([2, 3, 4], [3, 5, 6], 6))   # 10
 print(knapsack_unbounded([], [], 5), knapsack_unbounded([7], [9], 5), knapsack_unbounded([1], [2], 5))  # 0 0 10
 ```
 
-Checked against a memoized brute force on 1,000 random instances.
+I checked this against a memoized brute force on 1,000 random instances.
 
-Complexity: O(n × C) time for n item types and capacity C, O(C) space.
+Complexity: O(n × C) time for n item types and capacity C, and O(C) space.
 
 ### Recognition
 
-- "Unlimited supply", "each may be used any number of times", "infinite coins", "you may cut as many pieces as you like".
-- Building a total out of reusable parts, and asking for a max, a min, or a count.
-- Coin Change II shows this signal (so did Coin Change in Part 15).
+- **Wording like** "unlimited supply", "each may be used any number of times", "infinite coins", or "you may cut as many pieces as you like".
+- **Building a total out of reusable parts**, and asking for a max, a min, or a count.
+- Coin Change II shows this signal. So did Coin Change in Part 15.
 
-Distinguish it from 0/1 by the one question "can I reuse it?", which in code is exactly "does take read row i-1 or row i?", which in one-array code is exactly "downward or upward?". If each item has a limited stock greater than one (bounded knapsack), neither loop is right as written; you expand the stock into separate 0/1 items (recalled: binary splitting into 1, 2, 4, ... copies keeps that to O(log stock) items per type).
+To tell it apart from 0/1, ask one question: "can I reuse it?" In the table version, that's the same as asking "does the take branch read row i-1 or row i?" In one-array code, it's the same as asking "do I loop downward or upward?"
+
+What if each item has a limited stock greater than one? That's called bounded knapsack, and neither loop is right as written. Instead, you expand the stock into separate 0/1 items. (Recalled: splitting the stock into groups of 1, 2, 4, ... copies keeps that to O(log stock) items per type.)
 
 ### Pitfalls
 
-- **Zero-weight items.** With w = 0 the "copy" loop reads `dp[c]` itself and adds v once per pass, so it returns a finite but meaningless number (on a test with a (0 kg, 4) item and a (2 kg, 3) item at capacity 4 it returns 10). The true answer is unbounded. Reject or handle w = 0 explicitly.
-- **Exact fill.** Same as 0/1: `dp[0] = 0`, everything else minus infinity (or plus infinity for a min). With weights `[3, 5]`, exactly 7 is unreachable and stays minus infinity, while 3, 5 and 6 become reachable.
-- **Counting.** When you count ways instead of maximizing, the two possible loop nestings (items outside, capacity inside, or the reverse) count different things: one counts unordered collections, the other counts ordered sequences. For max and min it makes no difference. Work out which one a counting problem wants on a tiny example before trusting either nesting.
+- **Zero-weight items.** With w = 0, the "copy" loop reads `dp[c]` itself and adds v once per pass. So it returns a number that is finite but meaningless. On a test with a (0 kg, 4) item and a (2 kg, 3) item at capacity 4, it returns 10. The true answer is unbounded, since you could take the free item forever. Reject w = 0 or handle it explicitly.
+- **Exact fill.** Same as 0/1: `dp[0] = 0`, and everything else starts at minus infinity (or plus infinity for a min). With weights `[3, 5]`, exactly 7 is unreachable and stays at minus infinity, while 3, 5 and 6 become reachable.
+- **Counting.** When you count ways instead of maximizing, there are two ways to nest the loops: items outside and capacity inside, or the reverse. They count different things. One counts unordered collections, the other counts ordered sequences. For max and min it makes no difference. Before trusting either nesting, work out on a tiny example which one your counting problem wants.
 
 ### Active Recall
 
@@ -420,7 +463,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Included: Coin Change II is a labelled counting instance of this module rather than something you must derive from scratch, so this module's mechanics would not otherwise be exercised independently.
+Included. Coin Change II is a counting problem that is plainly labelled as this pattern. You don't have to derive the technique from scratch to solve it. So without this checkpoint, nothing would make you work this module's mechanics out on your own.
 
 Given a positive integer n, find the fewest perfect squares (1, 4, 9, 16, ...) that add up to exactly n. For n = 12 the answer is 3 (4 + 4 + 4). For n = 13 it is 2 (4 + 9).
 
@@ -447,20 +490,31 @@ Ask me whether I would use unbounded knapsack here and why, and wait for my answ
 
 ### Foundation
 
-When the input is two sequences, the natural subproblem is a pair of prefixes: `dp[i][j]` is the answer for the first i characters of `a` and the first j characters of `b`. Picture two queues of people and a single door. You decide, looking only at the two people at the back of the queues, what the last person through the door must have been. The last characters of the two prefixes decide which case you are in: they match, or they don't.
+Picture two queues of people and a single door. You look only at the two people at the back of the queues, and from them you work out who the last person through the door must have been.
 
-LCS itself is on the list, so this module teaches the two-prefix technique on a different question: the **shortest common supersequence** length. Given `a = "abac"` and `b = "cab"`, find the length of the shortest string that contains both as subsequences (characters in order, not necessarily adjacent). The answer is 5: `"cabac"` contains `a`, `b`, `a`, `c` in order and `c`, `a`, `b` in order, and no 4-character string does.
+Two-sequence DP works the same way. When the input is two sequences, the natural subproblem is a pair of **prefixes** (the first few characters of each). `dp[i][j]` is the answer for the first i characters of `a` and the first j characters of `b`. The last characters of the two prefixes tell you which case you're in: either they match, or they don't.
+
+LCS itself is on the problem list. So this module teaches the two-prefix technique on a different question: the length of the **shortest common supersequence**. Given `a = "abac"` and `b = "cab"`, find the length of the shortest string that contains both as subsequences. (A subsequence keeps the characters in order, but they don't have to be next to each other.) The answer is 5. `"cabac"` contains `a`, `b`, `a`, `c` in order, and it also contains `c`, `a`, `b` in order. No 4-character string does both.
 
 ### Mechanics
 
-1. **State.** `dp[i][j]` = the length of the shortest string that has both `a[:i]` and `b[:j]` as subsequences.
-2. **A shortest answer ends in `a[i-1]` or `b[j-1]`.** If its last character served neither string, you could delete it and still have a valid answer, so it would not be shortest.
-3. **Match: `a[i-1] == b[j-1]`.** One character can serve as the end of both. `dp[i][j] = dp[i-1][j-1] + 1`. Why this is safe: for any valid string S for (i, j), deleting its last character leaves a valid string for (i-1, j-1): inside S, `a[i-1]` sits at some position p, and all of `a[:i-1]` sits strictly before p, so it survives losing S's final character; the same holds for `b[:j-1]`. So `dp[i][j] ≥ dp[i-1][j-1] + 1` always, and a match achieves exactly that.
-4. **Mismatch.** The answer ends in `a[i-1]` or in `b[j-1]`, not both. If it ends in `a[i-1]`, that character cannot also be the end of `b[:j]` (it differs from `b[j-1]`), so everything before it must still contain all of `b[:j]` and `a[:i-1]`: cost `1 + dp[i-1][j]`. If it ends in `b[j-1]`, by the same argument with the roles swapped: `1 + dp[i][j-1]`. Take the min. Checking both branches on the example, `dp[4][3]` (a ends in `c`, b ends in `b`): ending in `c` costs `1 + dp[3][3] = 1 + 4 = 5` (`"caba"` + `"c"`), ending in `b` costs `1 + dp[4][2] = 1 + 5 = 6`. Min 5.
-5. **Base cases.** `dp[i][0] = i` and `dp[0][j] = j`: if one string is empty, the answer is the other string. Two-prefix problems do not all have zero borders. The border is "the answer when one side is empty", and you have to ask what that is every time.
+1. **State.** `dp[i][j]` is the length of the shortest string that has both `a[:i]` and `b[:j]` as subsequences.
+2. **A shortest answer ends in `a[i-1]` or `b[j-1]`.** Why? Suppose its last character served neither string. Then you could delete it and still have a valid answer. So it wasn't the shortest.
+3. **Match: `a[i-1] == b[j-1]`.** Here one character can serve as the end of both prefixes. So `dp[i][j] = dp[i-1][j-1] + 1`. Why is this safe? Take any valid string S for (i, j) and delete its last character. What's left is a valid string for (i-1, j-1). Here's why:
+   - Inside S, `a[i-1]` sits at some position p.
+   - All of `a[:i-1]` sits strictly before p, so it survives when S loses its final character.
+   - The same holds for `b[:j-1]`.
+
+   So `dp[i][j] ≥ dp[i-1][j-1] + 1` always, and a match achieves exactly that.
+4. **Mismatch.** The answer ends in `a[i-1]` or in `b[j-1]`, but not both, because they're different characters. There are two cases:
+   - It ends in `a[i-1]`. That character can't also be the end of `b[:j]`, since it differs from `b[j-1]`. So everything before it must still contain all of `b[:j]` and `a[:i-1]`. The cost is `1 + dp[i-1][j]`.
+   - It ends in `b[j-1]`. By the same argument with the roles swapped, the cost is `1 + dp[i][j-1]`.
+
+   Take the min. Let's check both branches on the example at `dp[4][3]`, where a ends in `c` and b ends in `b`. Ending in `c` costs `1 + dp[3][3] = 1 + 4 = 5` (that's `"caba"` + `"c"`). Ending in `b` costs `1 + dp[4][2] = 1 + 5 = 6`. The min is 5.
+5. **Base cases.** `dp[i][0] = i` and `dp[0][j] = j`, because if one string is empty, the answer is just the other string. Not every two-prefix problem has zeros on its borders. The border is "the answer when one side is empty", and you have to ask what that is every time.
 6. **Fill order.** Each cell reads up, left and up-left, so row by row works.
 
-**A contrast worth knowing:** the longest common **substring** (contiguous) uses the same table shape with a different state: `dp[i][j]` = the length of the common block ending exactly at `a[i-1]` and `b[j-1]`. On a mismatch the block is broken, so the cell is 0, and the answer is the max over the whole table rather than the corner. For `"abac"` and `"cab"` it is 2 (`"ab"`). Subsequence questions carry information past a mismatch; substring questions reset.
+**A contrast worth knowing.** The longest common **substring** must be contiguous (no gaps). It uses the same table shape with a different state: `dp[i][j]` is the length of the common block that ends exactly at `a[i-1]` and `b[j-1]`. On a mismatch, the block is broken, so the cell is 0. The answer is the max over the whole table, not the corner. For `"abac"` and `"cab"` it's 2 (`"ab"`). So the two questions behave differently after a mismatch. Subsequence questions carry information past it. Substring questions start again from 0.
 
 ### Diagram
 
@@ -496,24 +550,27 @@ print(scs_length("abac", "cab"))                            # 5
 print(scs_length("", ""), scs_length("abc", ""), scs_length("abc", "abc"), scs_length("ab", "cd"))  # 0 3 3 4
 ```
 
-Checked against a brute force that tries every candidate string in increasing length, on 300 random pairs of short strings.
+I checked this against a brute force that tries every candidate string in increasing length, on 300 random pairs of short strings.
 
-Complexity: O(m × n) time and space for strings of lengths m and n. Space can drop to O(min(m, n)) with one row plus a saved diagonal value.
+Complexity: O(m × n) time and space for strings of lengths m and n. Space can drop to O(min(m, n)) if you keep one row plus a saved diagonal value.
 
 ### Recognition
 
-- Two strings or two sequences, and the question compares, aligns, merges or transforms them.
-- Words like "subsequence", "transform a into b", "interleave", "matches the pattern".
-- Longest Common Subsequence, Interleaving String, Distinct Subsequences, Edit Distance and Regular Expression Matching all show this signal: each is a two-prefix table with its own case analysis on the last characters.
+- **Two strings or two sequences**, and the question compares, aligns, merges or transforms them.
+- **Words like** "subsequence", "transform a into b", "interleave", or "matches the pattern".
+- Longest Common Subsequence, Interleaving String, Distinct Subsequences, Edit Distance and Regular Expression Matching all show this signal. Each one is a two-prefix table with its own case analysis on the last characters.
 
-When not to use it: when there is only one string, the state is usually one prefix (Part 15) or a range of it (the last module). When the question is a yes/no with an obvious greedy, like "is `s` a subsequence of `t`", two pointers in O(m + n) are enough; the table is for optimising over many possible alignments.
+When not to use it:
+
+- **There's only one string.** Then the state is usually one prefix (Part 15) or a range of it (the last module).
+- **The question is a yes/no with an obvious greedy**, like "is `s` a subsequence of `t`". Two pointers in O(m + n) are enough. The table is for finding the best among many possible alignments.
 
 ### Pitfalls
 
-- **Index shift.** The table is (m+1) × (n+1) and cell (i, j) looks at `a[i-1]` and `b[j-1]`. Mixing "i is a length" with "i is an index" is the most common bug in this family.
-- **Borders are not always 0.** Here they are i and j. Decide the border from "what if one side is empty".
-- **Corner vs max.** Prefix questions answer in `dp[m][n]`; substring questions answer in the max cell.
-- **One-row compression.** You need up-left, which the row overwrite destroys; save it before overwriting.
+- **Index shift.** The table is (m+1) × (n+1), and cell (i, j) looks at `a[i-1]` and `b[j-1]`. Mixing up "i is a length" with "i is an index" is the most common bug in this family.
+- **Borders are not always 0.** Here they are i and j. Work out the border by asking "what if one side is empty?"
+- **Corner vs max.** Prefix questions have their answer in `dp[m][n]`. Substring questions have it in the max cell.
+- **One-row compression.** You need the up-left value, and overwriting the row destroys it. Save it before you overwrite.
 
 ### Active Recall
 
@@ -540,7 +597,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Edit Distance and Distinct Subsequences each require you to derive their own last-character case analysis from scratch, so the list already exercises this module independently.
+Skipped. Edit Distance and Distinct Subsequences each make you derive their own last-character case analysis from scratch. So the problem list already gives this module a full workout on its own.
 
 ### Transfer test
 
@@ -554,31 +611,35 @@ Ask me whether I would use the two-prefix table here and why, and wait for my an
 
 ## Interval DP
 
-The problems below also need this: Burst Balloons is indexed by both ends of a range, and its choices split that range in two, a state shape none of the four prefix-style modules above teach.
+The problems below also need this. Burst Balloons is indexed by both ends of a range, and its choices split that range in two. None of the four prefix-style modules above teach that kind of state.
 
 ### Foundation
 
-Think about where to put brackets in `2 × 3 + 4 × 5`. Whatever operation you do last splits the expression into a left part and a right part, and each part is its own smaller bracketing problem. The subproblem is a contiguous range, named by its two ends `(i, j)`, and the recurrence tries every place to split it.
+Think about where to put brackets in `2 × 3 + 4 × 5`. Whichever operation you do last splits the expression into a left part and a right part. Each part is its own smaller bracketing problem.
 
-Worked example: multiply four matrices in a chain, A0 (40 × 20), A1 (20 × 30), A2 (30 × 10), A3 (10 × 30), written as `dims = [40, 20, 30, 10, 30]` so that matrix k is `dims[k] × dims[k+1]`. Multiplying a p × q matrix by a q × r matrix costs p × q × r scalar multiplications (recalled: the standard schoolbook cost). The product is the same whatever the bracketing, but the cost is not. Find the cheapest bracketing.
+So the subproblem is a contiguous range, named by its two ends `(i, j)`. The recurrence tries every place to split it.
+
+Here is the worked example. You multiply four matrices in a chain: A0 (40 × 20), A1 (20 × 30), A2 (30 × 10) and A3 (10 × 30). We write their shapes as `dims = [40, 20, 30, 10, 30]`, so that matrix k is `dims[k] × dims[k+1]`.
+
+Multiplying a p × q matrix by a q × r matrix costs p × q × r scalar multiplications. (Recalled: that's the standard schoolbook cost.) The final product is the same however you place the brackets, but the cost isn't. Find the cheapest bracketing.
 
 ### Mechanics
 
-1. **State.** `dp[i][j]` = the cheapest cost to multiply A_i through A_j (inclusive) into a single matrix. `dp[i][i] = 0`.
-2. **Last operation.** The final multiplication combines (A_i .. A_k) with (A_{k+1} .. A_j) for some split k from i to j-1 inclusive. The left result is `dims[i] × dims[k+1]`, the right is `dims[k+1] × dims[j+1]`, so the final step costs `dims[i] × dims[k+1] × dims[j+1]`.
+1. **State.** `dp[i][j]` is the cheapest cost to multiply A_i through A_j (inclusive) into a single matrix. `dp[i][i] = 0`, since a single matrix needs no multiplying.
+2. **Last operation.** The final multiplication combines (A_i .. A_k) with (A_{k+1} .. A_j), for some split k from i to j-1 inclusive. The left result has shape `dims[i] × dims[k+1]`. The right result has shape `dims[k+1] × dims[j+1]`. So the final step costs `dims[i] × dims[k+1] × dims[j+1]`.
 3. **Recurrence.** `dp[i][j] = min over k of dp[i][k] + dp[k+1][j] + dims[i] × dims[k+1] × dims[j+1]`.
-4. **Why it is safe.** Once k is fixed, the two halves are independent: how you bracket the left part cannot change the right part's cost, and the last step's cost depends only on shapes, which i, k and j fix. So each half should be bracketed optimally, and trying every k covers every possible last step.
-5. **Fill order.** By interval length, shortest first. `dp[i][j]` reads only strictly shorter intervals. Row by row from i = 0 fails: `dp[0][3]` needs `dp[1][3]`, which belongs to a later row.
+4. **Why it is safe.** Once k is fixed, the two halves are independent. How you bracket the left part can't change the right part's cost. And the last step's cost depends only on shapes, which i, k and j already fix. So each half should be bracketed as cheaply as possible, and trying every k covers every possible last step.
+5. **Fill order.** By interval length, shortest first, because `dp[i][j]` reads only strictly shorter intervals. Row by row from i = 0 fails. For example, `dp[0][3]` needs `dp[1][3]`, which belongs to a later row.
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/chain-splits.svg %}</figure>
 
-So `dp[0][3] = 26000`, and since `dp[0][2] = 14000` came from k = 0 (A0 times the 20 × 10 product A1·A2: 0 + 6000 + 40 × 20 × 10 = 14000), the best bracketing is ((A0 (A1 A2)) A3).
+So `dp[0][3] = 26000`, from the split at k = 2. To recover the full bracketing, look at where `dp[0][2] = 14000` came from. It came from k = 0: A0 times the 20 × 10 product A1·A2, costing 0 + 6000 + 40 × 20 × 10 = 14000. So the best bracketing is ((A0 (A1 A2)) A3).
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-2d-dynamic-programming/chain-table.svg %}</figure>
 
-Each cell reads cells to its left in its row and below in its column, which is why the diagonals go shortest first.
+Each cell reads cells to its left in its row and below it in its column. That's why the diagonals are filled shortest first.
 
 ### Implementation
 
@@ -609,27 +670,27 @@ print(matrix_chain_cost([40, 20, 30, 10, 30]))   # 26000
 print(matrix_chain_cost([5, 7]), matrix_chain_cost([10, 30, 5, 60]))  # 0 4500
 ```
 
-Checked against a brute force over every bracketing on 300 random chains of 1 to 6 matrices.
+I checked this against a brute force over every bracketing, on 300 random chains of 1 to 6 matrices.
 
-Complexity: O(n³) time for n matrices (O(n²) intervals, up to n splits each), O(n²) space.
+Complexity: O(n³) time for n matrices. There are O(n²) intervals, and each tries up to n splits. Space is O(n²).
 
 ### Recognition
 
-- The input is one sequence, and an operation merges, splits, removes or combines **contiguous** pieces, with a cost that depends on the piece's boundaries or neighbours.
-- The order of operations changes the total, and you are asked for the best order.
-- n is small (hundreds, not hundreds of thousands), because O(n³) is the usual price.
-- The question to ask: "which single decision, if I fix it, splits the range into two parts that no longer affect each other?" Sometimes that decision is the first operation, sometimes the last; pick whichever makes the halves independent.
+- **The input is one sequence**, and an operation merges, splits, removes or combines **contiguous** pieces. The cost depends on the piece's boundaries or its neighbours.
+- **The order of operations changes the total**, and you're asked for the best order.
+- **n is small** (hundreds, not hundreds of thousands), because O(n³) is the usual price.
+- **Ask yourself: "which single decision, if I fix it, splits the range into two parts that no longer affect each other?"** Sometimes that decision is the first operation, and sometimes it's the last. Pick whichever one makes the halves independent.
 - Burst Balloons shows these signals.
 
-Distinguish it from prefix DP: if every decision only ever eats from one end, a prefix index is enough. Palindrome checks from Part 15 were range-shaped too, but they only shrink from both ends without trying a split point, so they are O(n²).
+How is this different from prefix DP? If every decision only ever eats from one end, a prefix index is enough. Palindrome checks from Part 15 were range-shaped too. But they only shrink from both ends and never try a split point, so they're O(n²).
 
 ### Pitfalls
 
-- **Wrong loop order.** Looping i from 0 upward with j inside reads unfinished cells. Loop by length, or loop i downward from n-1 with j upward.
-- **Off-by-one in split range.** k goes from i to j-1 inclusive; k = j would leave an empty right half.
+- **Wrong loop order.** If you loop i from 0 upward with j inside, you read cells that aren't finished yet. Loop by length instead, or loop i downward from n-1 with j going upward.
+- **Off-by-one in the split range.** k goes from i to j-1 inclusive. k = j would leave the right half empty.
 - **Boundary index.** The combined shape uses `dims[j+1]`, not `dims[j]`. For n matrices, `dims` has n + 1 entries.
-- **Single element.** One matrix costs 0; `matrix_chain_cost([5, 7])` returns 0 because the length loop never runs.
-- **Independence.** If fixing your chosen split does not make the two halves independent (the left half's choices still change the right half's costs), the recurrence is wrong. Change which decision you fix, rather than patching the formula.
+- **Single element.** One matrix costs 0. `matrix_chain_cost([5, 7])` returns 0 because the length loop never runs.
+- **Independence.** Sometimes fixing your chosen split doesn't make the two halves independent: the left half's choices still change the right half's costs. Then the recurrence is wrong. Change which decision you fix, instead of patching the formula.
 
 ### Active Recall
 
@@ -656,7 +717,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Burst Balloons requires finding its own independent-split decision from scratch, so the list already exercises this module independently.
+Skipped. In Burst Balloons you have to find the decision that splits the range into independent halves from scratch. So the problem list already gives this module a full workout on its own.
 
 ### Transfer test
 
@@ -670,7 +731,13 @@ Ask me whether I would use interval DP here and why, and wait for my answer. The
 
 ## Integration
 
-**How the modules connect to 2-D DP.** Every module was the same move: name the subproblem with two numbers, write the recurrence from the last decision, and fill the table in an order where every read is already final. What changed was what the two numbers meant:
+**How the modules connect to 2-D DP.** Every module made the same three moves:
+
+1. Name the subproblem with two numbers.
+2. Write the recurrence from the last decision.
+3. Fill the table in an order where every cell you read is already final.
+
+What changed from module to module was what the two numbers meant:
 
 | Shape | State | Reads | Fill order |
 | --- | --- | --- | --- |
@@ -681,28 +748,34 @@ Ask me whether I would use interval DP here and why, and wait for my answer. The
 | Two prefixes | (length of a, length of b) | up, left, up-left | row by row |
 | Range | (left end, right end) | strictly shorter ranges | by length |
 
-The Graphs parent shows up in the last column. The cells are nodes, "reads" are edges, and a fill order is a topological order of that DAG. When the order is not a simple sweep, top-down memoization (Part 15) finds it for you, as long as there are no cycles. When there are cycles, it was never a DP.
+The Graphs connection shows up in the last column. Think of the cells as nodes and each "reads" as an edge. Then a fill order is a topological order of that DAG: an order where every node comes after everything it depends on. When the order isn't a simple sweep, top-down memoization (Part 15) finds it for you, as long as there are no cycles. If there are cycles, the problem was never a DP.
 
 **Distinguishing competing approaches.**
 
-- **DP vs greedy.** Look for a small counterexample to the obvious greedy choice before writing any table. Value-per-kilo gave 8 instead of 9; biggest-square-first gives four squares instead of three for 12 (9 + 1 + 1 + 1 against 4 + 4 + 4). If you cannot break the greedy and you can argue an exchange, use greedy ([Part 13](/blogs/dsa-greedy/)).
+- **DP vs greedy.** Before writing any table, look for a small example where the obvious greedy choice fails. Value per kilo gave 8 instead of 9. For 12, biggest-square-first gives four squares instead of three (9 + 1 + 1 + 1 against 4 + 4 + 4). If you can't break the greedy, and you can argue that swapping in the greedy choice never makes things worse, use greedy ([Part 13](/blogs/dsa-greedy/)).
 - **DP vs graph search.** If the dependencies can form cycles (moves in every direction, arbitrary costs), use BFS or Dijkstra.
-- **DP vs backtracking.** "List every solution" is backtracking. "Count them", "find the best one" or "does one exist" with overlapping subproblems is DP.
-- **Which DP.** The inputs usually tell you: one grid, one list plus a numeric target, two strings, one sequence plus a rule about recent history, or one sequence whose pieces get merged or split.
+- **DP vs backtracking.** "List every solution" is backtracking. "Count them", "find the best one" or "does one exist", with overlapping subproblems, is DP.
+- **Which DP.** The inputs usually tell you. Is it one grid? One list plus a numeric target? Two strings? One sequence plus a rule about recent history? Or one sequence whose pieces get merged or split?
 
 **A recognition checklist for an unfamiliar problem.**
 
 1. Can I describe a subproblem with one number? If the future also depends on something else, that something is my second index.
-2. What is the last decision (last move, last item, last character, last operation), and which smaller subproblems does each choice leave?
-3. Are those smaller subproblems independent, and do they overlap across different branches? If they overlap, DP pays off.
-4. What is the answer when one index is at its border (empty grid row, empty bag, empty string, single-element range)? That is the base case, and it is not always 0.
-5. Which cells does a cell read? Pick a fill order where they are all earlier. If none exists, it is not a DP.
-6. Can I keep only one row? Check which old values the overwrite destroys (up-left diagonal, 0/1 vs unbounded direction).
-7. Is the second number bounded small enough to fit in a table (a budget of 10^9 is not)?
+2. What is the last decision (last move, last item, last character, last operation)? Which smaller subproblems does each choice leave?
+3. Are those smaller subproblems independent? Do they overlap across different branches? If they overlap, DP pays off.
+4. What is the answer when one index is at its border (empty grid row, empty bag, empty string, single-element range)? That's the base case, and it isn't always 0.
+5. Which cells does a cell read? Pick a fill order where they all come earlier. If no such order exists, it's not a DP.
+6. Can I keep only one row? Check which old values the overwrite destroys (the up-left diagonal, or the 0/1 vs unbounded direction).
+7. Is the second number small enough to fit in a table? (A budget of 10^9 isn't.)
 
 ## The problems
 
-Solve them with the cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, a one-sentence key insight once you have it, and spaced repetition. For DP, before writing any code, define: what does the state represent, what is the recurrence, what are the base cases? For 2-D, add: what are the two indices, and which cells does a cell read (so what order fills the table)? If you are stuck, get the recurrence from a video walkthrough of the problem, then write recurrence, then memo, then tabulation.
+Solve them with the cycle from [Part 1](/blogs/dsa-the-method/):
+
+- a 15-minute honest struggle,
+- a one-sentence key insight once you have it,
+- and spaced repetition.
+
+For DP, define three things before writing any code: what the state represents, what the recurrence is, and what the base cases are. For 2-D, add two more: what the two indices are, and which cells a cell reads (which tells you the order that fills the table). If you're stuck, get the recurrence from a video walkthrough of the problem. Then write the recurrence, then the memoized version, then the tabulation.
 
 {% include dsa-problems.html slug="dsa-2d-dynamic-programming" %}
 

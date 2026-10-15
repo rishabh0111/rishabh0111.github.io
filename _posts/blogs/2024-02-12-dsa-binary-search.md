@@ -5,52 +5,62 @@ date: 2024-02-12 09:00:00 +0530
 author: Rishabh Sharma
 categories: blogs
 tags: [dsa, binary-search, python, series]
-read_time: 30
+read_time: 32
 permalink: /blogs/dsa-binary-search/
-excerpt: "Everyone can write binary search on a sorted array. The real test is spotting the search space when nobody hands you one, with boundaries that survive duplicates, empty inputs and the last two elements."
+excerpt: "Most people can write binary search on a sorted array. The real test is spotting what to search when nobody hands you an array, and getting boundaries that still work with duplicates, empty inputs and the last two elements."
 series: "Data Structures & Algorithms, Pattern by Pattern"
 series_order: 5
 series_total: 19
 links_new_tab: true
 ---
 
-Binary search finds an answer among n candidates while looking at about log2(n) of them, provided one check at the middle tells you with certainty which half cannot contain it. Sorted arrays give you that for free, but most problems here hand you a range of speeds, a split point, a rotated array or a list of timestamps, and the work is noticing the monotone yes/no question inside. It follows [Two Pointers](/blogs/dsa-two-pointers/), where shrinking a search space by reasoning about sorted order first showed up, and together with Linked List it unlocks Trees, where a binary search tree is this same halving argument baked into a data structure.
+Binary search finds an answer among n candidates while looking at only about log2(n) of them. There's one condition. A single check at the middle has to tell you, for certain, which half can't contain the answer.
 
-How to use this post: [the method](/blogs/dsa-the-method/). Checkpoints have no answers on the page: work them out, then open the linked chat to have your answer checked.
+A sorted array gives you that for free. But most problems in this topic don't hand you a sorted array. They hand you a range of speeds, a split point, a rotated array or a list of timestamps. The real work is spotting the yes/no question hiding inside, one whose answer flips only once (we'll call that **monotone** later).
+
+This post follows [Two Pointers](/blogs/dsa-two-pointers/). That's where you first shrank a search space by reasoning about sorted order. Together with Linked List, this topic unlocks Trees, where a binary search tree is this same halving argument built into a data structure.
+
+How to use this post: [the method](/blogs/dsa-the-method/). The checkpoints don't show answers on the page. Work each one out yourself first, then open the linked chat to have your answer checked.
 
 ## Search Array
 
 ### Foundation
 
-You're looking for a word in a paper dictionary. You don't read from page one. You open near the middle, see "M", know your word starts with "D", and throw away the entire back half without reading any of it. One glance, half the book gone.
+Say you're looking up a word in a paper dictionary. You don't start reading from page one. You open somewhere near the middle and see "M". Your word starts with "D", so you throw away the whole back half without reading any of it. One glance, and half the book is gone.
 
-That throwaway step is the whole technique. It's only safe because the dictionary is sorted: if the middle page is past "D", every page after it is also past "D". Sorted order turns one comparison into a verdict about half the remaining candidates.
+That throwaway step is the technique. It's only safe because the dictionary is sorted. If the middle page is already past "D", every page after it is past "D" too. So sorted order turns one comparison into a verdict about half of the pages you still had to check.
 
-The version worth learning first isn't "is the target here?" but a slightly stronger question: **what is the first index whose value is at least `target`?** This is the "lower bound" or insertion point. It answers "is it present?" (check that index), "where would it go?" (that index), and "where does the run of duplicates start?" (also that index), so it's the one loop to know cold.
+The first version to learn doesn't ask "is the target here?". It asks a slightly stronger question: **what is the first index whose value is at least `target`?** This index is called the **lower bound**, or the insertion point. It's worth knowing cold, because one loop answers three questions:
+
+- "Is the target present?" Check the value at that index.
+- "Where would it go?" At that index.
+- "Where does the run of duplicates start?" Also at that index.
 
 ### Mechanics
 
-Worked example, used for the rest of this module:
+Here is the worked example we'll use for the rest of this module:
 
 nums = [1, 3, 5, 5, 8, 12, 15], target = 5. The answer is index 2, the leftmost 5.
 
-Keep two indices, lo and hi, and treat the candidates as the half-open range [lo, hi), meaning lo is a candidate and hi is not. Start with lo = 0 and hi = len(nums) = 7. hi starts one past the end on purpose: "no element is at least target" is a legal answer, and it's represented by index 7.
+We keep two indices, lo and hi. The indices still in the running are the **candidates**, and they form the half-open range [lo, hi). Half-open means lo is a candidate but hi is not. We start with lo = 0 and hi = len(nums) = 7.
 
-The invariant, true before every iteration:
+Why does hi start one past the end? Because "no element is at least target" is a legal answer, and we need an index to stand for it. Index 7 is that index.
 
-- every index in [0, lo - 1] holds a value less than target (definitely not the answer), and
-- every index in [hi, len(nums) - 1] holds a value at least target (a valid index, but not the first one we haven't ruled out).
+Next comes the rule that keeps the loop correct. A fact that stays true at every step of a loop is called an **invariant**. This one holds before every iteration:
+
+- Every index in [0, lo - 1] holds a value less than target. Those are too small, so none of them is the answer.
+- Every index in [hi, len(nums) - 1] holds a value at least target. Those are big enough, but they sit outside the candidate range, so we've stopped looking at them.
 
 Each step picks mid = (lo + hi) // 2 and asks one question: is nums[mid] >= target?
 
-- **Yes.** Then mid might be the answer, and by sortedness every index in [mid + 1, hi - 1] is also at least target, so none of them can be the *first* such index. Set hi = mid. Not mid - 1, because that would throw away mid, which might be the answer.
-- **No.** nums[mid] < target, and by sortedness every index in [lo, mid] is at most nums[mid], so all of them are less than target. None can be the answer. Set lo = mid + 1.
+- **Yes.** Then mid might be the answer. Because the array is sorted, every index in [mid + 1, hi - 1] is also at least target. So none of those can be the *first* such index. We set hi = mid. Not mid - 1, because that would throw away mid, and mid might be the answer.
+- **No.** Then nums[mid] < target. Because the array is sorted, every index in [lo, mid] holds a value at most nums[mid], so all of them are less than target. None of them can be the answer. We set lo = mid + 1.
 
-Stop when lo == hi. The candidate range is empty, and the invariant says everything left of lo is too small and everything from hi onward is big enough, so lo is the first index that's big enough.
+We stop when lo == hi. The candidate range is now empty. The invariant tells us everything left of lo is too small, and everything from hi onward is big enough. So lo is the first index that's big enough.
 
-Why it always terminates: while lo < hi, floor division gives lo <= mid <= hi - 1. Setting hi = mid shrinks the range because mid < hi. Setting lo = mid + 1 shrinks it because mid + 1 > lo. The width hi - lo drops by at least 1 every iteration, and in fact roughly halves.
+Does the loop always end? Yes. While lo < hi, floor division gives lo <= mid <= hi - 1. Setting hi = mid shrinks the range, because mid < hi. Setting lo = mid + 1 also shrinks it, because mid + 1 > lo. So the width hi - lo drops by at least 1 every iteration. In fact it roughly halves.
 
-Running it on the example (computed, not guessed):
+Here is the loop run on the example (each value computed, not guessed):
 
 | step | lo | hi | mid | nums[mid] | nums[mid] >= 5? | move |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -58,13 +68,13 @@ Running it on the example (computed, not guessed):
 | 2 | 0 | 3 | 1 | 3 | no | lo = 2 |
 | 3 | 2 | 3 | 2 | 5 | yes | hi = 2 |
 
-lo = hi = 2. Answer 2. Step 1 landed on a 5 at index 3 and didn't stop, which is exactly why this loop finds the leftmost duplicate rather than whichever copy it happens to hit first.
+Now lo = hi = 2, so the answer is 2. Look at step 1. It landed on a 5 at index 3, and it didn't stop there. That's exactly why this loop finds the leftmost duplicate, not whichever copy it happens to hit first.
 
 ### Diagram
 
 <figure class="sketch">{% include sketches/dsa-binary-search/lower-bound-trace.svg %}</figure>
 
-The last row is the invariant made visible: a wall between "too small" on the left and "big enough" on the right, and lo sits on the first cell of the right side.
+The last row shows the invariant as a picture. There's a wall with "too small" on the left and "big enough" on the right, and lo sits on the first cell of the right side.
 
 ### Implementation
 
@@ -98,35 +108,46 @@ print(lower_bound(nums, 20))   # 7  (no element is >= 20, so len(nums))
 print(lower_bound([], 3))      # 0  (loop never runs; empty input needs no special case)
 ```
 
-I ran this against the example and the edge cases above, and against 2,000 random sorted arrays compared with Python's `bisect.bisect_left`. They agree every time. The standard library already ships this loop: `bisect.bisect_left(nums, target)` returns the same index, and `bisect.bisect_right(nums, target)` returns the first index with `nums[i] > target` (recalled from the `bisect` docs, not derived here; since Python 3.10 both also accept a `key=` function). Know how to write the loop anyway. Interviewers ask for it, and several problems need a comparison `bisect` can't express directly.
+I ran this on the example and the edge cases above. I also compared it with Python's `bisect.bisect_left` on 2,000 random sorted arrays. They agreed every time.
 
-Turning this into "return the index of target, or -1" is a one-line check after the loop. That's what the first problem in the list asks for, so it's yours to write.
+In fact, the standard library already ships this loop. `bisect.bisect_left(nums, target)` returns the same index. `bisect.bisect_right(nums, target)` returns the first index with `nums[i] > target`. (That's recalled from the `bisect` docs, not derived here. Since Python 3.10, both also accept a `key=` function.)
 
-**Complexity.** Time O(log n), where n = len(nums): the width hi - lo at least halves each iteration, so the loop runs at most floor(log2 n) + 1 times. I checked that bound exhaustively for small n; for n = 7 it's 3, matching the three steps in the trace. Space O(1).
+Learn to write the loop yourself anyway. Interviewers ask for it, and several problems need a comparison that `bisect` can't express directly.
+
+To turn this into "return the index of target, or -1", you add a one-line check after the loop. That's what the first problem in the list asks for, so it's yours to write.
+
+**Complexity**, with n = len(nums):
+
+- **Time O(log n).** The width hi - lo at least halves each iteration, so the loop runs at most floor(log2 n) + 1 times. I checked that bound exhaustively for small n. For n = 7 it's 3, which matches the three steps in the trace.
+- **Space O(1).**
 
 ### Recognition
 
-Signals that this module applies:
+These are the signals that this module applies:
 
-- The input is **sorted** (or the problem says "non-decreasing", "ascending", "sorted by timestamp") and you need to find a value, a position, or a boundary.
-- The question is "first/last element that is at least / at most X", "where would X be inserted", "how many elements are below X", or "does X exist".
-- Constraints are large (n up to 10^5 or 10^6) and you're asked for many lookups against a fixed sorted collection. One O(n log n) sort plus O(log n) per query beats O(n) per query.
-- **Sorted order that isn't handed to you as a flat sorted list.** It can hide in the layout of a structure or in the order the data arrives. Search a 2D Matrix and Time Based Key Value Store both show this signal; spotting exactly where the sorted order lives is their work, not this module's.
+- **The input is sorted**, or the problem says "non-decreasing", "ascending" or "sorted by timestamp". And you need to find a value, a position or a boundary.
+- **The question sounds like one of these:** "first/last element that is at least / at most X", "where would X be inserted", "how many elements are below X", or "does X exist".
+- **The constraints are large** (n up to 10^5 or 10^6), and you're asked for many lookups against a fixed sorted collection. One O(n log n) sort plus O(log n) per query beats O(n) per query.
+- **The sorted order isn't handed to you as a flat sorted list.** It can hide in the layout of a structure, or in the order the data arrives. Search a 2D Matrix and Time Based Key Value Store both show this signal. Spotting exactly where the sorted order lives is the work of those problems, not of this module.
 
 When not to use it:
 
-- **Unsorted data with a single lookup.** Sorting costs O(n log n) to save an O(n) scan. A hash set gives O(1) average membership without sorting at all.
-- **You need a pair or triple satisfying a condition on a sorted array.** That's usually two pointers, which walks both ends in one O(n) pass instead of binary searching once per element in O(n log n).
-- **The collection changes constantly.** Inserting into a sorted Python list is O(n) even though finding the position is O(log n). Past a point you want a heap or a balanced tree.
+- **The data is unsorted and you only look up once.** Sorting costs O(n log n) just to save an O(n) scan. A hash set answers "is it there?" in O(1) on average, with no sorting at all.
+- **You need a pair or triple that meets a condition on a sorted array.** That's usually two pointers. It walks in from both ends in one O(n) pass. Binary searching once per element would cost O(n log n).
+- **The collection changes all the time.** Finding the position in a sorted Python list is O(log n), but inserting there is still O(n). Past a point you want a heap or a balanced tree.
 
 ### Pitfalls
 
-- **Mixing conventions.** The half-open [lo, hi) template pairs `hi = len(nums)`, `while lo < hi`, and `hi = mid`. The closed [lo, hi] template pairs `hi = len(nums) - 1`, `while lo <= hi`, and `hi = mid - 1`. Taking one line from each is the most common source of infinite loops and off-by-ones. Pick one per loop and say its invariant out loud.
-- **`lo = mid` instead of `lo = mid + 1`.** With lo = 6, hi = 7 (target 20 in the example), mid = 6. If the "no" branch sets lo = mid, lo stays 6 forever.
-- **Reading `nums[lo]` after the loop without checking lo < len(nums).** The answer can be len(nums), which is out of bounds.
-- **Stopping on the first equal element.** Fine for "does it exist", wrong for "where does the run of equal values start". The trace above hit a 5 at index 3 first; the leftmost 5 is at 2.
-- **Empty and single-element inputs.** With hi = len(nums) the empty case falls out naturally (the loop never runs, return 0). Test the single-element case both ways: `lower_bound([4], 4)` is 0 and `lower_bound([4], 5)` is 1.
-- **Integer overflow in (lo + hi) // 2.** Not a problem in Python, whose integers are unbounded (recalled). In Java or C++ you'd write lo + (hi - lo) / 2. Worth mentioning in an interview if you're asked about other languages.
+- **Mixing conventions.** There are two common templates, and each has three lines that belong together:
+  - Half-open [lo, hi): `hi = len(nums)`, `while lo < hi`, and `hi = mid`.
+  - Closed [lo, hi]: `hi = len(nums) - 1`, `while lo <= hi`, and `hi = mid - 1`.
+
+  Taking one line from each is the most common cause of infinite loops and off-by-one bugs. Pick one template per loop, and say its invariant out loud.
+- **Writing `lo = mid` instead of `lo = mid + 1`.** Take lo = 6, hi = 7 (searching for target 20 in the example). Then mid = 6. If the "no" branch sets lo = mid, lo stays 6 forever.
+- **Reading `nums[lo]` after the loop without checking lo < len(nums).** The answer can be len(nums), and that index is out of bounds.
+- **Stopping at the first equal element.** That's fine for "does it exist?". It's wrong for "where does the run of equal values start?". The trace above hit the 5 at index 3 first, but the leftmost 5 is at 2.
+- **Empty and single-element inputs.** With hi = len(nums), the empty case just works: the loop never runs, and it returns 0. Test the single-element case both ways: `lower_bound([4], 4)` is 0 and `lower_bound([4], 5)` is 1.
+- **Integer overflow in (lo + hi) // 2.** This can't happen in Python, because its integers are unbounded (recalled). In Java or C++ you'd write lo + (hi - lo) / 2. It's worth mentioning in an interview if you're asked about other languages.
 
 ### Active Recall
 
@@ -153,7 +174,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: the first problem in the list (Binary Search) makes you write this loop, including its exact-match variant, from a blank page, so the mechanics get exercised there directly.
+Skipped for this module. The first problem in the list (Binary Search) makes you write this loop from a blank page, including its exact-match variant. So you'll practise the mechanics there directly.
 
 ### Transfer test
 
@@ -169,32 +190,46 @@ Ask me whether I would use binary search on the sorted array here and why, and w
 
 ### Foundation
 
-Play "I'm thinking of a number between 1 and 100". You guess 50, hear "lower", guess 25, and so on. There's no array anywhere. What makes halving work is that every guess gets an answer that rules out a whole side.
+Think of the game "I'm thinking of a number between 1 and 100". You guess 50 and hear "lower". You guess 25, and so on. There's no array anywhere. Halving still works, because every guess gets an answer that rules out a whole side.
 
-That's the move this module makes: binary search doesn't need an array, it needs a **range of integer candidates** and a **yes/no question that is false for a prefix of the range and true for the rest**. In the previous module the question was "is nums[i] >= target?" and the range was the indices 0..len(nums). Swap the question and the range, and the same loop searches over speeds, capacities, sizes, days, thresholds, or split positions.
+That's the step this module takes. Binary search doesn't actually need an array. It needs two things:
 
-Formally, a predicate pred(x) over integers lo..hi is **monotone** if, once it becomes true, it stays true:
+- a **range of integer candidates**, and
+- a **yes/no question that is false for the first part of the range and true for the rest**.
+
+In the previous module the question was "is nums[i] >= target?", and the range was the indices 0..len(nums). Swap in a different question and a different range, and the same loop can search over speeds, capacities, sizes, days, thresholds or split positions.
+
+A yes/no function like this is called a **predicate**, and we'll write it pred(x). A predicate over the integers lo..hi is **monotone** if, once it becomes true, it stays true. Written out across the range, its answers look like this:
 
 F F F F T T T T
 
-Find the first T and you've answered the problem. This is "binary search on the answer" and it's the single most transferable idea in this category.
+Find the first T and you've answered the problem. This is called "binary search on the answer". It's the single most transferable idea in this category.
 
 ### Mechanics
 
-Worked example, used for the rest of this module: **the integer square root of n = 40**, the largest x with x * x <= 40. The answer is 6 (36 <= 40, 49 > 40).
+Here is the worked example for the rest of this module: **the integer square root of n = 40**. That's the largest x with x * x <= 40. The answer is 6, because 36 <= 40 but 49 > 40.
 
-Step 1: find a monotone predicate. "x * x <= 40" is true then false (T T ... T F F), which is the wrong way round for a "first true" search. Flip it: pred(x) = x * x > 40 is false for x in 0..6 and true for every x >= 7, because squares of non-negative integers only grow. The first true is 7, and the answer is the last false, 7 - 1 = 6. Converting "last x where something holds" into "first x where it stops holding, minus one" is a trick you'll use repeatedly.
+We'll get there in three steps.
 
-Step 2: pick the range so that the answer is guaranteed to be inside it. The smallest candidate is 0. For the upper end, use n + 1 = 41: (n + 1)^2 > n for every n >= 0, so pred(41) is true and a first-true is guaranteed to exist in 0..41. Using hi = n instead breaks n = 0, as the recall questions show.
+**Step 1: find a monotone predicate.** The obvious question, "x * x <= 40", is true first and then false (T T ... T F F). That's the wrong way round for a "find the first true" search. So flip it. pred(x) = x * x > 40 is false for x in 0..6 and true for every x >= 7, because squares of non-negative integers only grow.
 
-Step 3: run the same loop as lower bound, with pred(mid) in place of nums[mid] >= target. The invariant is the same with the words swapped:
+The first true is 7. The answer we want is the last false, which is 7 - 1 = 6. You'll use this trick again and again: to find "the last x where something holds", find "the first x where it stops holding", then subtract one.
 
-- every x in [original lo, lo - 1] has pred(x) false, and
-- every x in [hi, original hi] has pred(x) true.
+**Step 2: pick a range that's guaranteed to contain the answer.** The smallest candidate is 0. For the top end, use n + 1 = 41. Since (n + 1)^2 > n for every n >= 0, pred(41) is true. So there's guaranteed to be a first true somewhere in 0..41. If you used hi = n instead, n = 0 would break, as the recall questions show.
 
-"Yes" (pred(mid) true): mid might be the first true, and everything above it is true too, so hi = mid. "No": mid and everything below it are false, so lo = mid + 1. Monotonicity is what makes each of those "everything" claims safe. Without it, a false at mid says nothing about mid - 1.
+**Step 3: run the same loop as lower bound**, with pred(mid) in place of nums[mid] >= target. The invariant is the same, with the words swapped:
 
-The trace for n = 40, computed by running the code below:
+- Every x in [original lo, lo - 1] has pred(x) false.
+- Every x in [hi, original hi] has pred(x) true.
+
+The two branches work like this:
+
+- **Yes (pred(mid) is true).** mid might be the first true, and everything above it is true too. So we set hi = mid.
+- **No.** mid and everything below it are false. So we set lo = mid + 1.
+
+Monotonicity is what makes each of those "everything" claims safe. Without it, a false at mid would tell you nothing about mid - 1.
+
+Here is the trace for n = 40, computed by running the code below:
 
 | step | lo | hi | mid | mid * mid | > 40? | move |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -205,7 +240,7 @@ The trace for n = 40, computed by running the code below:
 | 5 | 6 | 8 | 7 | 49 | yes | hi = 7 |
 | 6 | 6 | 7 | 6 | 36 | no | lo = 7 |
 
-lo = hi = 7, the first x whose square exceeds 40. Answer 7 - 1 = 6. Six predicate calls to search 42 candidates.
+Now lo = hi = 7, the first x whose square is bigger than 40. So the answer is 7 - 1 = 6. It took six predicate calls to search 42 candidates.
 
 ### Diagram
 
@@ -213,7 +248,7 @@ lo = hi = 7, the first x whose square exceeds 40. Answer 7 - 1 = 6. Six predicat
 
 <figure class="sketch">{% include sketches/dsa-binary-search/isqrt-candidates.svg %}</figure>
 
-The predicate row is the thing to draw on paper for any problem in this category. If you can't fill it in as a run of F followed by a run of T, binary search on that predicate is not safe.
+For any problem in this category, the predicate row is the thing to draw on paper. If you can't fill it in as a run of F followed by a run of T, binary search on that predicate isn't safe.
 
 ### Implementation
 
@@ -253,37 +288,44 @@ print(isqrt(16))   # 4   (perfect square: 4*4 = 16 is not > 16, 5*5 = 25 is)
 print(isqrt(17))   # 4
 ```
 
-I ran this on the example, on 0, 1, 2, 15, 16 and 17, and on 2,000 random n up to 10^6 against `math.isqrt` (recalled: standard library since Python 3.8). All match. `first_true` is `lower_bound` with the array lookup replaced by a function call. If you prefer the library, `lo + bisect.bisect_left(range(lo, hi), True, key=pred)` does the same job on Python 3.10+ (the `key=` parameter and `range` indexing without building a list are recalled; I checked that it returns 7 for n = 40 on Python 3.11). Note the `lo +`: bisect returns a position inside the range, not the value. Writing the loop yourself is still easier to debug when the predicate is the hard part.
+I ran this on the example, on 0, 1, 2, 15, 16 and 17, and on 2,000 random n up to 10^6, comparing against `math.isqrt` (recalled: in the standard library since Python 3.8). All of them matched.
 
-**Complexity.** Let R = hi - lo be the size of the search range and C the cost of one pred call. Time O(C · log R): the loop runs at most floor(log2 R) + 1 times. For isqrt, R = n + 1 and C = O(1), so O(log n). Space O(1) beyond whatever pred uses.
+`first_true` is just `lower_bound` with the array lookup swapped for a function call. If you'd rather use the library, `lo + bisect.bisect_left(range(lo, hi), True, key=pred)` does the same job on Python 3.10+. (The `key=` parameter, and indexing a `range` without building a list, are recalled. I checked that it returns 7 for n = 40 on Python 3.11.)
 
-That C factor is the part people forget. When pred has to scan an input of size m, the search costs O(m · log R), and R is often the size of the *value* range, not the input. A range of 1..10^9 is still only about 30 probes.
+Don't forget the `lo +`. bisect returns a position inside the range, not the value itself. Even so, writing the loop yourself is easier to debug when the predicate is the hard part.
+
+**Complexity.** Let R = hi - lo be the size of the search range, and C the cost of one pred call.
+
+- **Time O(C · log R).** The loop runs at most floor(log2 R) + 1 times, and each run calls pred once. For isqrt, R = n + 1 and C = O(1), so it's O(log n).
+- **Space O(1)**, beyond whatever pred itself uses.
+
+People tend to forget that C factor. If pred has to scan an input of size m, the search costs O(m · log R). And R is often the size of the range of possible *values*, not the size of the input. The good news is that log R stays small: a range of 1..10^9 still needs only about 30 probes.
 
 ### Recognition
 
-Signals:
+These are the signals:
 
-- The problem asks for the **minimum** (or maximum) value of something that still satisfies a condition: "smallest speed such that...", "least capacity so that...", "earliest day when...".
-- Checking a single candidate is easy, but constructing the optimal one directly is hard. If you can write `is_feasible(x)` in O(m), you can usually find the best x in O(m log R).
-- Making x bigger only makes the condition easier to satisfy (or only harder). That's monotonicity, and it's the thing you must be able to argue in one sentence. Koko Eating Bananas has exactly this shape: a candidate answer, a feasibility check, and a direction in which feasibility only improves.
-- The answer is bounded by something you can compute: 1 and max(input), 0 and n, the sum of the input.
-- The yes/no question is about **positions in an array that isn't fully sorted**, but still flips once. "Is this index at or after the point where X happens?" is a monotone predicate even when the values aren't sorted. The two rotated-array problems (Find Minimum In Rotated Sorted Array and Search In Rotated Sorted Array) live here: the work is finding a question about index mid that you can answer in O(1) and that flips once. Median of Two Sorted Arrays searches over a split position rather than a value. Those derivations are the problems themselves, so I'm naming the signal and stopping.
+- **The problem asks for the minimum (or maximum) value of something that still meets a condition.** It sounds like "smallest speed such that...", "least capacity so that..." or "earliest day when...".
+- **Checking one candidate is easy, but building the best one directly is hard.** If you can write `is_feasible(x)` in O(m), you can usually find the best x in O(m log R).
+- **Making x bigger only ever makes the condition easier to meet** (or only ever harder). That's monotonicity, and you must be able to argue it in one sentence. Koko Eating Bananas has exactly this shape. There's a candidate answer, a check for whether it works, and a direction in which it only gets more likely to work.
+- **The answer has bounds you can compute**, such as 1 and max(input), 0 and n, or the sum of the input.
+- **The yes/no question is about positions in an array that isn't fully sorted, but it still flips once.** "Is this index at or after the point where X happens?" is a monotone predicate, even when the values themselves aren't sorted. The two rotated-array problems (Find Minimum In Rotated Sorted Array and Search In Rotated Sorted Array) belong here. Their work is finding a question about index mid that you can answer in O(1) and that flips once. Median of Two Sorted Arrays searches over a split position rather than a value. Working those out is the content of the problems themselves, so I'll just name the signal and stop here.
 
-When not to use it, and how it differs from neighbours:
+When not to use it, and how it differs from its neighbours:
 
-- **The predicate isn't monotone.** "Is x * x exactly 36?" is F F ... F T F F ..., and the recall question below shows binary search walking straight past the only T.
-- **Linear scan is already fast enough.** If R is 50, just try all 50 candidates; clarity wins.
-- **Greedy or DP optimises the value directly.** Binary search on the answer turns "optimise" into "decide". It's the right move when deciding is much easier than optimising. When there's a direct greedy construction, use it.
-- **Two pointers / sliding window** also shrink a search space, but they move one step at a time through a sequence in O(n) total. Binary search jumps and needs random access to candidates, which a range of integers always has.
+- **The predicate isn't monotone.** "Is x * x exactly 36?" gives F F ... F T F F .... The recall question below shows binary search walking straight past the only T.
+- **A linear scan is already fast enough.** If R is 50, just try all 50 candidates. The simpler code wins.
+- **Greedy or DP can optimise the value directly.** Binary search on the answer turns "find the best value" into "does this value work?". That's the right move when checking is much easier than optimising. When there's a direct greedy construction, use that instead.
+- **Two pointers and sliding window** also shrink a search space. But they move one step at a time through a sequence, for O(n) in total. Binary search jumps around, so it needs random access to the candidates. A range of integers always gives you that.
 
 ### Pitfalls
 
-- **No sentinel.** If the range can contain no true value, hi must be a slot that means "none" (n + 1 above, len(nums) in lower bound). Otherwise the loop returns hi and you treat a false candidate as the answer.
-- **Wrong direction.** Many problems naturally give T ... T F ... F ("still feasible?"). Either flip the predicate or search for the last true with mid rounded up. Flipping keeps you on one template, which is fewer bugs.
-- **Off by one when converting.** "Largest x with P(x)" = first_true(not P) - 1. Check it on one concrete value (here: first true 7, answer 6, and 6 * 6 = 36 <= 40).
-- **Bounds that exclude the answer.** A lower bound of 0 when the answer must be at least 1 can make pred divide by zero. An upper bound that's too small silently caps the answer.
-- **Floats.** On real-valued ranges, `lo = mid + 1` makes no sense. Iterate a fixed number of times (say 100) or until hi - lo is below a tolerance. None of this category needs that, but it's the first thing that breaks when you transfer the idea.
-- **Forgetting the C in O(C log R).** A predicate that sorts or builds a structure each call can make the "log" search slower than you think.
+- **No sentinel.** A sentinel is a value that stands for "none". If the range might contain no true value at all, hi has to be that sentinel (n + 1 above, len(nums) in lower bound). Otherwise the loop returns hi, and you treat a false candidate as the answer.
+- **The predicate runs the wrong way.** Many problems naturally give T ... T F ... F ("is it still feasible?"). You can flip the predicate, or search for the last true with mid rounded up. Flipping keeps you on one template, which means fewer bugs.
+- **Off by one when converting.** "Largest x with P(x)" = first_true(not P) - 1. Check it on one concrete value. Here: the first true is 7, the answer is 6, and 6 * 6 = 36 <= 40.
+- **Bounds that leave out the answer.** If the answer must be at least 1 but your lower bound is 0, pred might divide by zero. If the upper bound is too small, it quietly caps the answer.
+- **Floats.** On a range of real numbers, `lo = mid + 1` makes no sense. Instead, loop a fixed number of times (say 100), or until hi - lo is below some tolerance. No problem in this category needs that, but it's the first thing that breaks when you carry the idea elsewhere.
+- **Forgetting the C in O(C log R).** If the predicate sorts something or builds a structure on every call, the "log" search can be slower than you think.
 
 ### Active Recall
 
@@ -313,7 +355,7 @@ Quiz me with the questions below, one at a time. After each, wait for my answer.
 
 ### Mini-task
 
-Skipped: Koko Eating Bananas makes you find the search range, invent the predicate, and argue its monotonicity from scratch, so this module's core move gets exercised there without a separate warm-up.
+Skipped for this module. Koko Eating Bananas makes you find the search range, invent the predicate and argue that it's monotone, all from scratch. So you'll practise this module's core move there, without a separate warm-up.
 
 ### Transfer test
 
@@ -327,13 +369,15 @@ Ask me whether I would use binary search on the answer here and why, and wait fo
 
 ## Integration
 
-Both modules are the same loop. Search Array is binary search where the yes/no question is "is nums[i] >= target?" over the indices 0..len(nums). Search Range removes the array and keeps the loop: any integer range, any monotone question. Every problem in this category is one of three things:
+Both modules use the same loop. Search Array is binary search where the yes/no question is "is nums[i] >= target?", asked over the indices 0..len(nums). Search Range drops the array and keeps the loop, so it works for any integer range and any monotone question.
 
-1. **A sorted collection you search directly**, possibly one whose sorted order you first have to notice because it isn't a plain list. Search Array's lower bound, or its mirror "last element at most X", does the work.
-2. **An answer you can check but not construct**, where you binary search the value of the answer with a feasibility predicate. Search Range, with the predicate and its bounds as the whole problem.
-3. **A monotone question about positions in something that isn't plainly sorted**: a rotated array, a split point between two arrays. The loop is the same; finding a predicate on index mid that flips exactly once is the problem.
+Every problem in this category is one of three kinds:
 
-Telling it apart from competing approaches:
+1. **A sorted collection you search directly.** Sometimes you first have to notice the sorted order, because it isn't a plain list. Search Array's lower bound, or its mirror "last element at most X", does the work.
+2. **An answer you can check but can't build directly.** Here you binary search over possible values of the answer, using a predicate that says whether a value works. That's Search Range, and the whole problem is finding the predicate and its bounds.
+3. **A monotone question about positions in something that isn't plainly sorted**, like a rotated array or a split point between two arrays. The loop stays the same. The problem is finding a predicate on index mid that flips exactly once.
+
+How to tell it apart from competing approaches:
 
 | If you see... | Reach for... | Because |
 | --- | --- | --- |
@@ -356,7 +400,13 @@ A recognition checklist for unfamiliar problems:
 
 ## The problems
 
-Work these with the solving cycle from [Part 1](/blogs/dsa-the-method/): a 15-minute honest struggle, one key sentence per problem, spaced repetition. For this category, the struggle questions are: what is the search space (indices, values, or a split point), what yes/no question flips exactly once across it, and after one check at mid, which half can I throw away and why?
+Work through these with the solving cycle from [Part 1](/blogs/dsa-the-method/). Give each problem a 15-minute honest struggle, write down one key sentence per problem, then review it with spaced repetition.
+
+While you struggle with a problem from this category, ask yourself:
+
+- What is the search space: indices, values, or a split point?
+- What yes/no question flips exactly once across it?
+- After one check at mid, which half can I throw away, and why?
 
 {% include dsa-problems.html slug="dsa-binary-search" %}
 
