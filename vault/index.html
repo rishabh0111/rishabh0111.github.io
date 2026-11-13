@@ -1,0 +1,80 @@
+---
+layout: default
+title: Vault
+permalink: /vault/
+vault: true
+sitemap: false
+---
+
+{% comment %}
+  Drafts parked until they are ready. Not linked from anywhere; see
+  "The vault" in _config.yml. One section per shelf (HLD, LLD), each
+  series on it drawn as the blog's stacked series card, open.
+{% endcomment %}
+<div class="page-header">
+  <div class="page-header-inner" data-section="Vault">
+    <p class="page-label">Private</p>
+    <h1>Vault</h1>
+    <p>Drafts that aren't ready yet.</p>
+    <span class="post-count">{{ site.vault.size }} draft{% if site.vault.size != 1 %}s{% endif %}</span>
+  </div>
+</div>
+
+<div class="listing-wrap">
+  {% for shelf in site.vault_shelves %}
+  {% assign docs = site.vault | where: "shelf", shelf %}
+  <section class="bt-year" id="{{ shelf | slugify }}" aria-labelledby="{{ shelf | slugify }}-h">
+    <h2 class="bt-year-label" id="{{ shelf | slugify }}-h">{{ shelf }}</h2>
+    {% if docs.size == 0 %}
+      <p class="empty-state">Nothing here yet.</p>
+    {% else %}
+    <ol class="bt-list">
+      {% assign names = docs | map: "series" | uniq %}
+      {% for s in names %}
+        {% if s %}
+          {% assign items = docs | where: "series", s | sort: "series_order" %}
+          {% assign minutes = 0 %}
+          {% for part in items %}{% assign minutes = minutes | plus: part.read_time %}{% endfor %}
+          <li class="bt-item bt-series">
+            <div class="bt-stack">
+            <details class="series-card" open>
+              <summary>
+                <span class="bt-meta">
+                  <span class="bt-kind">Series</span>
+                  <span>{{ items.size }} part{% if items.size != 1 %}s{% endif %}</span>
+                  {% if minutes > 0 %}<span>{{ minutes }} min</span>{% endif %}
+                </span>
+                <span class="bt-title">{{ s }}</span>
+              </summary>
+              <div class="series-card-parts">
+              {% for part in items %}
+                <a class="post-row series-row" href="{{ part.url | relative_url }}">
+                  <span class="post-row-date">Part {{ part.series_order }}</span>
+                  <span class="post-row-title">{{ part.title }}</span>
+                  {% if part.read_time %}<span class="post-row-readtime">{{ part.read_time }} min</span>{% endif %}
+                </a>
+              {% endfor %}
+              </div>
+            </details>
+            </div>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% assign loose = docs | where_exp: "p", "p.series == nil" | sort: "date" | reverse %}
+      {% for post in loose %}
+        <li class="bt-item bt-post">
+          <a class="bt-card" href="{{ post.url | relative_url }}">
+            <span class="bt-meta">
+              <span class="bt-kind">Draft</span>
+              <span>{{ post.date | date: "%b %-d" }}</span>
+              {% if post.read_time %}<span>{{ post.read_time }} min</span>{% endif %}
+            </span>
+            <span class="bt-title">{{ post.title }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>

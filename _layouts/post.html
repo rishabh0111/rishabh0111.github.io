@@ -10,7 +10,11 @@ layout: default
     <p class="post-crumb">
       <a href="{{ '/' | relative_url }}">Home</a>
       <span class="sep">/</span>
-      {% if page.categories contains 'news' %}
+      {% if page.vault %}
+        <a href="{{ '/vault/' | relative_url }}">Vault</a>
+        <span class="sep">/</span>
+        <span class="cat-pill blog">{{ page.shelf }}{% if page.series %} · {{ page.series }}{% endif %}</span>
+      {% elsif page.categories contains 'news' %}
         <a href="{{ '/news/' | relative_url }}">News</a>
         <span class="sep">/</span>
         <span class="cat-pill news">News Digest</span>
@@ -52,7 +56,11 @@ layout: default
 
   <!-- Series navigation: same series, ordered. Left rail. -->
   {% if page.series %}
-  {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+  {% if page.vault %}
+    {% assign siblings = site.vault | where: "series", page.series | sort: "series_order" %}
+  {% else %}
+    {% assign siblings = site.posts | where: "series", page.series | sort: "series_order" %}
+  {% endif %}
   {%- comment -%}
     `siblings` only counts parts already published, so a series released one part
     at a time would otherwise report itself as complete on day one ("Part 1 of 1").
@@ -120,22 +128,37 @@ layout: default
   </aside>
 </div>
 
-<!-- Prev / Next navigation -->
+<!-- Prev / Next navigation. Vault drafts walk their own shelf, so a
+     draft never links out to a public post or the other way round. -->
+{% assign nav_prev = page.previous %}
+{% assign nav_next = page.next %}
+{% if page.vault %}
+  {% assign nav_prev = nil %}
+  {% assign nav_next = nil %}
+  {% assign shelf_docs = site.vault | where: "shelf", page.shelf | sort: "date" %}
+  {% for d in shelf_docs %}
+    {% if d.url == page.url %}
+      {% assign i_prev = forloop.index0 | minus: 1 %}
+      {% if i_prev >= 0 %}{% assign nav_prev = shelf_docs[i_prev] %}{% endif %}
+      {% assign nav_next = shelf_docs[forloop.index] %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
 <nav class="post-nav" aria-label="Post navigation">
   <a class="post-nav-item prev"
-     {% if page.previous %}href="{{ page.previous.url | relative_url }}"
+     {% if nav_prev %}href="{{ nav_prev.url | relative_url }}"
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
     <span class="post-nav-dir">{% include icon.html name="arrow-left" %}Previous</span>
     <span class="post-nav-title">
-      {% if page.previous %}{{ page.previous.title }}{% else %}·{% endif %}
+      {% if nav_prev %}{{ nav_prev.title }}{% else %}·{% endif %}
     </span>
   </a>
   <a class="post-nav-item next"
-     {% if page.next %}href="{{ page.next.url | relative_url }}"
+     {% if nav_next %}href="{{ nav_next.url | relative_url }}"
      {% else %}style="opacity:0.3;pointer-events:none;"{% endif %}>
     <span class="post-nav-dir">Next{% include icon.html name="arrow-right" %}</span>
     <span class="post-nav-title">
-      {% if page.next %}{{ page.next.title }}{% else %}·{% endif %}
+      {% if nav_next %}{{ nav_next.title }}{% else %}·{% endif %}
     </span>
   </a>
 </nav>
@@ -147,11 +170,15 @@ layout: default
 {% assign related = site.posts
     | where_exp: "p", "p.url != page.url"
     | where_exp: "p", "p.categories contains cat" %}
+{% if page.vault %}
+  {% assign cat = "in the vault" %}
+  {% assign related = site.vault | where_exp: "p", "p.url != page.url" | sort: "date" | reverse %}
+{% endif %}
 {% if related.size > 0 %}
 <section class="post-more" aria-label="More {{ cat }}">
   <div class="post-more-head">
     <span class="post-more-label">More {{ cat }}</span>
-    <a class="post-more-all" href="{% if cat == 'news' %}{{ '/news/' | relative_url }}{% else %}{{ '/blogs/' | relative_url }}{% endif %}">All posts{% include icon.html name="arrow-right" %}</a>
+    <a class="post-more-all" href="{% if page.vault %}{{ '/vault/' | relative_url }}{% elsif cat == 'news' %}{{ '/news/' | relative_url }}{% else %}{{ '/blogs/' | relative_url }}{% endif %}">All posts{% include icon.html name="arrow-right" %}</a>
   </div>
   <div class="post-more-grid">
     {% comment %}

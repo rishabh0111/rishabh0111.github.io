@@ -1,0 +1,98 @@
+{%- comment -%}
+  The vault's PIN curtain. Included twice by default.html on pages with
+  `vault: true`: once in <head> (part="head") to hide the page before
+  first paint, once at the top of <body> to draw the prompt.
+
+  A curtain, not a lock: the drafts are in the public repo. It keeps the
+  vault out of casual sight; the PIN is checked against a salted SHA-256
+  in _config.yml (vault_pin_sha256) and remembered for the tab's session.
+{%- endcomment -%}
+{%- if include.part == "head" -%}
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <script>
+    (function () {
+      var ok = false;
+      try { ok = sessionStorage.getItem('vault-open') === '{{ site.vault_pin_sha256 }}'; } catch (e) {}
+      if (!ok) document.documentElement.classList.add('vault-locked');
+    })();
+  </script>
+  <style>
+    /* visibility, not display: the page keeps its layout underneath, so
+       mermaid and the rails can measure it while the curtain is down. */
+    html.vault-locked { overflow: hidden; }
+    html.vault-locked body > :not(.vault-gate) { visibility: hidden !important; }
+    .vault-gate { display: none; }
+    html.vault-locked .vault-gate {
+      position: fixed; inset: 0; z-index: 2147483647;
+      display: grid; place-items: center;
+      padding: var(--s3); background: var(--bg); color: var(--text);
+    }
+    .vault-gate form {
+      display: grid; gap: var(--s2); justify-items: center;
+      width: min(100%, 20rem); text-align: center;
+    }
+    .vault-gate-mark { font-family: var(--f-mono); font-size: 0.75rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--text-2); }
+    .vault-gate input {
+      width: 100%; padding: 0.7rem 1rem; text-align: center;
+      font: 500 1.4rem/1 var(--f-mono); letter-spacing: 0.5em;
+      color: var(--text); background: var(--bg-raised);
+      border: 1px solid var(--border); border-radius: 10px;
+    }
+    .vault-gate input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .vault-gate.is-wrong input { border-color: #BF616A; animation: vault-shake 0.3s; }
+    .vault-gate-msg { min-height: 1.2em; font-size: 0.85rem; color: var(--text-2); }
+    @keyframes vault-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @media (prefers-reduced-motion: reduce) { .vault-gate.is-wrong input { animation: none; } }
+  </style>
+{%- else -%}
+  <div class="vault-gate" id="vault-gate">
+    <form autocomplete="off">
+      <span class="vault-gate-mark" aria-hidden="true">Vault</span>
+      <label class="sr-only" for="vault-pin">PIN</label>
+      <input id="vault-pin" type="password" inputmode="numeric" maxlength="12"
+             autocomplete="off" autofocus aria-describedby="vault-msg">
+      <p class="vault-gate-msg" id="vault-msg" aria-live="polite"></p>
+    </form>
+  </div>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var gate = document.getElementById('vault-gate');
+      if (!root.classList.contains('vault-locked')) { gate.remove(); return; }
+      var HASH = '{{ site.vault_pin_sha256 }}';
+      var form = gate.querySelector('form');
+      var input = document.getElementById('vault-pin');
+      var msg = document.getElementById('vault-msg');
+      input.focus();
+
+      function sha256(text) {
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+          return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+            return ('0' + b.toString(16)).slice(-2);
+          }).join('');
+        });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!input.value) return;
+        sha256('vault:' + input.value).then(function (h) {
+          if (h === HASH) {
+            try { sessionStorage.setItem('vault-open', HASH); } catch (err) {}
+            root.classList.remove('vault-locked');
+            gate.remove();
+            // Layout code (rails, TOC, nav) measured a hidden page; let it re-measure.
+            window.dispatchEvent(new Event('resize'));
+          } else {
+            input.value = '';
+            msg.textContent = 'Not that one.';
+            gate.classList.remove('is-wrong');
+            void gate.offsetWidth;
+            gate.classList.add('is-wrong');
+          }
+        });
+      });
+    })();
+  </script>
+{%- endif -%}

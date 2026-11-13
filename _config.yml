@@ -22,6 +22,39 @@ defaults:
       path: ""
     values:
       image: /assets/img/og-card.jpg
+  # Vault drafts: see "The vault" below.
+  - scope:
+      path: "_vault/hld"
+      type: vault
+    values:
+      shelf: HLD
+  - scope:
+      path: "_vault/lld"
+      type: vault
+    values:
+      shelf: LLD
+  - scope:
+      path: ""
+      type: vault
+    values:
+      layout: post
+      vault: true
+      sitemap: false
+
+# ── The vault ─────────────────────────────────────────────────
+# /vault holds drafts (the HLD and LLD series) until they are ready.
+# Nothing links to it; every vault page is noindex, kept out of the
+# sitemap, the feed and the blog listing, and hidden behind a PIN.
+# The PIN is a curtain, not a lock: the markdown is in this public
+# repo. Change it with:
+#   printf 'vault:%s' 1234 | sha256sum
+# and paste the hash below. To publish a draft, move it into
+# _posts/blogs/, add `categories: blogs` and a /blogs/ permalink.
+collections:
+  vault:
+    output: true
+vault_shelves: [HLD, LLD]
+vault_pin_sha256: "9769ebe8511077cee44d5daf063360d23b866df627bd979490d23e7c396e9c7a"
 
 # ── Timezone ───────────────────────────────────────────────────
 timezone: Asia/Kolkata

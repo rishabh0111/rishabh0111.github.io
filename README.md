@@ -202,6 +202,21 @@ example a problem table from `_data/dsa_problems.yml` via `_includes/dsa-problem
 Each include's header comment documents its parameters. A generated download (such as
 `assets/downloads/*.xlsx`) is rebuilt by its script in `_templates/`.
 
+## The vault (drafts)
+
+`/vault` holds drafts that aren't ready: `_vault/hld/` and `_vault/lld/`.
+Nothing links to it. Vault pages are `noindex`, left out of the sitemap,
+the feed and the blog listing, and sit behind a PIN.
+The PIN only keeps casual visitors out; the markdown is in this public repo.
+
+- **Add a draft:** drop a file in `_vault/hld/` or `_vault/lld/` with the usual
+  blog front matter, but no `categories:` and a `/vault/hld/<slug>/` (or
+  `lld`) permalink. The shelf (HLD / LLD) comes from the folder.
+- **Publish:** move it to `_posts/blogs/`, add `categories: blogs`, and change
+  the permalink to `/blogs/<slug>/`.
+- **Change the PIN:** `printf 'vault:%s' NEWPIN | sha256sum`, then paste the
+  hash into `vault_pin_sha256` in `_config.yml`.
+
 ## Images
 
 | Path | Holds |

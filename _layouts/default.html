@@ -27,7 +27,12 @@
 
   <!-- jekyll-seo-tag emits description, og:* and twitter:* itself. Only the
        title is suppressed, because the em-dash form above is the one we want. -->
+  {% if page.vault %}
+  <!-- Vault pages: no share cards (they'd leak titles), noindex, PIN curtain. -->
+  {% include vault-gate.html part="head" %}
+  {% else %}
   {% seo title=false %}
+  {% endif %}
   {% if page.url == '/' %}
   <!-- seo-tag describes the home page as a WebSite. This adds the Person it
        is about, with the profiles from _data/social.yml as sameAs, so search
@@ -55,6 +60,7 @@
   {% endif %}
 </head>
 <body>
+{% if page.vault %}{% include vault-gate.html %}{% endif %}
 
   <!-- Parallax scene: garden (light) / space (dark). Decorative only. -->
   <div class="px" aria-hidden="true">
