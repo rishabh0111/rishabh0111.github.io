@@ -319,10 +319,16 @@
     function rasterize() {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var r = h1.getBoundingClientRect();
-      if (r.width <= 0 || r.height <= 0) return;
+      if (r.width <= 0 || r.height <= 0) return false;
       // The h1 is transparent while the glass is up; lift that for
       // the measurement so its real ink and accent are read.
+      // The h1's colour has a transition, so without switching it off
+      // the read lands at the start of the fade, on `transparent`, and
+      // the name is drawn invisible: it vanished after any resize or
+      // theme change.
       var wasWarp = wrap.classList.contains("is-warp");
+      var inked = [h1].concat(Array.prototype.slice.call(h1.querySelectorAll("*")));
+      inked.forEach(function (el) { el.style.transition = "none"; });
       wrap.classList.remove("is-warp");
       box.padX = r.width * PAD; box.padY = r.height * PAD;
       box.w = r.width + box.padX * 2; box.h = r.height + box.padY * 2;
@@ -370,9 +376,12 @@
         });
       });
       if (wasWarp) wrap.classList.add("is-warp");
+      void h1.offsetWidth;
+      inked.forEach(function (el) { el.style.transition = ""; });
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
       draw();
+      return true;
     }
 
     var pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, active: 0, activeTarget: 0 };
@@ -418,8 +427,15 @@
     // sized and has drawn its first frame. Switching earlier hid the name
     // and showed a blank, default-sized (300x150) canvas for a moment on
     // a fresh load: a black box behind the hero text.
+    // If the GPU drops the context, hand the name back to the h1 rather
+    // than leave a blank canvas over transparent text.
+    canvas.addEventListener("webglcontextlost", function () {
+      stop(); wrap.classList.remove("is-warp");
+    });
+
     var go = function () {
-      rasterize();
+      // No box yet (the h1 not laid out): keep the real h1 showing.
+      if (!rasterize()) return;
       requestAnimationFrame(function () { wrap.classList.add("is-warp"); start(); });
     };
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
