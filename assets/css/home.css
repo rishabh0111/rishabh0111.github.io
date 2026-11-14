@@ -15,3 +15,15 @@
   inset: auto; left: 0; top: 0; margin: 0; padding: 0; border: 0;
   background: transparent; overflow: visible; color: inherit;
 }
+/* Live, Code, Blog, then Details: the ways out on every card */
+.proj-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: var(--s2); }
+.proj-actions .proj-open { margin-top: 0; margin-left: auto; }
+.proj-act {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 8px 14px;
+  border-radius: var(--radius); font-size: 14px; font-weight: 600; text-decoration: none;
+  color: var(--text); background: var(--chip-bg, var(--card-bg));
+  transition: color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+.proj-act .link-ic svg { width: 14px; height: 14px; }
+.proj-act:hover { color: var(--accent); }
+.proj-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

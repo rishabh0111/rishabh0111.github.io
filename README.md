@@ -38,7 +38,7 @@ a front matter key. To change the page, edit the data, not the layout.
 | `profile` | Hero: name, `headline`, `sub`, `status`, portrait. No role title and no employer |
 | `links` | Link pills in the hero and the contact section |
 | `principles` | How I build: four tiles, one story each, `from` names where the story comes from |
-| `projects` | My own projects, one card each (`_includes/proj-card.html`): cover, name, one line, `proof` (the one number a card may show), stack, and a Details button that opens a window (`_includes/proj-dialog.html`). `earlier: true` folds a card into "Earlier side projects" |
+| `projects` | My own projects, one card each (`_includes/proj-card.html`): cover, name, one line, `proof` (the one number a card may show), stack, Live / Code / Blog (the first `external`, `github` and `pen` link), and a Details button that opens a window (`_includes/proj-dialog.html`). `mistake` is the failure the project rules out, shown struck through at the top of its window. `earlier: true` folds a card into "Earlier side projects" |
 | `lenses` | No buttons. Read by `?for=<id>` links only, so links already sent out still light the right work |
 | `skills` | Toolkit logo loops; hovering a row holds it, and "Show as a grid" stops all motion |
 | `writing` | Series links under the Writing section; the three posts above them are the newest, pulled from the blog |

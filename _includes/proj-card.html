@@ -77,8 +77,17 @@
   </ul>
   {% endif %}
 
-  <!-- one way out of every card: the Details window, with the
-       write-up, the numbers and the links. -->
-  <a class="proj-open" href="#{{ f.name | slugify | prepend: 'more-' }}" data-dialog="{{ f.name | slugify | prepend: 'more-' }}" aria-haspopup="dialog">Details<span aria-hidden="true">→</span></a>
+  <!-- the ways out every visitor expects, straight from the card: the
+       live thing, the code and the write-up (the first link of each kind
+       in `links`), then the Details window with everything else. -->
+  {%- assign l_live = f.links | where: "icon", "external" | first -%}
+  {%- assign l_code = f.links | where: "icon", "github" | first -%}
+  {%- assign l_blog = f.links | where: "icon", "pen" | first -%}
+  <div class="proj-actions">
+    {% if l_live %}<a class="proj-act" href="{{ l_live.url }}" target="_blank" rel="noopener" aria-label="{{ f.name }}: live ({{ l_live.label }})"><span class="link-ic" aria-hidden="true">{% include icon.html name="external" %}</span>Live</a>{% endif %}
+    {% if l_code %}<a class="proj-act" href="{{ l_code.url }}" target="_blank" rel="noopener" aria-label="{{ f.name }}: source code on GitHub"><span class="link-ic" aria-hidden="true">{% include icon.html name="github" %}</span>Code</a>{% endif %}
+    {% if l_blog %}<a class="proj-act" href="{% if l_blog.url contains '://' %}{{ l_blog.url }}{% else %}{{ l_blog.url | relative_url }}{% endif %}" aria-label="{{ f.name }}: the write-up"><span class="link-ic" aria-hidden="true">{% include icon.html name="pen" %}</span>Blog</a>{% endif %}
+    <a class="proj-open" href="#{{ f.name | slugify | prepend: 'more-' }}" data-dialog="{{ f.name | slugify | prepend: 'more-' }}" aria-haspopup="dialog">Details<span aria-hidden="true">→</span></a>
+  </div>
 
 </article>
