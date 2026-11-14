@@ -27,3 +27,96 @@
 .proj-act .link-ic svg { width: 14px; height: 14px; }
 .proj-act:hover { color: var(--accent); }
 .proj-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ════════════════════════════════════════════════════════════════
+   SECTION FIXES. Each one names what it fixes; everything else in the
+   original home is left as it was.
+════════════════════════════════════════════════════════════════ */
+
+/* Base: the original ran its body copy at 15px; the theme reads at
+   17-19px everywhere else on the site. */
+.home .project-body, .home .pillar-body, .home .proj-blurb, .hero-sub, .home .xp-tile .proj-blurb { font-size: var(--step-body); }
+
+/* Code inside the Details windows stays in the code face. */
+.home code, .home pre, .home kbd { font-family: var(--f-mono); }
+
+
+/* How I build: the four tiles each opened on the same glass icon
+   chip; the titles already say it, so the chips go. */
+.pillar .tile-ic { display: none; }
+
+
+/* Contact: the e-mail ran a gradient shimmer across its letters; it is
+   now the ink, with a red underline that comes in on hover. */
+.contact-email, .contact-email.shiny {
+  background: none; -webkit-background-clip: border-box; background-clip: border-box;
+  -webkit-text-fill-color: currentColor; color: var(--ink); animation: none;
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .18em;
+  text-decoration-color: transparent; transition: color .2s, text-decoration-color .2s;
+}
+.contact-email:hover, .contact-email.shiny:hover { color: var(--accent); -webkit-text-fill-color: currentColor; text-decoration-color: var(--accent); }
+.contact::after { display: none; }
+
+/* Things that wait for the scroll (the section rail, back to top) fade
+   in; with reduced motion there is no fade, so until they are wanted
+   they are simply not on the page. */
+@media (prefers-reduced-motion: reduce) {
+  .drail:not(.is-ready), .scroll-top:not(.visible) { display: none; }
+}
+
+/* Experience: each employer is a card, and the work done there sat in
+   cards inside it; the inner boxes go, the rows are set apart by space. */
+.xp-tile { background: none; border: 0; padding-inline: 0; }
+
+/* Hero: the profile links were bordered pills with icon chips, a row of
+   little cards; they read as plain links with their icon, and keep the
+   dock's magnify. */
+.hero-links { gap: 4px 22px; }
+.hero-links a { border: 0; padding: 10px 0; border-radius: 0; font-size: var(--step-small); font-weight: 500; color: var(--ink); overflow: visible; }
+.hero-links a::before { display: none; }
+.hero-links a:hover { color: var(--accent); }
+.hero-link-ic svg { width: 15px; height: 15px; }
+
+/* Projects: the pointer spotlight over the grid paints only while it is
+   on, so nothing glows at rest. */
+.grid-spotlight:not(.is-on) { background: none; }
+
+/* Credentials: three equal cards in a row (the row-of-cards habit) become
+   one list, the issuer's mark beside each entry. */
+.cred-cards { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.cred-x { padding: var(--s3) 0; background: none; border: 0; }
+.cred-x-mark { width: 64px; height: 64px; border-radius: 8px; }
+.cred-x-title { font-size: var(--step-lead); }
+
+/* Toolkit and stacks: black brand marks (Express, MCP, Pipecat, JWT,
+   Ollama) vanished on the dark theme; every mark sits on the theme's
+   plate, which is clear in light and pale in dark. */
+.tool img, .chips .tech-ic { background: var(--plate); border-radius: 4px; padding: 1px; }
+
+/* Off-hours: the icons sat in tinted squares, one more row of chips;
+   they are plain icons in the muted ink. */
+.offhours-ic { background: none; border: 0; color: var(--muted); }
+
+/* Credentials: the wide Intel wordmark was cropped by its square plate. */
+.cred-x-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+/* Section headings: below 1200px (where the rail is not shown) each
+   section was named by a 13px red label; it is a real heading at the
+   theme's lead size, with its line beside it in the muted ink. */
+@media (max-width: 1199px) {
+  .ds-heading { font-size: var(--step-lead); font-weight: 600; color: var(--ink); }
+  .ds-heading small { font-size: var(--step-small); font-weight: 400; }
+}
+
+/* Education: the list held 760px of an 1088px column and off-hours sat
+   under it, so the right third stayed empty. From 1000px the credentials
+   and off-hours sit side by side, off-hours as one column that lines up
+   with the first entry; below that they stack as before. */
+@media (min-width: 1000px) {
+  #credentials .ds-val {
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    column-gap: clamp(48px, 6vw, 96px); align-items: start;
+  }
+  #credentials .offhours { margin-top: 0; padding-top: var(--s3); }
+  #credentials .offhours-list { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+}

@@ -557,6 +557,9 @@
     if (reduce || !fine) return;
     var canvas = document.createElement("canvas");
     canvas.className = "click-spark"; canvas.setAttribute("aria-hidden", "true");
+    // Off the page between bursts, so a full-screen layer isn't sitting
+    // over the text (or costing a composite) while nothing is drawn.
+    canvas.style.display = "none";
     document.body.appendChild(canvas);
     var ctx = canvas.getContext("2d");
     var sparks = [], raf = 0;
@@ -578,9 +581,11 @@
         return true;
       });
       raf = sparks.length ? requestAnimationFrame(draw) : 0;
+      if (!raf) canvas.style.display = "none";
     }
     window.addEventListener("click", function (e) {
       var now = performance.now();
+      canvas.style.display = "";
       for (var i = 0; i < COUNT; i++) sparks.push({ x: e.clientX, y: e.clientY, a: (2 * Math.PI * i) / COUNT, t: now });
       if (!raf) raf = requestAnimationFrame(draw);
     });

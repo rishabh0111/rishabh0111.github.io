@@ -17,7 +17,7 @@ layout: default
   <div class="hero-inner">
 
     <div class="hero-text">
-      <p class="hero-hi">Hi <span class="hero-wave" role="img" aria-label="waving hand">👋</span>, I'm</p>
+      <p class="hero-hi">Hi, I'm</p>
 
       <!-- home-fx.js draws the name as glass that bends under the
            pointer (React Bits Warp Text; letters rising in, Split Text,
@@ -240,7 +240,7 @@ layout: default
           {% for sk in page.skills %}
           <div class="ribbon{% cycle 'dir': '', ' ribbon-rev' %}" data-anim="fade" style="--anim-i: {{ forloop.index0 }}">
             <div class="band-inner"><p class="ribbon-label">{{ sk.group }}</p></div>
-            <div class="ribbon-view">
+            <div class="ribbon-view marquee">
               <div class="ribbon-track">
                 {% for pass in (1..2) %}
                 <ul class="ribbon-run" {% if pass == 2 %}aria-hidden="true"{% endif %}>
