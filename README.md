@@ -115,7 +115,7 @@ Markdown is kramdown (GFM input) with Rouge highlighting.
   the body gets an "In this article" table of contents. The `§` before each `##` is
   added by CSS, so don't type it.
 - **Code:** fence it with a language tag. Line numbers are off.
-- **Rules:** `---` renders as a dot separator.
+- **Rules:** `---` renders as a section break: extra space, no line or glyph.
 - **Tables:** keep them narrow. Wide tables scroll inside their own box on phones.
 - **Images and diagrams** open in a zoomable viewer on click, unless they're wrapped in a link.
 - `figure` / `figcaption` are styled.

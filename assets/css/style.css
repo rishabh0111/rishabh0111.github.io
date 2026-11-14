@@ -5007,3 +5007,67 @@ body.has-lens .xp-tile.is-lit { border-color: color-mix(in srgb, var(--accent) 6
 @media (max-width: 1023px) {
   .post-wrap .post-rail:not(.collapsed) .sidebar-card { background: var(--surface); border-radius: var(--radius); }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   PLAIN. The stock "generated" look taken off the original's pieces.
+   Every feature stays and behaves as before; only its dressing goes:
+   frosted glass where nothing sits behind it, heavy and stacked
+   shadows, decorative lines and dot glyphs, pills and chips on
+   everything, tracked small labels, initials drawn as logos, tinted
+   icon chips, and over-rounded corners.
+════════════════════════════════════════════════════════════════ */
+/* Frosted glass with nothing behind it */
+.glass-ic .gi-back, .glass-ic .gi-front { -webkit-backdrop-filter: none; backdrop-filter: none; } /* design-ignore: turns the blur off */
+.site-footer { background: var(--bg-raised); -webkit-backdrop-filter: none; backdrop-filter: none; } /* design-ignore: turns the blur off */
+
+/* Floating controls: a solid fill and one soft shadow, nothing stacked */
+.scroll-top { background: var(--bg-raised); -webkit-backdrop-filter: none; backdrop-filter: none; } /* design-ignore: turns the blur off */
+.scroll-top, .scroll-top.visible, .scroll-top.visible:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, .14); } /* design-ignore: a control that floats over the page */
+.fig-zoom { background: var(--bg-raised); -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: var(--radius); } /* design-ignore: turns the blur off */
+.fig-zoom { box-shadow: none; } /* design-ignore: removes the original's shadow */
+@media (min-width: 861px) {
+  .post-sidebar:not(.collapsed) .rail-toggle,
+  .post-wrap.has-rail > .post-rail:not(.collapsed) .rail-toggle { box-shadow: none; } /* design-ignore: removes the handle's shadow */
+}
+
+/* Decorative lines and glyphs */
+.page-header::after, .page-header.news::after,
+.post-hero::after, .post-hero.news::after { content: none; }
+.page-label::before { content: none; }
+.post-content hr::after { content: none; }
+.footer-palette { display: none; }
+/* With the swatches gone the socials close the footer's right edge */
+@media (min-width: 641px) { .site-footer { grid-template-columns: 1fr auto; } .footer-social { justify-self: end; } }
+/* The post byline already parts its items with icons; the dots between them go (kept as text, drawn clear) */
+.post-meta .sep { color: transparent; }
+
+/* Chips and badges on everything become plain text */
+.chips li, .chips li:hover { background: none; border-color: transparent; padding-left: 0; padding-right: 0; margin-right: 6px; }
+.post-row-tag { background: none; border-color: transparent; padding-left: 0; padding-right: 0; margin-right: 8px; }
+.cat-pill, .cat-pill.blog, .cat-pill.news { background: none; padding-left: 0; padding-right: 0; }
+.proj-plate-lang { background: none; padding-left: 0; padding-right: 0; }
+.tool-textual i { display: none; }
+
+/* Tracked small labels read at normal spacing */
+.post-row-date, .post-row-readtime, .bt-year-label, .listing-search input, .post-meta,
+.post-content figcaption, .post-more-item time, .tool span, .cred-meta { letter-spacing: normal; }
+.site-nav a { letter-spacing: normal; }
+
+/* The section rail: beads are plain icons on the page colour (they
+   still mask the thread); the lit one is outlined, not tinted. Labels
+   keep their opaque ground but lose the pill. */
+@media (min-width: 1200px) {
+  .drail-dot { background: var(--bg); }
+  .drail a.is-active .drail-dot { background: var(--bg); }
+  .drail a > span { border-radius: var(--radius); }
+}
+
+/* Pills and over-rounded corners */
+.tk-grid-toggle, .error-actions a, .listing-tag, .listing-tag-more { border-radius: var(--radius); }
+.error-actions a:hover, .error-actions a:focus-visible { background: none; }
+.theme-btn { background: transparent; border-radius: var(--radius); }
+.proj-open { border-radius: var(--radius); }
+.theme-btn:hover { background: var(--bg-raised); }
+
+/* Pointer spotlight on the "How I build" tiles: a stone light, not a red glow */
+.spot::before { background: radial-gradient(320px circle at var(--mouse-x) var(--mouse-y), color-mix(in srgb, var(--ink) 6%, transparent), transparent 70%); } /* design-ignore: the spotlight under the pointer, on hover only */
