@@ -123,7 +123,7 @@ the good kind of constraint.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/queue.dark.png">
-  <img src="/assets/img/home/projects/nivara/queue.light.png" alt="A ticket queue with filters for state, priority, source and assignee, listing tickets newest first, ending in a load-more control rather than page numbers.">
+  <img src="/assets/img/home/projects/nivara/queue.light.png" alt="A ticket queue listing tickets newest first behind a filters panel, each with the AI's ruling (answered or handed over), who has it and an Assign to me button, under a count of the tickets that need a person and that nobody has claimed.">
 </picture>
 
 ### Idempotency keys, and 400 on unknown parameters

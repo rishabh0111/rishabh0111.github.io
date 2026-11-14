@@ -176,7 +176,7 @@ reconciled.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/ticket.dark.png">
-  <img src="/assets/img/home/projects/nivara/ticket.light.png" alt="An agent's ticket view showing the customer's question, an answer posted by Automation, and controls for state, priority and assignee.">
+  <img src="/assets/img/home/projects/nivara/ticket.light.png" alt="An agent's ticket view of a question the AI handed over: the customer's question, Automation's internal note, a What the AI did panel giving the reason, and controls for state, priority and assignee.">
 </picture>
 
 I've used support tools where the bot conversations live somewhere else and get "escalated" by

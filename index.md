@@ -119,8 +119,10 @@ projects:
     proof:    "Made the right call on 515 of 550 scored tickets."
     roles:    [ai, backend, fullstack, security]
     languages: [Python, TypeScript]
-    # Recorded by Playwright against the live deployment, captions included.
-    video:    { src: /assets/img/home/projects/nivara/walkthrough.mp4, poster: /assets/img/home/projects/nivara/walkthrough.jpg, length: "45 s", title: "Nivara Desk: a question answered, a refund handed over, both as tickets" }
+    # Built from the frames nivara-landing's scripts/capture.ts takes (the same
+    # ones as the README GIF): a local build reading the live API with every
+    # write refused, and the chat box answered from recorded turns.
+    video:    { src: /assets/img/home/projects/nivara/walkthrough.mp4, poster: /assets/img/home/projects/nivara/walkthrough.jpg, length: "24 s", title: "Nivara Desk: the queue, a handed-over ticket, and the chat box answering one question and handing another to a person" }
 
     promise: >-
       The AI answers from its help centre, hands the rest to a person, and
@@ -132,11 +134,14 @@ projects:
       becomes a real ticket in the support queue with a response clock running.
       The AI answers if it is confident; otherwise a person picks it up.
 
+    # Crops of nivara-landing's public/shots (1440x900, 2x), framed so each
+    # panel of the card shows the part that matters. The full frames sit
+    # beside them under the plain names (the blog posts use those).
     shots:
-      - { src: /assets/img/home/projects/nivara/queue.light.png,       src_dark: /assets/img/home/projects/nivara/queue.dark.png,       alt: "Support queue with response clocks",  caption: "The support queue" }
-      - { src: /assets/img/home/projects/nivara/ticket.light.png,      src_dark: /assets/img/home/projects/nivara/ticket.dark.png,      alt: "A ticket showing the AI's answer",    caption: "One ticket, and how the AI answered it" }
-      - { src: /assets/img/home/projects/nivara/widget.host.light.png, src_dark: /assets/img/home/projects/nivara/widget.host.dark.png, alt: "Chat widget on another company's page", caption: "The chat box, on someone else's site" }
-      - { src: /assets/img/home/projects/nivara/analytics.light.png,   src_dark: /assets/img/home/projects/nivara/analytics.dark.png,   alt: "Analytics dashboard",                 caption: "Analytics, behind its own permission" }
+      - { src: /assets/img/home/projects/nivara/queue.card.light.png,     src_dark: /assets/img/home/projects/nivara/queue.card.dark.png,     alt: "Support queue with an AI ruling column: one ticket answered, the rest handed over and waiting for a person", caption: "The queue, with the AI's ruling on each ticket" }
+      - { src: /assets/img/home/projects/nivara/ticket.card.light.png,    src_dark: /assets/img/home/projects/nivara/ticket.card.dark.png,    alt: "A handed-over ticket with a What the AI did panel: Hand over picked, reason model_declined, and nobody assigned yet", caption: "A handed-over ticket, and what the AI did" }
+      - { src: /assets/img/home/projects/nivara/widget.card.light.png,    src_dark: /assets/img/home/projects/nivara/widget.card.dark.png,    alt: "The chat box on a host page answering a question about the contact importer, with an Answer, Ask, Hand over strip showing it answered", caption: "How the chat box ruled" }
+      - { src: /assets/img/home/projects/nivara/analytics.card.light.png, src_dark: /assets/img/home/projects/nivara/analytics.card.dark.png, alt: "Analytics for a chosen window: deflection, the answered, asked and handed-over split, and resolution and SLA breach rates", caption: "Analytics, behind its own permission" }
 
     glance:
       - { k: Guarantee, v: "One company can never see another's data; the database enforces it, not the code" }
