@@ -88,6 +88,24 @@
     wrap.innerHTML = '<i class="tc-ring"></i><i class="tc-dot"></i><i class="tc-c tc-tl"></i><i class="tc-c tc-tr"></i><i class="tc-c tc-br"></i><i class="tc-c tc-bl"></i>';
     document.body.appendChild(wrap);
     document.body.classList.add("has-tc");
+    // A modal <dialog> (the project Details windows) paints in the top layer,
+    // above any z-index, so a ring left in the page would sit behind it and
+    // the visitor would have no pointer at all. The ring goes into the top
+    // layer too, as a manual popover, and is re-raised every time a dialog
+    // opens so it stays the topmost thing. Without the Popover API the native
+    // pointer comes back while a dialog is open instead.
+    var canPop = typeof wrap.showPopover === "function";
+    if (canPop) { wrap.setAttribute("popover", "manual"); try { wrap.showPopover(); } catch (e) { canPop = false; } }
+    function raise() {
+      var modal = !!document.querySelector("dialog[open]");
+      if (canPop) {
+        try { wrap.hidePopover(); wrap.showPopover(); } catch (e) { /* already shown or detached */ }
+      } else {
+        document.body.classList.toggle("has-tc", !modal);
+        wrap.style.display = modal ? "none" : "";
+      }
+    }
+    new MutationObserver(raise).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["open"] });
     var dot = wrap.querySelector(".tc-dot");
     var corners = Array.prototype.slice.call(wrap.querySelectorAll(".tc-c"));
     var SEL = "a, button, summary, .tile, .proj, .tool, .chips li, .drail a";

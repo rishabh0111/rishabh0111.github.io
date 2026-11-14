@@ -1,0 +1,17 @@
+/* =================================================================
+   home.css: the home page only (default.html loads it when the layout
+   is "home"). The original home's own rules live in style.css with the
+   rest of the original stylesheet; this file holds what was added for
+   the home page on top of them: the two working-tree changes and the
+   section fixes, each with its reason.
+================================================================= */
+
+/* ════════════════════════════════════════════════════════════════
+   KEPT FROM THE WORKING TREE
+════════════════════════════════════════════════════════════════ */
+/* The ring is a manual popover so it can sit above modal dialogs (top
+   layer); undo the popover's default box so it stays a 0x0 anchor. */
+.tc[popover] {
+  inset: auto; left: 0; top: 0; margin: 0; padding: 0; border: 0;
+  background: transparent; overflow: visible; color: inherit;
+}
