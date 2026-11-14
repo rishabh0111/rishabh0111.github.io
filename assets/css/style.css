@@ -2979,9 +2979,12 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .hero-name-wrap { position: relative; }
 .hero-name-warp {
   position: absolute; display: block; pointer-events: none;
-  opacity: 0; transition: opacity 0.9s var(--ease-out);
+  opacity: 0; transition: opacity 0.35s var(--ease-out);
 }
 .hero-name-wrap.is-warp .hero-name-warp { opacity: 1; }
+/* The real name and the canvas cross-fade over the same time, so the
+   name never blinks out during the handover. */
+.hero-name, .hero-name em { transition: color 0.35s var(--ease-out); }
 .hero-name-wrap.is-warp .hero-name,
 .hero-name-wrap.is-warp .hero-name em { color: transparent; }
 @media print { .hero-name-warp { display: none; } .hero-name-wrap.is-warp .hero-name { color: inherit; } }

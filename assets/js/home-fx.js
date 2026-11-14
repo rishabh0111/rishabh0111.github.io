@@ -414,8 +414,14 @@
     window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(rasterize, 120); }, { passive: true });
     onThemeChange(function () { setTimeout(rasterize, 60); });
 
-    wrap.classList.add("is-warp");
-    var go = function () { rasterize(); start(); };
+    // Hand over from the real <h1> to the canvas only once the canvas is
+    // sized and has drawn its first frame. Switching earlier hid the name
+    // and showed a blank, default-sized (300x150) canvas for a moment on
+    // a fresh load: a black box behind the hero text.
+    var go = function () {
+      rasterize();
+      requestAnimationFrame(function () { wrap.classList.add("is-warp"); start(); });
+    };
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
     return true;
   }
