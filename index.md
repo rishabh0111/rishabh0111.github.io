@@ -116,42 +116,46 @@ projects:
     mistake:  "The model answers when it should hand over"
     answer:   "Right call on 515 of 550 scored tickets; 0 prompt injections got through."
     year:     "2026"
-    blurb:    A help desk many companies share, where the AI answers only when it should
+    blurb:    A RAG agent with a learned answer gate, a model router with failover, and evals that replay for $0
     why:      >-
-      Two failures every AI support product has to rule out: answering when it
-      shouldn't, and showing one customer's data to another. This one is built
-      so neither can happen.
-    proof:    "Made the right call on 515 of 550 scored tickets."
+      An LLM agent in front of customers can do harm two ways: answering when it
+      should hand over, and letting one tenant's data into another's answer.
+      This one is built, and measured, so neither happens.
+    proof:    "93.6% correct calls on 550 scored tickets, and 0 successful prompt injections."
     roles:    [ai, backend, fullstack, security]
     languages: [Python, TypeScript]
     # Built from the frames nivara-landing's scripts/capture.ts takes (the same
     # ones as the README GIF): a local build reading the live API with every
     # write refused, and the chat box answered from recorded turns.
-    video:    { src: /assets/img/home/projects/nivara/walkthrough.mp4, poster: /assets/img/home/projects/nivara/walkthrough.jpg, length: "24 s", title: "Nivara Desk: the queue, a handed-over ticket, and the chat box answering one question and handing another to a person" }
+    video:    { src: /assets/img/home/projects/nivara/walkthrough.mp4, poster: /assets/img/home/projects/nivara/walkthrough.jpg, length: "24 s", title: "Nivara Desk: the agent answering one question, handing another to a person, and both landing on the queue as tickets" }
 
     promise: >-
-      The AI answers from its help centre, hands the rest to a person, and
-      every published number is regenerated from committed data by a script a
-      test re-runs.
+      Text the model writes on its own has no path to a customer: the only way
+      out is a tool call carrying retrieved content. Every published metric
+      re-runs from a clean clone for $0, with no API key.
 
     body: >-
-      Someone asks a question from a chat box on their supplier's website. It
-      becomes a real ticket in the support queue with a response clock running.
-      The AI answers if it is confident; otherwise a person picks it up.
+      Hybrid dense + BM25 retrieval on Qdrant, a learned gate that picks answer,
+      clarify or escalate, a Groq → Gemini → human failover chain, MCP tools and
+      Langfuse traces, with evals recorded once and replayed in CI. It runs
+      inside a working multi-tenant helpdesk, so every escalation lands on a
+      real queue for a person.
 
     # Crops of nivara-landing's public/shots (1440x900, 2x), framed so each
     # panel of the card shows the part that matters. The full frames sit
     # beside them under the plain names (the blog posts use those).
+    # Led by the agent's own ruling, not the chat box: the first frame a
+    # visitor sees is the gate deciding, then the queue and the numbers.
     shots:
-      - { src: /assets/img/home/projects/nivara/queue.card.light.png,     src_dark: /assets/img/home/projects/nivara/queue.card.dark.png,     alt: "Support queue with an AI ruling column: one ticket answered, the rest handed over and waiting for a person", caption: "The queue, with the AI's ruling on each ticket" }
-      - { src: /assets/img/home/projects/nivara/ticket.card.light.png,    src_dark: /assets/img/home/projects/nivara/ticket.card.dark.png,    alt: "A handed-over ticket with a What the AI did panel: Hand over picked, reason model_declined, and nobody assigned yet", caption: "A handed-over ticket, and what the AI did" }
-      - { src: /assets/img/home/projects/nivara/widget.card.light.png,    src_dark: /assets/img/home/projects/nivara/widget.card.dark.png,    alt: "The chat box on a host page answering a question about the contact importer, with an Answer, Ask, Hand over strip showing it answered", caption: "How the chat box ruled" }
-      - { src: /assets/img/home/projects/nivara/analytics.card.light.png, src_dark: /assets/img/home/projects/nivara/analytics.card.dark.png, alt: "Analytics for a chosen window: deflection, the answered, asked and handed-over split, and resolution and SLA breach rates", caption: "Analytics, behind its own permission" }
+      - { src: /assets/img/home/projects/nivara/ticket.card.light.png,    src_dark: /assets/img/home/projects/nivara/ticket.card.dark.png,    alt: "A handed-over ticket with a What the AI did panel: Hand over picked, reason model_declined, and nobody assigned yet", caption: "The gate's ruling on one ticket" }
+      - { src: /assets/img/home/projects/nivara/queue.card.light.png,     src_dark: /assets/img/home/projects/nivara/queue.card.dark.png,     alt: "Support queue with an AI ruling column: one ticket answered, the rest handed over and waiting for a person", caption: "Every ticket, with the agent's ruling" }
+      - { src: /assets/img/home/projects/nivara/analytics.card.light.png, src_dark: /assets/img/home/projects/nivara/analytics.card.dark.png, alt: "Analytics for a chosen window: deflection, the answered, asked and handed-over split, and resolution and SLA breach rates", caption: "Answered, asked, handed over: measured" }
+      - { src: /assets/img/home/projects/nivara/widget.card.light.png,    src_dark: /assets/img/home/projects/nivara/widget.card.dark.png,    alt: "The embeddable widget on a host page answering a question about the contact importer, with an Answer, Ask, Hand over strip showing it answered", caption: "The same gate, in the embeddable widget" }
 
     glance:
-      - { k: Guarantee, v: "One company can never see another's data; the database enforces it, not the code" }
-      - { k: Built with, v: "Postgres row-level security · a trained answer gate · replayable tests" }
-      - { k: Size,      v: "4 apps · 3 services · 18 permissions · 550 labelled test questions" }
+      - { k: Guarantee, v: "Model text never reaches a customer on its own; only a tool call carrying retrieved content does" }
+      - { k: Built with, v: "Hybrid RAG on Qdrant · learned answer gate · model router with failover · MCP · Langfuse" }
+      - { k: Evals,     v: "550 labelled questions · record-and-replay harness in CI · LLM judge checked against 100 hand labels" }
       - { k: Runs on,   v: "Free hosting, and `docker compose up` with no API keys" }
 
     parts:
@@ -214,69 +218,15 @@ projects:
             portal, the analytics view, and a chat box that drops into any
             website **under 60 KB** without picking up that site's styling.
 
-    stack: [Python, FastAPI, Qdrant, TypeScript, NestJS, Next.js, PostgreSQL]
+    stack: [Python, FastAPI, RAG, Qdrant, MCP, Langfuse, NestJS, PostgreSQL]
     links:
       # `?demo` opens the dashboard already signed in as the seeded admin.
       - { label: "Try it, signed in", icon: external, url: "https://nivara-web-nextjs.vercel.app/dashboard?demo" }
-      - { label: Chat box, icon: external, url: "https://rishabh0111.github.io/nivara-web-nextjs/" }
+      - { label: Widget, icon: external, url: "https://rishabh0111.github.io/nivara-web-nextjs/" }
       - { label: Product,  icon: external, url: "https://nivara-desk.vercel.app" }
       - { label: API reference, icon: external, url: "https://nivara-api-nestjs.onrender.com/docs" }
       - { label: Source,   icon: github,   url: "https://github.com/rishabh0111?tab=repositories&q=nivara" }
       - { label: Write-up, icon: pen,      url: "/blogs/postgres-rls-multitenancy/" }
-
-  - name:     Nostro
-    # The failure this project rules out (struck through at the top of its
-    # Details window) and the line that answers it. Both restate `why`,
-    # `promise` or `proof`.
-    mistake:  "A ledger entry that doesn't balance gets recorded"
-    answer:   "Postgres refuses it at commit, and 211 tests prove it on every push."
-    year:     "2026"
-    blurb:    A ledger for many companies where the database refuses any entry that would lose money
-    why:      >-
-      A payments company has to show its books balance to the cent. Here the
-      database rejects any entry that would break that, instead of a nightly
-      check finding it later.
-    roles:    [backend]
-    languages: [Java]
-
-    promise: >-
-      An entry that doesn't balance, arrives twice, or touches another
-      company's money cannot be recorded. The database refuses it.
-
-    body: >-
-      A double-entry ledger API for many tenants on one deployment, split into
-      three Spring Boot services. Every guarantee in the README names the test
-      that proves it, and CI ticks that table on every push.
-
-    # The README's architecture SVG, rasterized at 2× and set on a 16:9
-    # ground so the single-panel card shows all of it.
-    shots:
-      - { src: /assets/img/home/projects/nostro/architecture.light.png, src_dark: /assets/img/home/projects/nostro/architecture.dark.png, alt: "Nostro architecture: the API service records an Entry, its Postings and an outbox row in one Postgres transaction; a single-writer relay publishes Entries to Kafka keyed by Tenant; a projection applies each Entry once into its own Postgres of Balances, which the API reads over gRPC", caption: "The path of one Entry" }
-
-    glance:
-      - { k: Guarantee, v: "Every entry sums to zero, is recorded once, and stays inside its own tenant" }
-      - { k: Built with, v: "Transactional outbox · Kafka relay · gRPC read model · Postgres row-level security" }
-      - { k: Size,      v: "3 services · 211 tests · 16 decision records" }
-      - { k: Runs on,   v: "`docker compose up`, which seeds two tenants and prints their keys" }
-
-    points:
-      - >-
-        **211 tests (127 against real Postgres, Kafka and Redis)** prove the
-        guarantees in a **3-minute** CI run: 40 writers on one account,
-        opposite-order writers, concurrent duplicates, and killing the relay's
-        leader mid-stream.
-      - >-
-        Load-tested a hot account: **half the throughput and 2.3× the p99** on
-        one account versus 64, with **zero database errors** either way. Every
-        refusal was the balance floor, answered as a clean 422.
-      - >-
-        Failure cases are **sealed types**, so a failure nobody handled is a
-        compile error, not a 500 in production.
-
-    stack: [Java, Spring Boot, Kafka, gRPC, PostgreSQL, Testcontainers]
-    links:
-      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/nostro-ledger" }
-      - { label: Write-up, icon: pen,    url: "/blogs/multitenant-double-entry-ledger/" }
 
   - name:     Webhook Delivery Engine
     # The failure this project rules out (struck through at the top of its
@@ -285,12 +235,12 @@ projects:
     mistake:  "An accepted event is lost when the queue dies"
     answer:   "0 of 50,000 lost through a Redis wipe mid-load, and 0 sent twice."
     year:     "2026"
-    blurb:    Delivers every webhook, or records why it couldn't. None quietly vanish
+    blurb:    At-least-once webhook delivery in Node.js on a Postgres outbox, BullMQ retries and a replayable dead-letter queue
     why:      >-
-      Payment providers and SaaS tools tell other systems what happened through
-      webhooks, and a lost one is a missed payment or order. This engine
-      delivers each one or records why it couldn't.
-    proof:    "Wiping its Redis mid-test now loses none of 50,000 events."
+      Once an API returns 202, the caller stops watching. If the queue then
+      loses the event, nobody finds out. Here Postgres is the source of truth
+      and Redis only schedules, so losing Redis loses nothing.
+    proof:    "0 of 50,000 events lost through a Redis wipe, and 5,000 a minute at a 47 ms p95."
     roles:    [backend]
     languages: [Node.js]
     video:    { src: /assets/img/home/projects/webhook/tour.mp4, poster: /assets/img/home/projects/webhook/tour.jpg, length: "22 s", title: "Webhook Delivery Engine: three events on one timeline, one delivered, one retried then delivered, one dead after five attempts" }
@@ -300,8 +250,10 @@ projects:
       failed, and every attempt in between is written down.
 
     body: >-
-      There is no fourth outcome where an event quietly disappears. That is the
-      whole point, and the hardest part to keep true.
+      A transactional outbox, exponential backoff over 5 attempts, a dead-letter
+      queue with one-click replay, idempotency keys at ingest, and HMAC-SHA256
+      signatures, Stripe-style. A reconciler rebuilds the queue from Postgres
+      whenever Redis is lost.
 
     # Taken from the dashboard run locally at 1440×900, 2×, after the tour
     # settles, in the app's own light and dark themes. The video is the
@@ -311,8 +263,9 @@ projects:
       - { src: /assets/img/home/projects/webhook/paths.light.png,     src_dark: /assets/img/home/projects/webhook/paths.dark.png,     alt: "Run one path: recipes from a signed happy path to a receiver timing out, retries running out and a dead event replayed, each drawn the way its row will look", caption: "Run one path" }
 
     glance:
-      - { k: Guarantee, v: "Accepted once · delivered at least once · never silently lost" }
-      - { k: Built with, v: "Outbox pattern · dead-letter queue with replay · signed requests" }
+      - { k: Guarantee, v: "Idempotent ingest · at-least-once delivery · never silently lost" }
+      - { k: Built with, v: "Node.js · Express · BullMQ on Redis · PostgreSQL outbox · HMAC-signed requests" }
+      - { k: Measured,  v: "0 of 50,000 lost through a Redis wipe · 5,000/min for 15 min at p95 47 ms · 10,000 duplicates, 10,000 deliveries" }
       - { k: Runs on,   v: "$0 of hosting" }
 
     points:
@@ -331,7 +284,7 @@ projects:
         flat backlog, and turned **10,000 events sent twice** into exactly
         10,000 deliveries. Every delivery is signed, Stripe-style.
 
-    stack: [Express.js, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
+    stack: [Node.js, Express.js, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
     links:
       - { label: Live demo, icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/dashboard" }
       - { label: API reference, icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/docs" }
@@ -345,10 +298,12 @@ projects:
     mistake:  "An alert that can never fire"
     answer:   "13 alerts proven by 5 chaos experiments; 2 dead ones found and fixed."
     year:     "2026"
-    blurb:    A small app run like production, then broken on purpose on real AWS
+    blurb:    Terraform, Kubernetes on AWS EKS, ArgoCD GitOps and Prometheus alerting, broken on purpose on real AWS
     why:      >-
-      An alert nobody has seen fire may stay silent in the outage it was
-      written for. Every alert here was made to fire on purpose.
+      Most platform demos stop at a green deploy. This one ran on real AWS and
+      was broken on purpose, because an alert nobody has seen fire may stay
+      silent in the outage it was written for.
+    proof:    "12 hours on EKS against real DynamoDB for $3.32, and 13 defects found that no local run or CI could show."
     roles:    [platform]
     languages: [Go]
 
@@ -356,9 +311,10 @@ projects:
       Every alert has been seen to fire, because I made each failure happen.
 
     body: >-
-      A URL shortener with click analytics, where the product is small on
-      purpose and the work is operating it: Terraform, Kubernetes, GitOps,
-      monitoring, and chaos tests, on $0 plus one budgeted window on AWS.
+      4 Terraform environments with apply, empty re-plan and destroy on every
+      push; an ArgoCD app-of-apps over Kustomize overlays; Prometheus,
+      Alertmanager, Grafana and Loki; a 9-job CI pipeline with a Trivy gate.
+      The workload is a small Go URL shortener on purpose: the work is running it.
 
     # The dashboard is the Go service's static page served with a mock API
     # (sample clicks, not real traffic); the diagram is the README's
@@ -387,10 +343,66 @@ projects:
         in 7,202 requests** and a **7 ms p99**, because clicks are written in the
         background and the redirect never waits for them.
 
-    stack: [Go, Terraform, Kubernetes, AWS EKS, ArgoCD, Prometheus, Grafana]
+    stack: [Terraform, Kubernetes, AWS EKS, ArgoCD, Prometheus, Grafana, Go]
     links:
       - { label: Source,   icon: github, url: "https://github.com/rishabh0111/linkpulse" }
       - { label: Write-up, icon: pen,    url: "/blogs/production-grade-devops-platform/" }
+
+  - name:     Nostro
+    # The failure this project rules out (struck through at the top of its
+    # Details window) and the line that answers it. Both restate `why`,
+    # `promise` or `proof`.
+    mistake:  "A ledger entry that doesn't balance gets recorded"
+    answer:   "Postgres refuses it at commit, and 211 tests prove it on every push."
+    year:     "2026"
+    blurb:    Java 21 and Spring Boot microservices over Kafka and gRPC, a multi-tenant ledger where money can't go missing
+    why:      >-
+      A ledger that finds an error in a nightly check has already reported a
+      wrong number. Here an unbalanced, duplicated or cross-tenant entry can't
+      be recorded at all.
+    proof:    "211 tests on every push, and zero database errors under a contended load test."
+    roles:    [backend]
+    languages: [Java]
+
+    promise: >-
+      An entry that doesn't balance, arrives twice, or touches another
+      company's money cannot be recorded. The database refuses it.
+
+    body: >-
+      3 Spring Boot services: a write API with a transactional outbox, a Kafka
+      relay kept single-writer by leader election, and a gRPC read model with
+      read-your-writes position tokens. Failure cases are sealed types, and
+      every guarantee in the README names the test that proves it.
+
+    # The README's architecture SVG, rasterized at 2× and set on a 16:9
+    # ground so the single-panel card shows all of it.
+    shots:
+      - { src: /assets/img/home/projects/nostro/architecture.light.png, src_dark: /assets/img/home/projects/nostro/architecture.dark.png, alt: "Nostro architecture: the API service records an Entry, its Postings and an outbox row in one Postgres transaction; a single-writer relay publishes Entries to Kafka keyed by Tenant; a projection applies each Entry once into its own Postgres of Balances, which the API reads over gRPC", caption: "The path of one Entry" }
+
+    glance:
+      - { k: Guarantee, v: "Every entry sums to zero, is recorded once, and stays inside its own tenant" }
+      - { k: Built with, v: "Java 21 · Spring Boot · Kafka · gRPC · Testcontainers · Postgres row-level security" }
+      - { k: Size,      v: "3 services · 211 tests · 16 decision records" }
+      - { k: Runs on,   v: "`docker compose up`, which seeds two tenants and prints their keys" }
+
+    points:
+      - >-
+        **211 tests (127 against real Postgres, Kafka and Redis)** prove the
+        guarantees in a **3-minute** CI run: 40 writers on one account,
+        opposite-order writers, concurrent duplicates, and killing the relay's
+        leader mid-stream.
+      - >-
+        Load-tested a hot account: **half the throughput and 2.3× the p99** on
+        one account versus 64, with **zero database errors** either way. Every
+        refusal was the balance floor, answered as a clean 422.
+      - >-
+        Failure cases are **sealed types**, so a failure nobody handled is a
+        compile error, not a 500 in production.
+
+    stack: [Java, Spring Boot, Kafka, gRPC, PostgreSQL, Testcontainers]
+    links:
+      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/nostro-ledger" }
+      - { label: Write-up, icon: pen,    url: "/blogs/multitenant-double-entry-ledger/" }
 
   - name:     MoviesWave
     earlier:  true
