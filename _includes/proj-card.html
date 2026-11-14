@@ -1,0 +1,84 @@
+{%- comment -%}
+  One work card, the same shape everywhere: the cover, the name and
+  year, one line, the one number (`proof`), the stack, and a single
+  "Details" link that opens its window (_includes/proj-dialog.html).
+  Projects:          {% include proj-card.html f=f %}
+  Experience tiles:  {% include proj-card.html f=v tile=true %}
+                     (no cover; smaller, inside the company's card)
+
+  data-roles  read by ?for= links (the old Focus lenses)
+  the id      read by the toolkit (a tool lists the work that used it)
+{%- endcomment -%}
+{%- assign f = include.f -%}
+{%- assign marks = site.data.tech_logos.icons -%}
+<article class="{% if include.tile %}xp-tile proj{% else %}tile proj glow{% endif %}" id="{{ f.name | slugify }}" data-roles="{{ f.roles | join: ' ' }}"{% unless include.tile %} data-anim="up"{% endunless %}>
+
+  <!-- the cover: the screenshots as an accordion (React Bits Accordion
+       Gallery). No shots: a plate with the first stack mark that fills
+       with pixels on hover (Pixel Card), so every card has the same
+       silhouette. -->
+  {% if include.tile %}
+  {% elsif f.shots %}
+  <div class="proj-shots">
+    <div class="proj-carousel ag" role="group" aria-label="{{ f.name }} screenshots">
+      {% for s in f.shots %}
+      <figure class="shot">
+        <img{% if s.src_dark %} class="shot-light"{% endif %}
+             src="{{ s.src | relative_url }}" alt="{{ s.alt }}" loading="lazy">
+        {% if s.src_dark %}
+        <img class="shot-dark" src="{{ s.src_dark | relative_url }}"
+             alt="{{ s.alt }}" loading="lazy">
+        {% endif %}
+        <figcaption>{{ s.caption }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  {% assign pm = nil %}
+  {% if f.stack %}{% assign pm = marks[f.stack.first] %}{% endif %}
+  <div class="proj-shots proj-plate" aria-hidden="true">
+    {% if pm %}
+    <img class="proj-plate-mark" src="{{ pm.file | relative_url }}" alt="" loading="lazy">
+    {% else %}
+    <span class="proj-plate-initial">{{ f.name | slice: 0 }}</span>
+    {% endif %}
+    {% if f.languages %}<span class="proj-plate-lang">{{ f.languages | join: ' · ' }}</span>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- name, where it was built, when -->
+  <div class="ds-fhead">
+    <h4>{{ f.name }}</h4>
+    {% if f.year %}<span class="xp-when">{{ f.year }}</span>{% endif %}
+  </div>
+  {% if f.blurb %}<p class="proj-blurb">{{ f.blurb }}</p>{% endif %}
+  {% if f.proof %}<p class="proj-proof">{{ f.proof }}</p>{% endif %}
+  {% if f.highlights %}
+  <ul class="proj-hl">
+    {% for h in f.highlights %}<li>{{ h }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  <!-- what it is made of. A project with `parts` and no top-level
+       `stack` shows its pieces instead. -->
+  {% if f.stack %}
+  <ul class="chips" aria-label="Stack">
+    {% for s in f.stack %}
+    {% assign mk = marks[s] %}
+    <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+    {% endfor %}
+  </ul>
+  {% elsif f.parts %}
+  <ul class="chips" aria-label="Pieces">
+    {% for c in f.parts %}
+    <li>{{ c.label }}<span class="chip-sub">{{ c.lang }}</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <!-- one way out of every card: the Details window, with the
+       write-up, the numbers and the links. -->
+  <a class="proj-open" href="#{{ f.name | slugify | prepend: 'more-' }}" data-dialog="{{ f.name | slugify | prepend: 'more-' }}" aria-haspopup="dialog">Details<span aria-hidden="true">→</span></a>
+
+</article>

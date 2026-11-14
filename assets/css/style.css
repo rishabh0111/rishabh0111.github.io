@@ -854,10 +854,11 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      .sidebar-card rules it has to override. */
 }
 
-/* Wordmark: mono, uppercase, with slash in lacquer.
-   Tracking is 0.16em rather than 0.2em: the name runs 14 characters against
-   the 5 of the placeholder wordmark this replaced, and the wider tracking
-   left too little room beside the theme toggle on a 320px screen. */
+/* Wordmark: the mark (yin and yang, the same as the favicon), then
+   the name in mono uppercase. The mark is inlined as an outline in the
+   header text colour, one half solid and one open, so it keeps full
+   contrast on both themes. Tracking is 0.16em so the name still fits beside the theme
+   toggle on a 320px screen. */
 .site-logo {
   font-family: var(--f-mono);
   font-size: 11px;
@@ -866,30 +867,9 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   color: var(--header-text);
   text-decoration: none;
   white-space: nowrap;
-  display: flex; align-items: baseline; gap: 0;
+  display: flex; align-items: center; gap: 10px;
 }
-.site-logo span {
-  color: var(--accent);
-  /* The slash leans; gives the wordmark life */
-  display: inline-block;
-  transform: rotate(10deg);
-  margin-left: 1px;
-  /* Eat the trailing letter-spacing after the slash so the cursor can
-     sit right under it, the way it does in the favicon. */
-  margin-right: -0.16em;
-  font-style: normal;
-}
-/* Terminal cursor block after the slash: the same mark as the favicon
-   ("RISHABH SHARMA/" + a prompt cursor). Static, like the favicon: the
-   block tucks up close under the slash, not spaced off it. */
-.logo-cur {
-  display: inline-block;
-  width: 0.5em;
-  height: 0.16em;
-  margin-left: 1px;
-  border-radius: 1px;
-  background: var(--accent);
-}
+.logo-mark { width: 18px; height: 18px; flex-shrink: 0; display: block; }
 
 /* Nav: generous gap, no box, just text. On the flat header bar the
    active tab is marked by an accent line along the bar's bottom edge
@@ -2582,16 +2562,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* A tile's own hover lift must not fight the entrance. */
 .anim.in.glow:hover { transform: translateY(-2px); }
 
-/* The lede, word by word (after React Bits ScrollReveal): --p is
-   the paragraph's progress up the viewport, --w each word's place
-   in it. A word is faint and soft until the progress passes it. */
-.ds-lede.is-split .w {
-  display: inline-block;
-  opacity: calc(0.18 + 0.82 * clamp(0, (var(--p, 1) - var(--w) * 0.85) * 6, 1));
-  filter: blur(calc((1 - clamp(0, (var(--p, 1) - var(--w) * 0.85) * 6, 1)) * 3px));
-  transition: opacity 0.12s linear, filter 0.12s linear;
-}
-
 /* A sheen that slides across the address every few seconds (after
    React Bits ShinyText): the text is filled with a gradient that is
    mostly its own colour, with one bright band moving through it. */
@@ -2653,7 +2623,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 /* Greeting between the eyebrow and the name, leading into it ("Hi 👋,
    I'm" → Rishabh Sharma). Small, in the display face; the hand waves on
    a loop with a long rest between waves. */
-.hero-text .page-label { margin-bottom: var(--s2); }
 .hero-hi {
   margin: 0 0 10px;
   font-family: var(--f-display);
@@ -2824,8 +2793,8 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
    A short stagger down the column on load. Each child declares its
    own delay so the order is readable here rather than in JS. */
 .hero-inner .hero-rise {
-  opacity: 0; transform: translateY(16px);
-  animation: hero-rise 0.7s var(--ease-out) forwards;
+  opacity: 0; transform: translateY(10px);
+  animation: hero-rise 0.45s var(--ease-out) forwards;
   animation-delay: var(--rise-d, 0s);
 }
 @keyframes hero-rise { to { opacity: 1; transform: none; } }
@@ -3003,30 +2972,6 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 }
 
 
-/* ── Metrics: four stat tiles in the first band ────────────────
-   The same tile every other section is cut from (shadcn's dashboard
-   section-cards: label, then the figure), so the numbers belong to
-   the page rather than sitting on it in their own colour. */
-.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
-.metric { padding: var(--s3); }
-.metric-label {
-  display: block; margin-top: var(--s2);
-  font-family: var(--f-mono); font-size: 9px;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--text-3); line-height: 1.6;
-}
-.metric-figure {
-  display: block;
-  font-family: var(--f-display);
-  font-size: clamp(2rem, 3.6vw, 2.8rem);
-  font-weight: var(--w-display-xl); line-height: 1;
-  color: var(--text); letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-#metrics { padding-top: var(--s6); padding-bottom: var(--s6); }
-@media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); } }
-
-
 /* ── Warp Text: the name as glass (after React Bits WarpText) ────
    home-fx.js draws the name into a canvas laid over the h1, grown by
    a margin so bent glyphs have room, and the h1 goes transparent
@@ -3151,26 +3096,6 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .tc-br { border-left: none; border-top: none; }
 .tc-bl { border-right: none; border-top: none; }
 
-/* ── Counter: rolling digits for the metrics ─────────────────────*/
-.metric-figure.odo { display: inline-flex; align-items: flex-start; line-height: 1.12; }
-.odo-col {
-  display: inline-block; position: relative; overflow: hidden;
-  width: 0.6em; height: 1.12em;
-}
-.odo-strip {
-  position: absolute; left: 0; top: 0; width: 100%;
-  display: flex; flex-direction: column;
-  transform: translateY(0);
-  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.odo-strip i { display: grid; place-items: center; height: 1.12em; line-height: 1; font-style: normal; overflow: hidden; }
-.odo-sep { display: inline-block; height: 1.12em; line-height: 1.12; }
-
-/* ── Text Type: the now line ─────────────────────────────────────*/
-.tt-cursor { display: inline-block; margin-left: 2px; color: var(--accent); animation: tt-blink 0.9s steps(2, start) infinite; }
-.tt-cursor.is-done { animation: none; opacity: 0; transition: opacity 0.6s; }
-@keyframes tt-blink { to { visibility: hidden; } }
-
 /* ── Accordion Gallery: project covers ───────────────────────────
    Panels share the cover's width; the active one takes most of it.
    Inactive panels are greyed and dimmed; the caption rides on the
@@ -3218,7 +3143,6 @@ body.has-tc, body.has-tc * { cursor: none !important; }
 .proj-plate .proj-plate-lang { position: absolute; }
 
 /* ── Dot Grid: the projects band ─────────────────────────────────*/
-#projects > .dot-grid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
 /* ── Magnet Lines: behind the closing plane ──────────────────────*/
 .contact { position: relative; }
@@ -3700,12 +3624,6 @@ details.more > summary:hover,
 @media (max-width: 700px) {
   .band { padding: var(--s8) 0; }
   .band-inner { padding: 0 var(--s3); }
-  .metrics { grid-template-columns: 1fr 1fr; gap: var(--s2); }
-  /* Figure on top, label under it: tiles in a row share a height and
-     the figures sit on the same line however the labels wrap. */
-  .metric { display: flex; flex-direction: column; justify-content: flex-start;
-            gap: var(--s2); padding: var(--s3) var(--s2) var(--s2); }
-  .metric-label { margin-top: 0; }
   .carousel-track > .project { flex-basis: 84%; min-height: 0; }
 
   /* The timeline folds to a single column: the period becomes a
@@ -3728,7 +3646,6 @@ details.more > summary:hover,
   .status-dot { animation: none; }
   .anim { opacity: 1; transform: none; transition: none; }
   .hero-name.is-split .st-ch, .hero-hi.is-blur .bt-w { animation: none; }
-  .ds-lede.is-split .w { opacity: 1; filter: none; }
   .contact-email.shiny { animation: none; }
   /* The ring still tracks progress; it just stops easing there */
   .scroll-top { transition: opacity 0.2s linear, visibility 0s linear; transform: none; }
@@ -3751,7 +3668,6 @@ details.more > summary:hover,
     padding: 0;
   }
   .card { border-bottom: 1px solid #ddd !important; padding-bottom: var(--s2); }
-  .metric-figure, .metric-label { color: #000 !important; }
   .drail, .hero-portrait, .hero-links { display: none; }
   .hero-inner .hero-rise { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
@@ -4553,7 +4469,14 @@ details.more > summary:hover,
   font-family: var(--f-serif); font-size: 12.5px; letter-spacing: 0;
   text-transform: none; color: var(--text-3); margin-left: var(--s1);
 }
-@media (min-width: 1200px) { .ds-heading { display: none; } }
+/* From 1200px the rail names the section, so the heading is hidden
+   from sight but kept for screen readers and the document outline. */
+@media (min-width: 1200px) {
+  .ds-heading {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+}
 
 .ds-val { min-width: 0; }
 .proj-blurb {
@@ -4714,7 +4637,7 @@ details.more > summary:hover,
 }
 .proj .proj-dots { margin-top: var(--s2); }
 .proj .ds-fhead { margin-top: var(--s3); }
-.proj .ds-fhead h2 { font-size: 1.45rem; }
+.proj .ds-fhead h4 { margin: 0; font-family: var(--f-display); font-weight: var(--w-display); color: var(--text); font-size: 1.35rem; line-height: 1.15; }
 .proj .proj-blurb { margin-bottom: 0; }
 .proj > .chips { margin-top: var(--s3); }
 .proj > .project-links { margin-top: var(--s2); }
@@ -4723,41 +4646,7 @@ details.more > summary:hover,
 /* Four show; the rest are hidden while the grid is collapsed and
    rise in when the button opens it. Without JS the class is never
    set, so every card shows. */
-.proj-grid.is-collapsed > .proj:nth-child(n + 5) { display: none; }
-.proj-grid-more { margin-top: var(--s4); }
-.proj-grid-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0; border: none; background: none; cursor: pointer;
-  font: inherit;
-}
-.proj-grid-btn[aria-expanded="true"] span { transform: rotate(90deg); }
 
-/* ── "Focus": a row of buttons above the grid ──────
-   A lit lens raises the cards tagged with it and fades the rest,
-   without hiding any: a recruiter can still see everything else. */
-.proj-lens {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  margin: 0 0 var(--s2);
-}
-.proj-lens-label {
-  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.13em;
-  text-transform: uppercase; color: var(--text-3); margin-right: 4px;
-}
-.proj-lens-btn {
-  padding: 6px 12px; border-radius: 999px;
-  border: 1px solid var(--border); background: var(--bg-raised);
-  color: var(--text-2); font-size: 0.9rem; text-decoration: none;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-.proj-lens-btn:hover { border-color: var(--accent); color: var(--text); }
-.proj-lens-btn[aria-pressed="true"] {
-  border-color: var(--accent); color: var(--text);
-  background: color-mix(in srgb, var(--accent) 16%, var(--bg-raised));
-}
-.proj-lens-note { margin: 0 0 var(--s3); color: var(--text-2); }
-.proj { transition: opacity 0.25s, border-color 0.25s; }
-.proj-grid.has-lens > .proj.is-dim { opacity: 0.45; }
-.proj-grid.has-lens > .proj.is-lit { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 .proj .proj-why { margin: 0.5rem 0 0; color: var(--text-2); font-size: 0.95rem; }
 
 /* "Watch it work": the one link a reader can follow without doing
@@ -4807,7 +4696,6 @@ details.more > summary:hover,
    The tiles carry the pillars' marks (spark, shield, server), so
    the three claims register before they are read. Below 900px they
    stack one per row (see the responsive block). */
-#about .ds-prose { max-width: 40rem; }
 .pillar-grid {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--s3); margin-top: var(--s4);
@@ -4828,21 +4716,6 @@ details.more > summary:hover,
 .ds-prose p:last-child { margin-bottom: 0; }
 .ds-prose em { color: var(--text-3); }
 
-/* The positioning line (from the hero) opens the essay as its first
-   paragraph: one passage, not a separate standfirst. Ink rather than
-   the body grey, so it still leads. */
-#about .ds-lede { color: var(--text); }
-#about .ds-lede strong { font-weight: 700; color: var(--accent); }
-
-/* The "now" line, also from the hero: a mono footnote under the essay. */
-#about .ds-now {
-  display: flex; align-items: center;
-  margin: var(--s3) 0 0;
-  font-family: var(--f-mono); font-size: 10.5px;
-  letter-spacing: 0.04em; line-height: 1.5;
-  color: var(--text-3);
-}
-#about .ds-now .status-dot { margin-right: 9px; }
 /* The essay, folded under the tiles. */
 .about-more { margin-top: var(--s3); }
 .about-more[open] > summary { margin-bottom: var(--s2); }
@@ -5036,3 +4909,372 @@ figure.sketch svg { display: block; width: 100%; height: auto; margin: 0 auto; o
 .dsa-problems .diff-hard   { color: var(--sk-red);   background: var(--sk-red-fill);   border-color: var(--sk-red); }
 .dsa-problems td.dsa-coach { white-space: nowrap; font-family: var(--f-mono); font-size: 12px; }
 /* ── /SKETCHES ── */
+
+
+/* ════════════════════════════════════════════════════════════════
+   HOME, NOV 2026: a builder's page, not a resume
+   The hero says how he works, not what title he holds; the work is
+   grouped by the problem it solves; the toolkit points at the work.
+   Everything here reuses the page's tokens and tiles.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Hero: the headline and its line under the name ───────────── */
+/* The name stays the h1 and keeps its size; the headline is a second,
+   smaller display line. Both lines below it carry a max-width, so they
+   never widen the text column (it is sized to the name) and never push
+   the portrait aside. */
+.hero-line {
+  margin: var(--s3) 0 0;
+  max-width: 22ch;
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  font-weight: var(--w-display);
+  line-height: 1.1; letter-spacing: -0.02em;
+  color: var(--plane-ink);
+  text-wrap: balance;
+}
+.hero-sub {
+  margin: var(--s2) 0 0;
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.15vw, 1.1rem); line-height: 1.6;
+  color: var(--plane-ink-2);
+  text-wrap: pretty;
+}
+.hero-status {
+  margin: var(--s3) 0 0;
+  max-width: 62ch;
+  font-size: 13.5px; line-height: 1.5;
+  color: var(--text-3);
+}
+.hero-text .hero-links { margin-top: var(--s4); }
+
+/* ── How I build: four habits in a 2 × 2 ───────────────────────── */
+.pillar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; }
+.pillar { display: flex; flex-direction: column; }
+.pillar-title { font-size: 1.3rem; margin: 0 0 var(--s1); }
+.pillar-body { font-size: 15px; line-height: 1.65; }
+.pillar-from {
+  margin: auto 0 0; padding-top: var(--s2);
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--s2);
+  font-size: 13px; color: var(--text-3);
+}
+.pillar-from a {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--accent); text-decoration: none; font-weight: 600;
+}
+.pillar-from a span { transition: transform 0.2s var(--ease-out); }
+.pillar-from a:hover span { transform: translateX(3px); }
+
+/* The one number a card may carry, set as a plain sentence. */
+.proj .proj-proof {
+  margin: var(--s1) 0 0;
+  font-size: 14px; line-height: 1.5; font-weight: 600; color: var(--text);
+}
+/* "Earlier": folded, with its count beside the title. */
+.work-fold { margin-top: var(--s8); }
+.work-fold > summary {
+  font-family: var(--f-display); font-weight: var(--w-display);
+  font-size: 1.2rem; color: var(--text);
+}
+.work-fold-count {
+  margin-left: var(--s1);
+  font-family: var(--f-mono); font-size: 12px; color: var(--text-3);
+}
+
+/* Lit and dimmed work (?for=, ?org=, ?tool=): nothing is hidden. */
+/* Dimmed work keeps readable text: only the cover, chips and links
+   recede, and the words step down one tier. */
+body.has-lens .proj.is-dim .proj-shots,
+body.has-lens .proj.is-dim .chips,
+body.has-lens .proj.is-dim .project-links,
+body.has-lens .proj.is-dim .proj-more { opacity: 0.35; }
+body.has-lens .proj.is-dim { border-color: transparent; }
+body.has-lens .proj.is-dim h4,
+body.has-lens .proj.is-dim .proj-proof,
+body.has-lens .proj.is-dim .proj-why,
+body.has-lens .proj.is-dim .proj-blurb { color: var(--text-3); }
+.proj .proj-shots, .proj .chips, .proj .project-links { transition: opacity 0.25s var(--ease-out); }
+body.has-lens .proj.is-lit { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.proj { transition: opacity 0.25s var(--ease-out), border-color 0.25s var(--ease-out); }
+.proj-lens-note {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--s2);
+  margin: 0 0 var(--s4); font-size: 15px; color: var(--text-2);
+}
+.proj-lens-note[hidden] { display: none; }
+.lens-clear {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 600; color: var(--accent);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.lens-clear:hover { color: var(--text); }
+
+/* ── Toolkit: loops that point at the work ─────────────────────── */
+.tk-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+  gap: var(--s1) var(--s3); margin: 0 0 var(--s2);
+}
+.tk-grid-toggle {
+  padding: 6px 14px; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--text);
+  background: var(--card-bg); border: 1px solid var(--panel-border); border-radius: 999px;
+  transition: border-color 0.2s var(--ease-out), color 0.2s;
+}
+.tk-grid-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.tk-grid-toggle[aria-pressed="true"] { border-color: var(--accent); }
+
+/* The track is no longer clipped by the loop's own height on focus. */
+.ribbon-view { padding: 6px 0; }
+
+/* Grid: every tool laid out flat, nothing moving. */
+/* The row takes the content column's geometry (.home .band-inner),
+   so each run starts under its own label. */
+#toolkit.is-grid .ribbon-view {
+  overflow: visible; -webkit-mask-image: none; mask-image: none;
+  max-width: 1180px; margin: 0 auto; padding-inline: var(--s5);
+}
+@media (min-width: 1200px) {
+  #toolkit.is-grid .ribbon-view { padding-inline: clamp(var(--s5), calc(176px - (100vw - 1180px) / 2), 176px); }
+}
+@media (max-width: 700px) { #toolkit.is-grid .ribbon-view { padding-inline: var(--s3); } }
+#toolkit.is-grid .ribbon-track { display: block; width: auto; transform: none !important; animation: none; }
+#toolkit.is-grid .ribbon-run { flex-wrap: wrap; row-gap: 12px; padding: 0; }
+#toolkit.is-grid .ribbon-run[aria-hidden="true"] { display: none; }
+
+/* ── Background: one short row per employer ────────────────────── */
+.tl-work {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: var(--s2);
+  font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none;
+}
+.tl-work span { transition: transform 0.2s var(--ease-out); }
+.tl-work:hover span { transform: translateX(3px); }
+#background .about-more { margin-top: var(--s4); }
+.cred-line {
+  margin: var(--s4) 0 0; max-width: 70ch;
+  font-size: 14px; line-height: 1.7; color: var(--text-2);
+}
+.cred-line a { color: var(--text); text-underline-offset: 3px; }
+.cred-line a:hover { color: var(--accent); }
+#background .interests { margin-top: var(--s4); }
+
+/* ── Contact: ends on the idea the page opens with ─────────────── */
+.contact-line {
+  margin: 0 0 var(--s4);
+  max-width: 30ch;
+  font-family: var(--f-display); font-weight: var(--w-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem); line-height: 1.25;
+  letter-spacing: -0.01em; color: var(--plane-ink);
+  text-wrap: balance;
+}
+
+@media (max-width: 900px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .work-fold { margin-top: var(--s5); }
+}
+/* On a phone a logo plate is decoration, not a picture of the work:
+   keep it, but short, so thirteen cards don't spend a screen each on it. */
+@media (max-width: 700px) {
+  .proj-plate { aspect-ratio: 16 / 6; }
+  .proj-plate-mark { width: 64px; padding: 11px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
+}
+
+
+
+/* ── Work cards: one height per row, one way out ──────────────────
+   Every card in a row is as tall as the tallest; the stack chips and
+   the single "Details" link sit at the foot of every card. */
+.proj-grid { align-items: stretch; }
+.proj { display: flex; flex-direction: column; }
+.proj .proj-blurb { font-size: 15px; line-height: 1.55; color: var(--text); margin-top: 6px; }
+.proj .proj-proof { color: var(--text-2); font-weight: 600; }
+.proj > .chips { margin-top: auto; padding-top: var(--s3); }
+.proj-open {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: var(--s2); padding: 8px 16px; min-height: 40px;
+  border: 1px solid var(--panel-border); border-radius: 999px;
+  font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none;
+  background: var(--card-bg);
+  transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+.proj-open span { transition: transform 0.2s var(--ease-out); }
+.proj-open:hover { border-color: var(--accent); color: var(--accent); }
+.proj-open:hover span { transform: translateX(3px); }
+.proj-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.work-fold { margin-top: var(--s5); }
+.work-fold > .proj-grid { margin-top: var(--s3); }
+
+/* ── Experience: the work done at each employer, as tiles ───────── */
+.xp-work {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  gap: var(--s2); margin-top: var(--s3); align-items: stretch;
+}
+.xp-tile {
+  padding: var(--s2) var(--s3) var(--s3);
+  border: 1px solid var(--border); border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-raised) 55%, transparent);
+  transition: border-color 0.2s var(--ease-out), opacity 0.25s var(--ease-out);
+}
+.xp-tile:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.xp-tile .ds-fhead { margin-top: 0; }
+.xp-tile .ds-fhead h4 { font-size: 1.12rem; }
+.xp-tile .proj-blurb { font-size: 14.5px; }
+.xp-tile .proj-proof { font-size: 13.5px; }
+.xp-tile > .chips { padding-top: var(--s2); }
+.xp-tile .proj-open { padding: 6px 14px; min-height: 36px; font-size: 13.5px; }
+body.has-lens .xp-tile.is-lit { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+
+/* ── Details window ────────────────────────────────────────────────
+   One readable column, centred over a dimmed page. It floats, so it
+   carries the page's one real shadow. */
+.proj-dialog {
+  width: min(760px, calc(100vw - 2 * var(--s3)));
+  max-height: min(86vh, 900px);
+  padding: 0; border: 1px solid var(--panel-border); border-radius: 18px;
+  background: var(--card-bg); color: var(--text);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  overflow: auto; overscroll-behavior: contain;
+}
+.proj-dialog::backdrop { background: rgba(15, 20, 30, 0.55); }
+.proj-dialog[open] { animation: pd-in 0.22s var(--ease-out); }
+@keyframes pd-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .proj-dialog[open] { animation: none; } }
+/* No JS: the link makes the window the :target, shown in place. */
+.proj-dialog:target:not([open]) {
+  display: block; position: fixed; inset: 7vh 0 auto; margin: 0 auto; z-index: 200;
+}
+.pd-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3);
+  padding: var(--s3) var(--s4) var(--s2);
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--panel-border);
+}
+.pd-title h3 {
+  margin: 0; font-family: var(--f-display); font-weight: var(--w-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem); line-height: 1.15; color: var(--text);
+}
+.pd-meta { margin: 4px 0 0; font-size: 13.5px; color: var(--text-3); }
+.pd-close {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; min-height: 40px; border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  font-size: 13.5px; font-weight: 600; color: var(--text); text-decoration: none;
+}
+.pd-close svg { width: 14px; height: 14px; }
+.pd-close:hover { border-color: var(--accent); color: var(--accent); }
+.pd-body { padding: var(--s3) var(--s4) var(--s4); }
+.pd-body > * + * { margin-top: var(--s2); }
+.pd-lede { margin: 0; font-size: 1.1rem; line-height: 1.5; color: var(--text); }
+.pd-body .proj-why { font-size: 15.5px; line-height: 1.7; color: var(--text-2); margin-bottom: 0; }
+.pd-body .points { margin-top: var(--s3); }
+.pd-body .glance { margin-top: var(--s3); }
+.pd-body > .chips { margin-top: var(--s4); }
+.pd-body > .project-links { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--panel-border); }
+@media (max-width: 640px) {
+  .proj-dialog { width: 100vw; max-width: 100vw; max-height: 92vh; margin: auto 0 0; border-radius: 18px 18px 0 0; }
+  .pd-head, .pd-body { padding-left: var(--s3); padding-right: var(--s3); }
+}
+/* The page resets margins on everything; put the window back in the
+   middle of the screen, and keep its pull quote at reading size. */
+.proj-dialog[open] { position: fixed; inset: 0; margin: auto; }
+.pd-body .promise { font-size: clamp(1.15rem, 1.8vw, 1.35rem); line-height: 1.35; margin-top: var(--s3); }
+@media (max-width: 640px) { .proj-dialog[open] { margin: auto 0 0; } }
+
+/* Experience tiles sell: two outcome lines under the one-liner. */
+.proj-hl { list-style: none; margin: var(--s2) 0 0; padding: 0; display: grid; gap: 8px; }
+.proj-hl li {
+  position: relative; padding-left: 22px;
+  font-size: 15px; line-height: 1.5; color: var(--text); font-weight: 500;
+}
+.proj-hl li::before {
+  content: ''; position: absolute; left: 2px; top: 0.42em;
+  width: 10px; height: 6px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+.xp-tile .proj-blurb { color: var(--text-2); }
+.tl-card > .project-body strong { color: var(--text); font-weight: 700; }
+
+/* ── Education & credentials: one card each, with the issuer's mark ── */
+.cred-cards {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3);
+  align-items: stretch;
+}
+.cred-x { display: flex; gap: var(--s3); align-items: flex-start; padding: var(--s3); }
+.cred-x-mark {
+  flex-shrink: 0; width: 96px; height: 96px; padding: 6px;
+  display: grid; place-items: center;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.cred-x-mark img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.cred-x-body { min-width: 0; display: flex; flex-direction: column; min-height: 100%; }
+.cred-x-kind { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.cred-x-title {
+  margin: 0; font-family: var(--f-display); font-weight: var(--w-display);
+  font-size: 1.15rem; line-height: 1.25; color: var(--text);
+}
+.cred-x-detail { margin: 4px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text-2); }
+.cred-x-meta { margin: 6px 0 0; font-size: 13.5px; color: var(--text-3); }
+.cred-x-verify {
+  align-self: flex-start; margin-top: var(--s2);
+  display: inline-flex; gap: 4px; font-size: 14px; font-weight: 600;
+  color: var(--accent); text-decoration: none;
+}
+.cred-x-verify:hover { text-decoration: underline; text-underline-offset: 3px; }
+#credentials .interests { margin-top: var(--s5); }
+@media (max-width: 1100px) { .cred-cards { grid-template-columns: 1fr; } }
+
+/* ── Off-hours: a short list, an icon each ───────────────────────── */
+.offhours { margin-top: var(--s5); }
+.offhours-title {
+  margin: 0 0 var(--s2);
+  font-family: var(--f-display); font-weight: var(--w-display);
+  font-size: 1.15rem; color: var(--text);
+}
+.offhours-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s2) var(--s4);
+}
+.offhours-list li { display: flex; gap: 12px; align-items: flex-start; }
+.offhours-ic {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.offhours-ic svg { width: 17px; height: 17px; }
+.offhours-list b { display: block; font-size: 15px; color: var(--text); }
+.offhours-detail { display: block; margin-top: 2px; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+
+/* ── The scene, used sparingly ─────────────────────────────────────
+   The contour scene belongs to the hero and the close. In between,
+   the tinted bands are solid surfaces and the open rows carry a
+   strong wash, so the lines are a faint texture behind content
+   instead of competing with it. */
+:root { --band-bg: var(--bg-raised); }
+.home > .ds-row:not(.ds-band) { background: color-mix(in srgb, var(--bg) 88%, transparent); }
+
+/* ── Hero, first read ───────────────────────────────────────────────
+   A soft wash of the page ground sits behind the hero text, so the
+   contour lines fade out where the words are and stay vivid around
+   the portrait and the edges. The subhead takes full ink. */
+.hero-text { position: relative; isolation: isolate; }
+.hero-text::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  inset: -56px -96px -48px -72px;
+  background: radial-gradient(closest-side, var(--bg) 62%, color-mix(in srgb, var(--bg) 0%, transparent));
+  opacity: 0.94;
+}
+.hero-sub { color: var(--plane-ink); font-size: clamp(1.05rem, 1.25vw, 1.18rem); max-width: 44ch; }
+.hero-status { color: var(--plane-ink-2); }
+
+/* Credential marks: the logo keeps clear of its plate's edge. */
+.cred-x-mark { padding: 12px; }
+/* A tall logo (the CU seal) must fit the plate, not overflow it:
+   size the image to the plate's inner box and let it scale down. */
+.cred-x-mark { box-sizing: border-box; overflow: hidden; }
+.cred-x-mark img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
+/* The plate is 96px with 12px padding: give the image that inner box
+   outright (a percentage height doesn't resolve inside the grid). */
+.cred-x-mark img { width: 72px; height: 72px; }

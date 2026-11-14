@@ -35,16 +35,20 @@ a front matter key. To change the page, edit the data, not the layout.
 
 | Key | Section |
 | --- | --- |
-| `profile` | Hero: name, role, location, portrait, status line, tagline |
+| `profile` | Hero: name, `headline`, `sub`, `status`, portrait. No role title and no employer |
 | `links` | Link pills in the hero and the contact section |
-| `metrics` | Stat tiles |
-| `pillars`, `about` | About: claim tiles and the longer essay |
-| `lenses` | Project filter by focus area |
-| `projects` | Project cards. Any number; the first four show, the rest sit behind a button |
-| `experience` | Job timeline. `current: true` marks the present role |
-| `skills` | Toolkit logo grid (marks in `assets/img/home/logos/tech/`) |
-| `education`, `certifications`, `awards` | Credentials |
-| `interests`, `contact` | Closing section |
+| `principles` | How I build: four tiles, one story each, `from` names where the story comes from |
+| `projects` | My own projects, one card each (`_includes/proj-card.html`): cover, name, one line, `proof` (the one number a card may show), stack, and a Details button that opens a window (`_includes/proj-dialog.html`). `earlier: true` folds a card into "Earlier side projects" |
+| `lenses` | No buttons. Read by `?for=<id>` links only, so links already sent out still light the right work |
+| `skills` | Toolkit logo loops; hovering a row holds it, and "Show as a grid" stops all motion |
+| `writing` | Three chosen essays and the series links |
+| `experience` | One card per employer; the work done there (`ventures`) as tiles with the same Details window |
+| `credentials`, `interests` | Education & credentials: one card each (degree, certification, award) with the issuer's `logo` on a white plate, then Off-hours (`icon`, `label`, `detail`) |
+| `contact` | The closing line and the email |
+
+The home page is written for founders, CTOs, investors and peers, not recruiters, so it is
+not in resume form: no stat tiles, at most one number on a card's surface, and the rest in
+the fold next to how it was measured. See the comment at the top of `index.md`.
 
 Conventions:
 

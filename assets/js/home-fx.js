@@ -270,7 +270,7 @@
       "  vec2 pw = -dir * bulge * uPointerStrength * 0.045; pw += dir * rippleRing * bulge * uPointerStrength * 0.016;",
       "  vec2 displaced = uv + ambient + pw;",
       "  vec2 sd = ambient + pw; float sl = length(sd); sd = sl > 0.00001 ? sd / sl : vec2(0.7071, 0.7071);",
-      "  vec2 split = sd * uRefraction * 0.16 * (0.35 + lens * 1.65);",
+      "  vec2 split = sd * uRefraction * 0.16 * (lens * 1.65);",
       "  vec4 base = sampleText(displaced);",
       "  vec4 sp = sampleText(displaced + split); vec4 sm = sampleText(displaced - split);",
       "  float a = max(max(sp.a, base.a), sm.a);",
@@ -300,8 +300,9 @@
     // scaled by the aspect in the shader, so the wave shows in the
     // letters' height, not only as a sideways sway), the lens visibly
     // swells what it passes over, and the colour split shows at the
-    // glass's edge.
-    gl.uniform1f(U.uWarpStrength, 0.3); gl.uniform1f(U.uWarpScale, 0.6);
+    // glass's edge. At rest the name barely drifts and shows no colour
+    // split, so it reads crisply on first sight.
+    gl.uniform1f(U.uWarpStrength, 0.08); gl.uniform1f(U.uWarpScale, 0.6);
     gl.uniform1f(U.uSpeed, 0.6); gl.uniform1f(U.uPointerInfluence, 0.36);
     gl.uniform1f(U.uPointerStrength, 0.75); gl.uniform1f(U.uRefraction, 0.028);
     gl.uniform1f(U.uRipple, 1); gl.uniform1f(U.uMotion, 1);
@@ -585,7 +586,6 @@
 
   topoScene();
   if (!warpName()) splitName();
-  blurText();
   rotatingRole();
   magnet();
   clickSpark();

@@ -1,0 +1,117 @@
+{%- comment -%}
+  The Details window for one piece of work: a project card or an
+  Experience tile. A native <dialog>, opened by the card's "Details"
+  link (the script calls showModal, so focus is held inside and Esc
+  closes it). Without JS the link still works: the window shows as the
+  page's :target, and its close link goes back to where it was opened.
+  Called as {% include proj-dialog.html f=f back="projects" %}.
+{%- endcomment -%}
+{%- assign f = include.f -%}
+{%- assign marks = site.data.tech_logos.icons -%}
+{%- assign did = f.name | slugify | prepend: "more-" -%}
+<dialog class="proj-dialog" id="{{ did }}" aria-labelledby="{{ did }}-t">
+  <div class="pd-head">
+    <div class="pd-title">
+      <h3 id="{{ did }}-t">{{ f.name }}</h3>
+      <p class="pd-meta">{% if include.org %}{{ include.org }}<span class="sep">·</span>{% endif %}{{ f.year }}</p>
+    </div>
+    <a class="pd-close" href="#{{ include.back }}" aria-label="Close">{% include icon.html name="close" %}<span>Close</span></a>
+  </div>
+  <div class="pd-body">
+    {% if f.blurb %}<p class="pd-lede">{{ f.blurb }}</p>{% endif %}
+    {% if f.why %}<p class="proj-why">{{ f.why }}</p>{% endif %}
+
+    {% if f.promise %}
+    <blockquote class="promise">
+      {{ f.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+    </blockquote>
+    {% endif %}
+    {% if f.body %}
+    <p class="project-body">
+      {{ f.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+    </p>
+    {% endif %}
+    {% if f.points %}
+    <ul class="points">
+      {% for pt in f.points %}
+      <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if f.glance %}
+    <table class="glance">
+      {% for g in f.glance %}
+      <tr>
+        <th>{{ g.k }}</th>
+        <td>{{ g.v | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if f.parts %}
+    <p class="proj-parts-label">Built as {{ f.parts | size }} separate pieces</p>
+    <div class="parts-stack">
+      {% for c in f.parts %}
+      <div class="comp">
+        <div class="comp-head">
+          <h5 class="comp-label">{{ c.label }}</h5>
+          <span class="comp-lang">{{ c.lang }}</span>
+        </div>
+        {% if c.promise %}
+        <p class="comp-promise">
+          {{ c.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
+        </p>
+        {% endif %}
+        {% if c.points %}
+        <ul class="points">
+          {% for pt in c.points %}
+          <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if c.stack %}
+        <ul class="chips" aria-label="Stack">
+          {% for s in c.stack %}
+          {% assign mk = marks[s] %}
+          <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if c.blog %}
+        <a class="comp-more" href="{{ c.blog | relative_url }}">How I built it &rarr;</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- what it is made of, then where to find it, the same order on
+         every card. A project with `parts` shows each piece's stack
+         above instead. -->
+    {% if f.stack %}
+    <ul class="chips" aria-label="Stack">
+      {% for s in f.stack %}
+      {% assign mk = marks[s] %}
+      <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if f.video or f.links %}
+    <div class="project-links">
+      {% if f.video %}
+      <a class="proj-watch" href="{{ f.video.src | relative_url }}" data-video="video-{{ f.name | slugify }}">
+        <span class="link-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>Watch it work ({{ f.video.length }})
+      </a>
+      {% endif %}
+      {% for l in f.links %}
+      <a href="{% if l.url contains '://' %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
+        {% if l.icon %}<span class="link-ic">{% include icon.html name=l.icon %}</span>{% endif %}{{ l.label }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</dialog>

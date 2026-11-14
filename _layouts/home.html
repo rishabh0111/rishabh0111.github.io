@@ -10,23 +10,25 @@ layout: default
 {% assign profile_links = site.data.social | concat: page.links %}
 
 <!-- ═══════════════════════════════════════════════════════════════
-     HERO: sits on the parallax scene, same plane as .page-header
+     HERO: who, and how he works. No role title and no employer: the
+     headline has to stay true whatever the next job is.
 ═══════════════════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="hero-inner">
 
     <div class="hero-text">
-      <p class="page-label">{{ p.role }}</p>
       <p class="hero-hi">Hi <span class="hero-wave" role="img" aria-label="waving hand">👋</span>, I'm</p>
 
       <!-- home-fx.js draws the name as glass that bends under the
            pointer (React Bits Warp Text; letters rising in, Split Text,
-           where WebGL can't run), and turns the eyebrow above into
-           words that take turns (Rotating Text). The plain <h1> is
-           what search engines, readers and no-JS get. -->
+           where WebGL can't run). The plain <h1> is what search
+           engines, readers and no-JS get. -->
       <div class="hero-name-wrap">
         <h1 class="hero-name" id="hero-name">{{ p.name }} <em>{{ p.surname }}</em></h1>
       </div>
+
+      {% if p.headline %}<p class="hero-line">{{ p.headline }}</p>{% endif %}
+      {% if p.sub %}<p class="hero-sub">{{ p.sub }}</p>{% endif %}
 
       <nav class="hero-links" aria-label="Profile links">
         {% for l in profile_links %}
@@ -38,14 +40,14 @@ layout: default
         </a>
         {% endfor %}
       </nav>
+
+      {% if p.status %}<p class="hero-status">{{ p.status }}</p>{% endif %}
     </div>
 
     <!-- The portrait, popping out of a disc. The photo is a cut-out
          (transparent background), so it stands in a circle drawn in the
          site's own palette: the shoulders stay inside the circle and the
-         head rises past its rim. The disc is the backdrop; .pf-cut is
-         the clip, square on top and round on the bottom, so the rim
-         only cuts where the circle does. If the image is missing, an RS
+         head rises past its rim. If the image is missing, an RS
          monogram takes over. -->
     <figure class="hero-portrait" id="portrait">
       <div class="pf-disc" aria-hidden="true"></div>
@@ -63,138 +65,121 @@ layout: default
 
 <!-- ═══════════════════════════════════════════════════════════════
      DOSSIER RAIL: the page's navigation AND its section labels, in
-     one control. A column of dots in the left margin: the section
-     you are reading lights up and names itself, and a fill line
-     tracks how far down the page you are. Replaces a full-width chip
-     bar that repeated every section's own heading.
-
-     Shown from 1200px up (see .drail). Narrower than that it is
-     hidden and each section carries its own .ds-heading. Static
-     links, so it still works as a nav without JS; the script adds
-     the active-section tracking and the fill.
+     one control. Shown from 1200px up (see .drail); narrower than
+     that each section carries its own .ds-heading. Static links, so
+     it still works as a nav without JS.
 ═══════════════════════════════════════════════════════════════ -->
 <nav class="drail" id="drail" aria-label="Sections">
   <span class="drail-line" aria-hidden="true"><i id="drail-fill"></i></span>
-  <a href="#about"       data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="spark" %}</i><span>About</span></a>
-  <a href="#experience"  data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="clock" %}</i><span>Experience</span></a>
+  <a href="#principles"  data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="spark" %}</i><span>How I build</span></a>
   <a href="#projects"    data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="layers" %}</i><span>Projects</span></a>
+  <a href="#experience"  data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="clock" %}</i><span>Experience</span></a>
   <a href="#toolkit"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="cube" %}</i><span>Toolkit</span></a>
-  {% if n_blogs > 0 or n_news > 0 %}<a href="#writing" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="pen" %}</i><span>Writing</span></a>{% endif %}
-  <a href="#credentials" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="seal" %}</i><span>Credentials</span></a>
+  <a href="#credentials" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="seal" %}</i><span>Education</span></a>
+  {% if n_blogs > 0 %}<a href="#writing" data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="pen" %}</i><span>Writing</span></a>{% endif %}
   <a href="#contact"     data-drail><i class="drail-dot" aria-hidden="true">{% include icon.html name="mail" %}</i><span>Contact</span></a>
 </nav>
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     METRICS: the first band: four stat tiles on the same surface as
-     every other tile on the page (shadcn's dashboard section-cards),
-     the figures counting up as they come into view (React Bits
-     Count Up; the script at the foot does the counting).
+     THE SECTIONS: each one its own full-width row, with the content
+     in one column (.band-inner). The rows alternate between a tinted
+     band (.ds-band) and the open scene.
 ═══════════════════════════════════════════════════════════════ -->
 <div class="home">
+<p class="sr-only" id="work-live" aria-live="polite"></p>
 
-  {% if page.metrics %}
-  <section class="ds-row ds-band" id="metrics">
-    <div class="band-inner">
-      <div class="metrics" data-stagger>
-        {% for m in page.metrics %}
-        <div class="tile metric" data-anim="up">
-          {%- comment -%} Number first: each label is written to follow it ("500+ employees get …"). {%- endcomment -%}
-          <span class="metric-figure" data-count="{{ m.figure }}">{{ m.figure }}</span>
-          <span class="metric-label" data-decrypt>{{ m.label }}</span>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-  {% endif %}
-
-
-<!-- ═══════════════════════════════════════════════════════════════
-     THE SECTIONS: each one its own full-width row, with the content
-     in one column (.band-inner). The rows alternate between the open
-     scene and a tinted band (.ds-band), so the eye finds where one
-     section ends and the next begins without a card around each.
-     Every section is a different component (see the comment on each).
-     The rail (.drail) names the section you are reading from 1200px
-     up; below that each row carries a compact .ds-heading.
-═══════════════════════════════════════════════════════════════ -->
-      <!-- ── About: spotlight cards on the open scene ─────────────
-           The lede, then the three claims as icon tiles: three marks
-           (spark, shield, server) say AI · security · backends before
-           a word is taken in. Each tile carries a spotlight that
-           follows the pointer (React Bits SpotlightCard; the script at
-           the foot sets --mouse-x/--mouse-y). The essay is folded
-           under a disclosure at the end. -->
-      <section class="ds-row" id="about">
+      <!-- ── How I build: four habits, one story each ────────────
+           A 2 × 2 of spotlight tiles (React Bits SpotlightCard). Each
+           story is drawn from a different place, named under it. -->
+      <section class="ds-row ds-band" id="principles">
         <div class="band-inner">
-        <p class="ds-heading">About <small>how I got here, and what I am good at</small></p>
+        <h2 class="ds-heading">How I build <small>four habits, one story each</small></h2>
         <div class="ds-val">
-          <div class="ds-prose">
-            {% if p.tagline %}
-            <p class="ds-lede" data-scroll-reveal>
-              {{ p.tagline | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-            </p>
-            {% endif %}
-            {% if p.status %}
-            <p class="ds-now" data-typewrite><span class="status-dot" aria-hidden="true"></span>{{ p.status }}</p>
-            {% endif %}
-          </div>
-
           <div class="pillar-grid" data-stagger>
-            {% for pil in page.pillars %}
+            {% for pil in page.principles %}
             <div class="tile pillar spot" data-anim="up">
               <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name=pil.icon %}</i></span>
-              <p class="pillar-title">{{ pil.title }}</p>
+              <h3 class="pillar-title">{{ pil.title }}</h3>
               <p class="pillar-body">{{ pil.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</p>
+              {% if pil.from %}
+              <p class="pillar-from">{{ pil.from }}{% if pil.url %}<a href="{{ pil.url | relative_url }}">Read it<span aria-hidden="true">→</span></a>{% endif %}</p>
+              {% endif %}
             </div>
             {% endfor %}
           </div>
-
-          {% if page.about %}
-          <details class="more about-more" data-anim="fade">
-            <summary>The longer version</summary>
-            <div class="ds-prose">{{ page.about | markdownify }}</div>
-          </details>
-          {% endif %}
         </div>
         </div>
       </section>
 
-      <!-- ── Experience: a timeline ─────────────────────────────
-           The period sits in a gutter, a spine runs down the middle
-           with a dot per job (the current one lit), and each job is
-           a card: mark, name, role, one line, the ventures as tiles,
-           the stack. The current job's card has a live, turbulent edge
-           (React Bits Electric Border), the same family of wobble as
-           the survey lines. The bullets are folded inside the card. -->
+      <!-- ── Projects: my own work, one card each ────────────────
+           Every card the same shape (_includes/proj-card.html), its
+           Details in a window (_includes/proj-dialog.html). Work done
+           for an employer lives under that employer in Experience. The
+           id stays "projects" so existing /?for=…#projects links land;
+           ?for= and ?tool= light matching work and dim the rest (the
+           script at the foot). -->
+      <section class="ds-row" id="projects">
+        <div class="band-inner">
+        <h2 class="ds-heading">Projects <small>built on my own time</small></h2>
+        <div class="ds-val">
+
+          {% comment %} Shown when a link or a tool lights some of the work. {% endcomment %}
+          <p class="proj-lens-note" hidden><span class="proj-lens-text"></span><button type="button" class="lens-clear">Show everything</button></p>
+          {% if page.lenses %}
+          <div class="proj-lens-data" hidden>
+            {% for l in page.lenses %}<i data-lens="{{ l.id }}" data-note="{{ l.note | escape }}"></i>{% endfor %}
+          </div>
+          {% endif %}
+
+          {% assign main = page.projects | where_exp: "x", "x.earlier != true" %}
+          {% assign earlier = page.projects | where: "earlier", true %}
+          <div class="proj-grid" data-stagger>
+            {% for f in main %}{% include proj-card.html f=f %}{% endfor %}
+          </div>
+          {% if earlier.size > 0 %}
+          <details class="more work-fold">
+            <summary>Earlier side projects<span class="work-fold-count">{{ earlier.size }}</span></summary>
+            <div class="proj-grid">
+              {% for f in earlier %}{% include proj-card.html f=f %}{% endfor %}
+            </div>
+          </details>
+          {% endif %}
+
+          {% comment %} The Details windows, one per project. {% endcomment %}
+          {% for f in page.projects %}{% assign back = f.name | slugify %}{% include proj-dialog.html f=f back=back %}{% endfor %}
+
+          {% comment %} The recordings, one dialog each, opened by "Watch it work". {% endcomment %}
+          {% for f in page.projects %}{% if f.video %}
+          <dialog class="proj-video" id="video-{{ f.name | slugify }}" aria-label="{{ f.video.title | escape }}">
+            <video src="{{ f.video.src | relative_url }}" poster="{{ f.video.poster | relative_url }}" controls muted playsinline preload="none"></video>
+            <form method="dialog"><button class="proj-video-close">Close</button></form>
+          </dialog>
+          {% endif %}{% endfor %}
+
+        </div>
+        </div>
+      </section>
+
+      <!-- ── Experience: one card per employer ───────────────────
+           Every employer the same size: company, role, dates, one line,
+           then the work done there as tiles, each with the same Details
+           window as a project. -->
       <section class="ds-row ds-band" id="experience">
         <div class="band-inner">
-        <p class="ds-heading">Experience <small>most recent first</small></p>
+        <h2 class="ds-heading">Experience <small>where I have worked, and what I built there</small></h2>
         <div class="ds-val">
           <ol class="tl">
           {% for e in page.experience %}
           <li class="tl-item{% if e.current %} is-current{% endif %}" data-anim="left">
-            <span class="tl-when" data-decrypt>{{ e.period }}</span>
+            <span class="tl-when">{{ e.period }}</span>
             <span class="tl-spine" aria-hidden="true"><i class="tl-dot"></i></span>
 
-            <div class="tile tl-card{% if e.current %} electric{% endif %}">
-              {% if e.current %}<div class="eb-layers" aria-hidden="true"><canvas class="eb-canvas"></canvas><i class="eb-glow-1"></i><i class="eb-glow-2"></i><i class="eb-bg-glow"></i></div>{% endif %}
+            <div class="tile tl-card">
               <div class="tl-head">
-                {% comment %}
-                  The company mark. `logo_dark` is only needed for a mark
-                  that reads on one ground and not the other: a wordmark,
-                  typically. A square icon that works on both ships once.
-                  With no `logo` at all, initials stand in deliberately;
-                  see _templates/logos/README.md.
-                {% endcomment %}
                 <div class="co-logo">
                   {% if e.logo %}
-                  {% comment %}
-                    The `logo-light` class is only added when there is a dark
-                    counterpart to swap to. Tagging a lone mark with it would
-                    hide it on the dark theme, leaving an empty plate.
-                  {% endcomment %}
+                  {% comment %} `logo-light` only when there is a dark counterpart to swap to. {% endcomment %}
                   <img{% if e.logo_dark %} class="logo-light"{% endif %}
                        src="{{ e.logo | relative_url }}"
                        alt="{{ e.company }}" loading="lazy">
@@ -220,292 +205,41 @@ layout: default
               {% endif %}
 
               {% if e.ventures %}
-              <div class="venture-strip">
-                {% for v in e.ventures %}
-                <div class="venture-tile"><b>{{ v.name }}</b>{% if v.note %}<span>{{ v.note }}</span>{% endif %}</div>
-                {% endfor %}
+              <div class="xp-work">
+                {% for v in e.ventures %}{% include proj-card.html f=v tile=true %}{% endfor %}
               </div>
-              {% endif %}
-
-              {% if e.stack %}
-              <ul class="chips" aria-label="Stack">
-                {% for s in e.stack %}
-                {% assign mk = marks[s] %}
-                <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-
-              {% if e.points or e.ventures %}
-              <details class="more xp-more">
-                <summary>What I did there</summary>
-
-                {% if e.points %}
-                <ul class="points">
-                  {% for pt in e.points %}
-                  <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-                  {% endfor %}
-                </ul>
-                {% endif %}
-
-                {% for v in e.ventures %}
-                <div class="xp-venture">
-                  <h4>{{ v.name }}</h4>
-                  {% if v.note %}<p class="note">{{ v.note }}</p>{% endif %}
-                  <ul class="points">
-                    {% for pt in v.points %}
-                    <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-                {% endfor %}
-              </details>
               {% endif %}
             </div>
           </li>
           {% endfor %}
           </ol>
-        </div>
-        </div>
-      </section>
 
-      <!-- ── Projects: a tinted band of poster cards ────────────
-           One card per project, however many, and no tiers: every
-           project gets the same card. A screenshot as the cover (or a
-           plate with the name's initial when there is none), the name,
-           one line, what it is made of, where to find it. The write-up
-           is folded inside the card. The border lights up around the
-           pointer (React Bits MagicBento; the script at the foot sets
-           --glow-x/--glow-y/--glow-intensity). -->
-      <section class="ds-row" id="projects">
-        <div class="band-inner">
-        <p class="ds-heading">Projects <small>built, shipped, and live</small></p>
-        <div class="ds-val">
+          {% comment %} The Details windows for the work done at each employer. {% endcomment %}
+          {% for e in page.experience %}{% for v in e.ventures %}{% assign back = v.name | slugify %}{% include proj-dialog.html f=v back=back org=e.company %}{% endfor %}{% endfor %}
 
-          {% comment %}
-            "Focus": each lens lights the projects tagged with it.
-            Plain links to ?for=<id>, so a lens can be linked from an
-            application; the script does the lighting without a reload.
-          {% endcomment %}
-          {% if page.lenses %}
-          <div class="proj-lens" role="group" aria-label="Show projects by focus">
-            <span class="proj-lens-label">Focus</span>
-            {% for l in page.lenses %}
-            <a class="proj-lens-btn" href="?for={{ l.id }}#projects" data-lens="{{ l.id }}" data-note="{{ l.note | escape }}" aria-pressed="false">{{ l.label }}</a>
-            {% endfor %}
-          </div>
-          <p class="proj-lens-note" aria-live="polite" hidden></p>
-          {% endif %}
-
-          <div class="proj-grid" data-stagger data-show="4">
-          {% for f in page.projects %}
-          <article class="tile proj glow" id="{{ f.name | slugify }}" data-roles="{{ f.roles | join: ' ' }}" data-anim="up">
-
-            <!-- 1 · the cover: the screenshots as an accordion (React
-                 Bits Accordion Gallery): the hovered or tapped shot
-                 grows, the rest narrow. No shots: a plate with the
-                 first stack mark that fills with pixels on hover (Pixel
-                 Card), so every card has the same silhouette. -->
-            {% if f.shots %}
-            <div class="proj-shots">
-              <div class="proj-carousel ag" role="group" aria-label="{{ f.name }} screenshots">
-                {% for s in f.shots %}
-                {% comment %}
-                  `src` is the image. `src_dark` is only for a shot that
-                  needs a second version to read on the dark theme, the
-                  same rule as company logos. A lone image carries no
-                  theme class, or the dark theme would hide it.
-                {% endcomment %}
-                <figure class="shot">
-                  <img{% if s.src_dark %} class="shot-light"{% endif %}
-                       src="{{ s.src | relative_url }}" alt="{{ s.alt }}" loading="lazy">
-                  {% if s.src_dark %}
-                  <img class="shot-dark" src="{{ s.src_dark | relative_url }}"
-                       alt="{{ s.alt }}" loading="lazy">
-                  {% endif %}
-                  <figcaption>{{ s.caption }}</figcaption>
-                </figure>
-                {% endfor %}
-              </div>
-            </div>
-            {% else %}
-            {% comment %}
-              The plate shows the first stack item's brand mark, large;
-              with no mark for it, the name's initial instead.
-            {% endcomment %}
-            {% assign pm = nil %}
-            {% if f.stack %}{% assign pm = marks[f.stack.first] %}{% endif %}
-            <div class="proj-shots proj-plate" aria-hidden="true">
-              {% if pm %}
-              <img class="proj-plate-mark" src="{{ pm.file | relative_url }}" alt="" loading="lazy">
-              {% else %}
-              <span class="proj-plate-initial">{{ f.name | slice: 0 }}</span>
-              {% endif %}
-              {% if f.languages %}<span class="proj-plate-lang">{{ f.languages | join: ' · ' }}</span>{% endif %}
-            </div>
-            {% endif %}
-
-            <!-- 2 · heading and the one line -->
-            <div class="ds-fhead">
-              <h2>{{ f.name }}</h2>
-              {% if f.kind %}<span class="kind-pill" data-decrypt>{{ f.kind }}</span>{% endif %}
-              {% if f.year %}<span class="xp-when">{{ f.year }}</span>{% endif %}
-            </div>
-            {% if f.blurb %}<p class="proj-blurb">{{ f.blurb }}</p>{% endif %}
-            {% if f.why %}<p class="proj-why">{{ f.why }}</p>{% endif %}
-
-            <!-- 3 · what it is made of. A project with `parts` and no
-                 top-level `stack` shows its pieces instead. -->
-            {% if f.stack %}
-            <ul class="chips" aria-label="Stack">
-              {% for s in f.stack %}
-              {% assign mk = marks[s] %}
-              <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
-              {% endfor %}
-            </ul>
-            {% elsif f.parts %}
-            <ul class="chips" aria-label="Pieces">
-              {% for c in f.parts %}
-              <li>{{ c.label }}<span class="chip-sub">{{ c.lang }}</span></li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-
-            <!-- 4 · where to find it. A recording comes first: it is
-                 the one link that needs nothing from the reader. -->
-            <div class="project-links">
-              {% if f.video %}
-              <a class="proj-watch" href="{{ f.video.src | relative_url }}" data-video="video-{{ f.name | slugify }}">
-                <span class="link-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>Watch it work ({{ f.video.length }})
-              </a>
-              {% endif %}
-              {% for l in f.links %}
-              <a href="{% if l.url contains '://' %}{{ l.url }}{% else %}{{ l.url | relative_url }}{% endif %}"{% if l.url contains '://' %} target="_blank" rel="noopener"{% endif %}>
-                {% if l.icon %}<span class="link-ic">{% include icon.html name=l.icon %}</span>{% endif %}{{ l.label }}
-              </a>
-              {% endfor %}
-            </div>
-
-            <!-- 5 · the write-up, folded: promise, body, results,
-                 glance, parts. A native <details>, so it opens without
-                 JS and is announced as a button. -->
-            {% if f.promise or f.body or f.points or f.glance or f.parts %}
-            <details class="more proj-more">
-              <summary>The full write-up</summary>
-
-              {% if f.promise %}
-              <blockquote class="promise">
-                {{ f.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-              </blockquote>
-              {% endif %}
-              {% if f.body %}
-              <p class="project-body">
-                {{ f.body | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-              </p>
-              {% endif %}
-              {% if f.points %}
-              <ul class="points">
-                {% for pt in f.points %}
-                <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-
-              {% if f.glance %}
-              <table class="glance">
-                {% for g in f.glance %}
-                <tr>
-                  <th>{{ g.k }}</th>
-                  <td>{{ g.v | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</td>
-                </tr>
-                {% endfor %}
-              </table>
-              {% endif %}
-
-              <!-- the separable pieces, one card per row -->
-              {% if f.parts %}
-              <p class="proj-parts-label">Built as {{ f.parts | size }} separate pieces</p>
-              <div class="parts-stack">
-                {% for c in f.parts %}
-                <div class="comp">
-                  <div class="comp-head">
-                    <h3 class="comp-label">{{ c.label }}</h3>
-                    <span class="comp-lang">{{ c.lang }}</span>
-                  </div>
-                  {% if c.promise %}
-                  <p class="comp-promise">
-                    {{ c.promise | markdownify | replace: '<p>', '' | replace: '</p>', '' }}
-                  </p>
-                  {% endif %}
-                  {% if c.points %}
-                  <ul class="points">
-                    {% for pt in c.points %}
-                    <li>{{ pt | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
-                    {% endfor %}
-                  </ul>
-                  {% endif %}
-                  {% if c.stack %}
-                  <ul class="chips" aria-label="Stack">
-                    {% for s in c.stack %}
-                    {% assign mk = marks[s] %}
-                    <li>{% if mk %}<img class="tech-ic" src="{{ mk.file | relative_url }}" alt="" loading="lazy">{% endif %}{{ s }}</li>
-                    {% endfor %}
-                  </ul>
-                  {% endif %}
-                  {% if c.blog %}
-                  <a class="comp-more" href="{{ c.blog | relative_url }}">How I built it &rarr;</a>
-                  {% endif %}
-                </div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </details>
-            {% endif %}
-
-          </article>
-          {% endfor %}
-          </div>
-
-          {% comment %} The recordings, one dialog each, opened by "Watch it work". {% endcomment %}
-          {% for f in page.projects %}{% if f.video %}
-          <dialog class="proj-video" id="video-{{ f.name | slugify }}" aria-label="{{ f.video.title | escape }}">
-            <video src="{{ f.video.src | relative_url }}" poster="{{ f.video.poster | relative_url }}" controls muted playsinline preload="none"></video>
-            <form method="dialog"><button class="proj-video-close">Close</button></form>
-          </dialog>
-          {% endif %}{% endfor %}
-
-          {% comment %}
-            Four projects show; from the fifth on they wait behind this
-            button (the script wires it; without JS every card shows).
-            A grid that grows in place keeps every project the same
-            card; a carousel would hide most of them.
-          {% endcomment %}
-          {% if page.projects.size > 4 %}
-          <p class="section-more proj-grid-more" hidden>
-            <button type="button" class="proj-grid-btn specular" data-more="All {{ page.projects.size }} projects" data-less="Fewer projects">All {{ page.projects.size }} projects<span aria-hidden="true">→</span></button>
-          </p>
-          {% endif %}
 
         </div>
         </div>
       </section>
 
-      <!-- ── Toolkit: a tinted band of logo loops ────────────────
-           Each group is a single line that slides continuously, edge
-           to edge of the viewport, fading out at both ends (React Bits
-           LogoLoop). The label sits in the content column; the loop
-           itself is full width. The run of items is emitted twice and
-           the track is shifted by exactly half its width, so the loop
-           has no visible seam. Hover or keyboard focus pauses it;
-           reduced-motion stops it and lets the row scroll by hand. -->
-      <section class="ds-row ds-band" id="toolkit">
+      <!-- ── Toolkit: logo loops on the open scene ───────────────
+           Each group is a single line that drifts edge to edge (React
+           Bits LogoLoop, moved by home-bits.js); hovering a row holds
+           it still. "Show as a grid" stops all motion and lays the
+           tools out flat; reduced motion starts there. The run of items
+           is emitted twice so the loop has no seam; the copy is hidden
+           from assistive tech. -->
+      <section class="ds-row" id="toolkit">
         <div class="band-inner">
-          <p class="ds-heading">Toolkit <small>things I have actually used</small></p>
+          <h2 class="ds-heading">Toolkit <small>things I have actually used</small></h2>
+          <div class="tk-bar">
+            <button type="button" class="tk-grid-toggle" aria-pressed="false">Show as a grid</button>
+          </div>
         </div>
-        <div class="ds-val">
+        <div class="ds-val tk-rows">
           {% for sk in page.skills %}
           <div class="ribbon{% cycle 'dir': '', ' ribbon-rev' %}" data-anim="fade" style="--anim-i: {{ forloop.index0 }}">
-            <div class="band-inner"><p class="ribbon-label" data-decrypt>{{ sk.group }}</p></div>
+            <div class="band-inner"><p class="ribbon-label">{{ sk.group }}</p></div>
             <div class="ribbon-view">
               <div class="ribbon-track">
                 {% for pass in (1..2) %}
@@ -527,141 +261,95 @@ layout: default
             </div>
           </div>
           {% endfor %}
+
         </div>
       </section>
 
-      <!-- ── Writing: a list on the open scene ───────────────────
-           Pulled live from the collections. Each post is one row with
-           the date in a block on the left (shadcn Item / React Bits
-           AnimatedList): a list, not a card. -->
-      {% if n_blogs > 0 or n_news > 0 %}
+      <!-- ── Education & credentials: one card each ──────────────
+           The degree, the certification and the award, each with its
+           issuer's mark on a white plate (so it reads on both themes),
+           then what I do off-hours. -->
+      {% if page.credentials %}
+      <section class="ds-row ds-band" id="credentials">
+        <div class="band-inner">
+        <h2 class="ds-heading">Education &amp; credentials <small>degree, certification, award</small></h2>
+        <div class="ds-val">
+          <ul class="cred-cards" data-stagger>
+            {% for c in page.credentials %}
+            <li class="tile cred-x" data-anim="up">
+              {% if c.logo %}<span class="cred-x-mark"><img src="{{ c.logo | relative_url }}" alt="" loading="lazy"></span>{% endif %}
+              <div class="cred-x-body">
+                <p class="cred-x-kind">{{ c.kind }}</p>
+                <h3 class="cred-x-title">{{ c.title }}</h3>
+                {% if c.detail %}<p class="cred-x-detail">{{ c.detail }}</p>{% endif %}
+                <p class="cred-x-meta">{{ c.org }}{% if c.period %}<span class="sep">·</span>{{ c.period }}{% endif %}</p>
+                {% if c.url %}<a class="cred-x-verify" href="{{ c.url | escape }}" target="_blank" rel="noopener">Verify<span aria-hidden="true">↗</span></a>{% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          {% if page.interests %}
+          <div class="offhours" data-anim="fade">
+            <h3 class="offhours-title">Off-hours</h3>
+            <ul class="offhours-list">
+              {% for i in page.interests %}
+              <li>
+                <span class="offhours-ic" aria-hidden="true">{% include icon.html name=i.icon %}</span>
+                <span><b>{{ i.label }}</b>{% if i.detail %}<span class="offhours-detail">{{ i.detail }}</span>{% endif %}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- ── Writing: three chosen essays, on the open scene ─────
+           Chosen in the front matter (writing.featured), so the first
+           thing a reader opens is the thinking, not the latest post. -->
+      {% if n_blogs > 0 %}
       <section class="ds-row" id="writing">
         <div class="band-inner">
-        <p class="ds-heading">Writing <small>most recent</small></p>
+        <h2 class="ds-heading">Writing <small>start with these</small></h2>
         <div class="ds-val post-list" data-stagger>
-          {% for post in site.categories.blogs limit: 3 %}
+          {% for u in page.writing.featured %}
+          {% assign post = site.posts | where: "url", u | first %}
+          {% if post %}
           <a class="post-row" href="{{ post.url | relative_url }}" data-anim="up">
             <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
             <span>
               <span class="post-row-title">{{ post.title }}</span>
-              {% if post.tags and post.tags.size > 0 %}
-              <div class="post-row-tags">
-                {% for tag in post.tags limit: 3 %}<span class="post-row-tag">{{ tag }}</span>{% endfor %}
-              </div>
-              {% endif %}
             </span>
             {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
           </a>
-          {% endfor %}
-
-          {% for post in site.categories.news limit: 2 %}
-          <a class="post-row news-item" href="{{ post.url | relative_url }}" data-anim="up">
-            <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
-            <span>
-              <span class="post-row-title">{{ post.title }}</span>
-              {% if post.excerpt %}
-              <span class="post-row-excerpt">{{ post.excerpt | strip_html | truncate: 120 }}</span>
-              {% endif %}
-            </span>
-            {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
-          </a>
+          {% endif %}
           {% endfor %}
 
           <p class="section-more" data-anim="fade">
+            {% for s in page.writing.series %}
+            <a href="{{ s.url | relative_url }}">{{ s.label }}<span aria-hidden="true">→</span></a>
+            {% endfor %}
             <a href="{{ '/blogs/' | relative_url }}">All writing<span aria-hidden="true">→</span></a>
-            {% if n_news > 0 %}<a href="{{ '/news/' | relative_url }}">News digests<span aria-hidden="true">→</span></a>{% endif %}
           </p>
         </div>
         </div>
       </section>
       {% endif %}
 
-      <!-- ── Credentials: a tinted band, two panels ──────────────
-           Education, then certifications and awards, each a full-width
-           panel on the same six-column grid: a row of two cards spans
-           3 + 3, a row of three spans 2 + 2 + 2, so every row is full
-           and the two subsections share one geometry.
-           Every card: the mark of its kind (a cap, a seal, a trophy),
-           the name, where it came from, and a score or verify chips
-           along its foot. -->
-      <section class="ds-row ds-band" id="credentials">
-        <div class="band-inner">
-        <p class="ds-heading">Credentials <small>degree, certificates, awards</small></p>
-        <div class="ds-val">
-          <div class="cred-stack" data-stagger>
-
-            <div class="tile cred-panel" data-anim="up">
-              <p class="cred-panel-title" data-decrypt>Education</p>
-              <ul class="cred-grid">
-                {% for e in page.education %}
-                <li class="cred-card cred-card--w3">
-                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="cap" %}</i></span>
-                  <div class="cred-body">
-                    <p class="cred-head">{{ e.degree }}</p>
-                    {% if e.detail %}<p class="cred-sub">{{ e.detail }}</p>{% endif %}
-                    <p class="cred-meta">{{ e.school }}<span class="sep">·</span>{{ e.period }}</p>
-                    {% if e.score %}<p class="cred-foot"><span class="cred-score">{{ e.score }}</span></p>{% endif %}
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-
-            <div class="tile cred-panel" data-anim="up">
-              <p class="cred-panel-title" data-decrypt>Certifications &amp; awards</p>
-              <ul class="cred-grid">
-                {% for c in page.certifications %}
-                <li class="cred-card cred-card--w2">
-                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="seal" %}</i></span>
-                  <div class="cred-body">
-                    <p class="cred-head">{{ c.name }}</p>
-                    <p class="cred-meta">{{ c.issuer }}</p>
-                    <div class="cred-foot cert-links">
-                      {% if c.links %}
-                      {% for l in c.links %}
-                      <a href="{{ l.url | escape }}" target="_blank" rel="noopener">{{ l.label }}<span aria-hidden="true">↗</span></a>
-                      {% endfor %}
-                      {% elsif c.url %}
-                      <a href="{{ c.url | escape }}" target="_blank" rel="noopener">Verify<span aria-hidden="true">↗</span></a>
-                      {% endif %}
-                    </div>
-                  </div>
-                </li>
-                {% endfor %}
-                {% for a in page.awards %}
-                <li class="cred-card cred-card--w3">
-                  <span class="tile-ic glass-ic" aria-hidden="true"><i class="gi-back"></i><i class="gi-front">{% include icon.html name="trophy" %}</i></span>
-                  <div class="cred-body">
-                    <p class="cred-head">{{ a.name }}</p>
-                    {% if a.note %}<p class="cred-meta">{{ a.note }}</p>{% endif %}
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-
-          </div>
-
-          {% if page.interests %}
-          <p class="interests" data-anim="fade" data-truefocus>
-            <span class="interests-label">Off-hours</span>
-            {% for i in page.interests %}{{ i }}{% unless forloop.last %} <span class="sep">·</span> {% endunless %}{% endfor %}
-          </p>
-          {% endif %}
-        </div>
-        </div>
-      </section>
-
 </div><!-- /.home -->
 
 
 <!-- ═══════════════════════════════════════════════════════════════
-     CONTACT: a closing plane, mirrors the hero
+     CONTACT: a closing plane, mirrors the hero. An invitation to
+     talk, nothing more.
 ═══════════════════════════════════════════════════════════════ -->
 <section class="contact" id="contact">
   <div class="magnet-lines" aria-hidden="true"></div>
   <div class="contact-inner" data-anim="up">
-    <p class="page-label" data-decrypt>Get in touch</p>
+    {% if page.contact.line %}<p class="contact-line">{{ page.contact.line }}</p>{% endif %}
     <a class="contact-email shiny" href="mailto:{{ page.contact.email }}">{{ page.contact.email }}</a>
     <nav class="hero-links" aria-label="Profile links">
       {% for l in profile_links %}
@@ -687,8 +375,9 @@ layout: default
   if (heroInner && !reduce) {
     // On phones the portrait leads the column, so it rises first there.
     var portraitDelay = window.matchMedia('(max-width: 860px)').matches ? 0 : 0.12;
-    [['.page-label', 0], ['.hero-hi', 0.05], ['.hero-name-wrap', 0.1],
-     ['.hero-links', 0.24], ['.hero-portrait', portraitDelay]
+    [['.hero-hi', 0], ['.hero-name-wrap', 0.03], ['.hero-line', 0.06],
+     ['.hero-sub', 0.09], ['.hero-links', 0.12], ['.hero-status', 0.15],
+     ['.hero-portrait', portraitDelay]
     ].forEach(function (pair) {
       var el = heroInner.querySelector(pair[0]);
       if (!el) return;
@@ -743,72 +432,6 @@ layout: default
     }, { passive: true });
   }
 
-  // ── The lede reveals word by word as you scroll through it ────
-  // After React Bits ScrollReveal: each word goes from faint and
-  // soft to full as the paragraph travels up the viewport, so the
-  // line is read at the pace it is scrolled. Reduced motion: plain.
-  var ledes = document.querySelectorAll('[data-scroll-reveal]');
-  if (ledes.length && !reduce) {
-    Array.prototype.forEach.call(ledes, function (lede) {
-      // Wrap each word, keeping inline markup (<strong>) intact.
-      var walker = document.createTreeWalker(lede, NodeFilter.SHOW_TEXT), texts = [];
-      while (walker.nextNode()) texts.push(walker.currentNode);
-      texts.forEach(function (node) {
-        var parts = node.nodeValue.split(/(\s+)/), frag = document.createDocumentFragment();
-        parts.forEach(function (part) {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-          var w = document.createElement('span'); w.className = 'w'; w.textContent = part;
-          frag.appendChild(w);
-        });
-        node.parentNode.replaceChild(frag, node);
-      });
-      var words = Array.prototype.slice.call(lede.querySelectorAll('.w'));
-      words.forEach(function (w, i) { w.style.setProperty('--w', i / Math.max(1, words.length - 1)); });
-      lede.classList.add('is-split');
-      var ledeTick = false;
-      function ledeSync() {
-        ledeTick = false;
-        var r = lede.getBoundingClientRect(), vh = document.documentElement.clientHeight;
-        // 0 when the top of the lede is at the bottom of the viewport,
-        // 1 once it has climbed into the upper 45%.
-        var p = (vh - r.top) / (vh * 0.55 + r.height);
-        lede.style.setProperty('--p', Math.min(1, Math.max(0, p)).toFixed(3));
-      }
-      var ledeReq = function () { if (!ledeTick) { ledeTick = true; requestAnimationFrame(ledeSync); } };
-      window.addEventListener('scroll', ledeReq, { passive: true });
-      window.addEventListener('resize', ledeReq, { passive: true });
-      ledeSync();
-    });
-  }
-
-  // ── Projects: four show; the rest wait behind a button ─────────
-  var pgrid = document.querySelector('.proj-grid[data-show]');
-  var pmore = document.querySelector('.proj-grid-more');
-  if (pgrid && pmore) {
-    var show = parseInt(pgrid.getAttribute('data-show'), 10) || 4;
-    var cards = Array.prototype.slice.call(pgrid.querySelectorAll('.proj'));
-    if (cards.length > show) {
-      var btn = pmore.querySelector('.proj-grid-btn');
-      pgrid.classList.add('is-collapsed');
-      pmore.hidden = false;
-      btn.addEventListener('click', function () {
-        var open = pgrid.classList.toggle('is-collapsed') === false;
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        btn.firstChild.nodeValue = open ? btn.getAttribute('data-less') : btn.getAttribute('data-more');
-        if (open) {
-          cards.slice(show).forEach(function (c, k) {
-            c.style.setProperty('--anim-i', k);
-            c.classList.remove('in');
-            requestAnimationFrame(function () { requestAnimationFrame(function () { c.classList.add('in'); }); });
-          });
-        } else {
-          pgrid.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-        }
-      });
-    }
-  }
-
   // ── "Watch it work": the recording, full-size, in a dialog ─────
   // The link is the MP4 itself, so without JS (or without <dialog>) it
   // still opens the video. Clicking the backdrop closes it, and closing
@@ -827,39 +450,90 @@ layout: default
     dlg.addEventListener('close', function () { vid.pause(); });
   });
 
-  // ── "Focus": light the projects for one kind of work ──────────
-  // Read from ?for= on arrival (so a link from a job application
-  // lands on the right projects) and set by the buttons without a
-  // reload. Pressing the lit one again clears it.
-  var lensBtns = Array.prototype.slice.call(document.querySelectorAll('.proj-lens-btn'));
-  var lensNote = document.querySelector('.proj-lens-note');
-  if (lensBtns.length && pgrid) {
-    var lensCards = Array.prototype.slice.call(pgrid.querySelectorAll('.proj'));
-    var setLens = function (id) {
-      lensBtns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lens') === id ? 'true' : 'false'); });
-      var hiddenMatch = false;
-      lensCards.forEach(function (c, i) {
-        var match = !!id && (' ' + c.getAttribute('data-roles') + ' ').indexOf(' ' + id + ' ') !== -1;
-        c.classList.toggle('is-lit', match);
-        c.classList.toggle('is-dim', !!id && !match);
-        if (match && i >= 4) hiddenMatch = true;
-      });
-      pgrid.classList.toggle('has-lens', !!id);
-      if (hiddenMatch && pgrid.classList.contains('is-collapsed') && pmore) pmore.querySelector('.proj-grid-btn').click();
-      var on = lensBtns.filter(function (b) { return b.getAttribute('data-lens') === id; })[0];
-      if (lensNote) { lensNote.hidden = !on; lensNote.textContent = on ? on.getAttribute('data-note') : ''; }
-      var url = new URL(window.location.href);
-      if (id) url.searchParams.set('for', id); else url.searchParams.delete('for');
-      history.replaceState(history.state, '', url);
-    };
-    lensBtns.forEach(function (b) {
-      b.addEventListener('click', function (e) {
-        e.preventDefault();
-        setLens(b.getAttribute('aria-pressed') === 'true' ? null : b.getAttribute('data-lens'));
-      });
+  // ── Lighting the work: ?for= ───────────────────────────────────
+  // A ?for= link (the old Focus lenses, kept so links already sent out
+  // still land) lights the matching work, project cards and Experience
+  // tiles alike, and dims the rest without hiding any. A match inside
+  // the folded "Earlier" row opens it.
+  var work = document.getElementById('projects');
+  var lensNote = work && work.querySelector('.proj-lens-note');
+  var lensText = lensNote && lensNote.querySelector('.proj-lens-text');
+  var workCards = Array.prototype.slice.call(document.querySelectorAll('.proj'));
+  var lensNotes = {};
+  if (work) Array.prototype.forEach.call(work.querySelectorAll('.proj-lens-data [data-lens]'), function (i) {
+    lensNotes[i.getAttribute('data-lens')] = i.getAttribute('data-note');
+  });
+  var PARAMS = ['for', 'org', 'tool'];   // 'org', 'tool': only cleared (old links)
+
+  function lightWork(kind, value, opts) {
+    opts = opts || {};
+    var test = null, note = '';
+    if (kind === 'for' && lensNotes[value]) {
+      test = function (c) { return (' ' + c.getAttribute('data-roles') + ' ').indexOf(' ' + value + ' ') !== -1; };
+      note = lensNotes[value];
+    } else { kind = null; }
+
+    workCards.forEach(function (c) {
+      var m = !!test && test(c);
+      c.classList.toggle('is-lit', m);
+      c.classList.toggle('is-dim', !!test && !m);
+      if (m) { var fold = c.closest('details'); if (fold && fold.classList.contains('work-fold')) fold.open = true; }
     });
-    var arrived = new URLSearchParams(window.location.search).get('for');
-    if (arrived && lensBtns.some(function (b) { return b.getAttribute('data-lens') === arrived; })) setLens(arrived);
+    document.body.classList.toggle('has-lens', !!test);
+    if (lensNote) { lensNote.hidden = !test; lensText.textContent = note; }
+    var live = document.getElementById('work-live');
+    if (live && !opts.quiet) live.textContent = test ? note : 'Showing all the work.';
+
+    var url = new URL(window.location.href);
+    PARAMS.forEach(function (k) { url.searchParams.delete(k); });
+    if (kind) url.searchParams.set(kind, value);
+    history.replaceState(history.state, '', url);
+  }
+
+  if (lensNote) lensNote.querySelector('.lens-clear').addEventListener('click', function () { lightWork(null); });
+
+  // ── Details: each piece of work's window ─────────────────────
+  // The card's "Details" is a link to its <dialog>; with JS it opens
+  // as a modal (focus held inside, Esc closes, focus goes back to the
+  // link). A click on the dim backdrop or on Close shuts it. Without JS
+  // the link still shows the window as the :target.
+  var openDialog = function (id) {
+    var dlg = document.getElementById(id);
+    if (!dlg || !dlg.showModal) return false;
+    if (!dlg.open) dlg.showModal();
+    dlg.scrollTop = 0;
+    return true;
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-dialog]');
+    if (a && openDialog(a.getAttribute('data-dialog'))) { e.preventDefault(); return; }
+    var x = e.target.closest('.pd-close');
+    if (x) { var d = x.closest('dialog'); if (d && d.open) { e.preventDefault(); d.close(); } }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.proj-dialog'), function (dlg) {
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  });
+  if (/^#more-/.test(window.location.hash)) openDialog(window.location.hash.slice(1));
+
+  // ── Toolkit: the grid switch ───────────────────────────────────
+  var tkSec = document.getElementById('toolkit');
+  if (tkSec) {
+    var gridBtn = tkSec.querySelector('.tk-grid-toggle');
+    // Grid: every tool laid out flat, nothing moving. Reduced motion
+    // starts here; the choice is the reader's either way.
+    var setGrid = function (on) {
+      tkSec.classList.toggle('is-grid', on);
+      gridBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      gridBtn.textContent = on ? 'Show as loops' : 'Show as a grid';
+    };
+    gridBtn.addEventListener('click', function () { setGrid(!tkSec.classList.contains('is-grid')); });
+    if (reduce) setGrid(true);
+  }
+
+  // Arriving on a ?for= link.
+  var q = new URLSearchParams(window.location.search);
+  if (q.get('for')) {
+    lightWork('for', q.get('for'));
   }
 
   // ── Wake the live demos while the page is being read ──────────
@@ -980,11 +654,10 @@ layout: default
     });
   }
 
-  // ── Toolkit ribbons: only animate the ones on screen ──────────
-  // Each ribbon runs an infinite CSS marquee. Left to itself every row
-  // is composited on every frame for the whole session, even scrolled
-  // away, which showed up as scroll lag on phones. Park the ones that
-  // aren't visible.
+  // ── Toolkit ribbons: only move the ones on screen ─────────────
+  // home-bits.js moves each loop; rows scrolled away are marked
+  // .is-offscreen and skipped, so they cost nothing while you read
+  // any other section (they showed up as scroll lag on phones).
   var ribbons = document.querySelectorAll('.ribbon');
   if (ribbons.length && 'IntersectionObserver' in window) {
     var ribbonIO = new IntersectionObserver(function (entries) {

@@ -8,18 +8,14 @@
 
      lineSidebar()      Line Sidebar       the rail's beads and labels reach for the pointer
      targetCursor()     Target Cursor      theme-coloured ring cursor; brackets snap around targets
-     counters()         Counter            the metrics as rolling digits
      decrypt()          Decrypted Text     mono labels scramble into place
-     typewrite()        Text Type          the "now" line types itself
      dock()             Dock               hero pills magnify near the pointer
      accordion()        Accordion Gallery  project shots as expanding panels
      pixelPlates()      Pixel Card         a pixel field on the cover plates
-     dotGrid()          Dot Grid           the projects band's dots, pushed by the pointer
-     electricBorder()   Electric Border    the current job's live edge
      magnetLines()      Magnet Lines       needles pointing at the pointer, behind Contact
      specular()         Specular Button    a highlight that follows the pointer on buttons
      trueFocus()        True Focus         a frame hopping between the off-hours words
-     scrollVelocity()   Scroll Velocity    the toolkit loops speed up with the scroll
+     scrollVelocity()   Scroll Velocity    the toolkit loops drift, and hold when read
 
    All progressive; with reduced motion, a coarse pointer or no JS the
    page is simply still.
@@ -134,40 +130,6 @@
     raf = requestAnimationFrame(place);
   }
 
-  /* ── Counter: the metrics as rolling digits ───────────────────────
-     Each digit is a column of 0–9 that slides to its value, the units
-     first, the higher places after; the prefix and suffix ("+", "%")
-     stay put. Replaces the count-up. */
-  function counters() {
-    var figs = document.querySelectorAll(".metric-figure[data-count]");
-    Array.prototype.forEach.call(figs, function (el) {
-      var raw = el.getAttribute("data-count");
-      var m = raw.match(/^([^\d]*)([\d.,]+)(.*)$/);
-      if (!m) return;
-      var num = m[2];
-      el.textContent = "";
-      el.classList.add("odo");
-      if (m[1]) el.appendChild(document.createTextNode(m[1]));
-      var cols = [];
-      Array.from(num).forEach(function (ch) {
-        if (ch === "." || ch === ",") { var d = document.createElement("span"); d.className = "odo-sep"; d.textContent = ch; el.appendChild(d); return; }
-        var col = document.createElement("span"); col.className = "odo-col";
-        var strip = document.createElement("span"); strip.className = "odo-strip";
-        for (var i = 0; i < 10; i++) { var n = document.createElement("i"); n.textContent = i; strip.appendChild(n); }
-        col.appendChild(strip); el.appendChild(col);
-        cols.push({ strip: strip, v: parseInt(ch, 10) });
-      });
-      if (m[3]) el.appendChild(document.createTextNode(m[3]));
-      if (reduce) { cols.forEach(function (c) { c.strip.style.transform = "translateY(" + (-c.v * 10) + "%)"; }); return; }
-      onEnter(el, function () {
-        cols.forEach(function (c, i) {
-          c.strip.style.transitionDelay = ((cols.length - 1 - i) * 90) + "ms";
-          requestAnimationFrame(function () { c.strip.style.transform = "translateY(" + (-c.v * 10) + "%)"; });
-        });
-      }, 0.5);
-    });
-  }
-
   /* ── Decrypted Text: mono labels scramble into place ─────────────
      On arrival each label shows random characters that resolve into
      the real ones from the start, a few at a time. */
@@ -193,27 +155,6 @@
         }, 28);
       }, 0.6);
     });
-  }
-
-  /* ── Text Type: the "now" line types itself out ──────────────────*/
-  function typewrite() {
-    var el = document.querySelector("[data-typewrite]");
-    if (!el || reduce) return;
-    var dot = el.querySelector(".status-dot");
-    var text = el.textContent.trim();
-    el.textContent = "";
-    if (dot) el.appendChild(dot);
-    var out = document.createElement("span"); out.className = "tt";
-    var cur = document.createElement("span"); cur.className = "tt-cursor"; cur.textContent = "▍";
-    el.appendChild(out); el.appendChild(cur);
-    el.setAttribute("aria-label", text);
-    onEnter(el, function () {
-      var i = 0;
-      var iv = setInterval(function () {
-        out.textContent = text.slice(0, ++i);
-        if (i >= text.length) { clearInterval(iv); setTimeout(function () { cur.classList.add("is-done"); }, 1800); }
-      }, 34);
-    }, 0.6);
   }
 
   /* ── Dock: the hero pills magnify near the pointer ───────────────*/
@@ -311,166 +252,6 @@
     });
   }
 
-  /* ── Dot Grid: the projects band's dots ──────────────────────────
-     A grid of small dots; near the pointer they take the accent, and
-     a fast pointer shoves them aside, after which they spring back. */
-  function dotGrid() {
-    var band = document.getElementById("projects");
-    if (!band || reduce) return;
-    var canvas = document.createElement("canvas");
-    canvas.className = "dot-grid"; canvas.setAttribute("aria-hidden", "true");
-    band.insertBefore(canvas, band.firstChild);
-    var ctx = canvas.getContext("2d"), dots = [], raf = 0;
-    var SIZE = 2.2, GAP = 26, PROX = 140, SHOCK = 220, STRENGTH = 4, SPEED_TRIGGER = 120;
-    var p = { x: -1e4, y: -1e4, lx: 0, ly: 0, lt: 0, speed: 0, vx: 0, vy: 0 };
-    var base = [0, 0, 0], accent = [0, 0, 0];
-    function rgb(str) { var c = document.createElement("canvas").getContext("2d"); c.fillStyle = str; var h = c.fillStyle; return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
-    function theme() { base = rgb(cssVar("--text-3") || "#5E6A83"); accent = rgb(cssVar("--accent") || "#88C0D0"); }
-    theme();
-    new MutationObserver(theme).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
-    function build() {
-      var r = band.getBoundingClientRect();
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = r.width * dpr; canvas.height = r.height * dpr;
-      canvas.style.width = r.width + "px"; canvas.style.height = r.height + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var cell = SIZE + GAP, cols = Math.floor((r.width + GAP) / cell), rows = Math.floor((r.height + GAP) / cell);
-      var sx = (r.width - (cell * cols - GAP)) / 2 + SIZE / 2, sy = (r.height - (cell * rows - GAP)) / 2 + SIZE / 2;
-      dots = [];
-      for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) dots.push({ cx: sx + x * cell, cy: sy + y * cell, ox: 0, oy: 0, vx: 0, vy: 0 });
-    }
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      var moving = false;
-      dots.forEach(function (d) {
-        // spring back
-        d.vx += -d.ox * 0.04; d.vy += -d.oy * 0.04;
-        d.vx *= 0.88; d.vy *= 0.88;
-        d.ox += d.vx; d.oy += d.vy;
-        if (Math.abs(d.vx) + Math.abs(d.vy) > 0.02) moving = true;
-        var dx = d.cx - p.x, dy = d.cy - p.y, dist = Math.hypot(dx, dy);
-        var t = dist < PROX ? 1 - dist / PROX : 0;
-        var r = Math.round(base[0] + (accent[0] - base[0]) * t), g = Math.round(base[1] + (accent[1] - base[1]) * t), b = Math.round(base[2] + (accent[2] - base[2]) * t);
-        ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (0.28 + t * 0.6).toFixed(2) + ")";
-        ctx.beginPath(); ctx.arc(d.cx + d.ox, d.cy + d.oy, SIZE / 2 + t * 0.8, 0, Math.PI * 2); ctx.fill();
-      });
-      raf = (moving || p.x > -1e3) ? requestAnimationFrame(draw) : 0;
-    }
-    function kick() { if (!raf) raf = requestAnimationFrame(draw); }
-    band.addEventListener("mousemove", function (e) {
-      var now = performance.now(), dt = p.lt ? now - p.lt : 16;
-      var r = canvas.getBoundingClientRect();
-      var nx = e.clientX - r.left, ny = e.clientY - r.top;
-      p.vx = (nx - p.lx) / dt * 1000; p.vy = (ny - p.ly) / dt * 1000;
-      p.speed = Math.hypot(p.vx, p.vy);
-      p.lt = now; p.lx = nx; p.ly = ny; p.x = nx; p.y = ny;
-      if (p.speed > SPEED_TRIGGER) {
-        dots.forEach(function (d) {
-          var dist = Math.hypot(d.cx - p.x, d.cy - p.y);
-          if (dist < PROX) {
-            var push = (1 - dist / PROX) * STRENGTH * 0.004;
-            d.vx += p.vx * push; d.vy += p.vy * push;
-          }
-        });
-      }
-      kick();
-    });
-    band.addEventListener("mouseleave", function () { p.x = -1e4; p.y = -1e4; kick(); });
-    band.addEventListener("click", function (e) {
-      var r = canvas.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
-      dots.forEach(function (d) {
-        var dist = Math.hypot(d.cx - cx, d.cy - cy);
-        if (dist < SHOCK) { var f = (1 - dist / SHOCK) * 9; d.vx += (d.cx - cx) / (dist || 1) * f; d.vy += (d.cy - cy) / (dist || 1) * f; }
-      });
-      kick();
-    });
-    build();
-    window.addEventListener("resize", function () { build(); draw(); }, { passive: true });
-    if (canIO) new IntersectionObserver(function (en) { if (en[0].isIntersecting) kick(); }).observe(band);
-    draw();
-  }
-
-  /* ── Electric Border: the current job's live edge ────────────────
-     The card's outline traced as a rounded rectangle whose points are
-     pushed by layered noise that drifts with time, stroked in the
-     accent on a canvas that reaches past the card; two blurred
-     copies behind it are the glow. */
-  function electricBorder() {
-    var card = document.querySelector(".tl-card.electric");
-    if (!card || reduce) return;
-    var canvas = card.querySelector(".eb-canvas");
-    if (!canvas) return;
-    var ctx = canvas.getContext("2d"), OFF = 40, raf = 0, t0 = performance.now();
-    function rnd(x) { return (Math.sin(x * 12.9898) * 43758.5453) % 1 * 0.5 + 0.5; }
-    function noise(x, y) {
-      var i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
-      var a = rnd(i + j * 57), b = rnd(i + 1 + j * 57), c = rnd(i + (j + 1) * 57), d = rnd(i + 1 + (j + 1) * 57);
-      var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
-      return (a * (1 - ux) + b * ux) * (1 - uy) + (c * (1 - ux) + d * ux) * uy;
-    }
-    function octaved(x, time, seed) {
-      var y = 0, amp = 1, freq = 6, norm = 0;
-      for (var o = 0; o < 5; o++) { y += amp * (noise(freq * x + seed * 100, time * freq * 0.3) - 0.5); norm += amp; amp *= 0.6; freq *= 1.7; }
-      return y / norm;
-    }
-    function point(w, h, r, t) {
-      // t in [0,1) along the rounded rect's perimeter
-      var sw = w - 2 * r, sh = h - 2 * r, arc = Math.PI * r / 2, per = 2 * sw + 2 * sh + 4 * arc, d = t * per;
-      var segs = [[sw, 0], [arc, 1], [sh, 2], [arc, 3], [sw, 4], [arc, 5], [sh, 6], [arc, 7]], acc = 0;
-      for (var i = 0; i < segs.length; i++) {
-        var len = segs[i][0], k = segs[i][1];
-        if (d <= acc + len || i === segs.length - 1) {
-          var p = (d - acc) / len;
-          switch (k) {
-            case 0: return [r + p * sw, 0];
-            case 1: return [w - r + Math.cos(-Math.PI / 2 + p * Math.PI / 2) * r, r + Math.sin(-Math.PI / 2 + p * Math.PI / 2) * r];
-            case 2: return [w, r + p * sh];
-            case 3: return [w - r + Math.cos(p * Math.PI / 2) * r, h - r + Math.sin(p * Math.PI / 2) * r];
-            case 4: return [w - r - p * sw, h];
-            case 5: return [r + Math.cos(Math.PI / 2 + p * Math.PI / 2) * r, h - r + Math.sin(Math.PI / 2 + p * Math.PI / 2) * r];
-            case 6: return [0, h - r - p * sh];
-            case 7: return [r + Math.cos(Math.PI + p * Math.PI / 2) * r, r + Math.sin(Math.PI + p * Math.PI / 2) * r];
-          }
-        }
-        acc += len;
-      }
-      return [0, 0];
-    }
-    function size() {
-      var r = card.getBoundingClientRect();
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = (r.width + OFF * 2) * dpr; canvas.height = (r.height + OFF * 2) * dpr;
-      canvas.style.width = (r.width + OFF * 2) + "px"; canvas.style.height = (r.height + OFF * 2) + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      return r;
-    }
-    var rect = size();
-    // Follow the card, not the window: opening "What I did there"
-    // grows it, and a stale canvas would trace the old outline.
-    if (window.ResizeObserver) new ResizeObserver(function () { rect = size(); }).observe(card);
-    else window.addEventListener("resize", function () { rect = size(); }, { passive: true });
-    function frame(now) {
-      var time = (now - t0) * 0.001;
-      var w = rect.width, h = rect.height, rad = 12, N = 360;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = cssVar("--accent") || "#88C0D0";
-      ctx.globalAlpha = 0.55; ctx.lineWidth = 1.2; ctx.lineJoin = "round";
-      ctx.beginPath();
-      for (var i = 0; i <= N; i++) {
-        var t = (i % N) / N, p = point(w, h, rad, t);
-        var n = octaved(t * 8, time * 0.3, 1) * 3, n2 = octaved(t * 8 + 3.7, time * 0.3, 2) * 3;
-        var x = p[0] + OFF + n, y = p[1] + OFF + n2;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.closePath(); ctx.stroke();
-      raf = requestAnimationFrame(frame);
-    }
-    function start() { if (!raf && !document.hidden) raf = requestAnimationFrame(frame); }
-    function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
-    if (canIO) new IntersectionObserver(function (en) { en[0].isIntersecting ? start() : stop(); }).observe(card); else start();
-    document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
-  }
-
   /* ── Magnet Lines: needles behind the closing plane ──────────────*/
   function magnetLines() {
     var host = document.querySelector(".magnet-lines");
@@ -545,19 +326,43 @@
     void label;
   }
 
-  /* ── Scroll Velocity: the toolkit loops follow the scroll ─────────
-     The loops are moved by script instead of a CSS animation: a base
-     drift, plus the scroll's speed on top, and a slight skew while
-     the page is moving. Rows alternate direction as before. */
+  /* ── Scroll Velocity: the toolkit loops, calm and holdable ───────
+     The loops are moved by script instead of a CSS animation: a slow
+     base drift, nudged a little by the scroll's speed. A row holds
+     still while the pointer or keyboard focus is in it (so a tool can
+     be read and picked), and every row holds while a tool is picked
+     (.is-held on the section) or the grid is shown (.is-grid). A
+     focused tool that has drifted out of view is brought back in. */
   function scrollVelocity() {
     var ribbons = Array.prototype.slice.call(document.querySelectorAll(".ribbon"));
     if (!ribbons.length || reduce) return;
+    var sec = document.getElementById("toolkit");
     var rows = ribbons.map(function (r) {
       var track = r.querySelector(".ribbon-track"), run = r.querySelector(".ribbon-run");
-      return { el: r, track: track, run: run, x: 0, dir: r.classList.contains("ribbon-rev") ? 1 : -1, half: 0 };
+      var row = { el: r, track: track, run: run, view: r.querySelector(".ribbon-view"), x: 0, dir: r.classList.contains("ribbon-rev") ? 1 : -1, half: 0, hover: false, focus: false };
+      r.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") row.hover = true; });
+      r.addEventListener("pointerleave", function () { row.hover = false; });
+      r.addEventListener("focusin", function (e) {
+        row.focus = true;
+        // Keep the focused tool inside the visible part of the row.
+        var v = row.view.getBoundingClientRect(), t = e.target.getBoundingClientRect();
+        var pad = Math.min(160, v.width * 0.2);
+        if (t.left < v.left + pad) row.x += (v.left + pad) - t.left;
+        else if (t.right > v.right - pad) row.x -= t.right - (v.right - pad);
+        wrap(row); paint(row);
+      });
+      r.addEventListener("focusout", function () { row.focus = false; });
+      return row;
     });
     rows.forEach(function (r) { r.el.classList.add("is-jsloop"); });
     function measure() { rows.forEach(function (r) { r.half = r.run ? r.run.getBoundingClientRect().width : 0; }); }
+    function wrap(r) {
+      // keep within one run's width so the loop is seamless
+      if (!r.half) return;
+      while (r.x <= -r.half) r.x += r.half;
+      while (r.x > 0) r.x -= r.half;
+    }
+    function paint(r) { r.track.style.transform = "translate3d(" + r.x.toFixed(2) + "px,0,0)"; }
     measure();
     window.addEventListener("resize", measure, { passive: true });
     var lastY = window.scrollY, vel = 0, last = performance.now();
@@ -566,21 +371,28 @@
       vel = vel * 0.5 + ((y - lastY) / dt * 1000) * 0.5;   // px/s, smoothed
       lastY = y; last = now;
     }, { passive: true });
-    var BASE = 28; // px/s
+    var BASE = 16; // px/s: slow enough to read a name as it passes
     var prev = performance.now();
+    var wasGrid = false;
     function frame(now) {
       var dt = Math.min(0.05, (now - prev) / 1000); prev = now;
       vel *= 0.92;
-      var boost = clamp(Math.abs(vel) / 900, 0, 4);
-      var skew = clamp(vel / 3000, -1, 1) * 6;
-      rows.forEach(function (r) {
-        if (!r.half || r.el.classList.contains("is-offscreen")) return;
-        r.x += r.dir * BASE * (1 + boost) * dt;
-        // keep within one run's width so the loop is seamless
-        if (r.x <= -r.half) r.x += r.half;
-        if (r.x > 0) r.x -= r.half;
-        r.track.style.transform = "translate3d(" + r.x.toFixed(2) + "px,0,0) skewX(" + (-skew * r.dir).toFixed(2) + "deg)";
-      });
+      var boost = clamp(Math.abs(vel) / 1800, 0, 1);
+      var grid = sec && sec.classList.contains("is-grid");
+      if (grid !== wasGrid) {
+        // The grid lays the runs out flat; leaving it, resume from 0.
+        rows.forEach(function (r) { r.track.style.transform = grid ? "none" : ""; if (!grid) { r.x = 0; } });
+        if (!grid) measure();
+        wasGrid = grid;
+      }
+      var held = grid || (sec && sec.classList.contains("is-held"));
+      if (!held) {
+        rows.forEach(function (r) {
+          if (!r.half || r.hover || r.focus || r.el.classList.contains("is-offscreen")) return;
+          r.x += r.dir * BASE * (1 + boost) * dt;
+          wrap(r); paint(r);
+        });
+      }
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -588,14 +400,10 @@
 
   lineSidebar();
   targetCursor();
-  counters();
   decrypt();
-  typewrite();
   dock();
   accordion();
   pixelPlates();
-  dotGrid();
-  electricBorder();
   magnetLines();
   specular();
   trueFocus();

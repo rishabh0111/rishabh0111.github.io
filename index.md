@@ -2,140 +2,122 @@
 # ═════════════════════════════════════════════════════════════════
 #  HOME: all of the page's content lives in this front matter.
 #  _layouts/home.html renders it as full-width rows, one content
-#  column, alternating between the open scene and a tinted band so
-#  each section is visibly its own. A left-margin rail names the
-#  section you are reading (a compact heading stands in for it on
-#  narrow screens).
+#  column, alternating between the open scene and a tinted band.
 #
-#  Each section is a different component, so the page reads at a
-#  glance before any of it is read: About is three spotlight tiles,
-#  Projects a band of poster cards, Experience a timeline, Toolkit a
-#  band of edge-to-edge logo loops, Writing a dated list, Credentials
-#  two panels of rows. The prose for each thing sits behind a fold.
+#  WHO IT IS FOR. Founders, CTOs, investors, peers, and whoever else
+#  turns up: not recruiters (the resume serves them). So this page
+#  is NOT written in resume form:
+#    · no stat tiles, no counts in the hero, no X-Y-Z bullets on the
+#      surface. A card says what problem it solves, for whom, and why
+#      that matters; at most one number on it (`proof`), and only one
+#      that marks a real stake. Every other figure lives in the fold,
+#      next to how it was measured.
+#    · no role title and no employer in the hero. Projects holds my
+#      own work; work done for an employer lives under its company in
+#      Experience, as tiles. A new job is one more entry there.
+#    · nothing that reads as a job search (no "open to", "available",
+#      "hire"). The close invites a conversation, not an offer.
+#
+#  Order: hero → principles → projects → experience → toolkit →
+#  education & credentials → writing → contact.
 #
 #  Bullet strings accept inline Markdown (**bold**, `code`, [links](#)).
-#  Stack strings are matched against _data/tech_logos.json to pick a
-#  brand mark; a name with no mark renders as initials, on purpose.
+#  Stack and skill names are matched against _data/tech_logos.json for
+#  a brand mark.
 #  Adding a tool? Add it here, then re-run:
 #      python _templates/logos/build_logos.py
-#
-#  To change the page, change this file.
 # ═════════════════════════════════════════════════════════════════
 layout: home
 title: Rishabh Sharma
 description: >-
-  AI engineer who takes AI features from request to production. Four AI
-  systems shipped at Kleeto since May 2026, three of them in production, plus
-  the backends under them, held to evals.
+  Rishabh Sharma builds AI systems, backends and the infrastructure under
+  them, for work where a mistake is expensive: money, identity documents,
+  other people's data. Notes on what he builds and what broke.
 permalink: /
 
 profile:
   name:      Rishabh
   surname:   Sharma
-  role:      AI engineer who ships end to end
-  location:  Gurugram, India
+  # The headline names no role and no employer on purpose: it has to stay
+  # true whatever the next job is. Agreed with three reviewers (Nov 2026).
+  headline:  I design the mistake out.
+  sub: >-
+    Software engineer. I build AI systems, backends and the infrastructure
+    under them, for work that handles money, identity documents and private
+    data.
+  status:    Gurugram, India
   avatar:    /assets/img/home/profile-cutout.webp
-  avatar_caption: Gurugram, 2026
-  status:    AI Engineer at Kleeto · 4 AI systems shipped since May 2026, 3 in production
-  tagline: >-
-    I take **AI features from the first request to production**: the model
-    work, the backend, the interface, and the evals that show whether it
-    works. The model reads; code or a person makes the call.
 
 # Home-only links, shown after the social links in _data/social.yml.
 links:
   - { label: Writing,  url: "/blogs/",                              icon: pen }
 
-# ── Pillars: the three claims, shown inside "About" as icon tiles ─
-# Three claims, and only three. More would dilute each one. `icon`
-# is the tile's mark (see _includes/icon.html for the names).
-# "Full-stack" is deliberately not a pillar: it is evidence inside
-# the work below, where it is more convincing than as a claim.
-pillars:
-  - title: From request to rollout
-    icon:  spark
-    body: >-
-      The HR agent went from requirements to a rollout for 500+ employees. I
-      built Kleeto AI Slides alone and reshaped its authoring flow on its
-      owner's feedback; 3 customers are piloting it. At Zeonix I shipped 3
-      platforms, from API design to client onboarding.
-  - title: Measured before I trust it
-    icon:  check
-    body: >-
-      The HR agent is tested on known tasks and 50+ attempts to trick it;
-      none worked. On my own help desk, the AI makes the right call on 93.6%
-      of 600 tickets, and an AI grader that disagreed with people was replaced
-      by human labels.
-  - title: The model reads, code decides
+# ── Principles: how I build, four tiles ─────────────────────────
+# Habits that hold in any job. Each is told through one story, and the
+# stories come from different places (`from`), so no single employer
+# or project carries the page. No numbers here: the story is the proof.
+principles:
+  - title: Remove what can go wrong
     icon:  shield
+    from:  ZeoVerify · Zeonix
     body: >-
-      GPT-4o only reads a document's facts; 9 code rules decide and tell the
-      candidate what to fix, and a model outage falls back to the old flow.
-      The HR agent can never see more than the person asking, and sensitive
-      actions wait for approval.
-
-# ── Metrics ──────────────────────────────────────────────────────
-# What the work did for the businesses that run it, not details of a
-# side project: a founder reads these four tiles before anything else.
-# Rendered as four tiles in the first band; the number in each
-# `figure` counts up on scroll, and whatever surrounds it ("+", "%")
-# stays put.
-metrics:
-  - { figure: "500+",  label: employees get routine HR answers same-day }
-  - { figure: "82%",   label: "of 5,500 documents a month auto-accepted" }
-  - { figure: "85%+",  label: of HR agent tasks passed in evals }
-  - { figure: "3",     label: B2B platforms owned end to end at Zeonix }
+      ZeoVerify fetches documents straight from the government instead of
+      accepting uploads. Nothing to forge, so no forgery to catch.
+  - title: Measure before you trust it
+    icon:  check
+    from:  Webhook Delivery Engine · own project
+    url:   /blogs/webhook-delivery-engine/
+    body: >-
+      My first Redis-wipe test left events stuck. I found why, fixed it and
+      ran it again; the write-up starts with the failure.
+  - title: Own it end to end
+    icon:  spark
+    from:  Kleeto AI Slides · Kleeto
+    body: >-
+      I built Kleeto AI Slides alone, voice pipeline to authoring screens, and
+      rebuilt its setup around its owner's feedback before the pilot.
+  - title: Explain it in public
+    icon:  pen
+    from:  LinkPulse · own project
+    url:   /blogs/production-grade-devops-platform/
+    body: >-
+      I made every LinkPulse alert fire on purpose. Two never could have, and
+      the published postmortem says so.
 
 # ═════════════════════════════════════════════════════════════════
-#  PROJECTS: one list, however many entries, and no ranking: a
-#  weekend repo and a flagship get the same card. Add a project here
-#  and the grid makes room; nothing in _layouts/home.html changes.
-#  Four show at once; from the fifth on, an "All N projects" button
-#  reveals the rest in place, so ten projects is still one grid.
+#  PROJECTS: my own work, one card each, the same shape on every card:
+#  `shots` as the cover (no shots: a plate with the first `stack`
+#  mark) → name and `year` → `blurb` (one short line) → `proof` (at
+#  most one number, optional) → `stack` chips (or the `parts`) → one
+#  "Details" button. Details opens a window with the rest, in this
+#  order: `why`, `promise`, `body`, `points`, `glance`, `parts`, the
+#  stack, then the `video` and `links`. Numbers belong in that window,
+#  next to how they were measured. `earlier: true` puts a card in the
+#  folded "Earlier side projects" row.
 #
-#  Every project is a card in a two-across grid, top to bottom:
-#  `shots` as the cover (one at a time, dots to page; with no shots
-#  a plate with the name's initial stands in) → heading → `blurb` →
-#  `stack` chips (or the `parts` as chips) → `links` → the write-up
-#  folded behind "The full write-up" (`promise`, `body`, `points`,
-#  `glance`, `parts` as cards). Same shape whatever it has to say.
-#
-#  `promise` is the one sentence the thing guarantees. It renders as
-#            the pull quote, so keep it to a sentence.
-#  `body` / `points` carry the results. Follow the resume framing:
-#            accomplished [X] as measured by [Y] by doing [Z]. Put the
-#            numbers in the sentence, not in a separate stat strip.
-#  `glance`  is the summary table.
-#  `shots`   need `src`; add `src_dark` only if the image is unreadable
-#            on the dark theme.
-#  `parts`   are the separable pieces of a bigger project, one card each.
-#  `video`   a captioned recording of the live demo, opened full-size
-#            from a "Watch it work" link, for a reader who won't click
-#            through to the demo itself.
+#  `roles`  is read only by ?for= links (the old Focus lenses, now
+#           without buttons; existing links keep working).
+#  Employer work (experience[].ventures) takes the same fields.
 # ═════════════════════════════════════════════════════════════════
-# ── Lenses: "Focus" above the project grid ──────────────────────
-# A reader interested in one kind of work should not have to work out
-# which of six projects is theirs. Labelled by the work, never by
-# hiring, so the page never reads as a job search. Picking a lens lights the projects tagged
-# with it (`roles:` on each project) and dims the rest; `note` says
-# where to look next. Linkable: /?for=backend#projects, so a job
-# application can point at the projects that fit the job.
+# Read by ?for=<id> links only (no buttons are shown). `note` is the line
+# that appears above the work when such a link is opened.
 lenses:
-  - { id: ai,        label: AI engineering,    note: "The four Kleeto systems under Experience above, then Nivara Desk's AI layer." }
-  - { id: backend,   label: Backend,           note: "Nostro in Java, the Webhook Delivery Engine in Node.js, and the Nivara Desk API in TypeScript." }
-  - { id: platform,  label: Platform / DevOps, note: "LinkPulse: Terraform, Kubernetes, GitOps and chaos tests, run for 12 hours on real AWS." }
-  - { id: fullstack, label: Full-stack,        note: "Nivara Desk's four front ends on one typed client, behind the API they share." }
+  - { id: ai,        note: "Work that puts a model to use: the HR assistant, Nivara Desk and Kleeto AI Slides first." }
+  - { id: backend,   note: "Nostro in Java, the Webhook Delivery Engine in Node.js, the Nivara Desk API in TypeScript, and two Zeonix platforms in Node.js." }
+  - { id: platform,  note: "LinkPulse: Terraform, Kubernetes, GitOps and chaos tests, run for 12 hours on real AWS." }
+  - { id: fullstack, note: "Nivara Desk's four front ends on one typed client, behind the API they share." }
+  - { id: security,  note: "TheMask, the HR assistant's borrowed permissions, ZeoVerify's fetch-instead-of-upload, and Nivara Desk's isolation in the database." }
 
 projects:
   - name:     Nivara Desk
     year:     "2026"
-    kind:     Flagship
-    blurb:    A help desk that many companies share, where the AI answers only when it should
+    blurb:    A help desk many companies share, where the AI answers only when it should
     why:      >-
       Two failures every AI support product has to rule out: answering when it
       shouldn't, and showing one customer's data to another. This one is built
       so neither can happen.
-    roles:    [ai, backend, fullstack]
+    proof:    "Made the right call on 595 of 600 recorded tickets."
+    roles:    [ai, backend, fullstack, security]
     languages: [Python, TypeScript]
     # Recorded by Playwright against the live deployment, captions included.
     video:    { src: /assets/img/home/projects/nivara/walkthrough.mp4, poster: /assets/img/home/projects/nivara/walkthrough.jpg, length: "45 s", title: "Nivara Desk: a question answered, a refund handed over, both as tickets" }
@@ -166,7 +148,7 @@ projects:
       - id:    ai
         label: AI layer
         lang:  Python
-        stack: [FastAPI, Hybrid RAG, Qdrant, MCP, Langfuse, pytest]
+        stack: [FastAPI, RAG, Qdrant, MCP, Langfuse, pytest]
         blog:  /blogs/mcp-tool-surface-as-the-guardrail/
         promise: >-
           Anything the model writes on its own can never reach a customer.
@@ -199,7 +181,7 @@ projects:
       - id:    api
         label: API
         lang:  TypeScript
-        stack: [NestJS, Prisma, PostgreSQL RLS, PgBouncer, Socket.IO, Redis]
+        stack: [NestJS, Prisma, Postgres RLS, PostgreSQL, PgBouncer, Socket.IO, Redis]
         blog:  /blogs/postgres-rls-multitenancy/
         promise: >-
           Forget the company filter on a query and you get nothing back, never
@@ -213,7 +195,7 @@ projects:
       - id:    web
         label: Front ends
         lang:  TypeScript
-        stack: [Next.js 15, React 19, Tailwind v4, TanStack, Shadow DOM, Playwright]
+        stack: [Next.js, React, Tailwind CSS, TanStack Query, Playwright]
         promise: >-
           Every screenshot above was taken from the running app by a script.
         points:
@@ -222,6 +204,7 @@ projects:
             portal, the analytics view, and a chat box that drops into any
             website **under 60 KB** without picking up that site's styling.
 
+    stack: [Python, FastAPI, Qdrant, TypeScript, NestJS, Next.js, PostgreSQL]
     links:
       # `?demo` opens the dashboard already signed in as the seeded admin.
       - { label: "Try it, signed in", icon: external, url: "https://nivara-web-nextjs.vercel.app/dashboard?demo" }
@@ -233,8 +216,7 @@ projects:
 
   - name:     Nostro
     year:     "2026"
-    kind:     Systems
-    blurb:    A ledger for many companies where money cannot go missing
+    blurb:    A ledger for many companies where the database refuses any entry that would lose money
     why:      >-
       A payments company has to show its books balance to the cent. Here the
       database rejects any entry that would break that, instead of a nightly
@@ -276,57 +258,14 @@ projects:
       - { label: Source,   icon: github, url: "https://github.com/rishabh0111/nostro-ledger" }
       - { label: Write-up, icon: pen,    url: "/blogs/multitenant-double-entry-ledger/" }
 
-  - name:     LinkPulse
-    year:     "2026"
-    kind:     Infrastructure
-    blurb:    A small app, run like a production platform, then broken on purpose on real AWS
-    why:      >-
-      An alert nobody has seen fire may stay silent in the outage it was
-      written for. Every alert here was made to fire on purpose.
-    roles:    [platform]
-    languages: [Go]
-
-    promise: >-
-      Every alert has been seen to fire, because I made each failure happen.
-
-    body: >-
-      A URL shortener with click analytics, where the product is small on
-      purpose and the work is operating it: Terraform, Kubernetes, GitOps,
-      monitoring, and chaos tests, on $0 plus one budgeted window on AWS.
-
-    glance:
-      - { k: Guarantee, v: "Redirects stay fast even when the database is throttling or down" }
-      - { k: Built with, v: "Terraform · Kubernetes on AWS EKS · ArgoCD · Prometheus, Grafana, Loki" }
-      - { k: Size,      v: "4 Terraform environments · 13 alerts · 5 chaos experiments · 9 CI jobs" }
-      - { k: Runs on,   v: "An always-free AWS tier, and a local cluster with one command" }
-
-    points:
-      - >-
-        Ran the whole stack for **12 hours on AWS EKS against real DynamoDB for
-        $3.32**, and found and fixed **13 defects** no local run or CI could
-        have shown.
-      - >-
-        Proved **13 alert rules with 5 chaos experiments** (4 run in CI on
-        every push). Two alerts turned out to be unable to ever fire; the
-        write-up is a blameless postmortem.
-      - >-
-        With real DynamoDB throttling clicks, redirects stayed at **0 failures
-        in 7,202 requests** and a **7 ms p99**, because clicks are written in the
-        background and the redirect never waits for them.
-
-    stack: [Go, Terraform, Kubernetes, AWS EKS, ArgoCD, Prometheus, Grafana]
-    links:
-      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/linkpulse" }
-      - { label: Write-up, icon: pen,    url: "/blogs/production-grade-devops-platform/" }
-
   - name:     Webhook Delivery Engine
     year:     "2026"
-    kind:     Systems
-    blurb:    Sends webhooks and never loses one, even when things break
+    blurb:    Delivers every webhook, or records why it couldn't. None quietly vanish
     why:      >-
       Payment providers and SaaS tools tell other systems what happened through
       webhooks, and a lost one is a missed payment or order. This engine
       delivers each one or records why it couldn't.
+    proof:    "Wiping its Redis mid-test now loses none of 50,000 events."
     roles:    [backend]
     languages: [Node.js]
     video:    { src: /assets/img/home/projects/webhook/tour.mp4, poster: /assets/img/home/projects/webhook/tour.jpg, length: "20 s", title: "Webhook Delivery Engine: three events, three outcomes, every attempt recorded" }
@@ -366,16 +305,58 @@ projects:
         flat backlog, and turned **10,000 events sent twice** into exactly
         10,000 deliveries. Every delivery is signed, Stripe-style.
 
-    stack: [Express, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
+    stack: [Express.js, BullMQ, Redis, PostgreSQL, Docker, OpenAPI]
     links:
       - { label: Live demo, icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/dashboard" }
       - { label: API reference, icon: external, url: "https://webhook-delivery-engine-on21.onrender.com/docs" }
       - { label: Source,    icon: github,   url: "https://github.com/rishabh0111/webhook-delivery-engine" }
       - { label: Write-up,  icon: pen,      url: "/blogs/webhook-delivery-engine/" }
 
+  - name:     LinkPulse
+    year:     "2026"
+    blurb:    A small app run like production, then broken on purpose on real AWS
+    why:      >-
+      An alert nobody has seen fire may stay silent in the outage it was
+      written for. Every alert here was made to fire on purpose.
+    roles:    [platform]
+    languages: [Go]
+
+    promise: >-
+      Every alert has been seen to fire, because I made each failure happen.
+
+    body: >-
+      A URL shortener with click analytics, where the product is small on
+      purpose and the work is operating it: Terraform, Kubernetes, GitOps,
+      monitoring, and chaos tests, on $0 plus one budgeted window on AWS.
+
+    glance:
+      - { k: Guarantee, v: "Redirects stay fast even when the database is throttling or down" }
+      - { k: Built with, v: "Terraform · Kubernetes on AWS EKS · ArgoCD · Prometheus, Grafana, Loki" }
+      - { k: Size,      v: "4 Terraform environments · 13 alerts · 5 chaos experiments · 9 CI jobs" }
+      - { k: Runs on,   v: "An always-free AWS tier, and a local cluster with one command" }
+
+    points:
+      - >-
+        Ran the whole stack for **12 hours on AWS EKS against real DynamoDB for
+        $3.32**, and found and fixed **13 defects** no local run or CI could
+        have shown.
+      - >-
+        Proved **13 alert rules with 5 chaos experiments** (4 run in CI on
+        every push). Two alerts turned out to be unable to ever fire; the
+        write-up is a blameless postmortem.
+      - >-
+        With real DynamoDB throttling clicks, redirects stayed at **0 failures
+        in 7,202 requests** and a **7 ms p99**, because clicks are written in the
+        background and the redirect never waits for them.
+
+    stack: [Go, Terraform, Kubernetes, AWS EKS, ArgoCD, Prometheus, Grafana]
+    links:
+      - { label: Source,   icon: github, url: "https://github.com/rishabh0111/linkpulse" }
+      - { label: Write-up, icon: pen,    url: "/blogs/production-grade-devops-platform/" }
+
   - name:     MoviesWave
+    earlier:  true
     year:     "2023"
-    kind:     Side project
     blurb:    A film browser that remembers what you already looked at
     roles:    [fullstack]
     languages: [JavaScript]
@@ -393,8 +374,8 @@ projects:
       - { label: Source, icon: github,   url: "https://github.com/rishabh0111/MoviesWave" }
 
   - name:     MetaMask ETH Bank
+    earlier:  true
     year:     "2023"
-    kind:     Side project
     blurb:    Deposits and withdrawals on a smart contract, signed in with a wallet
     languages: [Solidity]
     body: >-
@@ -405,17 +386,14 @@ projects:
       - { label: Source, icon: github, url: "https://github.com/rishabh0111/MetaMask-ETH-Bank" }
 
 # ═════════════════════════════════════════════════════════════════
-#  EXPERIENCE: a timeline. `period` sits in the gutter, a dot on
-#  the spine marks the job (`current: true` lights it), and the job
-#  is a card: `summary` (one line; always give a job one), the
-#  `ventures` as small tiles, `stack`. The `points` are folded behind
-#  "What I did there", so a new job takes the same room as the last.
-#  `logo` is the company mark; add `logo_dark` only for a wordmark
-#  that needs a second version to read on the dark theme.
+#  EXPERIENCE: one card per employer, every one the same size: the
+#  company, role, dates, one line, then the work done there as tiles
+#  (`ventures`). A tile is a small card (name, `blurb`, two `highlights`
+#  that sell the outcome, stack)
+#  with the same Details window as a project.
 # ═════════════════════════════════════════════════════════════════
 experience:
   - company: Kleeto
-    legal:   Next Gen Paper Solutions Pvt. Ltd.
     # A wordmark, so it needs both grounds: the colour mark is
     # invisible on the dark theme and the white one on the light.
     logo:      /assets/img/home/logos/kleeto.light.png
@@ -424,14 +402,23 @@ experience:
     period:  May 2026 to Present
     place:   Gurugram
     current: true
-    stack:   [Python, FastAPI, LangGraph, MCP, RAG, Claude, OpenAI, Pipecat]
     summary: >-
-      I own Kleeto's AI layer: **4 AI systems shipped since May 2026**, three of
-      them in production for **500+ employees and 2 enterprise clients**, and
-      one piloting with **3 customers**.
+      I own the AI layer at an HR-tech and document-management company.
+      **Four AI systems shipped since May 2026**, three of them in production
+      for 500+ employees and two enterprise clients.
     ventures:
-      - name: HR assistant
-        note: AI agent across the HR platform · 500+ employees
+      - name:     HR assistant
+        year:     "2026"
+        blurb:    Staff ask HR in plain English, and it can never see more than they can
+        highlights:
+          - "In daily use by 500+ employees, answering the same day instead of in one to two"
+          - "85%+ of tasks done right, and no attempt to trick it worked in 50+ tries"
+        why:      >-
+          An assistant with access to HR records is only safe if it can never see
+          or do more than the person asking. This one borrows their permissions,
+          and asks for approval before anything sensitive.
+        roles:    [ai, security]
+        languages: [Python]
         points:
           - >-
             Staff ask for things in plain English across **6 parts of the HR
@@ -445,35 +432,23 @@ experience:
             before anything sensitive, and **it can never see or do more than
             the person asking it**.
           - >-
-            Measured, not assumed: **85%+ of tasks completed correctly**, **no
-            successful attempt** to trick it out of 50+ tries, answers at
-            **6 seconds p95** for **2 cents each**.
-      - name: Document verification
-        note: GPT-4o checks on onboarding documents · 5,500 a month
-        points:
-          - >-
-            Checks every document a new hire uploads (right type, readable,
-            clean scan, name matches) and tells them exactly what to fix:
-            **5,500 documents a month, 82% accepted automatically**, live for
-            **2 enterprise clients** since July 2026.
-          - >-
-            The model only reads the facts off the page; **plain code makes the
-            decision**, so every rejection names the rule and the number. If
-            the model is down, onboarding carries on the old way instead of
-            blocking anyone.
-      - name: TheMask
-        note: Masks ID numbers before archiving · 30,000 documents
-        points:
-          - >-
-            Hides government ID numbers on identity documents before they are
-            archived, so **a full server breach reveals nothing**. **30,000
-            documents masked** so far.
-          - >-
-            The customer can still recover their number by answering 4 of 6
-            security questions. The encrypted copy lives inside the masked image
-            itself, so the server keeps **no database and no files** to leak.
-      - name: Kleeto AI Slides
-        note: Real-time voice AI presenter · piloting with 3 customers
+            Measured, not assumed: **85%+ of tasks completed correctly** on a
+            set of known tasks, **no successful attempt** to trick it out of 50+
+            tries, answers at **6 seconds p95** for **2 cents each**.
+        stack: [LangGraph, MCP, Python, FastAPI, RAG, Langfuse]
+
+      - name:     Kleeto AI Slides
+        year:     "2026"
+        blurb:    A voice AI that presents a deck and answers only from the company's own documents
+        highlights:
+          - "Piloting with 3 customers, built alone from the voice pipeline to the authoring screens"
+          - "Tells a question from a cough or its own echo, so it runs on any room's laptop and projector"
+        why:      >-
+          It answers only from that company's own documents, with a citation on
+          screen, or says plainly that they don't cover it. It works on whatever
+          laptop and projector the room has.
+        roles:    [ai, fullstack]
+        languages: [Python, TypeScript]
         points:
           - >-
             Presents any slide deck aloud in **English or Hindi**, stops for
@@ -481,12 +456,70 @@ experience:
             documents**, with a citation on screen, or says plainly that they
             don't cover it.
           - >-
-            Works on whatever laptop and projector a room has: it tells a
-            question from a cough, a side remark, or its own voice coming back
-            through the speakers. **1,000+ tests**; **40 sessions** run in the
+            Tells a question from a cough, a side remark, or its own voice coming
+            back through the speakers, so it can run on whatever laptop and
+            projector a room has. **1,000+ tests**; **40 sessions** run in the
             pilot so far.
+          - >-
+            Built alone, including the authoring flow its owner asked for: drop
+            documents into a reference set and they prepare themselves.
+        stack: [Pipecat, Python, FastAPI, React, TypeScript]
 
-  - company: Zeonix Global Pvt. Ltd.
+      - name:     Document verification
+        year:     "2026"
+        blurb:    Checks a new hire's documents. The model reads; plain code rules decide
+        highlights:
+          - "Live for 2 enterprise clients, with 82% of 5,500 documents a month accepted automatically"
+          - "A model outage can never block a new hire: onboarding falls back to the old flow"
+        why:      >-
+          The model only reads the facts off the page; plain code rules make the
+          decision, so every rejection can be explained. If the model is down,
+          onboarding carries on the old way instead of blocking anyone.
+        roles:    [ai]
+        languages: [Python]
+        points:
+          - >-
+            Checks every document a new hire uploads (right type, readable,
+            clean scan, name matches) and tells them exactly what to fix:
+            **5,500 documents a month, 82% accepted automatically**, live for
+            **2 enterprise clients** since July 2026.
+          - >-
+            GPT-4o only reads the facts off the page; **9 plain code rules** make
+            the decision, so every rejection names the rule and the number. If
+            the model is down, onboarding carries on the old way instead of
+            blocking anyone.
+          - >-
+            One model call per submission however many documents it holds, and a
+            resubmit with nothing changed costs **no model calls at all**.
+        stack: [Python, OpenAI, PHP, MySQL]
+
+      - name:     TheMask
+        year:     "2026"
+        blurb:    Masks government ID numbers, so a full server breach reveals nothing
+        highlights:
+          - "30,000 ID documents masked, and a full server breach reveals nothing"
+          - "Customers recover their own number with 4 of 6 security answers; the server holds no key"
+        why:      >-
+          A full server breach should reveal nothing. The encrypted number lives
+          inside the masked image itself, so the server keeps no database and no
+          files to leak, and the customer can still recover their own number.
+        roles:    [security]
+        languages: [Python]
+        points:
+          - >-
+            Hides government ID numbers on identity documents before they are
+            archived, so **a full server breach reveals nothing**. **30,000
+            documents masked** so far.
+          - >-
+            The customer can still recover their number by answering **4 of 6**
+            security questions. The encrypted copy lives inside the masked image
+            itself, so the server keeps **no database and no files** to leak.
+          - >-
+            Fails closed: anything it can't read with confidence holds back the
+            whole document rather than archiving a number it missed.
+        stack: [FastAPI, Python, React, TypeScript, Docker]
+
+  - company: Zeonix Global
     # The full wordmark. "nix Global" is near-black, so it needs a
     # lifted version to stay readable on the dark theme.
     logo:      /assets/img/home/logos/zeonix.light.png
@@ -494,14 +527,23 @@ experience:
     role:    Software Developer
     period:  Jun 2024 to Apr 2026
     place:   Chandigarh
-    stack:   [Node.js, Express, PostgreSQL, GraphQL, Angular, WSO2]
     summary: >-
-      Built and shipped **three business platforms**, owning each one from the
-      API through to security, integrations, deployment, backups and getting
-      clients set up.
+      B2B platforms for education and finance. **I built three of them end to
+      end**, from API design and security to deployment and client
+      onboarding, and shipped the company's first production AI feature.
     ventures:
-      - name: ZeoCRM
-        note: University management · all 40+ Australian universities
+      - name:     ZeoCRM
+        year:     "2024–26"
+        blurb:    Applications, commissions and invoices for universities and their agents
+        highlights:
+          - "Runs across all 40+ Australian universities"
+          - "Agent payouts cut from two days to same-day, and the busiest pages made 40% faster"
+        why:      >-
+          It replaced spreadsheets and manual entry with an importer that checks
+          every record, and automated the chain from accounts to invoice to email,
+          so agent partners get paid the same day.
+        roles:    [backend, fullstack]
+        languages: [Node.js, TypeScript]
         points:
           - >-
             Replaced manual data entry with a spreadsheet importer that checks
@@ -516,34 +558,61 @@ experience:
             same-day** by automating the chain from accounts to PDF invoice to
             email, and saved **4–6 hours a week** of form filling with a bot
             that submits university applications.
-      - name: ZeoVerify
-        note: Document verification & digital onboarding
+        stack: [Node.js, Express.js, PostgreSQL, GraphQL, Angular]
+
+      - name:     ZeoVerify
+        year:     "2024–26"
+        blurb:    Fetches documents from the government instead of trusting uploads, so there is nothing to forge
+        highlights:
+          - "Checking time per application cut from 25 minutes to 10"
+          - "Shipped the company's first production AI feature"
+        why:      >-
+          Instead of accepting an uploaded scan, it asks the applicant's
+          permission and fetches the document from the government directly, so
+          there is nothing to forge. It also carried the company's first
+          production AI feature, which is where my AI work started.
+        roles:    [ai, security]
+        languages: [Node.js, Python]
         points:
           - >-
             Cut document checking from about **25 minutes to 10** per
-            application. Instead of accepting an uploaded scan, the system asks
-            permission and **fetches the document from the government directly**,
-            so there is nothing to forge.
+            application by fetching documents from the government with the
+            applicant's permission instead of accepting uploaded scans.
           - >-
             Launched the company's **first production AI feature**: a
             document-checking service in **Python and FastAPI** on **Google's
-            Gemini**, kept
-            deliberately simple and predictable so a reviewer could see exactly
-            why it flagged something. The model advised; a person still decided.
-            *This is where my AI work started.*
-      - name: ZeoForex
-        note: Financial remittance & currency exchange
+            Gemini**, kept deliberately simple and predictable so a reviewer could
+            see exactly why it flagged something. The model advised; a person still
+            decided.
+        stack: [Google Gemini, Node.js, FastAPI, LangChain]
+
+      - name:     ZeoForex
+        year:     "2024–26"
+        blurb:    Remittance on live money, where a transfer completes fully or not at all
+        highlights:
+          - "Mistakes on live transfers cut by a third, from 8% to 5%"
+          - "Every transfer completes fully or not at all"
+        why:      >-
+          Each transfer either completes fully or not at all, with step-by-step
+          checks and tax rules in front of it, so a half-finished transfer can't
+          leave money in the wrong place.
+        roles:    [backend]
+        languages: [Node.js]
         points:
           - >-
             Cut mistakes on live money transfers by **a third (8% → 5%)** with
             step-by-step checks and tax rules, and by making each transfer either
             complete fully or not at all.
+          - >-
+            Built a **multi-node parent-child invoicing model** for commission
+            structures that don't fit a flat table.
+        stack: [PostgreSQL, Node.js, Express.js]
 
 # ═════════════════════════════════════════════════════════════════
-#  SKILLS: rendered as a logo grid. Each item is looked up in
+#  TOOLKIT: logo loops, one row per group. Each item is looked up in
 #  _data/tech_logos.json; anything with no brand mark renders as an
-#  initialled badge on purpose. Add an item, then re-run
-#  `python _templates/logos/build_logos.py` to pull its mark in.
+#  initialled badge on purpose.
+#  Add an item, then re-run `python _templates/logos/build_logos.py`.
 # ═════════════════════════════════════════════════════════════════
 skills:
   - group: Languages
@@ -586,69 +655,69 @@ skills:
     icon:  link
     items: [Razorpay, ICICI Payments, Digilocker, Slack Bolt, Gmail API,
             Google Calendar, Microsoft Graph, Metabase]
-  # Tailor-only in the résumé; kept here because a portfolio can afford range.
   - group: Blockchain & Mobile
     icon:  blocks
     items: [Solidity, Ethereum, Avalanche, Polygon, ERC-20, "Capacitor (iOS & Android)"]
 
-# ── About ────────────────────────────────────────────────────────
-# One short paragraph (~95 words), in the front matter so the layout
-# places it. How the AI track started, and how he still works.
-about: >-
-  I started in security and moved into AI through the work, not a course. I spent
-  two years at Zeonix on payment and onboarding systems, and shipped my first
-  production LLM feature there: a document-authenticity check on Gemini, written
-  as fixed LangChain chains with retrieval grounding so a human verifier could
-  see why a document was flagged. The model advised and a person decided, and
-  that is still how I build: at Kleeto the model reads, and code or a person
-  makes the call. I care most about what a model can reach, whose permissions
-  it borrows, and whether I can reproduce every number I publish from a clean
-  clone.
+# ── Writing: three chosen essays, then the series ────────────────
+# Chosen by hand rather than "latest three", so the first thing a
+# reader opens is the thinking, not whichever post went up last.
+writing:
+  featured:
+    - /blogs/postgres-rls-multitenancy/
+    - /blogs/webhook-delivery-engine/
+    - /blogs/mcp-tool-surface-as-the-guardrail/
+  series:
+    - { label: "System Design, in ten parts", url: "/blogs/system-design-foundations/" }
+    - { label: "DSA, pattern by pattern",     url: "/blogs/dsa-the-method/" }
 
-# ── Credentials: two panels ───────────────────────────────────────
-# Education in one, certifications and awards in the other, each
-# entry a row with the mark of its kind (cap, seal, trophy).
-education:
-  - degree: B.E. Computer Science Engineering
-    detail: Specialization in Information Security
-    school: Chandigarh University, Mohali
-    period: Aug 2020 to May 2024
-    score:  CGPA 8.02 / 10
-  - degree: Higher Secondary (12th), Science
-    detail: PCM + Computer Science
-    school: Govt. Sr. Sec. School, Chotta Shimla
-    period: Mar 2019
-    score:  90% (HPBoSE)
+# ── Education & credentials: their own section, after the toolkit ─
+# One card each, with the issuer's mark. `logo` sits on a white plate
+# so it reads on both themes. `url` adds a "Verify" link.
+credentials:
+  - kind:   Education
+    title:  B.E. Computer Science Engineering
+    detail: Specialisation in Information Security
+    org:    Chandigarh University, Mohali
+    period: 2020 to 2024
+    logo:   /assets/img/home/logos/chandigarh-university.png
+  - kind:   Certification
+    title:  Certified Ethical Hacker (CEH) v11
+    org:    EC-Council
+    period: 2023 to 2026
+    logo:   /assets/img/home/logos/ceh.png
+    url:    "https://aspen.eccouncil.org/VerifyBadge?type=certification&a=BO+LGPmvJfn9LVa/anUsUrQ9C3Ks8fH8j61tvvbF1TI="
+  - kind:   Award
+    title:  Top 5 nationally
+    detail: Intel oneAPI Hackathon
+    org:    Intel × IIT Roorkee
+    logo:   /assets/img/home/logos/intel.svg
 
-certifications:
-  - name: Certified Ethical Hacker (CEH) v11
-    issuer: EC-Council · 2023–2026
-    url: "https://aspen.eccouncil.org/VerifyBadge?type=certification&a=BO+LGPmvJfn9LVa/anUsUrQ9C3Ks8fH8j61tvvbF1TI="
-  - name: React Basics & Advanced React
-    issuer: Meta, via Coursera · 2023
-    links:
-      - { label: React Basics,   url: "https://www.coursera.org/account/accomplishments/verify/NNUZXDBFEGST" }
-      - { label: Advanced React, url: "https://www.coursera.org/account/accomplishments/verify/ZYSRTRLQL85M" }
-  - name: ETH Proof · ETH+AVAX Proof · Poly Proof
-    issuer: Metacrafters · on-chain, Solana-minted
-    links:
-      - { label: ETH Proof,      url: "https://solscan.io/token/8vacs7DZRxNhrJihCsJMiHgLYtNw3mxBkAAtfRUK7Xrj" }
-      - { label: ETH+AVAX Proof, url: "https://solscan.io/token/QDyELxrS3XqEfiXjB8seWTUEpVeumqBTbqBHsAs7JJL" }
-      - { label: Poly Proof,     url: "https://solscan.io/token/Hj9NS5NBVeEeV77n3nF8Fhvmw2Ab68v5AgSNjwVgNt5t" }
-
-awards:
-  - name: Top 5 nationally · Intel oneAPI Hackathon
-    note: Intel × IIT Roorkee.
-  - name: District Rank 1 · Mathematics Olympiad
-    note: National Science Congress.
-
-interests: [Chess, Technical writing, 10-finger typing, Infrastructure spelunking]
+# ── Off-hours: under Education & credentials ─────────────────────
+# `icon` names a glyph in _includes/icon.html.
+interests:
+  - icon:   chess
+    label:  Chess
+    detail: The game I always come back to, online or across a board.
+  - icon:   terminal
+    label:  Linux
+    detail: I distro-hop, try every new tool, and live on r/linux.
+  - icon:   gamepad
+    label:  PC gaming
+    detail: Counter-Strike first, then the all-time classics on emulators.
+  - icon:   music
+    label:  Music
+    detail: Anything from Pink Floyd, Metallica and the Beatles to NFAK.
+  - icon:   tv
+    label:  Anime and TV
+    detail: Attack on Titan above all, then Breaking Bad and Game of Thrones.
 
 contact:
+  line:  Let's connect
   email: rishabhsharma8912@gmail.com
 ---
 
 <!--
-  The essay now lives in the `about:` key above so the layout can place
-  it in the dossier grid. Nothing is rendered from the body.
+  Everything on the home page comes from the front matter above.
+  Nothing is rendered from the body.
 -->
