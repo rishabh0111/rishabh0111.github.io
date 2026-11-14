@@ -238,6 +238,11 @@ projects:
       three Spring Boot services. Every guarantee in the README names the test
       that proves it, and CI ticks that table on every push.
 
+    # The README's architecture SVG, rasterized at 2× and set on a 16:9
+    # ground so the single-panel card shows all of it.
+    shots:
+      - { src: /assets/img/home/projects/nostro/architecture.light.png, src_dark: /assets/img/home/projects/nostro/architecture.dark.png, alt: "Nostro architecture: the API service records an Entry, its Postings and an outbox row in one Postgres transaction; a single-writer relay publishes Entries to Kafka keyed by Tenant; a projection applies each Entry once into its own Postgres of Balances, which the API reads over gRPC", caption: "The path of one Entry" }
+
     glance:
       - { k: Guarantee, v: "Every entry sums to zero, is recorded once, and stays inside its own tenant" }
       - { k: Built with, v: "Transactional outbox · Kafka relay · gRPC read model · Postgres row-level security" }
@@ -334,6 +339,13 @@ projects:
       A URL shortener with click analytics, where the product is small on
       purpose and the work is operating it: Terraform, Kubernetes, GitOps,
       monitoring, and chaos tests, on $0 plus one budgeted window on AWS.
+
+    # The dashboard is the Go service's static page served with a mock API
+    # (sample clicks, not real traffic); the diagram is the README's
+    # architecture SVG, rasterized at 2×.
+    shots:
+      - { src: /assets/img/home/projects/linkpulse/dashboard.light.png,    src_dark: /assets/img/home/projects/linkpulse/dashboard.dark.png,    alt: "LinkPulse dashboard with sample data: a shortened link, its clicks in all, a 30-minute trace of clicks as they land, clicks per day, and recent clicks by device and country", caption: "The dashboard, with sample clicks" }
+      - { src: /assets/img/home/projects/linkpulse/architecture.light.png, src_dark: /assets/img/home/projects/linkpulse/architecture.dark.png, alt: "LinkPulse architecture: requests pass the ingress to the Go service and one DynamoDB table, inside a Kubernetes cluster watched by Prometheus, Alertmanager, Grafana and Loki and deployed by ArgoCD; every push runs tests, an end-to-end run on k3d and a Trivy gate before a bot commit pins the image", caption: "How it is run and deployed" }
 
     glance:
       - { k: Guarantee, v: "Redirects stay fast even when the database is throttling or down" }
