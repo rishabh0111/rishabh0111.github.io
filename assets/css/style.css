@@ -646,22 +646,19 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
      .sidebar-card rules it has to override. */
 }
 
-/* Wordmark: the mark (yin and yang, the same as the favicon), then
-   the name in mono uppercase. The mark is inlined as an outline in the
-   header text colour, one half solid and one open, so it keeps full
-   contrast on both themes. Tracking is 0.16em so the name still fits beside the theme
-   toggle on a 320px screen. */
+/* Wordmark: the mark (two peaks and a sun, the same as the favicon),
+   then the name. The peaks are inlined in the header text colour so
+   they keep full contrast on both themes; the sun is the one accent. */
 .site-logo {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--f-text);
+  font-size: 13px;
   color: var(--header-text);
   text-decoration: none;
   white-space: nowrap;
   display: flex; align-items: center; gap: 10px;
 }
-.logo-mark { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+.logo-mark { width: 20px; height: 20px; flex-shrink: 0; display: block; }
+.logo-mark .logo-sun { fill: var(--accent); }
 
 /* Nav: generous gap, no box, just text. On the flat header bar the
    active tab is marked by an accent line along the bar's bottom edge
