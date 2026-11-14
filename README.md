@@ -60,6 +60,9 @@ Conventions:
 - Motion lives in `assets/js/home-fx.js` and `assets/js/home-bits.js` (plain JS and CSS,
   no frameworks). With reduced motion, a touch pointer or no JS, the page stays still and
   stays complete.
+- The home page's styles live in `assets/css/home.css`, loaded only on `/`. It reads the
+  site theme (Archivo, three stone tones and one red, light / system / dark) from
+  `assets/css/style.css`, which is all the blog, posts and vault use.
 
 ## Adding a blog post
 
