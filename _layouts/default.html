@@ -48,7 +48,8 @@
   <link rel="apple-touch-icon" href="{{ '/assets/img/apple-touch-icon.png' | relative_url }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Martian+Mono:wdth,wght@75..112.5,300..600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% if page.layout == 'home' %}
   <!-- What was added to the home page on top of the original's rules. -->
@@ -109,38 +110,14 @@
         {% endif %}
       </nav>
 
-      <div class="theme-toggle" id="theme-toggle"
-           role="radiogroup" aria-label="Colour theme">
-        <span class="tt-thumb" aria-hidden="true"></span>
-
-        <button type="button" class="tt-opt" data-theme-opt="light"
-                role="radio" aria-checked="false" title="Light theme">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-          </svg>
-          <span class="sr-only">Light</span>
-        </button>
-
-        <button type="button" class="tt-opt" data-theme-opt="system"
-                role="radio" aria-checked="true" title="Follow system theme">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="12" rx="2"></rect>
-            <path d="M8 20h8M12 16v4"></path>
-          </svg>
-          <span class="sr-only">System</span>
-        </button>
-
-        <button type="button" class="tt-opt" data-theme-opt="dark"
-                role="radio" aria-checked="false" title="Dark theme">
-          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
-          </svg>
-          <span class="sr-only">Dark</span>
-        </button>
-      </div>
+      <!-- One button: system, then light, then dark, then back to system.
+           Its icon is the current mode; its label says the current mode
+           and the next one (kept in step by the script below). -->
+      <button type="button" class="theme-btn" id="theme-toggle" aria-label="Theme: system. Switch to light" title="Theme: system. Switch to light">
+        <svg class="tt-ic tt-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path></svg>
+        <svg class="tt-ic tt-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        <svg class="tt-ic tt-dark" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+      </button>
 
       <!-- Hamburger: only rendered at ≤860px, see RESPONSIVE -->
       <button type="button" class="nav-toggle" id="nav-toggle"
@@ -175,11 +152,11 @@
       {% endfor %}
     </nav>
     <div class="footer-palette" aria-hidden="true">
-      <div class="footer-dot" style="background:#2E3440;"></div>
-      <div class="footer-dot" style="background:#3B4252;"></div>
-      <div class="footer-dot" style="background:#434C5E;"></div>
-      <div class="footer-dot" style="background:#4C566A;"></div>
-      <div class="footer-dot" style="background:#88C0D0;"></div>
+      <div class="footer-dot" style="background:#232221;"></div>
+      <div class="footer-dot" style="background:#3E3B38;"></div>
+      <div class="footer-dot" style="background:#5C5853;"></div>
+      <div class="footer-dot" style="background:#D9D3CB;"></div>
+      <div class="footer-dot" style="background:#C42A1C;"></div>
     </div>
   </footer>
 
@@ -228,32 +205,31 @@
     // pre-paint script in <head>), so it never flashes on load either.
     var root = document.documentElement;
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    var THEME_ORDER = ['light', 'system', 'dark'];
+    var THEME_ORDER = ['system', 'light', 'dark'];
     function currentTheme() {
       var set = root.getAttribute('data-theme');
       return set ? set : (mq.matches ? 'dark' : 'light');
     }
 
+    // One button cycling system → light → dark (an approved change from
+    // the three-segment control). "system" means no localStorage entry
+    // and no data-theme attribute, so the CSS prefers-color-scheme block
+    // decides. Storage is the same key as before.
     var toggle = document.getElementById('theme-toggle');
     if (toggle) {
-      var opts = Array.prototype.slice.call(toggle.querySelectorAll('.tt-opt'));
-
       var currentChoice = function () {
         return root.getAttribute('data-theme-choice') || 'system';
       };
-
-      var syncToggle = function () {
-        var choice = currentChoice();
-        opts.forEach(function (b) {
-          var on = b.getAttribute('data-theme-opt') === choice;
-          b.setAttribute('aria-checked', on ? 'true' : 'false');
-          // Roving tabindex: the group is one tab stop, arrows move
-          // within it: the expected behaviour for a radiogroup.
-          b.tabIndex = on ? 0 : -1;
-        });
+      var nextChoice = function (c) {
+        return THEME_ORDER[(THEME_ORDER.indexOf(c) + 1) % THEME_ORDER.length];
       };
-
-      var apply = function (choice, focus) {
+      var syncToggle = function () {
+        var c = currentChoice();
+        var label = 'Theme: ' + c + '. Switch to ' + nextChoice(c);
+        toggle.setAttribute('aria-label', label);
+        toggle.setAttribute('title', label);
+      };
+      var apply = function (choice) {
         root.setAttribute('data-theme-choice', choice);
         if (choice === 'system') {
           root.removeAttribute('data-theme');
@@ -263,38 +239,12 @@
           try { localStorage.setItem('site-theme', choice); } catch (e) {}
         }
         syncToggle();
-        if (focus) {
-          var el = toggle.querySelector('[data-theme-opt="' + choice + '"]');
-          if (el) el.focus();
-        }
         renderMermaid();
       };
-
       syncToggle();
+      toggle.addEventListener('click', function () { apply(nextChoice(currentChoice())); });
 
-      opts.forEach(function (b) {
-        b.addEventListener('click', function () {
-          apply(b.getAttribute('data-theme-opt'), false);
-        });
-      });
-
-      toggle.addEventListener('keydown', function (e) {
-        var i = THEME_ORDER.indexOf(currentChoice());
-        if (i < 0) return;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-          e.preventDefault();
-          apply(THEME_ORDER[(i + 1) % THEME_ORDER.length], true);
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          apply(THEME_ORDER[(i - 1 + THEME_ORDER.length) % THEME_ORDER.length], true);
-        } else if (e.key === 'Home') {
-          e.preventDefault(); apply(THEME_ORDER[0], true);
-        } else if (e.key === 'End') {
-          e.preventDefault(); apply(THEME_ORDER[THEME_ORDER.length - 1], true);
-        }
-      });
-
-      // On "system" the control doesn't move when the OS flips, but the
+      // On "system" the button doesn't change when the OS flips, but the
       // page re-themes, so diagrams still need re-rendering.
       mq.addEventListener('change', function () { renderMermaid(); });
     }
@@ -317,7 +267,7 @@
     var MERMAID_PALETTE = {
       light: {
         actor:   'fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A',
-        gateway: 'fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95',
+        gateway: 'fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95', // design-ignore: a diagram role colour the posts name
         service: 'fill:#D1FAE5,stroke:#059669,color:#065F46',
         store:   'fill:#CFFAFE,stroke:#0891B2,color:#164E63',
         flow:    'fill:#F1F5F9,stroke:#475569,color:#1E293B',
@@ -329,7 +279,7 @@
       // same eight roles, without the pastel glare of light chips on a dark field.
       dark: {
         actor:   'fill:#1B3050,stroke:#60A5FA,color:#DBEAFE',
-        gateway: 'fill:#2B1D4A,stroke:#A78BFA,color:#EDE9FE',
+        gateway: 'fill:#2B1D4A,stroke:#A78BFA,color:#EDE9FE', // design-ignore: a diagram role colour the posts name
         service: 'fill:#123A2E,stroke:#34D399,color:#D1FAE5',
         store:   'fill:#0E3540,stroke:#22D3EE,color:#CFFAFE',
         flow:    'fill:#2A3038,stroke:#94A3B8,color:#E2E8F0',
@@ -347,7 +297,7 @@
       light: {
         actorBkg: '#DBEAFE', actorBorder: '#2563EB', actorTextColor: '#1E3A8A',
         actorLineColor: '#94A3B8', signalColor: '#334155', signalTextColor: '#1E293B',
-        labelBoxBkgColor: '#EDE9FE', labelBoxBorderColor: '#7C3AED', labelTextColor: '#4C1D95',
+        labelBoxBkgColor: '#EDE9FE', labelBoxBorderColor: '#7C3AED', labelTextColor: '#4C1D95', // design-ignore: a diagram role colour the posts name
         loopTextColor: '#4C1D95', noteBkgColor: '#FEF3C7', noteBorderColor: '#D97706',
         noteTextColor: '#92400E', activationBkgColor: '#D1FAE5', activationBorderColor: '#059669',
         sequenceNumberColor: '#FFFFFF'
@@ -355,7 +305,7 @@
       dark: {
         actorBkg: '#1B3050', actorBorder: '#60A5FA', actorTextColor: '#DBEAFE',
         actorLineColor: '#64748B', signalColor: '#CBD5E1', signalTextColor: '#E2E8F0',
-        labelBoxBkgColor: '#2B1D4A', labelBoxBorderColor: '#A78BFA', labelTextColor: '#EDE9FE',
+        labelBoxBkgColor: '#2B1D4A', labelBoxBorderColor: '#A78BFA', labelTextColor: '#EDE9FE', // design-ignore: a diagram role colour the posts name
         loopTextColor: '#EDE9FE', noteBkgColor: '#42310D', noteBorderColor: '#FBBF24',
         noteTextColor: '#FEF3C7', activationBkgColor: '#123A2E', activationBorderColor: '#34D399',
         sequenceNumberColor: '#0F172A'
@@ -396,7 +346,7 @@
         securityLevel: 'loose',
         theme: dark ? 'dark' : 'default',
         themeVariables: MERMAID_SEQUENCE_VARS[dark ? 'dark' : 'light'],
-        fontFamily: '"Martian Mono", monospace'
+        fontFamily: 'Archivo, system-ui, sans-serif'
       });
       mermaidBlocks.forEach(function (block) {
         var id = 'mermaid-diagram-' + (mermaidRenderCount++);
