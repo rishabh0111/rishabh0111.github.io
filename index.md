@@ -116,7 +116,7 @@ projects:
       Two failures every AI support product has to rule out: answering when it
       shouldn't, and showing one customer's data to another. This one is built
       so neither can happen.
-    proof:    "Made the right call on 595 of 600 recorded tickets."
+    proof:    "Made the right call on 515 of 550 scored tickets."
     roles:    [ai, backend, fullstack, security]
     languages: [Python, TypeScript]
     # Recorded by Playwright against the live deployment, captions included.
@@ -154,8 +154,8 @@ projects:
           Anything the model writes on its own can never reach a customer.
         points:
           - >-
-            Made the right call on **93.6% of 600 recorded tickets** (595 of
-            600) by routing every answer through a trained gate that decides
+            Made the right call on **93.6% of 550 scored tickets** (515 of
+            550) by routing every answer through a trained gate that decides
             when to reply, when to ask, and when to fetch a human. Money
             questions always go to a human.
           - >-
