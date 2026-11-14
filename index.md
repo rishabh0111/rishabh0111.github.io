@@ -273,7 +273,7 @@ projects:
     proof:    "Wiping its Redis mid-test now loses none of 50,000 events."
     roles:    [backend]
     languages: [Node.js]
-    video:    { src: /assets/img/home/projects/webhook/tour.mp4, poster: /assets/img/home/projects/webhook/tour.jpg, length: "20 s", title: "Webhook Delivery Engine: three events, three outcomes, every attempt recorded" }
+    video:    { src: /assets/img/home/projects/webhook/tour.mp4, poster: /assets/img/home/projects/webhook/tour.jpg, length: "22 s", title: "Webhook Delivery Engine: three events on one timeline, one delivered, one retried then delivered, one dead after five attempts" }
 
     promise: >-
       Once the API says `202`, the event is either delivered or recorded as
@@ -283,11 +283,12 @@ projects:
       There is no fourth outcome where an event quietly disappears. That is the
       whole point, and the hardest part to keep true.
 
-    # Taken from the live dashboard at 1440×900, 2×, in the app's own
-    # light and dark themes, the same pair as the Nivara shots.
+    # Taken from the dashboard run locally at 1440×900, 2×, after the tour
+    # settles, in the app's own light and dark themes. The video is the
+    # README's tour GIF, re-encoded from the same frames.
     shots:
-      - { src: /assets/img/home/projects/webhook/dashboard.light.png, src_dark: /assets/img/home/projects/webhook/dashboard.dark.png, alt: "Operator dashboard showing live counters, demo controls and the scenario buttons", caption: "The operator dashboard" }
-      - { src: /assets/img/home/projects/webhook/events.light.png,    src_dark: /assets/img/home/projects/webhook/events.dark.png,    alt: "Event list showing dead-lettered events with every attempt recorded",          caption: "Every attempt, including the failures" }
+      - { src: /assets/img/home/projects/webhook/dashboard.light.png, src_dark: /assets/img/home/projects/webhook/dashboard.dark.png, alt: "Delivery timeline after the tour: one event dead after 5 attempts with a Replay button, one delivered on attempt 3, one delivered first time, the backoff gaps labelled 2 s, 4 s, 8 s and 16 s", caption: "Every attempt on one timeline" }
+      - { src: /assets/img/home/projects/webhook/paths.light.png,     src_dark: /assets/img/home/projects/webhook/paths.dark.png,     alt: "Run one path: recipes from a signed happy path to a receiver timing out, retries running out and a dead event replayed, each drawn the way its row will look", caption: "Run one path" }
 
     glance:
       - { k: Guarantee, v: "Accepted once · delivered at least once · never silently lost" }
