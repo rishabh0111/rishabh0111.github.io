@@ -18,6 +18,7 @@
     <a class="pd-close" href="#{{ include.back }}" aria-label="Close">{% include icon.html name="close" %}<span>Close</span></a>
   </div>
   <div class="pd-body">
+    {% if f.mistake %}<p class="work-mistake"><s class="strike">{{ f.mistake }}</s></p>{% endif %}
     {% if f.blurb %}<p class="pd-lede">{{ f.blurb }}</p>{% endif %}
     {% if f.why %}<p class="proj-why">{{ f.why }}</p>{% endif %}
 

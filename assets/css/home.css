@@ -6,6 +6,14 @@
    section fixes, each with its reason.
 ================================================================= */
 
+/* The failure a project rules out, struck through in red at the top of
+   its Details window. */
+.strike {
+  background-image: var(--strike-img); background-repeat: no-repeat;
+  background-position: 0 58%; background-size: 100% max(2px, 0.11em);
+}
+.pd-body .work-mistake { margin: 0 0 var(--s2); color: var(--text); }
+
 /* ════════════════════════════════════════════════════════════════
    KEPT FROM THE WORKING TREE
 ════════════════════════════════════════════════════════════════ */

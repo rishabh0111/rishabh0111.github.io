@@ -110,6 +110,11 @@ lenses:
 
 projects:
   - name:     Nivara Desk
+    # The failure this project rules out (struck through at the top of its
+    # Details window) and the line that answers it. Both restate `why`,
+    # `promise` or `proof`.
+    mistake:  "The model answers when it should hand over"
+    answer:   "Right call on 515 of 550 scored tickets; 0 prompt injections got through."
     year:     "2026"
     blurb:    A help desk many companies share, where the AI answers only when it should
     why:      >-
@@ -220,6 +225,11 @@ projects:
       - { label: Write-up, icon: pen,      url: "/blogs/postgres-rls-multitenancy/" }
 
   - name:     Nostro
+    # The failure this project rules out (struck through at the top of its
+    # Details window) and the line that answers it. Both restate `why`,
+    # `promise` or `proof`.
+    mistake:  "A ledger entry that doesn't balance gets recorded"
+    answer:   "Postgres refuses it at commit, and 211 tests prove it on every push."
     year:     "2026"
     blurb:    A ledger for many companies where the database refuses any entry that would lose money
     why:      >-
@@ -269,6 +279,11 @@ projects:
       - { label: Write-up, icon: pen,    url: "/blogs/multitenant-double-entry-ledger/" }
 
   - name:     Webhook Delivery Engine
+    # The failure this project rules out (struck through at the top of its
+    # Details window) and the line that answers it. Both restate `why`,
+    # `promise` or `proof`.
+    mistake:  "An accepted event is lost when the queue dies"
+    answer:   "0 of 50,000 lost through a Redis wipe mid-load, and 0 sent twice."
     year:     "2026"
     blurb:    Delivers every webhook, or records why it couldn't. None quietly vanish
     why:      >-
@@ -324,6 +339,11 @@ projects:
       - { label: Write-up,  icon: pen,      url: "/blogs/webhook-delivery-engine/" }
 
   - name:     LinkPulse
+    # The failure this project rules out (struck through at the top of its
+    # Details window) and the line that answers it. Both restate `why`,
+    # `promise` or `proof`.
+    mistake:  "An alert that can never fire"
+    answer:   "13 alerts proven by 5 chaos experiments; 2 dead ones found and fixed."
     year:     "2026"
     blurb:    A small app run like production, then broken on purpose on real AWS
     why:      >-
