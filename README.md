@@ -41,7 +41,7 @@ a front matter key. To change the page, edit the data, not the layout.
 | `projects` | My own projects, one card each (`_includes/proj-card.html`): cover, name, one line, `proof` (the one number a card may show), stack, and a Details button that opens a window (`_includes/proj-dialog.html`). `earlier: true` folds a card into "Earlier side projects" |
 | `lenses` | No buttons. Read by `?for=<id>` links only, so links already sent out still light the right work |
 | `skills` | Toolkit logo loops; hovering a row holds it, and "Show as a grid" stops all motion |
-| `writing` | Three chosen essays and the series links |
+| `writing` | Series links under the Writing section; the three posts above them are the newest, pulled from the blog |
 | `experience` | One card per employer; the work done there (`ventures`) as tiles with the same Details window |
 | `credentials`, `interests` | Education & credentials: one card each (degree, certification, award) with the issuer's `logo` on a white plate, then Off-hours (`icon`, `label`, `detail`) |
 | `contact` | The closing line and the email |

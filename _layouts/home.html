@@ -307,17 +307,15 @@ layout: default
       </section>
       {% endif %}
 
-      <!-- ── Writing: three chosen essays, on the open scene ─────
-           Chosen in the front matter (writing.featured), so the first
-           thing a reader opens is the thinking, not the latest post. -->
+      <!-- ── Writing: the three newest posts, on the open scene ──
+           Pulled from the blog collection, newest first, so a new post
+           shows up here on the next build with nothing to edit. -->
       {% if n_blogs > 0 %}
       <section class="ds-row" id="writing">
         <div class="band-inner">
-        <h2 class="ds-heading">Writing <small>start with these</small></h2>
+        <h2 class="ds-heading">Writing <small>most recent</small></h2>
         <div class="ds-val post-list" data-stagger>
-          {% for u in page.writing.featured %}
-          {% assign post = site.posts | where: "url", u | first %}
-          {% if post %}
+          {% for post in site.categories.blogs limit: 3 %}
           <a class="post-row" href="{{ post.url | relative_url }}" data-anim="up">
             <span class="post-row-date">{{ post.date | date: "%b %-d" }}</span>
             <span>
@@ -325,7 +323,6 @@ layout: default
             </span>
             {% if post.read_time %}<span class="post-row-readtime">{{ post.read_time }} min</span>{% endif %}
           </a>
-          {% endif %}
           {% endfor %}
 
           <p class="section-more" data-anim="fade">

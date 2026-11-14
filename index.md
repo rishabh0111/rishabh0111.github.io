@@ -659,14 +659,9 @@ skills:
     icon:  blocks
     items: [Solidity, Ethereum, Avalanche, Polygon, ERC-20, "Capacitor (iOS & Android)"]
 
-# ── Writing: three chosen essays, then the series ────────────────
-# Chosen by hand rather than "latest three", so the first thing a
-# reader opens is the thinking, not whichever post went up last.
+# ── Writing: the three newest posts come from the blog itself; these
+# are the series links shown under them.
 writing:
-  featured:
-    - /blogs/postgres-rls-multitenancy/
-    - /blogs/webhook-delivery-engine/
-    - /blogs/mcp-tool-surface-as-the-guardrail/
   series:
     - { label: "System Design, in ten parts", url: "/blogs/system-design-foundations/" }
     - { label: "DSA, pattern by pattern",     url: "/blogs/dsa-the-method/" }
