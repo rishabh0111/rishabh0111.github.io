@@ -117,9 +117,9 @@ And there's no `total`. Not even opt-in. A `COUNT` under row-level security with
 is expensive and out of date by the time it arrives, and once a client can ask for it, some UI
 renders "Page 3 of 47" and now you own a number that's both costly and wrong.
 
-The consequence is visible all the way up in the interface: the queue offers "load more" and never
-numbered pages. A decision about SQL travelled into what the UI can honestly offer, which I think is
-the good kind of constraint.
+The consequence is visible all the way up in the interface: the queue counts "the 25 loaded
+tickets", never a total, and ends in "Load more tickets" rather than numbered pages. A decision about
+SQL travelled into what the UI can honestly offer, which I think is the good kind of constraint.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/assets/img/home/projects/nivara/queue.dark.png">
