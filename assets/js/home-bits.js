@@ -181,7 +181,8 @@
   function accordion() {
     Array.prototype.forEach.call(document.querySelectorAll(".proj-carousel.ag"), function (gal) {
       var panels = Array.prototype.slice.call(gal.querySelectorAll(".shot"));
-      if (panels.length < 2) { gal.classList.add("ag-single"); return; }
+      // One shot: nothing to switch, so show it in colour with its caption.
+      if (panels.length < 2) { gal.classList.add("ag-single"); panels.forEach(function (p) { p.classList.add("is-active"); }); return; }
       function activate(p) { panels.forEach(function (q) { q.classList.toggle("is-active", q === p); }); }
       activate(panels[0]);
       panels.forEach(function (p) {
