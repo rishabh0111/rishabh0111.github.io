@@ -75,9 +75,10 @@ topic, which is precisely the situation in which a model will confabulate.
 And it was a question about money, which never takes the answering path at all. The sensitive
 score alone takes that slice from 33-of-70 answered down to none.
 
-Only turns that land in a genuinely uncertain middle band spend a second model call on
-self-consistency, sampling the model a few times and checking whether it agrees with itself. That's
-about **4.4%** of turns. Everything else is decided for free, before any generation happens.
+Only turns that land in a genuinely uncertain middle band pay for self-consistency: the model is
+sampled five times at temperature 0.7, and the turn is answered only if 80% of the samples agree.
+That's **4.4%** of turns. Everything else is ruled on the free signals, with no extra model call
+(the agent loop has already made its one call by the time the gate rules).
 
 ```mermaid
 flowchart TD

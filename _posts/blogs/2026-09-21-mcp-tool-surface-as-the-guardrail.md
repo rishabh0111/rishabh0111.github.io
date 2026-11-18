@@ -60,8 +60,9 @@ tools and check, and the list it checks against is the one the model actually sa
 
 Two of those tools are sensitive, and both are designed by contract rather than by detection.
 Neither `post_reply` nor `escalate` exposes a "granted" output variant: there is no argument
-meaning "and also do this other thing", no free-text field that ends up in front of a customer
-without having come from retrieval. A prompt injection buried in a ticket can try to steer the model
+meaning "and also do this other thing", and the only text that ever reaches a customer is
+`post_reply`'s message. That message is written by the model and nothing yet checks it against
+the retrieved chunks at runtime, so it is the one field still to guard. A prompt injection buried in a ticket can try to steer the model
 toward an output shape that would help the attacker, and the reason it fails is that there's no
 such shape to steer toward.
 

@@ -7,7 +7,7 @@ categories: blogs
 tags: [devops, sre, kubernetes, terraform, gitops, aws, chaos-engineering, observability]
 read_time: 16
 permalink: /blogs/production-grade-devops-platform/
-excerpt: "Terraform across four environments, GitOps with ArgoCD, IRSA with no stored credentials, alerts proven by making them fire, five chaos experiments, and a CI job that builds a Kubernetes cluster on every push. Then twelve hours on EKS against real DynamoDB: thirteen production bugs found and fixed, for $3.32."
+excerpt: "Terraform across four environments, GitOps with ArgoCD, IRSA with no stored credentials, ten of thirteen alerts proven by making them fire, five chaos experiments, and a CI job that builds a Kubernetes cluster on every push. Then twelve hours on EKS against real DynamoDB: thirteen production bugs found and fixed, for $3.32."
 ---
 
 <p align="center">
@@ -473,7 +473,7 @@ structure, not luck:
 | Infrastructure as code | Terraform: 5 modules, 4 environments, isolated state, LocalStack in CI, real AWS on demand |
 | Delivery | GitHub Actions, Trivy gate, digest-pinned promotion, ArgoCD app-of-apps with sync waves |
 | Security | IRSA with a subject-scoped trust policy, Sealed Secrets, cert-manager CA, nothing installed on the host |
-| Observability | Prometheus, Alertmanager, Grafana, Loki, Alloy, CloudWatch exporter; 13 alerts, all proven |
+| Observability | Prometheus, Alertmanager, Grafana, Loki, Alloy, CloudWatch exporter; 13 alerts, 10 proven firing by experiment |
 | Reliability | 5 chaos experiments with timelines and rendered evidence; a runbook per alert; a postmortem |
 | CI | 8 jobs; a 3-node cluster built, load-tested and chaos-tested on every push |
 | Real AWS | 12 hours on EKS against real DynamoDB, 13 production bugs fixed, $3.32 |

@@ -144,7 +144,7 @@ against. The moment a model writes the answer key, the exam stops meaning anythi
 
 Every turn emits a structured trace: the retrieval query and every chunk with its score, the gate's
 free signals and its ruling, each step's provider, model and token counts, the tool calls, latency,
-and modelled cost. They go to **Langfuse** over its OpenTelemetry-style ingestion, and they are also
+and modelled cost. They go to **Langfuse**, mapped by hand onto its own ingestion events, and they are also
 what the eval harness reads offline.
 
 ```mermaid
