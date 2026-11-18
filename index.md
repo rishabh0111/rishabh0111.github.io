@@ -81,8 +81,8 @@ principles:
     from:  LinkPulse · own project
     url:   /blogs/production-grade-devops-platform/
     body: >-
-      I made every LinkPulse alert fire on purpose. Two never could have, and
-      the published postmortem says so.
+      I made ten of LinkPulse's thirteen alerts fire on purpose. Two never
+      could have, and the published postmortem says so.
 
 # ═════════════════════════════════════════════════════════════════
 #  PROJECTS: my own work, one card each, the same shape on every card:
@@ -296,7 +296,7 @@ projects:
     # Details window) and the line that answers it. Both restate `why`,
     # `promise` or `proof`.
     mistake:  "An alert that can never fire"
-    answer:   "13 alerts proven by 5 chaos experiments; 2 dead ones found and fixed."
+    answer:   "10 of 13 alerts made to fire by 5 chaos experiments; 2 dead ones found and fixed."
     year:     "2026"
     blurb:    Terraform, Kubernetes on AWS EKS, ArgoCD GitOps and Prometheus alerting, broken on purpose on real AWS
     why:      >-
@@ -308,7 +308,8 @@ projects:
     languages: [Go]
 
     promise: >-
-      Every alert has been seen to fire, because I made each failure happen.
+      Ten of its thirteen alerts have been seen to fire, because I made each
+      failure happen; the other three are checked as loaded.
 
     body: >-
       4 Terraform environments with apply, empty re-plan and destroy on every
@@ -335,9 +336,10 @@ projects:
         $3.32**, and found and fixed **13 defects** no local run or CI could
         have shown.
       - >-
-        Proved **13 alert rules with 5 chaos experiments** (4 run in CI on
-        every push). Two alerts turned out to be unable to ever fire; the
-        write-up is a blameless postmortem.
+        Made **10 of its 13 alert rules fire with 5 chaos experiments** (4 run
+        in CI on every push); the other 3 are checked as loaded. Two alerts
+        turned out to be unable to ever fire; the write-up is a blameless
+        postmortem.
       - >-
         With real DynamoDB throttling clicks, redirects stayed at **0 failures
         in 7,202 requests** and a **7 ms p99**, because clicks are written in the
