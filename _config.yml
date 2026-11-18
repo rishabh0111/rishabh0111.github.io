@@ -34,6 +34,11 @@ defaults:
     values:
       shelf: LLD
   - scope:
+      path: "_vault/projects"
+      type: vault
+    values:
+      shelf: Projects
+  - scope:
       path: ""
       type: vault
     values:
@@ -42,7 +47,8 @@ defaults:
       sitemap: false
 
 # ── The vault ─────────────────────────────────────────────────
-# /vault holds drafts (the HLD and LLD series) until they are ready.
+# /vault holds drafts (the HLD and LLD series) until they are ready,
+# and interview prep on my own projects (the Projects shelf).
 # Nothing links to it; every vault page is noindex, kept out of the
 # sitemap, the feed and the blog listing, and hidden behind a PIN.
 # The PIN is a curtain, not a lock: the markdown is in this public
@@ -53,7 +59,7 @@ defaults:
 collections:
   vault:
     output: true
-vault_shelves: [HLD, LLD]
+vault_shelves: [Projects, HLD, LLD]
 vault_pin_sha256: "9769ebe8511077cee44d5daf063360d23b866df627bd979490d23e7c396e9c7a"
 
 # ── Timezone ───────────────────────────────────────────────────
