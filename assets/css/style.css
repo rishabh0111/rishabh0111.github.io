@@ -658,7 +658,24 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
   display: flex; align-items: center; gap: 10px;
 }
 .logo-mark { width: 20px; height: 20px; flex-shrink: 0; display: block; }
-.logo-mark .logo-sun { fill: var(--accent); }
+.logo-mark .logo-sun { fill: var(--accent); transform-box: fill-box; transform-origin: center; }
+.logo-mark { overflow: visible; transition: transform 0.4s var(--spring); }
+/* Hover: the sun sets behind the peaks and comes back up. The peaks
+   are painted after the sun, so they hide it on the way down. */
+.site-logo:hover .logo-mark,
+.site-logo:focus-visible .logo-mark { transform: translateY(-1px) scale(1.08); }
+.site-logo:hover .logo-sun,
+.site-logo:focus-visible .logo-sun { animation: logo-sun 1.1s var(--ease-out); }
+@keyframes logo-sun {
+  0%   { transform: translate(0, 0); }
+  40%  { transform: translate(-3px, 14px) scale(0.85); }
+  55%  { transform: translate(-3px, 14px) scale(0.85); }
+  85%  { transform: translate(0, -2px) scale(1.12); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-logo .logo-mark, .site-logo .logo-sun { animation: none !important; transform: none !important; }
+}
 
 /* Nav: generous gap, no box, just text. On the flat header bar the
    active tab is marked by an accent line along the bar's bottom edge
@@ -706,25 +723,20 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a.active::after { opacity: 1; transform: scale(1); }
 .site-nav a.active { color: var(--accent); }
 
-/* Desktop: the header is a flat bar, so its tabs are flat too. The
-   ::after pill above (still the phone tab bar's no-JS fallback) turns
-   into a 2px line sitting on the bar's bottom edge: faint on hover,
-   accent and full width on the current page. */
+/* Desktop: no underline. The current page keeps the selection pill
+   above and its label goes bold. A hidden bold copy of each label
+   (data-label) reserves the bold width, so nothing shifts when the
+   weight changes. */
 @media (min-width: 861px) {
   .site-nav { align-self: stretch; }
-  .site-nav a::after {
-    inset: auto var(--s2) -1px;          /* over the header's hairline */
-    height: 2px;
-    border-radius: 2px 2px 0 0;
-    background: var(--accent);
-    box-shadow: none; /* design-ignore: a control that floats over the page (the original) */
-    opacity: 0;
-    transform: scaleX(0.4);
-    transform-origin: center;
+  .site-nav a.active { font-weight: 700; }
+  .site-nav .nav-lb { display: inline-grid; }
+  .site-nav .nav-lb::after {
+    content: attr(data-label);
+    font-weight: 700;
+    visibility: hidden; height: 0; overflow: hidden;
   }
-  .site-nav a:hover::after  { opacity: 0.45; transform: scaleX(1); }
-  .site-nav a.active::after { opacity: 1; transform: scaleX(1); }
-  .site-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; border-radius: 4px; }
+  .site-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; border-radius: 999px; }
 }
 /* The tab bar's sliding lens (see the ≤860 block); inert up here */
 .nav-lens { display: none; }

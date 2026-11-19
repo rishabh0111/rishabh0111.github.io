@@ -95,10 +95,10 @@
       <nav class="site-nav" id="site-nav" aria-label="Site navigation">
         <a href="{{ '/' | relative_url }}"
            {% if page.url == '/' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="home" %}</span><span class="nav-lb">Home</span></a>
+          <span class="nav-ic">{% include icon.html name="home" %}</span><span class="nav-lb" data-label="Home">Home</span></a>
         <a href="{{ '/blogs/' | relative_url }}"
            {% if page.url contains '/blogs' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="article" %}</span><span class="nav-lb">Blog</span></a>
+          <span class="nav-ic">{% include icon.html name="article" %}</span><span class="nav-lb" data-label="Blog">Blog</span></a>
         {%- comment -%}
           News is parked: _config.yml excludes news/ and _posts/news/, so
           the category is empty and the tab stays out until they return.
@@ -106,7 +106,7 @@
         {% if site.categories.news.size > 0 %}
         <a href="{{ '/news/' | relative_url }}"
            {% if page.url contains '/news' %}class="active"{% endif %}>
-          <span class="nav-ic">{% include icon.html name="news" %}</span><span class="nav-lb">News</span></a>
+          <span class="nav-ic">{% include icon.html name="news" %}</span><span class="nav-lb" data-label="News">News</span></a>
         {% endif %}
       </nav>
 
