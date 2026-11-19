@@ -660,17 +660,48 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .logo-mark { width: 20px; height: 20px; flex-shrink: 0; display: block; }
 .logo-mark .logo-sun { fill: var(--accent); transform-box: fill-box; transform-origin: center; }
 .logo-mark { overflow: visible; transition: transform 0.4s var(--spring); }
-/* Hover: the sun swells and glows, pulsing gently while hovered. */
+/* Hover: the sun brightens into a steady glow, and a few birds fade
+   in and drift across the sky, flapping. */
+.logo-sun { transition: filter 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
 .site-logo:hover .logo-mark,
 .site-logo:focus-visible .logo-mark { transform: translateY(-1px) scale(1.08); }
 .site-logo:hover .logo-sun,
-.site-logo:focus-visible .logo-sun { animation: logo-sun 1.6s ease-in-out infinite; }
-@keyframes logo-sun {
-  0%, 100% { transform: scale(1.1);  filter: drop-shadow(0 0 1.5px var(--accent)); }
-  50%      { transform: scale(1.25); filter: drop-shadow(0 0 4px var(--accent)) drop-shadow(0 0 7px var(--accent)); }
+.site-logo:focus-visible .logo-sun {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+.logo-birds {
+  fill: none; stroke: currentColor; stroke-width: 0.8;
+  stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out);
+}
+.site-logo:hover .logo-birds,
+.site-logo:focus-visible .logo-birds { opacity: 0.55; }
+.logo-birds .bird { animation: bird-drift 4s ease-in-out infinite alternate paused; }
+.logo-birds .bird path {
+  transform-box: fill-box; transform-origin: center;
+  animation: bird-flap 0.45s ease-in-out infinite alternate paused;
+}
+.logo-birds .bird:nth-child(2)      { animation-delay: -1.3s; animation-duration: 4.6s; }
+.logo-birds .bird:nth-child(2) path { animation-delay: -0.2s; }
+.logo-birds .bird:nth-child(3)      { animation-delay: -2.4s; animation-duration: 3.8s; }
+.logo-birds .bird:nth-child(3) path { animation-delay: -0.35s; animation-duration: 0.4s; }
+.site-logo:hover .logo-birds .bird,
+.site-logo:hover .logo-birds .bird path,
+.site-logo:focus-visible .logo-birds .bird,
+.site-logo:focus-visible .logo-birds .bird path { animation-play-state: running; }
+@keyframes bird-drift {
+  from { transform: translate(-1.5px, 0.4px); }
+  to   { transform: translate(2px, -0.6px); }
+}
+@keyframes bird-flap {
+  from { transform: scaleY(1); }
+  to   { transform: scaleY(0.25); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-logo .logo-mark, .site-logo .logo-sun { animation: none !important; transform: none !important; }
+  .site-logo .logo-mark, .site-logo .logo-sun { transform: none !important; }
+  .logo-birds .bird, .logo-birds .bird path { animation: none !important; }
 }
 
 /* Nav: generous gap, no box, just text. On the flat header bar the
