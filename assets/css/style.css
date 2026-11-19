@@ -660,18 +660,14 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .logo-mark { width: 20px; height: 20px; flex-shrink: 0; display: block; }
 .logo-mark .logo-sun { fill: var(--accent); transform-box: fill-box; transform-origin: center; }
 .logo-mark { overflow: visible; transition: transform 0.4s var(--spring); }
-/* Hover: the sun sets behind the peaks and comes back up. The peaks
-   are painted after the sun, so they hide it on the way down. */
+/* Hover: the sun swells and glows, pulsing gently while hovered. */
 .site-logo:hover .logo-mark,
 .site-logo:focus-visible .logo-mark { transform: translateY(-1px) scale(1.08); }
 .site-logo:hover .logo-sun,
-.site-logo:focus-visible .logo-sun { animation: logo-sun 1.1s var(--ease-out); }
+.site-logo:focus-visible .logo-sun { animation: logo-sun 1.6s ease-in-out infinite; }
 @keyframes logo-sun {
-  0%   { transform: translate(0, 0); }
-  40%  { transform: translate(-3px, 14px) scale(0.85); }
-  55%  { transform: translate(-3px, 14px) scale(0.85); }
-  85%  { transform: translate(0, -2px) scale(1.12); }
-  100% { transform: translate(0, 0); }
+  0%, 100% { transform: scale(1.1);  filter: drop-shadow(0 0 1.5px var(--accent)); }
+  50%      { transform: scale(1.25); filter: drop-shadow(0 0 4px var(--accent)) drop-shadow(0 0 7px var(--accent)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-logo .logo-mark, .site-logo .logo-sun { animation: none !important; transform: none !important; }
@@ -723,12 +719,13 @@ span.fig-wrap { display: inline-block; max-width: 100%; }
 .site-nav a.active::after { opacity: 1; transform: scale(1); }
 .site-nav a.active { color: var(--accent); }
 
-/* Desktop: no underline. The current page keeps the selection pill
-   above and its label goes bold. A hidden bold copy of each label
+/* Desktop: no underline, no pill. The current page is marked by the
+   accent colour and a bold label. A hidden bold copy of each label
    (data-label) reserves the bold width, so nothing shifts when the
    weight changes. */
 @media (min-width: 861px) {
   .site-nav { align-self: stretch; }
+  .site-nav a::after { display: none; }
   .site-nav a.active { font-weight: 700; }
   .site-nav .nav-lb { display: inline-grid; }
   .site-nav .nav-lb::after {
